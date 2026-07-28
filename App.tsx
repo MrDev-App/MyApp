@@ -26,6 +26,7 @@ function App() {
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <AppContent />
       <Text>Hello</Text>
+      <Text>From feature/dev branch</Text>
     </SafeAreaProvider>
   );
 }
