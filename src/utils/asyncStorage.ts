@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export const KEY = {
   USER_TOKEN: 'USER_TOKEN',
   THEME: 'THEME',
@@ -13,16 +14,20 @@ export interface StorageKeysMap {
   [KEY.USER_PROFILE]: { id: number; name: string };
 }
 
-export const getItem = async <T>(key: string): Promise<T | null> => {
+export type StorageKey = keyof StorageKeysMap;
+
+export const getItem = async <K extends StorageKey>(
+  key: K,
+): Promise<StorageKeysMap[K] | null> => {
   try {
     const value = await AsyncStorage.getItem(key);
     if (value === null) {
       return null;
     }
     try {
-      return JSON.parse(value) as T;
+      return JSON.parse(value) as StorageKeysMap[K];
     } catch {
-      return value as unknown as T;
+      return value as unknown as StorageKeysMap[K];
     }
   } catch (error) {
     console.error(
@@ -33,7 +38,10 @@ export const getItem = async <T>(key: string): Promise<T | null> => {
   }
 };
 
-export const setItem = async <T>(key: string, value: T): Promise<boolean> => {
+export const setItem = async <K extends StorageKey>(
+  key: K,
+  value: StorageKeysMap[K],
+): Promise<boolean> => {
   try {
     const stringValue = JSON.stringify(value);
     await AsyncStorage.setItem(key, stringValue);
@@ -47,16 +55,16 @@ export const setItem = async <T>(key: string, value: T): Promise<boolean> => {
   }
 };
 
-export const updateItem = async <T>(
-  key: string,
-  value: Partial<T> | ((prev: T | null) => T),
+export const updateItem = async <K extends StorageKey>(
+  key: K,
+  value: Partial<StorageKeysMap[K]> | ((prev: StorageKeysMap[K] | null) => StorageKeysMap[K]),
 ): Promise<boolean> => {
   try {
-    const existingValue = await getItem<T>(key);
-    let newValue: T;
+    const existingValue = await getItem(key);
+    let newValue: StorageKeysMap[K];
 
     if (typeof value === 'function') {
-      newValue = (value as (prev: T | null) => T)(existingValue);
+      newValue = (value as (prev: StorageKeysMap[K] | null) => StorageKeysMap[K])(existingValue);
     } else if (
       existingValue &&
       typeof existingValue === 'object' &&
@@ -65,9 +73,9 @@ export const updateItem = async <T>(
       typeof value === 'object' &&
       !Array.isArray(value)
     ) {
-      newValue = { ...existingValue, ...value } as T;
+      newValue = { ...(existingValue as object), ...(value as object) } as StorageKeysMap[K];
     } else {
-      newValue = value as T;
+      newValue = value as StorageKeysMap[K];
     }
 
     return await setItem(key, newValue);
@@ -80,7 +88,7 @@ export const updateItem = async <T>(
   }
 };
 
-export const deleteItem = async (key: string): Promise<boolean> => {
+export const deleteItem = async (key: StorageKey): Promise<boolean> => {
   try {
     await AsyncStorage.removeItem(key);
     return true;

@@ -12,6 +12,7 @@ export type StackParams = {
   Splash: undefined;
   BottomTabs: undefined;
   ProfileUpdate: undefined;
+  Auth: { screen?: keyof AuthParams } | undefined;
 };
 export type AuthParams = {
   Onboarding: undefined;

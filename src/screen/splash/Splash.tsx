@@ -1,4 +1,11 @@
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import React, { useEffect } from 'react';
 import Animated, {
   interpolateColor,
@@ -6,16 +13,13 @@ import Animated, {
   useSharedValue,
   withDelay,
   withSpring,
-  withTiming,
 } from 'react-native-reanimated';
-
 import Svg, { Path } from 'react-native-svg';
 
 const CURVE_HEIGHT = 200;
 const CURVE_DEPTH = 60;
 const { width, height } = Dimensions.get('window');
 const heightX = height / 2;
-const widthX = width / 2;
 const BOX_SIZE = 60;
 
 const coverTextScale = 3;
@@ -31,8 +35,6 @@ const Splash = () => {
   const continueAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: continueY.value }],
   }));
-
-  console.log('width', width, 'height');
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -50,12 +52,12 @@ const Splash = () => {
 
   const animate = () => {
     translateY.value = withSpring(
-      translateY.value === 0 ? -heightX : 0,
-      { damping: 6, stiffness: 180, mass: 0.4 },
+      0,
+      { damping: 6, stiffness: 100, mass: 0.4 },
       finished => {
         if (finished) {
           scale.value = withSpring(
-            scale.value === 1 ? coverTextScale : 1,
+            coverTextScale,
             { damping: 6, stiffness: 180, mass: 0.4 },
             finished2 => {
               if (finished2) {
@@ -83,10 +85,14 @@ const Splash = () => {
     );
   };
 
+  useEffect(() => {
+    animate();
+  }, []);
+
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.box, animatedStyle]} />
-      <Animated.Text style={[styles.text, textAnimatedStyle]} onPress={animate}>
+      <Animated.Text style={[styles.text, textAnimatedStyle]}>
         Splash
       </Animated.Text>
 
@@ -104,9 +110,9 @@ const Splash = () => {
           />
         </Svg>
 
-        <View style={styles.continueView}>
+        <TouchableOpacity style={styles.continueView} activeOpacity={0.8}>
           <Text style={styles.continueText}>Continue</Text>
-        </View>
+        </TouchableOpacity>
       </Animated.View>
     </View>
   );
@@ -122,10 +128,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   box: {
-    width: 60,
-    height: 60,
+    width: BOX_SIZE,
+    height: BOX_SIZE,
     backgroundColor: '#2C8358',
-    borderRadius: 60,
+    borderRadius: BOX_SIZE,
   },
   text: {
     position: 'absolute',
@@ -133,7 +139,6 @@ const styles = StyleSheet.create({
     fontSize: 34,
     fontWeight: '900',
   },
-
   continueViewOuter: {
     width: '100%',
     height: 165,
@@ -142,13 +147,13 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
-
   continueView: {
     width: '60%',
     backgroundColor: '#2C8358',
     alignItems: 'center',
     padding: 20,
     borderRadius: 8,
+    marginBottom: 20,
   },
   continueText: {
     fontSize: 20,

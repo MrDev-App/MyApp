@@ -1,27 +1,23 @@
-import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
+import { AuthProvider, useAuth } from './AuthContext';
 import StackNavigation from './StackNavigation';
-import { RootStackParams, StackNavigationProps } from './type';
-import AuthNavigation from './AuthNavigation';
+import { ActivityIndicator, View } from 'react-native';
 
-const Stack = createNativeStackNavigator<RootStackParams>;
-
-const RootNavigation = (props: StackNavigationProps) => {
-  const { isFirstLaunch, userToken, userProfile } = props;
-
+const NavigationTree = () => {
   return (
     <NavigationContainer>
-      {userToken ? (
-        <StackNavigation userToken={userToken} isFirstLaunch={isFirstLaunch} />
-      ) : (
-        <AuthNavigation isFirstLaunch={isFirstLaunch} />
-      )}
+      <StackNavigation />
     </NavigationContainer>
   );
 };
 
-export default RootNavigation;
+const RootNavigation = () => {
+  return (
+    <AuthProvider>
+      <NavigationTree />
+    </AuthProvider>
+  );
+};
 
-const styles = StyleSheet.create({});
+export default RootNavigation;
