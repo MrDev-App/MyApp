@@ -5,10 +5,12 @@ import { AuthParams, StackNavigationProps } from './type';
 import LoginScreen from '../screen/Auth/LoginScreen';
 import SignupScreen from '../screen/Auth/SignupScreen';
 import OnBoarding from '../screen/Auth/OnBoarding';
+import { useAuth } from './AuthContext';
 
 const Stack = createNativeStackNavigator<AuthParams>();
 
-const AuthNavigation: React.FC<StackNavigationProps> = ({ isFirstLaunch }) => {
+const AuthNavigation = () => {
+  const { isFirstLaunch } = useAuth();
   return (
     <Stack.Navigator
       initialRouteName={isFirstLaunch ? 'Onboarding' : 'Login'}
@@ -24,5 +26,3 @@ const AuthNavigation: React.FC<StackNavigationProps> = ({ isFirstLaunch }) => {
 };
 
 export default AuthNavigation;
-
-const styles = StyleSheet.create({});
