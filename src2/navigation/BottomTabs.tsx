@@ -25,11 +25,11 @@ const getIcon = (routeName: string) => {
     case 'Home':
       return '🪷';
     case 'Jap':
-      return '📿'; // Jap Chants
+      return '📿';
     case 'Book':
-      return '📖'; // Book Chants
+      return '📖';
     case 'Profile':
-      return '👤'; // Profile
+      return '👤';
     default:
       return '🪷';
   }
@@ -59,21 +59,25 @@ const TabIcon = ({ icon, isFocused }: TabIconProps) => {
     };
   });
 
+  const isBiggerIcon = icon === '🪷' || icon === '📖';
+  const customFontSize = isBiggerIcon ? fs(23) : fs(18);
+
   return (
-    <Animated.Text style={[styles.iconText, animatedStyle]}>
+    <Animated.Text
+      style={[styles.iconText, { fontSize: customFontSize }, animatedStyle]}
+    >
       {icon}
     </Animated.Text>
   );
 };
 
 export const CustomTabBar = ({ state, navigation }: BottomTabBarProps) => {
-  // Track layout width dynamically to support safe-areas and any screen scale perfectly
   const buttonWidthShared = useSharedValue(0);
   const activeIndexShared = useSharedValue(state.index);
 
   const onLayout = (event: any) => {
     const { width } = event.nativeEvent.layout;
-    // Subtract scale(20) for paddingHorizontal: scale(10) * 2
+
     buttonWidthShared.value = (width - scale(20)) / 4;
   };
 
@@ -201,7 +205,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   iconText: {
-    fontSize: fs(18),
+    fontSize: fs(20),
     textAlign: 'center',
   },
 });
