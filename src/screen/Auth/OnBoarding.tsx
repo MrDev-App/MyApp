@@ -6,87 +6,59 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   interpolate,
-  Extrapolate,
-  runOnJS,
+  withTiming,
+  Easing,
+  Extrapolation,
 } from 'react-native-reanimated';
 import { useAuth } from '../../navigation/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthParams } from '../../navigation/type';
-import Svg, { Circle, Rect, Path } from 'react-native-svg';
+import { Slide, slides } from '../../constant/data';
+import { runOnJS } from 'react-native-worklets';
 
 const { width } = Dimensions.get('window');
 
-interface Slide {
-  id: string;
-  title: string;
-  subtitle: string;
-  color: string;
-  illustration: () => React.JSX.Element;
-}
-
-const slides: Slide[] = [
-  {
-    id: '1',
-    title: 'Welcome to MyApp',
-    subtitle:
-      'Discover amazing feeds, news, and connect with people from around the globe.',
-    color: '#2C8358',
-    illustration: () => (
-      <Svg width="150" height="150" viewBox="0 0 100 100">
-        <Circle cx="50" cy="50" r="45" fill="#2C8358" opacity="0.1" />
-        <Rect x="25" y="25" width="50" height="50" rx="10" fill="#2C8358" />
-        <Circle cx="50" cy="50" r="12" fill="#ffffff" />
-      </Svg>
-    ),
-  },
-  {
-    id: '2',
-    title: 'Safe & Secure',
-    subtitle:
-      'We protect your data and logs with industry standard encryption.',
-    color: '#1A535C',
-    illustration: () => (
-      <Svg width="150" height="150" viewBox="0 0 100 100">
-        <Circle cx="50" cy="50" r="45" fill="#1A535C" opacity="0.1" />
-        <Path
-          d="M50,22 L78,32 L78,58 C78,74 50,85 50,85 C50,85 22,74 22,58 L22,32 Z"
-          fill="#1A535C"
-        />
-        <Path d="M45,60 L35,50 L40,45 L45,50 L60,35 L65,40 Z" fill="#ffffff" />
-      </Svg>
-    ),
-  },
-  {
-    id: '3',
-    title: 'Personalized View',
-    subtitle:
-      'Customize your system preferences, themes, and navigation parameters instantly.',
-    color: '#495867',
-    illustration: () => (
-      <Svg width="150" height="150" viewBox="0 0 100 100">
-        <Circle cx="50" cy="50" r="45" fill="#495867" opacity="0.1" />
-        <Rect x="30" y="30" width="40" height="40" rx="8" fill="#495867" />
-        <Circle cx="40" cy="50" r="4" fill="#ffffff" />
-        <Circle cx="50" cy="50" r="4" fill="#ffffff" />
-        <Circle cx="60" cy="50" r="4" fill="#ffffff" />
-      </Svg>
-    ),
-  },
-];
+const AnimatedButton = Animated.createAnimatedComponent(TouchableOpacity);
 
 const OnBoarding = () => {
   const { completeOnboarding } = useAuth();
   const navigation = useNavigation<NativeStackNavigationProp<AuthParams>>();
   const flatListRef = useRef<FlatList<Slide>>(null);
   const scrollX = useSharedValue(0);
+  const btnWidth = useSharedValue(100);
+  const indicatorOpacity = useSharedValue(1);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const animStyleNextBtn = useAnimatedStyle(() => ({
+    width: btnWidth.value,
+  }));
+
+  const animStyleIndicator = useAnimatedStyle(() => ({
+    opacity: indicatorOpacity.value,
+    transform: [
+      {
+        translateX: withTiming(0, {
+          duration: 500,
+          easing: Easing.bezier(0.25, 1, 0.5, 1),
+        }),
+      },
+    ],
+  }));
+
+  const animatedNextTextStyle = useAnimatedStyle(() => ({
+    opacity: indicatorOpacity.value,
+  }));
+
+  const animatedGetStartedTextStyle = useAnimatedStyle(() => ({
+    opacity: 1 - indicatorOpacity.value,
+  }));
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: event => {
@@ -107,6 +79,20 @@ const OnBoarding = () => {
       });
     }
   };
+
+  useEffect(() => {
+    const config = {
+      duration: 350,
+      easing: Easing.bezier(0.25, 1, 0.5, 1),
+    };
+    if (activeIndex === slides.length - 1) {
+      btnWidth.value = withTiming(150, config);
+      indicatorOpacity.value = withTiming(1, config);
+    } else {
+      btnWidth.value = withTiming(100, config);
+      indicatorOpacity.value = withTiming(1, config);
+    }
+  }, [activeIndex, width]);
 
   const handleSkip = async () => {
     await completeOnboarding();
@@ -145,7 +131,7 @@ const OnBoarding = () => {
       {/* Footer controls */}
       <View style={styles.footer}>
         {/* Pagination Pager Dots */}
-        <View style={styles.indicatorContainer}>
+        <Animated.View style={[styles.indicatorContainer, animStyleIndicator]}>
           {slides.map((_, i) => {
             const animatedDotStyle = useAnimatedStyle(() => {
               const inputRange = [(i - 1) * width, i * width, (i + 1) * width];
@@ -153,13 +139,13 @@ const OnBoarding = () => {
                 scrollX.value,
                 inputRange,
                 [8, 20, 8],
-                Extrapolate.CLAMP,
+                Extrapolation.CLAMP,
               );
               const opacity = interpolate(
                 scrollX.value,
                 inputRange,
                 [0.4, 1, 0.4],
-                Extrapolate.CLAMP,
+                Extrapolation.CLAMP,
               );
               return {
                 width: dotWidth,
@@ -171,13 +157,22 @@ const OnBoarding = () => {
               <Animated.View key={i} style={[styles.dot, animatedDotStyle]} />
             );
           })}
-        </View>
+        </Animated.View>
 
-        <TouchableOpacity style={styles.button} onPress={handleNext}>
-          <Text style={styles.buttonText}>
-            {activeIndex === slides.length - 1 ? 'Get Started' : 'Next'}
-          </Text>
-        </TouchableOpacity>
+        <AnimatedButton
+          style={[styles.button, animStyleNextBtn]}
+          onPress={handleNext}
+          activeOpacity={0.8}
+        >
+          <Animated.Text style={[styles.buttonText, animatedNextTextStyle]}>
+            Next
+          </Animated.Text>
+          <Animated.Text
+            style={[styles.buttonText, animatedGetStartedTextStyle]}
+          >
+            Get Started
+          </Animated.Text>
+        </AnimatedButton>
       </View>
     </View>
   );
@@ -191,16 +186,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
-    height: 60,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'flex-end',
     paddingHorizontal: 24,
-    marginTop: 20,
+    marginTop: 60,
   },
   skipText: {
-    fontSize: 16,
+    fontSize: 20,
     color: '#666',
     fontWeight: '600',
+    fontFamily: 'Poppins-Medium',
   },
   slide: {
     width: width,
@@ -216,25 +212,27 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 26,
-    fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
     marginBottom: 16,
+    fontFamily: 'Poppins-Bold',
   },
   subtitle: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
     lineHeight: 24,
+    fontFamily: 'Poppins-Regular',
   },
   footer: {
-    paddingHorizontal: 32,
+    height: 90,
     paddingBottom: 40,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
   },
   indicatorContainer: {
+    position: 'absolute',
+    left: 32,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -245,16 +243,18 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   button: {
+    position: 'absolute',
+    right: 32,
     backgroundColor: '#2C8358',
-    paddingVertical: 14,
-    paddingHorizontal: 28,
-    borderRadius: 8,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 8,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    position: 'absolute',
+    fontFamily: 'Poppins-Bold',
   },
 });

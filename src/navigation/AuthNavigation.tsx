@@ -13,12 +13,12 @@ const AuthNavigation = () => {
   const { isFirstLaunch } = useAuth();
   return (
     <Stack.Navigator
-      initialRouteName={isFirstLaunch ? 'Onboarding' : 'Login'}
+      // initialRouteName={isFirstLaunch ? 'Onboarding' : 'Login'}
       screenOptions={{ headerShown: false }}
     >
-      {isFirstLaunch && (
-        <Stack.Screen name="Onboarding" component={OnBoarding} />
-      )}
+      {/* {isFirstLaunch && ( */}
+      <Stack.Screen name="Onboarding" component={OnBoarding} />
+      {/* )} */}
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="SignUp" component={SignupScreen} />
     </Stack.Navigator>
