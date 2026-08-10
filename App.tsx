@@ -1,11 +1,19 @@
-import { StyleSheet, Text, View, PermissionsAndroid } from 'react-native';
+import { StatusBar } from 'react-native';
 import React from 'react';
-
-import RootNavigation from './src/navigation/RootNavigation';
-import SplashScreen from './src2/screens/SplashScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import StackNavigation from './src2/navigation/StackNavigation';
 
 const App = () => {
-  return <SplashScreen />;
+  return (
+    <NavigationContainer>
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent
+      />
+      <StackNavigation />
+    </NavigationContainer>
+  );
 };
 
 export default App;

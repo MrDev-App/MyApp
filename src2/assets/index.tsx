@@ -1,8 +1,8 @@
 const Images = {
   OnBoarding: [
-    require('./images/OnBoarding1.png'),
-    require('./images/OnBoarding2.png'),
-    require('./images/OnBoarding3.png'),
+    require('./png/OnBoarding1.png'),
+    require('./png/OnBoarding2.png'),
+    require('./png/OnBoarding1.png'),
   ],
 };
 
