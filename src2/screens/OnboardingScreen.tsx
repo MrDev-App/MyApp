@@ -26,6 +26,10 @@ import Animated, {
   interpolateColor,
 } from 'react-native-reanimated';
 import { runOnJS } from 'react-native-worklets';
+import imagePath from '../assets';
+
+import { useTranslation } from 'react-i18next';
+import { Translation } from '../i18n/language';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -33,17 +37,19 @@ const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 
-const slideTexts = [
-  'गुरु की वाणी, मन की शांति',
-  'भक्तिमय कीर्तन और दिव्य नाम जप',
-  'अध्यात्म मार्ग पर सुखद यात्रा',
+const slideKeys = [
+  Translation.SLIDE_TEXT_1,
+  Translation.SLIDE_TEXT_2,
+  Translation.SLIDE_TEXT_3,
 ];
 
 const OnboardingScreen = () => {
+  const { t } = useTranslation();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [activeIndex, setActiveIndex] = useState(0);
-  const [displayText, setDisplayText] = useState(slideTexts[0]);
+
+  const [displayTextKey, setDisplayTextKey] = useState<string>(slideKeys[0]);
 
   // Pre-calculate scaled constants on the JS thread
   const stepScale = scale(10);
@@ -114,7 +120,7 @@ const OnboardingScreen = () => {
 
   React.useEffect(() => {
     opacity.value = withTiming(0, { duration: 150 }, () => {
-      runOnJS(setDisplayText)(slideTexts[activeIndex] || slideTexts[0]);
+      runOnJS(setDisplayTextKey)(slideKeys[activeIndex] || slideKeys[0]);
       translateY.value = 8;
       opacity.value = withTiming(1, { duration: 250 });
       translateY.value = withTiming(0, { duration: 250 });
@@ -147,7 +153,7 @@ const OnboardingScreen = () => {
       {/* Animated Tagline Header */}
       <View style={styles.headerContainer}>
         <Animated.Text style={[styles.headerSubtitle, animatedSubtitleStyle]}>
-          {displayText}
+          {t(displayTextKey)}
         </Animated.Text>
       </View>
 
@@ -156,7 +162,7 @@ const OnboardingScreen = () => {
         <View style={styles.bottomRow}>
           {/* Pagination Indicators */}
           <View style={styles.indicatorContainer}>
-            {Images.OnBoarding.map((_, index) => (
+            {imagePath.OnBoarding.map((_, index) => (
               <View key={index} style={styles.inactiveDot} />
             ))}
             <Animated.View style={[styles.activeDot, animatedActiveDotStyle]} />

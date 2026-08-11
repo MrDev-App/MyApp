@@ -1,4 +1,5 @@
-const Images = {
+const imagePath = {
+  greeting: require('./png/greeting.png'),
   OnBoarding: [
     require('./png/OnBoarding1.png'),
     require('./png/OnBoarding2.png'),
@@ -6,4 +7,4 @@ const Images = {
   ],
 };
 
-export default Images;
+export default imagePath;

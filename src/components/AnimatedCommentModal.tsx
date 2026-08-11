@@ -101,6 +101,7 @@ export function AnimatedCommentModal<T>({
         }
       },
     );
+    runOnJS(setCommentText)('');
   };
 
   const handlePostComment = () => {

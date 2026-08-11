@@ -4,6 +4,7 @@ export const fonts = {
   PoppinsMedium: 'Poppins-Medium',
   PoppinsSemiBold: 'Poppins-SemiBold',
   PoppinsBold: 'Poppins-Bold',
+  Marcellus: 'Marcellus-Regular',
 } as const;
 
 export type FontType = keyof typeof fonts;

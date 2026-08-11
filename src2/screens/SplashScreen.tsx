@@ -136,7 +136,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: verticalScale(20),
   },
   omContainer: {
     height: scale(110),
@@ -164,7 +163,7 @@ const styles = StyleSheet.create({
     fontSize: fs(20),
     color: colors.ring,
     letterSpacing: scale(1),
-    marginTop: verticalScale(2),
+
     textAlign: 'center',
   },
 });

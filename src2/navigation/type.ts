@@ -4,6 +4,7 @@ export type RootStackParamList = {
   Splash: undefined;
   Onboarding: undefined;
   BottomTabs: NavigatorScreenParams<BottomTabParamList>;
+  AllFestivals: undefined;
 };
 
 export type BottomTabParamList = {
