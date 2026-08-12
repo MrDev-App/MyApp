@@ -16,4 +16,6 @@ export default {
   FESTIVAL_HIGHLIGHTS: 'त्योहार विशेष',
   ALL: 'सभी',
   ALL_FESTIVALS: 'सभी त्योहार',
+  POWERFUL_MANTRAS: 'शक्तिशाली मंत्र',
+  MANTRAS_BY_DEITIES: 'मंत्र और देवता',
 };

@@ -12,7 +12,6 @@ import GradientBackground from '../../components/GradientBackground';
 import GradientOverlay from '../../components/GradientOverlay';
 import Globalstyles from '../../utile/GlobalStyle';
 import { Translation } from '../../i18n/language';
-import Images from '../../assets';
 import imagePath from '../../assets';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { fs, scale } from '../../utile/sizes';
@@ -20,6 +19,7 @@ import colors from '../../utile/colors';
 import fonts from '../../utile/fonts';
 import PanchangCard from './component/PanchangCard';
 import FestivalHighlights from './component/FestivalHighlights';
+import MantrasCard from './component/MantrasCard';
 
 const HomeScreen = () => {
   const { t } = useTranslation();
@@ -62,6 +62,7 @@ const HomeScreen = () => {
 
           <PanchangCard />
           <FestivalHighlights />
+          <MantrasCard />
         </ScrollView>
       </SafeAreaView>
     </GradientBackground>

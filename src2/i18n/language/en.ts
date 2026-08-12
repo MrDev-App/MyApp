@@ -16,4 +16,6 @@ export default {
   FESTIVAL_HIGHLIGHTS: 'Festival Highlights',
   ALL: 'ALL',
   ALL_FESTIVALS: 'All Festivals',
+  POWERFUL_MANTRAS: 'Powerful Mantras',
+  MANTRAS_BY_DEITIES: 'Mantras By Deities',
 };
