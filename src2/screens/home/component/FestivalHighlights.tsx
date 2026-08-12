@@ -17,7 +17,8 @@ import { RootStackParamList } from '../../../navigation/type';
 import { festivalData } from './festivalData';
 
 const FestivalHighlights = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language || 'en';
 
@@ -53,7 +54,10 @@ const FestivalHighlights = () => {
       {/* Header Row */}
       <View style={styles.header}>
         <Text style={styles.title}>{t(Translation.FESTIVAL_HIGHLIGHTS)}</Text>
-        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('AllFestivals')}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => navigation.navigate('AllFestivals')}
+        >
           <Text style={styles.allText}>{t(Translation.ALL)}</Text>
         </TouchableOpacity>
       </View>
@@ -71,10 +75,11 @@ const FestivalHighlights = () => {
             currentLanguage === 'hi' ? item.hindiName : item.englishName;
           const dateStr =
             currentLanguage === 'hi' ? item.dateStrHi : item.dateStrEn;
+          const iconPrefix = item.icon ? `${item.icon} ` : '';
           const countdownText =
             currentLanguage === 'hi'
               ? `${daysLeft} दिनों में`
-              : `in ${daysLeft} days`;
+              : `in ${daysLeft} days `;
 
           return (
             <View style={styles.card}>
@@ -82,7 +87,16 @@ const FestivalHighlights = () => {
                 {name}
               </Text>
               <Text style={styles.date}>{dateStr}</Text>
-              <Text style={styles.countdown}>{countdownText}</Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Text style={styles.countdown}>{countdownText}</Text>
+                <Text style={styles.icon}>{iconPrefix}</Text>
+              </View>
             </View>
           );
         }}
@@ -148,6 +162,11 @@ const styles = StyleSheet.create({
   },
   countdown: {
     fontSize: fs(10),
+    fontFamily: fonts.PoppinsMedium,
+    color: colors.ring,
+  },
+  icon: {
+    fontSize: fs(18),
     fontFamily: fonts.PoppinsMedium,
     color: colors.ring,
   },

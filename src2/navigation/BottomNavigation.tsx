@@ -20,7 +20,11 @@ const BottomNavigation = () => {
       tabBar={props => <CustomTabBar {...props} />}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Jap" component={JapScreen} />
+      <Tab.Screen
+        name="Jap"
+        component={JapScreen}
+        options={{ animation: 'shift' }}
+      />
       <Tab.Screen name="Book" component={BookScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>

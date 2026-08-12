@@ -23,30 +23,75 @@ const { width } = Dimensions.get('window');
 
 const getMonthName = (monthNum: number, currentLanguage: string) => {
   const monthsEn = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
   const monthsHi = [
-    'जनवरी', 'फ़रवरी', 'मार्च', 'अप्रैल', 'मई', 'जून',
-    'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'
+    'जनवरी',
+    'फ़रवरी',
+    'मार्च',
+    'अप्रैल',
+    'मई',
+    'जून',
+    'जुलाई',
+    'अगस्त',
+    'सितंबर',
+    'अक्टूबर',
+    'नवंबर',
+    'दिसंबर',
   ];
-  return currentLanguage === 'hi' ? monthsHi[monthNum - 1] : monthsEn[monthNum - 1];
+  return currentLanguage === 'hi'
+    ? monthsHi[monthNum - 1]
+    : monthsEn[monthNum - 1];
 };
 
 const getMonthAbbrev = (monthNum: number, currentLanguage: string) => {
   const abbrevEn = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
   const abbrevHi = [
-    'जन', 'फ़र', 'मार्च', 'अप्रै', 'मई', 'जून',
-    'जुला', 'अग', 'सित', 'अक्तू', 'नव', 'दिस'
+    'जन',
+    'फ़र',
+    'मार्च',
+    'अप्रै',
+    'मई',
+    'जून',
+    'जुला',
+    'अग',
+    'सित',
+    'अक्तू',
+    'नव',
+    'दिस',
   ];
-  return currentLanguage === 'hi' ? abbrevHi[monthNum - 1] : abbrevEn[monthNum - 1];
+  return currentLanguage === 'hi'
+    ? abbrevHi[monthNum - 1]
+    : abbrevEn[monthNum - 1];
 };
 
 const AllFestivalsScreen = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language || 'en';
 
@@ -113,7 +158,7 @@ const AllFestivalsScreen = () => {
         {/* Section List for Grouped Festivals */}
         <SectionList
           sections={sections}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
           renderSectionHeader={({ section: { title } }) => (
@@ -123,9 +168,11 @@ const AllFestivalsScreen = () => {
           )}
           renderItem={({ item }) => {
             const daysLeft = calculateDaysRemaining(item.month, item.day);
-            const name = currentLanguage === 'hi' ? item.hindiName : item.englishName;
+            const name =
+              currentLanguage === 'hi' ? item.hindiName : item.englishName;
             const monthAbbrev = getMonthAbbrev(item.month, currentLanguage);
-            const countdownText = currentLanguage === 'hi' ? `${daysLeft} दिन` : `${daysLeft} days`;
+            const countdownText =
+              currentLanguage === 'hi' ? `${daysLeft} दिन` : `${daysLeft} days`;
 
             return (
               <View style={styles.card}>
@@ -137,7 +184,11 @@ const AllFestivalsScreen = () => {
 
                 {/* Middle details */}
                 <View style={styles.detailsContainer}>
-                  <Text style={styles.festivalName} numberOfLines={1} ellipsizeMode="tail">
+                  <Text
+                    style={styles.festivalName}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
                     {name}
                   </Text>
                   <Text style={styles.festivalCategory}>{item.category}</Text>
@@ -146,11 +197,6 @@ const AllFestivalsScreen = () => {
                       {item.tithi}
                     </Text>
                   )}
-                </View>
-
-                {/* Right side: Countdown */}
-                <View style={styles.countdownContainer}>
-                  <Text style={styles.countdownDays}>{countdownText}</Text>
                 </View>
               </View>
             );

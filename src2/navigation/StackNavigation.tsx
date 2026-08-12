@@ -5,6 +5,7 @@ import SplashScreen from '../screens/SplashScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import BottomNavigation from './BottomNavigation';
 import AllFestivalsScreen from '../screens/home/AllFestivalsScreen';
+import JapScreen from '../screens/jap/JapScreen';
 import '../i18n';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

@@ -2,6 +2,7 @@ import imagePath from '../assets';
 
 export interface MantraItem {
   name: string;
+  nameHi?: string;
   mantraHi: string;
   mantraEn?: string;
 }

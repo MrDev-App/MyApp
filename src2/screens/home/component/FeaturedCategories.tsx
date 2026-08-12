@@ -5,81 +5,134 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
-  Image,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
 import { fs, scale } from '../../../utile/sizes';
-import { categoriesData, Category } from '../../../constants/categoriesData';
+import {
+  categoriesData,
+  Category,
+  CategoryItem,
+} from '../../../constants/categoriesData';
 import ExpandableCard, {
   ExpandableCardHandle,
 } from '../../../components/ExpandableCard';
 import { useExpandTrigger } from '../../../hook/useExpandTrigger';
+import {
+  AartiView,
+  ShlokView,
+  StoriesView,
+  TemplesView,
+} from '../../../components/CategoryDetailViews';
 
 const FeaturedCategories = () => {
-  const { t } = useTranslation();
+  const { i18n } = useTranslation();
+  const currentLanguage = i18n.language || 'en';
 
+  // Main Category Modal
   const cardRef = useRef<ExpandableCardHandle>(null);
   const { registerRef, trigger } = useExpandTrigger<Category>(cardRef);
 
+  // Nested Item Detail Modal
+  const detailCardRef = useRef<ExpandableCardHandle>(null);
+  const { registerRef: registerItemRef, trigger: triggerItem } =
+    useExpandTrigger<CategoryItem>(detailCardRef);
+
+  const titleText = currentLanguage === 'hi' ? 'विशेष श्रेणियां' : 'Featured Categories';
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Featured Categories</Text>
+      <Text style={styles.title}>{titleText}</Text>
 
       <View style={styles.gridContainer}>
-        {categoriesData.map(category => (
-          <TouchableOpacity
-            key={category.id}
-            style={styles.card}
-            activeOpacity={0.8}
-            onPress={() => trigger(category.id, category)}
-          >
-            <View
-              ref={registerRef(category.id)}
-              collapsable={false}
-              style={styles.iconContainer}
+        {categoriesData.map(category => {
+          const categoryTitle =
+            currentLanguage === 'hi' ? category.titleHi : category.titleEn;
+          return (
+            <TouchableOpacity
+              key={category.id}
+              style={styles.card}
+              activeOpacity={0.8}
+              onPress={() => trigger(category.id, category)}
             >
-              <Text style={styles.iconText}>{category.icon}</Text>
-            </View>
-            <Text style={styles.cardTitle}>{category.title}</Text>
-          </TouchableOpacity>
-        ))}
+              <View
+                ref={registerRef(category.id)}
+                collapsable={false}
+                style={styles.iconContainer}
+              >
+                <Text style={styles.iconText}>{category.icon}</Text>
+              </View>
+              <Text style={styles.cardTitle}>{categoryTitle}</Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
-      <ExpandableCard
+      {/* Main Category Modal */}
+      <ExpandableCard<Category>
         ref={cardRef}
         imageMargin={scale(16)}
-        getImage={(category: Category) => category.coverImage}
-        renderContent={(category: Category, close) => (
-          <>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{category.title}</Text>
-              <Text style={styles.modalDesc}>{category.description}</Text>
-            </View>
-
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              style={styles.scrollList}
-              contentContainerStyle={styles.scrollListContent}
-            >
-              {category.items.map(item => (
-                <View key={item.id} style={styles.itemCard}>
-                  <View style={styles.itemHeader}>
-                    <Image source={item.image} style={styles.itemImage} />
-                    <View style={styles.itemHeaderText}>
-                      <Text style={styles.itemName}>{item.name}</Text>
-                      {item.subtitle && (
-                        <Text style={styles.itemSubtitle}>{item.subtitle}</Text>
-                      )}
-                    </View>
-                  </View>
-                  <Text style={styles.itemText}>{item.text}</Text>
+        renderContent={(category, _close) => {
+          const categoryTitle =
+            currentLanguage === 'hi' ? category.titleHi : category.titleEn;
+          const categoryDesc =
+            currentLanguage === 'hi' ? category.descriptionHi : category.descriptionEn;
+          return (
+            <>
+              <View style={styles.modalHeaderRow}>
+                <View style={styles.modalHeaderTitleCol}>
+                  <Text style={styles.modalTitle}>{categoryTitle}</Text>
+                  <Text style={styles.modalDesc}>{categoryDesc}</Text>
                 </View>
-              ))}
-            </ScrollView>
-          </>
-        )}
+              </View>
+
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                style={styles.scrollList}
+                contentContainerStyle={styles.scrollListContent}
+              >
+                {category.id === 'aarti' && (
+                  <AartiView
+                    items={category.items}
+                    registerItemRef={registerItemRef}
+                    onItemPress={triggerItem}
+                  />
+                )}
+                {category.id === 'shlok' && <ShlokView items={category.items} />}
+                {category.id === 'stories' && (
+                  <StoriesView items={category.items} />
+                )}
+                {category.id === 'temples' && (
+                  <TemplesView items={category.items} />
+                )}
+              </ScrollView>
+            </>
+          );
+        }}
+      />
+
+      {/* Nested Item Detail Modal for Aartis */}
+      <ExpandableCard<CategoryItem>
+        ref={detailCardRef}
+        imageMargin={scale(20)}
+        getImage={(item: CategoryItem) => item.image}
+        renderContent={(item, close) => {
+          const itemText = currentLanguage === 'hi' ? item.textHi : item.textEn;
+          return (
+            <>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                style={styles.scrollList}
+                contentContainerStyle={styles.scrollListContent}
+              >
+                <View style={styles.aartiDetailCard}>
+                  <Text style={styles.aartiDetailText}>{itemText}</Text>
+                </View>
+              </ScrollView>
+            </>
+          );
+        }}
       />
     </View>
   );
@@ -107,10 +160,8 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '48%',
-    backgroundColor: colors.white,
-    borderRadius: scale(24),
-    paddingVertical: scale(16),
-    paddingHorizontal: scale(12),
+    backgroundColor: colors.primary,
+    borderRadius: scale(14),
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: scale(14),
@@ -122,15 +173,14 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     width: scale(56),
-    height: scale(56),
-    borderRadius: scale(28),
+    height: scale(65),
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: scale(10),
+    marginBottom: scale(5),
   },
   iconText: {
-    fontSize: fs(24),
+    fontSize: fs(50),
   },
   cardTitle: {
     fontSize: fs(13),
@@ -139,18 +189,20 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   // Modal layout details
-  modalContent: {
-    flex: 1,
-    paddingTop: scale(20),
-  },
-  modalHeader: {
+  modalHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     marginBottom: scale(16),
+    width: '100%',
+  },
+  modalHeaderTitleCol: {
+    flex: 1,
   },
   modalTitle: {
     fontSize: fs(24),
     fontFamily: fonts.Marcellus,
     color: colors.secondary,
-    marginBottom: scale(6),
+    marginBottom: scale(4),
   },
   modalDesc: {
     fontSize: fs(13),
@@ -162,58 +214,23 @@ const styles = StyleSheet.create({
   scrollList: {
     flex: 1,
   },
-  scrollListContent: {},
-  itemCard: {
-    backgroundColor: 'rgba(252, 224, 180, 0.2)',
-    borderRadius: scale(16),
-    padding: scale(14),
-    marginBottom: scale(12),
+  scrollListContent: {
+    paddingBottom: scale(20),
+  },
+
+  // Detail Modal Content
+  aartiDetailCard: {
+    backgroundColor: 'rgba(252, 224, 180, 0.12)',
+    borderRadius: scale(8),
+    padding: scale(18),
     borderWidth: 1,
-    borderColor: 'rgba(251, 148, 55, 0.15)',
-  },
-  itemHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: scale(12),
   },
-  itemImage: {
-    width: scale(48),
-    height: scale(48),
-    borderRadius: scale(24),
-    marginRight: scale(12),
-  },
-  itemHeaderText: {
-    flex: 1,
-  },
-  itemName: {
+  aartiDetailText: {
     fontSize: fs(14),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.secondary,
-  },
-  itemSubtitle: {
-    fontSize: fs(11),
-    fontFamily: fonts.PoppinsRegular,
-    color: colors.ring,
-    marginTop: scale(2),
-  },
-  itemText: {
-    fontSize: fs(12.5),
     fontFamily: fonts.PoppinsRegular,
     color: colors.secondary,
-    lineHeight: fs(18.5),
-  },
-  backButton: {
-    alignSelf: 'center',
-    width: '100%',
-    alignItems: 'center',
-    paddingVertical: scale(12),
-    borderRadius: scale(25),
-    backgroundColor: colors.ring,
-    marginBottom: scale(20),
-  },
-  backButtonText: {
-    color: colors.white,
-    fontFamily: fonts.PoppinsMedium,
-    fontSize: fs(14),
+    textAlign: 'center',
+    lineHeight: fs(23),
   },
 });

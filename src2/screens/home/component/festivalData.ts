@@ -11,6 +11,7 @@ export interface Festival {
   tithi: string;
   description: string;
   regions: string[];
+  icon?: string;
 }
 
 export const festivalData: Festival[] = [
@@ -279,6 +280,7 @@ export const festivalData: Festival[] = [
     description:
       'A traditional festival honoring serpent deities and seeking protection and blessings.',
     regions: ['Pan-India', 'Nepal'],
+    icon: '🐍',
   },
   {
     id: 'raksha_bandhan',
@@ -294,6 +296,7 @@ export const festivalData: Festival[] = [
     description:
       'A festival celebrating the bond of protection and affection between siblings.',
     regions: ['Pan-India', 'Nepal'],
+    icon: '📿',
   },
   {
     id: 'janmashtami',
@@ -308,6 +311,7 @@ export const festivalData: Festival[] = [
     tithi: 'Bhadrapada Krishna Ashtami',
     description: 'Celebrates the birth of Lord Krishna.',
     regions: ['Pan-India'],
+    icon: '🏺',
   },
   {
     id: 'ganesh_chaturthi',
@@ -322,6 +326,7 @@ export const festivalData: Festival[] = [
     tithi: 'Bhadrapada Shukla Chaturthi',
     description: 'Celebrates the birth of Lord Ganesha.',
     regions: ['Maharashtra', 'Karnataka'],
+    icon: '🐘',
   },
   {
     id: 'gauri_puja',
@@ -336,6 +341,7 @@ export const festivalData: Festival[] = [
     tithi: 'Varies by regional tradition',
     description: 'A festival honoring Goddess Gauri, a form of Parvati.',
     regions: ['Maharashtra', 'Karnataka', 'Rajasthan', 'Gujarat'],
+    icon: '🌺',
   },
   {
     id: 'navratri',
@@ -350,6 +356,7 @@ export const festivalData: Festival[] = [
     tithi: 'Ashwin Shukla Pratipada',
     description: 'Nine nights of worship dedicated to Goddess Durga.',
     regions: ['Pan-India'],
+    icon: '🔱',
   },
   {
     id: 'dussehra',
@@ -365,6 +372,7 @@ export const festivalData: Festival[] = [
     description:
       "Celebrates the victory of good over evil and is associated with Rama's victory over Ravana.",
     regions: ['Pan-India'],
+    icon: '🏹',
   },
   {
     id: 'karwa_chauth',
@@ -379,6 +387,7 @@ export const festivalData: Festival[] = [
     tithi: 'Kartika Krishna Chaturthi',
     description: 'A traditional fasting observance for marital devotion.',
     regions: ['North India'],
+    icon: '🌙',
   },
   {
     id: 'diwali',
@@ -393,6 +402,7 @@ export const festivalData: Festival[] = [
     tithi: 'Kartika Amavasya',
     description: 'The festival of lights.',
     regions: ['Pan-India'],
+    icon: '🪔',
   },
   {
     id: 'lakshmi_puja',
@@ -408,6 +418,7 @@ export const festivalData: Festival[] = [
     description:
       'A Diwali worship tradition dedicated to Goddess Lakshmi and Lord Ganesha.',
     regions: ['Pan-India'],
+    icon: '🪙',
   },
   {
     id: 'govardhan_puja',
@@ -423,6 +434,7 @@ export const festivalData: Festival[] = [
     description:
       "Celebrates Krishna's protection of the people of Braj through the lifting of Govardhan Hill.",
     regions: ['Uttar Pradesh', 'Rajasthan', 'Madhya Pradesh', 'Gujarat'],
+    icon: '⛰️',
   },
   {
     id: 'bhai_dooj',
@@ -438,5 +450,6 @@ export const festivalData: Festival[] = [
     description:
       'A festival celebrating the bond between brothers and sisters.',
     regions: ['Pan-India', 'Nepal'],
+    icon: '❤️',
   },
 ];

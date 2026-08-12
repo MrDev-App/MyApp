@@ -34,7 +34,7 @@ export type ExpandableCardHandle = {
 };
 
 type Props<T> = {
-  getImage: (data: T) => ImageSourcePropType;
+  getImage?: (data: T) => ImageSourcePropType;
   renderContent: (data: T, close: () => void) => React.ReactNode;
   expandedWidth?: number;
   expandedHeight?: number;
@@ -115,9 +115,11 @@ function ExpandableCardInner<T>(
     return { top, left, width, height, margin };
   });
 
+  const hasImage = !!getImage;
+
   const contentAnimatedStyle = useAnimatedStyle(() => ({
     opacity: interpolate(progress.value, [0.6, 1], [0, 1], Extrapolation.CLAMP),
-    top: expandedHeight + topOffset + scale20,
+    top: hasImage ? expandedHeight + topOffset + scale20 : topOffset,
     bottom: scale20,
   }));
 
@@ -142,7 +144,7 @@ function ExpandableCardInner<T>(
           onPress={handleClose}
         />
 
-        {data && (
+        {data && hasImage && getImage && getImage(data) && (
           <Animated.Image
             source={getImage(data)}
             style={[styles.expandedImage, imageAnimatedStyle]}

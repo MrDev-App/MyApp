@@ -1,11 +1,4 @@
-import {
-  FlatList,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import GradientBackground from '../../components/GradientBackground';
@@ -21,6 +14,7 @@ import PanchangCard from './component/PanchangCard';
 import FestivalHighlights from './component/FestivalHighlights';
 import MantrasCard from './component/MantrasCard';
 import FeaturedCategories from './component/FeaturedCategories';
+import JapCard from './component/JapCard';
 
 const HomeScreen = () => {
   const { t } = useTranslation();
@@ -62,9 +56,10 @@ const HomeScreen = () => {
           </View>
 
           <PanchangCard />
+          <JapCard />
+          <MantrasCard />
           <FeaturedCategories />
           <FestivalHighlights />
-          <MantrasCard />
         </ScrollView>
       </SafeAreaView>
     </GradientBackground>

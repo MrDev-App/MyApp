@@ -105,13 +105,13 @@ const styles = StyleSheet.create({
   label: {
     fontSize: fs(8),
     fontFamily: fonts.PoppinsMedium,
-    color: colors.mutedForeground,
+    color: colors.black,
     letterSpacing: 1,
   },
   value: {
     fontSize: fs(11),
     fontFamily: fonts.PoppinsMedium,
-    color: colors.black,
+    color: colors.ring,
   },
 });
 
