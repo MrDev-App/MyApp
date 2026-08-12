@@ -118,10 +118,11 @@ function ExpandableCardInner<T>(
   const contentAnimatedStyle = useAnimatedStyle(() => ({
     opacity: interpolate(progress.value, [0.6, 1], [0, 1], Extrapolation.CLAMP),
     top: expandedHeight + topOffset + scale20,
+    bottom: scale20,
   }));
 
   const backdropAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(progress.value, [0, 1], [0, 0.6]),
+    opacity: interpolate(progress.value, [0, 1], [0, 1]),
   }));
 
   if (!visible) return null;
@@ -173,9 +174,6 @@ export default ExpandableCard;
 const styles = StyleSheet.create({
   modalRoot: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: colors.white,
-    backgroundColor: colors.white,
   },
   backdrop: {
     ...StyleSheet.absoluteFill,

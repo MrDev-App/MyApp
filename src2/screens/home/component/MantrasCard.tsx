@@ -298,6 +298,7 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  ScrollView,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import colors from '../../../utile/colors';
@@ -370,18 +371,41 @@ const MantrasCard = () => {
 
       <ExpandableCard
         ref={cardRef}
+        imageMargin={scale(16)}
         getImage={(god: any) => god.image}
         renderContent={(god: any, close) => (
           <>
-            <Text style={styles.expandedName}>
-              {currentLanguage === 'hi' ? god.hindiName : god.englishName}
-            </Text>
-            <Text style={styles.expandedDescription}>
-              {god.description || ''}
-            </Text>
-            <TouchableOpacity style={styles.backButton} onPress={close}>
-              <Text style={styles.backButtonText}>{t('BACK') || 'Back'}</Text>
-            </TouchableOpacity>
+            <View style={styles.modalHeaderRow}>
+              <Text style={styles.expandedName}>
+                {currentLanguage === 'hi' ? god.hindiName : god.englishName}
+              </Text>
+            </View>
+
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={styles.modalScroll}
+              contentContainerStyle={styles.modalScrollContent}
+            >
+              {god.mantras && god.mantras.length > 0 ? (
+                god.mantras.map((m: any, index: number) => (
+                  <View key={index} style={styles.mantraItemCard}>
+                    <Text style={styles.mantraName}>{m.name}</Text>
+                    <Text style={styles.mantraTextHi}>{m.mantraHi}</Text>
+                    {m.mantraEn && (
+                      <Text style={styles.mantraTextEn}>{m.mantraEn}</Text>
+                    )}
+                  </View>
+                ))
+              ) : (
+                <View style={styles.mantraItemCard}>
+                  <Text style={styles.mantraName}>Mantra</Text>
+                  <Text style={styles.mantraTextHi}>{god.mantraHi}</Text>
+                  {god.mantraEn && (
+                    <Text style={styles.mantraTextEn}>{god.mantraEn}</Text>
+                  )}
+                </View>
+              )}
+            </ScrollView>
           </>
         )}
       />
@@ -433,30 +457,64 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: '100%',
   },
+  modalHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: scale(15),
+  },
+  topLeftBackButton: {
+    width: scale(36),
+    height: scale(36),
+    borderRadius: scale(18),
+    backgroundColor: 'rgba(251, 148, 55, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: scale(12),
+  },
+  topLeftBackButtonText: {
+    color: colors.ring,
+    fontSize: fs(20),
+    lineHeight: fs(22),
+  },
   expandedName: {
     fontSize: fs(22),
     fontFamily: fonts.Marcellus,
-    color: colors.white,
-    marginBottom: scale(10),
+    color: colors.secondary,
   },
-  expandedDescription: {
-    fontSize: fs(13),
-    fontFamily: fonts.PoppinsRegular,
-    color: colors.white,
-    lineHeight: fs(20),
-    marginBottom: scale(20),
+
+  modalContent: {
+    flex: 1,
   },
-  backButton: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: scale(20),
-    paddingVertical: scale(10),
-    borderRadius: scale(20),
-    backgroundColor: colors.ring,
+  modalScroll: {
+    flex: 1,
   },
-  backButtonText: {
-    color: colors.white,
+  modalScrollContent: {},
+  mantraItemCard: {
+    backgroundColor: 'rgba(252, 224, 180, 0.2)',
+    borderRadius: scale(16),
+    padding: scale(14),
+    marginBottom: scale(12),
+    borderWidth: 1,
+    borderColor: 'rgba(251, 148, 55, 0.15)',
+  },
+  mantraName: {
+    fontSize: fs(14),
     fontFamily: fonts.PoppinsMedium,
-    fontSize: fs(13),
+    color: colors.ring,
+    marginBottom: scale(6),
+  },
+  mantraTextHi: {
+    fontSize: fs(15),
+    fontFamily: fonts.PoppinsRegular,
+    color: colors.secondary,
+    lineHeight: fs(22),
+  },
+  mantraTextEn: {
+    fontSize: fs(12.5),
+    fontFamily: fonts.PoppinsRegular,
+    color: colors.mutedForeground,
+    marginTop: scale(4),
+    fontStyle: 'italic',
   },
 });
 

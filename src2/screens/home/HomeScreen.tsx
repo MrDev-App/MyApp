@@ -20,6 +20,7 @@ import fonts from '../../utile/fonts';
 import PanchangCard from './component/PanchangCard';
 import FestivalHighlights from './component/FestivalHighlights';
 import MantrasCard from './component/MantrasCard';
+import FeaturedCategories from './component/FeaturedCategories';
 
 const HomeScreen = () => {
   const { t } = useTranslation();
@@ -61,6 +62,7 @@ const HomeScreen = () => {
           </View>
 
           <PanchangCard />
+          <FeaturedCategories />
           <FestivalHighlights />
           <MantrasCard />
         </ScrollView>
