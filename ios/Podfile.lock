@@ -2075,6 +2075,28 @@ PODS:
     - RNNotifee/NotifeeCore (= 9.1.8)
   - RNNotifee/NotifeeCore (9.1.8):
     - React-Core
+  - RNReactNativeHapticFeedback (3.0.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - RNReanimated (4.5.3):
     - hermes-engine
     - RCTRequired
@@ -2423,6 +2445,7 @@ DEPENDENCIES:
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
   - RNLocalize (from `../node_modules/react-native-localize`)
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
+  - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
@@ -2609,6 +2632,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-localize"
   RNNotifee:
     :path: "../node_modules/@notifee/react-native"
+  RNReactNativeHapticFeedback:
+    :path: "../node_modules/react-native-haptic-feedback"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
@@ -2714,6 +2739,7 @@ SPEC CHECKSUMS:
   RNFBMessaging: 491e1e3c68a4486cba040f2e62ce29d1bed28e25
   RNLocalize: f370284ea42c48f29f0d8dd3a7bcc28a04f82155
   RNNotifee: 5e3b271e8ea7456a36eec994085543c9adca9168
+  RNReactNativeHapticFeedback: 16e5f7fd37e2acc5a33ea14f48bfd88ff43776ee
   RNReanimated: 5aa9e73d0f8d3c40d5c9bec396d6a61098db31f0
   RNScreens: 7118cd7715c226856125b5bece3c4d9abec90356
   RNSVG: 6cae8d4082913be2eb43eaec2a456222c42195ed
@@ -2722,4 +2748,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: f02e99a3aa708a3f64384397919092827cfd37b9
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.15.2

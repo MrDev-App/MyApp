@@ -32,6 +32,20 @@ import { MANTRAS_LIST, MantraSelectorItem } from '../../constants/japData';
 import { Translation } from '../../i18n/language';
 import LinearGradient from 'react-native-linear-gradient';
 import SwitchMantraModal from './component/SwitchMantraModal';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
+const hapticOptions = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: true,
+};
+
+const triggerHaptic = (type: any = 'impactMedium') => {
+  try {
+    ReactNativeHapticFeedback.trigger(type, hapticOptions);
+  } catch (e) {
+    Vibration.vibrate(30);
+  }
+};
 
 if (
   Platform.OS === 'android' &&
@@ -220,9 +234,9 @@ const JapScreen = () => {
       sphereScale.value = withSpring(1, { damping: 14, stiffness: 200 });
     }, 120);
 
-    // Trigger haptic vibration feedback if enabled
+    // Trigger haptic feedback if enabled
     if (isHapticOn) {
-      Vibration.vibrate(40);
+      triggerHaptic('impactMedium');
     }
 
     // Ripple
@@ -303,7 +317,9 @@ const JapScreen = () => {
               onPress={() => {
                 const next = !isHapticOn;
                 setIsHapticOn(next);
-                if (next) Vibration.vibrate(25);
+                if (next) {
+                  triggerHaptic('impactLight');
+                }
               }}
               activeOpacity={0.7}
             >
