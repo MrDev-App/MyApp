@@ -171,8 +171,9 @@ const AllFestivalsScreen = () => {
             const name =
               currentLanguage === 'hi' ? item.hindiName : item.englishName;
             const monthAbbrev = getMonthAbbrev(item.month, currentLanguage);
-            const countdownText =
-              currentLanguage === 'hi' ? `${daysLeft} दिन` : `${daysLeft} days`;
+            const countdownText = t(Translation.DAYS_COUNT_LABEL, {
+              count: daysLeft,
+            });
 
             return (
               <View style={styles.card}>

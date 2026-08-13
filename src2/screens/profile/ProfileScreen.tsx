@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     color: colors.secondary,
   },
   scrollContent: {
-    paddingBottom: scale(40),
+    paddingBottom: scale(100),
     alignItems: 'center',
   },
   profileCard: {

@@ -88,7 +88,7 @@ const MantrasCard = () => {
         ref={cardRef}
         imageMargin={scale(16)}
         getImage={(god: any) => god.image}
-        renderContent={(god: any, close) => (
+        renderContent={(god: any) => (
           <>
             <View style={styles.modalHeaderRow}>
               <Text style={styles.expandedName}>
@@ -149,7 +149,7 @@ const MantrasCard = () => {
                         currentLanguage === 'hi'
                           ? god.hindiName
                           : god.englishName,
-                      name: currentLanguage === 'hi' ? 'मंत्र' : 'Mantra',
+                      name: t(Translation.MANTRAS_LABEL),
                       mantraHi: god.mantraHi,
                       mantraEn: god.mantraEn,
                     });
@@ -157,7 +157,7 @@ const MantrasCard = () => {
                 >
                   <View style={styles.mantraCardHeader}>
                     <Text style={styles.mantraName}>
-                      {currentLanguage === 'hi' ? 'मंत्र' : 'Mantra'}
+                      {t(Translation.MANTRAS_LABEL)}
                     </Text>
                   </View>
                   <Text style={styles.mantraTextHi}>{god.mantraHi}</Text>
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
 
   // Detail Modal Content
   mantraDetailCard: {
-    backgroundColor: 'rgba(252, 224, 180, 0.15)',
+    // backgroundColor: 'rgba(252, 224, 180, 0.15)',
     borderRadius: scale(20),
     padding: scale(20),
     borderWidth: 1,

@@ -1,5 +1,6 @@
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import React from 'react';
+import LottieView from 'lottie-react-native';
+import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import GradientBackground from '../../components/GradientBackground';
 import GradientOverlay from '../../components/GradientOverlay';
@@ -15,16 +16,33 @@ import FestivalHighlights from './component/FestivalHighlights';
 import MantrasCard from './component/MantrasCard';
 import FeaturedCategories from './component/FeaturedCategories';
 import JapCard from './component/JapCard';
+import OverlayModal, {
+  OverlayModalHandle,
+} from '../../components/OverlayModal';
 
 const HomeScreen = () => {
   const { t } = useTranslation();
+
+  const overlayRef = useRef<OverlayModalHandle>(null);
+  const buttonRef = useRef<View>(null);
+
+  const handleOpen = () => {
+    // Option A: Tap point se spread (button ki position se)
+    buttonRef.current?.measureInWindow((x, y, width, height) => {
+      overlayRef.current?.open({ x: x + width / 2, y: y + height / 2 });
+    });
+
+    // Option B: Simply center se spread (agar tap point matter nahi karta)
+    // overlayRef.current?.open();
+  };
 
   return (
     <GradientBackground style={Globalstyles.containerFull}>
       <View style={styles.imageContainer}>
         <Image source={imagePath.greeting} style={styles.greetingImage} />
+
         <GradientOverlay
-          colors={['rgba(255, 254, 254, 0)', colors.primary]}
+          colors={[colors.gradientStart, colors.primary]}
           direction="bottom-to-top"
         />
       </View>
@@ -50,16 +68,12 @@ const HomeScreen = () => {
                 </View>
               </View>
             </View>
-            <Text style={styles.dailyPravacnaText}>
-              {t(Translation.DAILY_PRAVACHAN)}
-            </Text>
           </View>
 
-          <PanchangCard />
           <JapCard />
           <MantrasCard />
           <FeaturedCategories />
-          <FestivalHighlights />
+          <FestivalHighlights onPress={handleOpen} />
         </ScrollView>
       </SafeAreaView>
     </GradientBackground>
@@ -83,7 +97,7 @@ const styles = StyleSheet.create({
   bellIconView: {
     width: scale(36),
     height: scale(36),
-    borderRadius: scale(35),
+    borderRadius: scale(40),
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
@@ -91,15 +105,15 @@ const styles = StyleSheet.create({
     // backgroundColor: colors.cardForeground,
   },
   bellIconText: {
-    fontSize: fs(16),
+    fontSize: fs(15),
     borderColor: colors.ring,
   },
   badgeView: {
     position: 'absolute',
-    top: scale(-2),
-    right: scale(-2),
-    width: scale(16),
-    height: scale(16),
+    top: scale(-1),
+    right: scale(-1),
+    width: scale(15),
+    height: scale(15),
     borderRadius: scale(18),
     backgroundColor: colors.ring,
     justifyContent: 'center',
@@ -142,6 +156,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   scrollContent: {
-    paddingBottom: scale(40),
+    paddingBottom: scale(70),
   },
 });

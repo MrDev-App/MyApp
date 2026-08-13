@@ -14,8 +14,11 @@ import fonts from '../utile/fonts';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/type';
+import { useTranslation } from 'react-i18next';
+import { Translation } from '../i18n/language';
 
 const SplashScreen = () => {
+  const { t } = useTranslation();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const omOpacity = useSharedValue(0);
@@ -112,10 +115,10 @@ const SplashScreen = () => {
 
       <View style={styles.textContainer}>
         <Animated.Text style={[styles.englishText, engStyle]}>
-          GuruVani
+          {t(Translation.APP_NAME_EN)}
         </Animated.Text>
         <Animated.Text style={[styles.hindiText, hinStyle]}>
-          गुरुवाणी
+          {t(Translation.APP_NAME_HI)}
         </Animated.Text>
       </View>
     </View>

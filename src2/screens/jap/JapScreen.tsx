@@ -20,15 +20,15 @@ import fonts from '../../utile/fonts';
 import { fs, scale } from '../../utile/sizes';
 import GradientBackground from '../../components/GradientBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MANTRAS_LIST, japLabels } from '../../constants/japData';
+import { MANTRAS_LIST } from '../../constants/japData';
+import { Translation } from '../../i18n/language';
 
 const TARGET_PRESETS = [11, 21, 51, 108];
 
 const JapScreen = () => {
   const navigation = useNavigation<any>();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const currentLanguage = (i18n.language || 'en') as 'en' | 'hi';
-  const labels = japLabels[currentLanguage] || japLabels.en;
 
   const [selectedMantra, setSelectedMantra] = useState(MANTRAS_LIST[0]);
   const [count, setCount] = useState(0);
@@ -78,25 +78,14 @@ const JapScreen = () => {
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
         <View style={styles.headerRow}>
-          {navigation.canGoBack() && (
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => navigation.goBack()}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.backButtonText}>←</Text>
-            </TouchableOpacity>
-          )}
-          <Text style={styles.headerTitle}>{labels.japChanting}</Text>
+          <Text style={styles.headerTitle}>{t(Translation.JAP_CHANTING)}</Text>
         </View>
 
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Mantra Horizontal Selector */}
           <View style={styles.selectorSection}>
-            <Text style={styles.sectionLabel}>{labels.selectMantra}</Text>
             <FlatList
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -105,7 +94,8 @@ const JapScreen = () => {
               contentContainerStyle={styles.selectorList}
               renderItem={({ item }) => {
                 const isSelected = selectedMantra.id === item.id;
-                const mantraName = currentLanguage === 'hi' ? item.nameHi : item.nameEn;
+                const mantraName =
+                  currentLanguage === 'hi' ? item.nameHi : item.nameEn;
                 return (
                   <TouchableOpacity
                     style={[
@@ -134,42 +124,12 @@ const JapScreen = () => {
 
           {/* Large Mantra Display Card */}
           <View style={styles.mantraCard}>
+            <View style={styles.mantraAccentBar} />
             <Text style={styles.mantraDisplayText}>
-              {currentLanguage === 'hi' ? selectedMantra.textHi : selectedMantra.textEn}
+              {currentLanguage === 'hi'
+                ? selectedMantra.textHi
+                : selectedMantra.textEn}
             </Text>
-          </View>
-
-          {/* Preset Target Selectors */}
-          <View style={styles.targetSection}>
-            <Text style={styles.sectionLabel}>{labels.selectTarget}</Text>
-            <View style={styles.presetRow}>
-              {TARGET_PRESETS.map(preset => {
-                const isSelected = target === preset;
-                return (
-                  <TouchableOpacity
-                    key={preset}
-                    style={[
-                      styles.presetButton,
-                      isSelected && styles.presetButtonSelected,
-                    ]}
-                    onPress={() => {
-                      setTarget(preset);
-                      setCount(0);
-                    }}
-                    activeOpacity={0.8}
-                  >
-                    <Text
-                      style={[
-                        styles.presetText,
-                        isSelected && styles.presetTextSelected,
-                      ]}
-                    >
-                      {preset}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
           </View>
 
           {/* Central Interactive Chanting Sphere */}
@@ -185,18 +145,24 @@ const JapScreen = () => {
             >
               <Text style={styles.chantCountText}>{count}</Text>
               <Text style={styles.chantTotalText}>/ {target}</Text>
-              <Text style={styles.tapToChantText}>{labels.tapToChant}</Text>
+              <Text style={styles.tapToChantText}>
+                {t(Translation.JAP_TAP_TO_CHANT)}
+              </Text>
             </TouchableOpacity>
           </View>
 
           {/* Stats Summary Rows */}
           <View style={styles.statsRow}>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>{labels.malaCompleted}</Text>
+              <Text style={styles.statLabel}>
+                {t(Translation.JAP_MALA_COMPLETED)}
+              </Text>
               <Text style={styles.statValue}>{rounds}</Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>{labels.totalChants}</Text>
+              <Text style={styles.statLabel}>
+                {t(Translation.JAP_TOTAL_CHANTS)}
+              </Text>
               <Text style={styles.statValue}>{rounds * target + count}</Text>
             </View>
           </View>
@@ -207,7 +173,9 @@ const JapScreen = () => {
             onPress={handleReset}
             activeOpacity={0.7}
           >
-            <Text style={styles.resetButtonText}>{labels.resetCounters}</Text>
+            <Text style={styles.resetButtonText}>
+              {t(Translation.JAP_RESET_COUNTERS)}
+            </Text>
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
@@ -223,7 +191,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: scale(16),
-    paddingVertical: scale(16),
+    paddingTop: scale(12),
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(183, 168, 151, 0.1)',
   },
@@ -247,7 +215,7 @@ const styles = StyleSheet.create({
     color: colors.secondary,
   },
   scrollContent: {
-    paddingBottom: scale(40),
+    paddingBottom: scale(100),
     alignItems: 'center',
   },
   selectorSection: {
@@ -266,7 +234,7 @@ const styles = StyleSheet.create({
   },
   selectorItem: {
     paddingHorizontal: scale(16),
-    paddingVertical: scale(8),
+    paddingVertical: scale(6),
     borderRadius: scale(20),
     backgroundColor: 'rgba(252, 224, 180, 0.15)',
     marginRight: scale(10),
@@ -286,13 +254,14 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   mantraCard: {
+    flexDirection: 'row',
     width: '90%',
     backgroundColor: colors.white,
-    borderRadius: scale(20),
-    padding: scale(24),
+    borderRadius: scale(8),
+    padding: scale(12),
+    gap: scale(12),
     marginVertical: scale(20),
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: 'flex-start',
     borderWidth: 1,
     borderColor: 'rgba(183, 168, 151, 0.2)',
     shadowColor: colors.ring,
@@ -301,11 +270,19 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 3,
   },
+  mantraAccentBar: {
+    width: 4,
+    alignSelf: 'stretch',
+    borderRadius: scale(4),
+    backgroundColor: colors.ring,
+    minHeight: scale(20),
+  },
   mantraDisplayText: {
-    fontSize: fs(16),
+    flex: 1,
+    fontSize: fs(14),
     fontFamily: fonts.PoppinsMedium,
     color: colors.secondary,
-    textAlign: 'center',
+    letterSpacing: 2,
     lineHeight: fs(24),
   },
   targetSection: {

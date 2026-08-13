@@ -33,6 +33,14 @@ export const colors = {
   sidebar: '#0f172b',
   sidebarForeground: '#f8fafc',
   sidebarBorder: '#1e293b',
+
+  // Custom visual components
+  overlayStart: 'rgba(0, 0, 0, 0.6)',
+  overlayMid: 'rgba(0, 0, 0, 0.1)',
+  overlayEnd: 'rgba(0, 0, 0, 0.85)',
+  chipBg: '#ECEFF1',
+  chipText: '#455A64',
+  gradientStart: 'rgba(255, 254, 254, 0)',
 };
 
 export type ColorsType = typeof colors;

@@ -19,6 +19,7 @@ import ExpandableCard, {
   ExpandableCardHandle,
 } from '../../../components/ExpandableCard';
 import { useExpandTrigger } from '../../../hook/useExpandTrigger';
+import { Translation } from '../../../i18n/language';
 import {
   AartiView,
   ShlokView,
@@ -27,7 +28,7 @@ import {
 } from '../../../components/CategoryDetailViews';
 
 const FeaturedCategories = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language || 'en';
 
   // Main Category Modal
@@ -39,11 +40,9 @@ const FeaturedCategories = () => {
   const { registerRef: registerItemRef, trigger: triggerItem } =
     useExpandTrigger<CategoryItem>(detailCardRef);
 
-  const titleText = currentLanguage === 'hi' ? 'विशेष श्रेणियां' : 'Featured Categories';
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{titleText}</Text>
+      <Text style={styles.title}>{t(Translation.FEATURED_CATEGORIES)}</Text>
 
       <View style={styles.gridContainer}>
         {categoriesData.map(category => {
@@ -77,7 +76,9 @@ const FeaturedCategories = () => {
           const categoryTitle =
             currentLanguage === 'hi' ? category.titleHi : category.titleEn;
           const categoryDesc =
-            currentLanguage === 'hi' ? category.descriptionHi : category.descriptionEn;
+            currentLanguage === 'hi'
+              ? category.descriptionHi
+              : category.descriptionEn;
           return (
             <>
               <View style={styles.modalHeaderRow}>
@@ -99,7 +100,9 @@ const FeaturedCategories = () => {
                     onItemPress={triggerItem}
                   />
                 )}
-                {category.id === 'shlok' && <ShlokView items={category.items} />}
+                {category.id === 'shlok' && (
+                  <ShlokView items={category.items} />
+                )}
                 {category.id === 'stories' && (
                   <StoriesView items={category.items} />
                 )}

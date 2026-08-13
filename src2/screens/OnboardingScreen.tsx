@@ -176,8 +176,8 @@ const OnboardingScreen = () => {
           >
             <Text style={styles.actionButtonText}>
               {activeIndex === Images.OnBoarding.length - 1
-                ? 'Get Started'
-                : 'Skip'}
+                ? t(Translation.GET_STARTED_LABEL)
+                : t(Translation.SKIP_LABEL)}
             </Text>
           </AnimatedTouchableOpacity>
         </View>

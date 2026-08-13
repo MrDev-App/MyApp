@@ -5,43 +5,48 @@ import { useTranslation } from 'react-i18next';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
 import { fs, scale } from '../../../utile/sizes';
-import { japLabels } from '../../../constants/japData';
+import { Translation } from '../../../i18n/language';
+import AnimatedButton from '../../../components/AnimatedButton';
 
 const JapCard = () => {
   const navigation = useNavigation<any>();
-  const { i18n } = useTranslation();
-  const currentLanguage = (i18n.language || 'en') as 'en' | 'hi';
-  const labels = japLabels[currentLanguage] || japLabels.en;
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
       {/* Header Row */}
       <View style={styles.header}>
-        <Text style={styles.title}>{labels.title}</Text>
+        <Text style={styles.title}>{t(Translation.JAP_TITLE)}</Text>
       </View>
 
       {/* Main Card */}
       <View style={styles.card}>
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Text style={styles.label}>{labels.todaysCount}</Text>
+            <Text style={styles.label}>{t(Translation.JAP_TODAYS_COUNT)}</Text>
             <Text style={styles.value}>108</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.statItem}>
-            <Text style={styles.label}>{labels.malaCompleted}</Text>
+            <Text style={styles.label}>
+              {t(Translation.JAP_MALA_COMPLETED)}
+            </Text>
             <Text style={styles.value}>1</Text>
           </View>
         </View>
 
         {/* Start Chanting Button */}
-        <TouchableOpacity
+        <AnimatedButton
           style={styles.chantButton}
-          activeOpacity={0.8}
           onPress={() => navigation.navigate('BottomTabs', { screen: 'Jap' })}
         >
-          <Text style={styles.chantButtonText}>📿 {labels.startChanting}</Text>
-        </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: scale(8) }}>
+            <Text>📿</Text>
+            <Text style={styles.chantButtonText}>
+              {t(Translation.JAP_START_CHANTING)}
+            </Text>
+          </View>
+        </AnimatedButton>
       </View>
     </View>
   );
@@ -106,8 +111,10 @@ const styles = StyleSheet.create({
   },
   chantButton: {
     backgroundColor: colors.ring,
-    borderRadius: scale(20),
-    paddingVertical: scale(10),
+    borderRadius: scale(10),
+
+    height: scale(48),
+
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: colors.ring,
@@ -117,7 +124,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   chantButtonText: {
-    fontSize: fs(13),
+    fontSize: fs(12),
     fontFamily: fonts.PoppinsMedium,
     color: colors.white,
   },
