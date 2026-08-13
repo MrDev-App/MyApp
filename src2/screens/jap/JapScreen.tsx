@@ -10,6 +10,7 @@ import {
   Platform,
   UIManager,
   Pressable,
+  Vibration,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -27,8 +28,10 @@ import fonts from '../../utile/fonts';
 import { fs, scale, verticalScale } from '../../utile/sizes';
 import GradientBackground from '../../components/GradientBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MANTRAS_LIST } from '../../constants/japData';
+import { MANTRAS_LIST, MantraSelectorItem } from '../../constants/japData';
 import { Translation } from '../../i18n/language';
+import LinearGradient from 'react-native-linear-gradient';
+import SwitchMantraModal from './component/SwitchMantraModal';
 
 if (
   Platform.OS === 'android' &&
@@ -120,6 +123,13 @@ const JapScreen = () => {
   const [count, setCount] = useState(0);
   const [rounds, setRounds] = useState(0);
   const [target, setTarget] = useState(108);
+  const [isHapticOn, setIsHapticOn] = useState(true);
+
+  // Mantra switch confirmation modal states
+  const [pendingMantra, setPendingMantra] = useState<MantraSelectorItem | null>(
+    null,
+  );
+  const [isSwitchModalVisible, setIsSwitchModalVisible] = useState(false);
 
   // Mala rotation shared value (in degrees)
   const malaRotation = useSharedValue(0);
@@ -166,18 +176,6 @@ const JapScreen = () => {
     });
 
     const timer = setTimeout(() => {
-      LayoutAnimation.configureNext({
-        duration: 280,
-        create: {
-          type: LayoutAnimation.Types.easeInEaseOut,
-          property: LayoutAnimation.Properties.opacity,
-        },
-        update: { type: LayoutAnimation.Types.easeInEaseOut },
-        delete: {
-          type: LayoutAnimation.Types.easeInEaseOut,
-          property: LayoutAnimation.Properties.opacity,
-        },
-      });
       setDisplayedMantra(selectedMantra);
       textTranslateY.value = 12;
       textOpacity.value = 0;
@@ -222,6 +220,11 @@ const JapScreen = () => {
       sphereScale.value = withSpring(1, { damping: 14, stiffness: 200 });
     }, 120);
 
+    // Trigger haptic vibration feedback if enabled
+    if (isHapticOn) {
+      Vibration.vibrate(40);
+    }
+
     // Ripple
     rippleScale.value = 1;
     rippleOpacity.value = 0.6;
@@ -233,7 +236,14 @@ const JapScreen = () => {
       duration: 500,
       easing: Easing.out(Easing.quad),
     });
-  }, [target, malaRotation, sphereScale, rippleScale, rippleOpacity]);
+  }, [
+    target,
+    malaRotation,
+    sphereScale,
+    rippleScale,
+    rippleOpacity,
+    isHapticOn,
+  ]);
 
   const handleReset = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -243,6 +253,36 @@ const JapScreen = () => {
       duration: 600,
       easing: Easing.out(Easing.cubic),
     });
+  };
+
+  const handleMantraSelect = (item: MantraSelectorItem) => {
+    if (item.id === selectedMantra.id) return;
+
+    if (count > 0 || rounds > 0) {
+      setPendingMantra(item);
+      setIsSwitchModalVisible(true);
+    } else {
+      setSelectedMantra(item);
+    }
+  };
+
+  const handleConfirmSwitch = () => {
+    if (pendingMantra) {
+      setSelectedMantra(pendingMantra);
+      setCount(0);
+      setRounds(0);
+      malaRotation.value = withTiming(0, {
+        duration: 400,
+        easing: Easing.out(Easing.cubic),
+      });
+    }
+    setIsSwitchModalVisible(false);
+    setPendingMantra(null);
+  };
+
+  const handleCancelSwitch = () => {
+    setIsSwitchModalVisible(false);
+    setPendingMantra(null);
   };
 
   const currentBeadIndex =
@@ -257,10 +297,26 @@ const JapScreen = () => {
         {/* ── Header ── */}
         <View style={styles.headerRow}>
           <Text style={styles.headerTitle}>{t(Translation.JAP_CHANTING)}</Text>
-          <View style={styles.streakBadge}>
-            <Text style={styles.streakText}>
-              🔥 {rounds} {currentLanguage === 'hi' ? 'माला' : 'Mala'}
-            </Text>
+          <View style={styles.headerRight}>
+            <TouchableOpacity
+              style={[styles.hapticBtn, isHapticOn && styles.hapticBtnActive]}
+              onPress={() => {
+                const next = !isHapticOn;
+                setIsHapticOn(next);
+                if (next) Vibration.vibrate(25);
+              }}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.hapticBtnIcon}>
+                {isHapticOn ? '📳' : '🔕'}
+              </Text>
+            </TouchableOpacity>
+
+            <View style={styles.streakBadge}>
+              <Text style={styles.streakText}>
+                🔥 {rounds} {currentLanguage === 'hi' ? 'माला' : 'Mala'}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -286,10 +342,7 @@ const JapScreen = () => {
                       styles.selectorItem,
                       isSelected && styles.selectorItemSelected,
                     ]}
-                    onPress={() => {
-                      setSelectedMantra(item);
-                      setCount(0);
-                    }}
+                    onPress={() => handleMantraSelect(item)}
                     activeOpacity={0.8}
                   >
                     <Text
@@ -309,7 +362,7 @@ const JapScreen = () => {
           {/* ── Stats Bar: JAP | MALA | TOTAL ── */}
           <View style={styles.statsBar}>
             <View style={styles.statChip}>
-              <Text style={styles.statChipIcon}>🔵</Text>
+              <View style={styles.ringDot} />
               <Text style={styles.statChipLabel}>
                 {currentLanguage === 'hi' ? 'जाप' : 'JAP'}
               </Text>
@@ -367,7 +420,7 @@ const JapScreen = () => {
             <Pressable onPress={handleChantPress}>
               <Animated.View style={[styles.chantSphere, animatedSphereStyle]}>
                 <Text style={styles.chantCountText}>{count}</Text>
-                <Text style={styles.chantTargetText}>{target}</Text>
+                <Text style={styles.chantTargetText}>/ {target}</Text>
                 <Text style={styles.chantLabel}>
                   {currentLanguage === 'hi' ? 'जाप' : 'CHANT'}
                 </Text>
@@ -377,16 +430,6 @@ const JapScreen = () => {
 
           {/* ── Bottom Buttons ── */}
           <View style={styles.bottomButtons}>
-            <TouchableOpacity style={styles.actionBtn} activeOpacity={0.8}>
-              <Text style={styles.actionBtnIcon}>▶</Text>
-              <Text style={styles.actionBtnLabel}>
-                {currentLanguage === 'hi' ? 'ऑटो' : 'Auto'}
-              </Text>
-              <Text style={styles.actionBtnSub}>
-                {currentLanguage === 'hi' ? 'जाप' : 'CHANT'}
-              </Text>
-            </TouchableOpacity>
-
             <TouchableOpacity
               style={[styles.actionBtn, styles.resetBtn]}
               onPress={handleReset}
@@ -396,12 +439,24 @@ const JapScreen = () => {
               <Text style={[styles.actionBtnLabel, styles.resetBtnText]}>
                 {currentLanguage === 'hi' ? 'रीसेट' : 'Reset'}
               </Text>
-              <Text style={[styles.actionBtnSub, styles.resetBtnText]}>
-                {currentLanguage === 'hi' ? 'काउंटर' : 'Counter'}
-              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
+
+        {/* ── Switch Mantra Confirmation Modal ── */}
+        <SwitchMantraModal
+          visible={isSwitchModalVisible}
+          targetMantraName={
+            pendingMantra
+              ? currentLanguage === 'hi'
+                ? pendingMantra.nameHi
+                : pendingMantra.nameEn
+              : ''
+          }
+          currentLanguage={currentLanguage}
+          onCancel={handleCancelSwitch}
+          onConfirm={handleConfirmSwitch}
+        />
       </SafeAreaView>
     </GradientBackground>
   );
@@ -428,6 +483,28 @@ const styles = StyleSheet.create({
     fontSize: fs(18),
     fontFamily: fonts.Marcellus,
     color: colors.secondary,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(8),
+  },
+  hapticBtn: {
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
+    backgroundColor: 'rgba(183, 168, 151, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(183, 168, 151, 0.2)',
+  },
+  hapticBtnActive: {
+    backgroundColor: 'rgba(251, 148, 55, 0.15)',
+    borderColor: 'rgba(251, 148, 55, 0.3)',
+  },
+  hapticBtnIcon: {
+    fontSize: fs(14),
   },
   streakBadge: {
     paddingHorizontal: scale(12),
@@ -495,6 +572,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: scale(1),
   },
+  ringDot: {
+    width: scale(12),
+    height: scale(12),
+    borderRadius: scale(6),
+    backgroundColor: colors.ring,
+    marginVertical: scale(2),
+  },
   statChipIcon: { fontSize: fs(14) },
   statChipLabel: {
     fontSize: fs(9),
@@ -517,14 +601,14 @@ const styles = StyleSheet.create({
   mantraCard: {
     flexDirection: 'row',
     width: '92%',
+    minHeight: scale(76),
     backgroundColor: colors.white,
     borderRadius: scale(10),
     padding: scale(12),
     gap: scale(12),
     marginTop: scale(14),
     marginBottom: verticalScale(10),
-
-    alignItems: 'flex-start',
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(183, 168, 151, 0.2)',
     shadowColor: colors.ring,
@@ -603,77 +687,69 @@ const styles = StyleSheet.create({
     width: scale(160),
     height: scale(160),
     borderRadius: scale(80),
-    // backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    // shadowColor: colors.ring,
-    // shadowOffset: { width: 0, height: 6 },
-    // shadowOpacity: 0.12,
-    // shadowRadius: 14,
-    // elevation: 6,
+
+    overflow: 'hidden',
     gap: scale(2),
   },
   chantCountText: {
-    fontSize: fs(44),
-    fontFamily: fonts.Marcellus,
+    fontSize: fs(50),
+    fontFamily: fonts.PoppinsBold,
     color: colors.secondary,
     lineHeight: fs(50),
   },
   chantTargetText: {
-    fontSize: fs(15),
-    fontFamily: fonts.Marcellus,
+    fontSize: fs(20),
+    fontFamily: fonts.PoppinsSemiBold,
     color: colors.ring,
   },
   chantLabel: {
-    fontSize: fs(9),
+    fontSize: fs(12),
     fontFamily: fonts.PoppinsMedium,
     color: colors.mutedForeground,
-    letterSpacing: 1.5,
+    letterSpacing: 2,
   },
 
   // Bottom buttons
   bottomButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent: 'center',
     width: '92%',
-    marginTop: scale(24),
-    gap: scale(16),
+    marginTop: scale(20),
   },
   actionBtn: {
-    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: scale(12),
-    borderRadius: scale(14),
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: 'rgba(183, 168, 151, 0.15)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
-    gap: scale(2),
+    justifyContent: 'center',
+    paddingVertical: verticalScale(10),
+    paddingHorizontal: scale(24),
+    borderRadius: scale(12),
+    gap: scale(8),
   },
   resetBtn: {
-    backgroundColor: 'rgba(235, 87, 87, 0.05)',
-    borderColor: 'rgba(235, 87, 87, 0.15)',
+    backgroundColor: 'rgba(235, 87, 87, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(235, 87, 87, 0.2)',
   },
   actionBtnIcon: {
     fontSize: fs(18),
-    color: colors.ring,
+    lineHeight: fs(22),
+    color: '#EB5757',
+    textAlignVertical: 'center',
+    includeFontPadding: false,
   },
   actionBtnLabel: {
     fontSize: fs(13),
     fontFamily: fonts.PoppinsMedium,
+    lineHeight: fs(20),
     color: colors.secondary,
+    textAlignVertical: 'center',
+    includeFontPadding: false,
   },
-  actionBtnSub: {
-    fontSize: fs(10),
-    fontFamily: fonts.PoppinsRegular,
-    color: colors.mutedForeground,
-    letterSpacing: 0.8,
+  resetBtnText: {
+    color: '#EB5757',
   },
-  resetBtnText: { color: '#EB5757' },
 });
 
 export default JapScreen;
