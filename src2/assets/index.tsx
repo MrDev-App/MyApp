@@ -22,6 +22,7 @@ const imagePath = {
     require('./png/OnBoarding3.png'),
   ],
   bhaktiVideo: require('./video/bhakti.mp4'),
+  MalaMoti: require('./png/MalaMoti.png'),
 };
 
 export default imagePath;

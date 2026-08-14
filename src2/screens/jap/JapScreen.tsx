@@ -7,12 +7,9 @@ import {
   ScrollView,
   FlatList,
   LayoutAnimation,
-  Platform,
-  UIManager,
   Pressable,
-  Vibration,
+  Image,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import Animated, {
   useSharedValue,
@@ -20,8 +17,6 @@ import Animated, {
   withTiming,
   withSpring,
   Easing,
-  interpolate,
-  runOnJS,
 } from 'react-native-reanimated';
 import colors from '../../utile/colors';
 import fonts from '../../utile/fonts';
@@ -30,6 +25,7 @@ import GradientBackground from '../../components/GradientBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MANTRAS_LIST, MantraSelectorItem } from '../../constants/japData';
 import { Translation } from '../../i18n/language';
+import imagePath from '../../assets';
 
 import SwitchMantraModal from './component/SwitchMantraModal';
 import HapticFeedback from 'react-native-haptic-feedback';
@@ -42,18 +38,15 @@ const TriggerHaptic = () => {
   HapticFeedback.trigger('impactHeavy', options);
 };
 
-// ─── Mala constants ────────────────────────────────────────────────────────────
 const TOTAL_BEADS = 108;
-const BEAD_RADIUS = scale(5); // size of each bead
-const MALA_RADIUS = scale(118); // radius of the circle path
-const CENTER = scale(130); // half of container size
+const BEAD_RADIUS = scale(7); // size of each bead
+const MALA_RADIUS = scale(122); // radius of the circle path
+const CENTER = scale(135); // half of container size
 
-// Pre-compute bead angles (start from top, clockwise)
 const BEAD_ANGLES = Array.from({ length: TOTAL_BEADS }, (_, i) => {
   return (i / TOTAL_BEADS) * 2 * Math.PI - Math.PI / 2;
 });
 
-// ─── MalaBead component ────────────────────────────────────────────────────────
 type MalaBeadProps = {
   angle: number;
   filled: boolean;
@@ -64,26 +57,26 @@ type MalaBeadProps = {
 const MalaBead = React.memo(
   ({ angle, filled, isMarker, rotationOffset }: MalaBeadProps) => {
     const rad = angle + (rotationOffset * Math.PI) / 180;
-    const x =
-      CENTER +
-      MALA_RADIUS * Math.cos(rad) -
-      (isMarker ? scale(9) : BEAD_RADIUS);
-    const y =
-      CENTER +
-      MALA_RADIUS * Math.sin(rad) -
-      (isMarker ? scale(9) : BEAD_RADIUS);
-    const size = isMarker ? scale(14) : BEAD_RADIUS * 2;
+    const beadRadius = isMarker ? scale(6) : BEAD_RADIUS;
+    const size = beadRadius * 2;
+    const x = CENTER + MALA_RADIUS * Math.cos(rad) - beadRadius;
+    const y = CENTER + MALA_RADIUS * Math.sin(rad) - beadRadius;
+
+    const renderSize = isMarker ? size * 0.9 : size * 0.7;
+    const offset = (size - renderSize) / 2;
+    const renderX = x + offset;
+    const renderY = y + offset;
 
     if (isMarker) {
       return (
         <View
           style={{
             position: 'absolute',
-            left: x,
-            top: y,
-            width: size,
-            height: size,
-            borderRadius: size / 2,
+            left: renderX,
+            top: renderY,
+            width: renderSize,
+            height: renderSize,
+            borderRadius: renderSize / 2,
             backgroundColor: '#D4A017',
             borderWidth: 1.5,
             borderColor: '#B8860B',
@@ -101,21 +94,34 @@ const MalaBead = React.memo(
       <View
         style={{
           position: 'absolute',
-          left: x,
-          top: y,
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          backgroundColor: filled ? '#6B3A2A' : 'rgba(183, 168, 151, 0.25)',
+          left: renderX,
+          top: renderY,
+          width: renderSize,
+          height: renderSize,
+          borderRadius: renderSize / 2,
+          backgroundColor: 'rgba(183, 168, 151, 0.25)',
           borderWidth: filled ? 0 : 1,
           borderColor: 'rgba(183, 168, 151, 0.4)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          overflow: 'hidden',
         }}
-      />
+      >
+        {filled && (
+          <Image
+            source={imagePath.MalaMoti}
+            style={{
+              width: '100%',
+              height: '100%',
+            }}
+            resizeMode="cover"
+          />
+        )}
+      </View>
     );
   },
 );
 
-// ─── Main Screen ────────────────────────────────────────────────────────────────
 const JapScreen = () => {
   const { t, i18n } = useTranslation();
   const currentLanguage = (i18n.language || 'en') as 'en' | 'hi';
@@ -124,24 +130,21 @@ const JapScreen = () => {
   const [displayedMantra, setDisplayedMantra] = useState(MANTRAS_LIST[0]);
   const [count, setCount] = useState(0);
   const [rounds, setRounds] = useState(0);
-  const [target, setTarget] = useState(108);
+  const [target, _setTarget] = useState(108);
   const [isHapticOn, setIsHapticOn] = useState(true);
 
-  // Mantra switch confirmation modal states
   const [pendingMantra, setPendingMantra] = useState<MantraSelectorItem | null>(
     null,
   );
   const [isSwitchModalVisible, setIsSwitchModalVisible] = useState(false);
 
-  // Mala rotation shared value (in degrees)
   const malaRotation = useSharedValue(0);
-  // Sphere press scale
+
   const sphereScale = useSharedValue(1);
-  // Ripple opacity
+
   const rippleScale = useSharedValue(1);
   const rippleOpacity = useSharedValue(0);
 
-  // Text animation
   const textOpacity = useSharedValue(1);
   const textTranslateY = useSharedValue(0);
 
@@ -208,7 +211,6 @@ const JapScreen = () => {
       return next;
     });
 
-    // Rotate mala anti-clockwise by one bead step
     const step = 360 / TOTAL_BEADS;
     const targetRotation = nextCount === 0 ? 0 : -(nextCount * step);
     malaRotation.value = withTiming(targetRotation, {
@@ -216,18 +218,15 @@ const JapScreen = () => {
       easing: Easing.out(Easing.cubic),
     });
 
-    // Sphere press animation
     sphereScale.value = withSpring(0.94, { damping: 14, stiffness: 200 });
     setTimeout(() => {
       sphereScale.value = withSpring(1, { damping: 14, stiffness: 200 });
     }, 120);
 
-    // Trigger haptic feedback if enabled
     if (isHapticOn) {
       TriggerHaptic();
     }
 
-    // Ripple
     rippleScale.value = 1;
     rippleOpacity.value = 0.6;
     rippleScale.value = withTiming(1.5, {
@@ -328,7 +327,6 @@ const JapScreen = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* ── Mantra Selector ── */}
           <View style={styles.selectorSection}>
             <FlatList
               horizontal
@@ -363,7 +361,7 @@ const JapScreen = () => {
             />
           </View>
 
-          {/* ── Stats Bar: JAP | MALA | TOTAL ── */}
+          {/*  Stats Bar: JAP | MALA | TOTAL */}
           <View style={styles.statsBar}>
             <View style={styles.statChip}>
               <View style={styles.ringDot} />
@@ -392,7 +390,7 @@ const JapScreen = () => {
             </View>
           </View>
 
-          {/* ── Mantra Text Card ── */}
+          {/*  Mantra Text Card */}
           <View style={styles.mantraCard}>
             <View style={styles.mantraAccentBar} />
             <Animated.Text
@@ -473,7 +471,7 @@ const JapScreen = () => {
 };
 
 // ─── Styles ─────────────────────────────────────────────────────────────────────
-const MALA_CONTAINER_SIZE = scale(260);
+const MALA_CONTAINER_SIZE = scale(270);
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
