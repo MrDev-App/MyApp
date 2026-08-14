@@ -1,7 +1,7 @@
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import LottieView from 'lottie-react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import Video from 'react-native-video';
 import GradientBackground from '../../components/GradientBackground';
 import GradientOverlay from '../../components/GradientOverlay';
 import Globalstyles from '../../utile/GlobalStyle';
@@ -11,14 +11,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { fs, scale } from '../../utile/sizes';
 import colors from '../../utile/colors';
 import fonts from '../../utile/fonts';
-import PanchangCard from './component/PanchangCard';
 import FestivalHighlights from './component/FestivalHighlights';
 import MantrasCard from './component/MantrasCard';
 import FeaturedCategories from './component/FeaturedCategories';
 import JapCard from './component/JapCard';
-import OverlayModal, {
-  OverlayModalHandle,
-} from '../../components/OverlayModal';
+import { OverlayModalHandle } from '../../components/OverlayModal';
 
 const HomeScreen = () => {
   const { t } = useTranslation();
@@ -39,11 +36,18 @@ const HomeScreen = () => {
   return (
     <GradientBackground style={Globalstyles.containerFull}>
       <View style={styles.imageContainer}>
-        <Image source={imagePath.greeting} style={styles.greetingImage} />
+        <Video
+          source={imagePath.bhaktiVideo}
+          style={styles.greetingImage}
+          resizeMode="cover"
+          repeat={true}
+          muted={true}
+          paused={false}
+        />
 
         <GradientOverlay
           colors={[colors.gradientStart, colors.primary]}
-          direction="bottom-to-top"
+          direction="top-to-bottom"
         />
       </View>
       <SafeAreaView style={Globalstyles.containerMargin20}>
@@ -131,7 +135,7 @@ const styles = StyleSheet.create({
   greetingTime: {
     fontSize: fs(10),
     fontFamily: fonts.PoppinsMedium,
-    color: colors.ring,
+    color: colors.black,
     letterSpacing: 4,
   },
   greetingText: {

@@ -30,29 +30,17 @@ import GradientBackground from '../../components/GradientBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MANTRAS_LIST, MantraSelectorItem } from '../../constants/japData';
 import { Translation } from '../../i18n/language';
-import LinearGradient from 'react-native-linear-gradient';
+
 import SwitchMantraModal from './component/SwitchMantraModal';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import HapticFeedback from 'react-native-haptic-feedback';
 
-const hapticOptions = {
-  enableVibrateFallback: true,
-  ignoreAndroidSystemSettings: true,
+const TriggerHaptic = () => {
+  const options = {
+    enableVibrateFallback: true,
+    ignoreAndroidSystemSettings: false,
+  };
+  HapticFeedback.trigger('impactHeavy', options);
 };
-
-const triggerHaptic = (type: any = 'impactMedium') => {
-  try {
-    ReactNativeHapticFeedback.trigger(type, hapticOptions);
-  } catch (e) {
-    Vibration.vibrate(30);
-  }
-};
-
-if (
-  Platform.OS === 'android' &&
-  UIManager.setLayoutAnimationEnabledExperimental
-) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 // ─── Mala constants ────────────────────────────────────────────────────────────
 const TOTAL_BEADS = 108;
@@ -84,7 +72,7 @@ const MalaBead = React.memo(
       CENTER +
       MALA_RADIUS * Math.sin(rad) -
       (isMarker ? scale(9) : BEAD_RADIUS);
-    const size = isMarker ? scale(18) : BEAD_RADIUS * 2;
+    const size = isMarker ? scale(14) : BEAD_RADIUS * 2;
 
     if (isMarker) {
       return (
@@ -236,7 +224,7 @@ const JapScreen = () => {
 
     // Trigger haptic feedback if enabled
     if (isHapticOn) {
-      triggerHaptic('impactMedium');
+      TriggerHaptic();
     }
 
     // Ripple
@@ -318,7 +306,7 @@ const JapScreen = () => {
                 const next = !isHapticOn;
                 setIsHapticOn(next);
                 if (next) {
-                  triggerHaptic('impactLight');
+                  TriggerHaptic();
                 }
               }}
               activeOpacity={0.7}
@@ -417,7 +405,10 @@ const JapScreen = () => {
           {/* ── Mala Circle + Tap Sphere ── */}
           <View style={styles.malaContainer}>
             {/* Rotating bead ring */}
-            <Animated.View style={[styles.malaRing, animatedMalaStyle]}>
+            <Animated.View
+              style={[styles.malaRing, animatedMalaStyle]}
+              pointerEvents="none"
+            >
               {BEAD_ANGLES.map((angle, i) => (
                 <MalaBead
                   key={i}
@@ -430,7 +421,10 @@ const JapScreen = () => {
             </Animated.View>
 
             {/* Ripple ring */}
-            <Animated.View style={[styles.rippleRing, animatedRippleStyle]} />
+            <Animated.View
+              style={[styles.rippleRing, animatedRippleStyle]}
+              pointerEvents="none"
+            />
 
             {/* Center tap sphere */}
             <Pressable onPress={handleChantPress}>
@@ -769,3 +763,14 @@ const styles = StyleSheet.create({
 });
 
 export default JapScreen;
+
+{
+  /* <View style={styles.imageContainer}>
+        <Image source={imagePath.greeting} style={styles.greetingImage} />
+
+        <GradientOverlay
+          colors={[colors.gradientStart, colors.primary]}
+          direction="bottom-to-top"
+        />
+      </View> */
+}
