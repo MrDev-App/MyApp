@@ -5,7 +5,6 @@ import colors from '../utile/colors';
 import fonts from '../utile/fonts';
 import { fs, scale } from '../utile/sizes';
 
-// 1. Specific View for Aarti Category (2-Column Deity Grid Card)
 export const AartiView = ({
   items,
   registerItemRef,
@@ -27,12 +26,17 @@ export const AartiView = ({
         return (
           <TouchableOpacity
             key={item.id}
-            ref={registerItemRef(item.id)}
             style={styles.aartiGridCard}
             activeOpacity={0.8}
             onPress={() => onItemPress(item.id, item)}
           >
-            <Image source={item.image} style={styles.aartiGridImage} />
+            <View
+              ref={registerItemRef(item.id)}
+              collapsable={false}
+              style={styles.aartiGridImageContainer}
+            >
+              <Image source={item.image} style={styles.aartiGridImage} />
+            </View>
             <Text style={styles.aartiGridName}>{name}</Text>
             {subtitle && (
               <Text style={styles.aartiGridSubtitle}>{subtitle}</Text>
@@ -153,11 +157,17 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 1,
   },
-  aartiGridImage: {
+  aartiGridImageContainer: {
     width: scale(100),
     height: scale(100),
     borderRadius: scale(50),
     marginBottom: scale(8),
+    overflow: 'hidden',
+  },
+  aartiGridImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: scale(50),
     borderWidth: 1.5,
     borderColor: colors.ring,
   },

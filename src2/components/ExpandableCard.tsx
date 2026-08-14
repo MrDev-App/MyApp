@@ -3,7 +3,6 @@ import {
   Modal,
   View,
   StyleSheet,
-  Dimensions,
   TouchableOpacity,
   ImageSourcePropType,
   useWindowDimensions,
@@ -20,7 +19,7 @@ import { runOnJS } from 'react-native-worklets';
 import { scale } from '../utile/sizes';
 import colors from '../utile/colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
 
 export type ExpandOrigin = {
   x: number;
@@ -58,7 +57,7 @@ function ExpandableCardInner<T>(
 ) {
   const { width: windowWidth } = useWindowDimensions();
   const [data, setData] = useState<T | null>(null);
-  const [origin, setOrigin] = useState<ExpandOrigin>({
+  const [_origin, setOrigin] = useState<ExpandOrigin>({
     x: 0,
     y: 0,
     width: 0,
@@ -76,7 +75,10 @@ function ExpandableCardInner<T>(
   const handleClose = () => {
     progress.value = withTiming(
       0,
-      { duration: 350, easing: Easing.in(Easing.cubic) },
+      {
+        duration: 450,
+        easing: Easing.bezier(0.25, 1, 0.5, 1),
+      },
       finished => {
         if (finished) {
           runOnJS(setVisible)(false);
@@ -96,8 +98,8 @@ function ExpandableCardInner<T>(
       setData(itemData);
       setVisible(true);
       progress.value = withTiming(1, {
-        duration: 400,
-        easing: Easing.out(Easing.cubic),
+        duration: 550,
+        easing: Easing.bezier(0.25, 1, 0.5, 1),
       });
     },
     close: handleClose,
@@ -127,16 +129,52 @@ function ExpandableCardInner<T>(
       [0, 1],
       [originHeight.value, targetHeight],
     );
+    const borderRadius = interpolate(
+      progress.value,
+      [0, 1],
+      [originWidth.value / 2, 0],
+    );
+    const borderWidth = interpolate(
+      progress.value,
+      [0, 1],
+      [1.5, 0],
+    );
 
-    return { top, left, width, height };
+    return {
+      top,
+      left,
+      width,
+      height,
+      borderRadius,
+      borderWidth,
+      borderColor: colors.ring,
+    };
   });
 
   const hasImage = !!getImage;
 
   const contentAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(progress.value, [0.6, 1], [0, 1], Extrapolation.CLAMP),
+    opacity: interpolate(progress.value, [0.3, 1], [0, 1], Extrapolation.CLAMP),
     top: hasImage ? expandedHeight + topOffset + scale20 : topOffset,
     bottom: scale20,
+    transform: [
+      {
+        translateY: interpolate(
+          progress.value,
+          [0.3, 1],
+          [35, 0],
+          Extrapolation.CLAMP,
+        ),
+      },
+      {
+        scale: interpolate(
+          progress.value,
+          [0.3, 1],
+          [0.96, 1],
+          Extrapolation.CLAMP,
+        ),
+      },
+    ],
   }));
 
   const backdropAnimatedStyle = useAnimatedStyle(() => ({
