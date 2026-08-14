@@ -31,6 +31,7 @@ import imagePath from '../../assets';
 
 import SwitchMantraModal from './component/SwitchMantraModal';
 import HapticFeedback from 'react-native-haptic-feedback';
+import { Storage, STORAGE_KEYS } from '../../utile/storage';
 
 const TriggerHaptic = () => {
   if (Platform.OS === 'android') {
@@ -159,6 +160,34 @@ const JapScreen = () => {
     isHapticOnRef.current = isHapticOn;
   }, [isHapticOn]);
 
+  // Persistent States
+  const [totalCount, setTotalCount] = useState(
+    () => Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_COUNT) || 0,
+  );
+  const [_totalMala, setTotalMala] = useState(
+    () => Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_MALA) || 0,
+  );
+  const [todayCount, setTodayCount] = useState(() => {
+    Storage.checkAndResetTodayStats();
+    return Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT) || 0;
+  });
+  const [todayMala, setTodayMala] = useState(() => {
+    Storage.checkAndResetTodayStats();
+    return Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA) || 0;
+  });
+
+  const handleDateCheck = useCallback(() => {
+    const wasReset = Storage.checkAndResetTodayStats();
+    if (wasReset) {
+      setTodayCount(0);
+      setTodayMala(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    handleDateCheck();
+  }, [handleDateCheck]);
+
   const [pendingMantra, setPendingMantra] = useState<MantraSelectorItem | null>(
     null,
   );
@@ -220,17 +249,49 @@ const JapScreen = () => {
   }, [selectedMantra]);
 
   const handleChantPress = useCallback(() => {
+    handleDateCheck();
+
     let nextCount = 0;
+    let isMalaCompleted = false;
     setCount(prev => {
       const next = prev + 1;
       if (next >= target) {
         setRounds(r => r + 1);
         nextCount = 0;
+        isMalaCompleted = true;
         return 0;
       }
       nextCount = next;
       return next;
     });
+
+    // Persistent Tap Stats
+    const currentTotalCount =
+      Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_COUNT) || 0;
+    const currentTodayCount =
+      Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT) || 0;
+    const nextTotalCount = currentTotalCount + 1;
+    const nextTodayCount = currentTodayCount + 1;
+
+    Storage.set(STORAGE_KEYS.JAP_TOTAL_COUNT, nextTotalCount);
+    Storage.set(STORAGE_KEYS.JAP_TODAY_COUNT, nextTodayCount);
+    setTotalCount(nextTotalCount);
+    setTodayCount(nextTodayCount);
+
+    // Persistent Mala Stats
+    if (isMalaCompleted) {
+      const currentTotalMala =
+        Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_MALA) || 0;
+      const currentTodayMala =
+        Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA) || 0;
+      const nextTotalMala = currentTotalMala + 1;
+      const nextTodayMala = currentTodayMala + 1;
+
+      Storage.set(STORAGE_KEYS.JAP_TOTAL_MALA, nextTotalMala);
+      Storage.set(STORAGE_KEYS.JAP_TODAY_MALA, nextTodayMala);
+      setTotalMala(nextTotalMala);
+      setTodayMala(nextTodayMala);
+    }
 
     const step = 360 / TOTAL_BEADS;
     const targetRotation = nextCount === 0 ? 0 : -(nextCount * step);
@@ -258,7 +319,14 @@ const JapScreen = () => {
       duration: 500,
       easing: Easing.out(Easing.quad),
     });
-  }, [target, malaRotation, sphereScale, rippleScale, rippleOpacity]);
+  }, [
+    target,
+    malaRotation,
+    sphereScale,
+    rippleScale,
+    rippleOpacity,
+    handleDateCheck,
+  ]);
 
   const handleReset = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -302,7 +370,6 @@ const JapScreen = () => {
 
   const currentBeadIndex =
     Math.round((count / target) * TOTAL_BEADS) % TOTAL_BEADS;
-  const totalChants = rounds * target + count;
   const mantraText =
     currentLanguage === 'hi' ? displayedMantra.textHi : displayedMantra.textEn;
 
@@ -330,12 +397,6 @@ const JapScreen = () => {
                 {isHapticOn ? '📳' : '🔕'}
               </Text>
             </TouchableOpacity>
-
-            <View style={styles.streakBadge}>
-              <Text style={styles.streakText}>
-                🔥 {rounds} {currentLanguage === 'hi' ? 'माला' : 'Mala'}
-              </Text>
-            </View>
           </View>
         </View>
 
@@ -377,32 +438,35 @@ const JapScreen = () => {
             />
           </View>
 
-          {/*  Stats Bar: JAP | MALA | TOTAL */}
+          {/* Stats Bar: TODAY JAP | TODAY MALA | TOTAL CHANTS */}
           <View style={styles.statsBar}>
+            {/* Today Jap Card */}
             <View style={styles.statChip}>
-              <View style={styles.ringDot} />
+              <Text style={styles.statChipIcon}>⚡</Text>
               <Text style={styles.statChipLabel}>
-                {currentLanguage === 'hi' ? 'जाप' : 'JAP'}
+                {t(Translation.JAP_TODAY_JAP)}
               </Text>
-              <Text style={styles.statChipValue}>{count}</Text>
+              <Text style={styles.statChipValue}>{todayCount}</Text>
             </View>
             <View style={styles.statDivider} />
+
+            {/* Today Mala Card */}
             <View style={styles.statChip}>
               <Text style={styles.statChipIcon}>📿</Text>
               <Text style={styles.statChipLabel}>
-                {currentLanguage === 'hi' ? 'माला' : 'MALA'}
+                {t(Translation.JAP_TODAY_MALA)}
               </Text>
-              <Text style={styles.statChipValue}>
-                {rounds} / {Math.floor(totalChants / target)}
-              </Text>
+              <Text style={styles.statChipValue}>{todayMala}</Text>
             </View>
             <View style={styles.statDivider} />
+
+            {/* Total Chants Card */}
             <View style={styles.statChip}>
               <Text style={styles.statChipIcon}>📊</Text>
               <Text style={styles.statChipLabel}>
-                {currentLanguage === 'hi' ? 'कुल' : 'TOTAL'}
+                {t(Translation.JAP_TOTAL_CHANTS)}
               </Text>
-              <Text style={styles.statChipValue}>{totalChants}</Text>
+              <Text style={styles.statChipValue}>{totalCount}</Text>
             </View>
           </View>
 
@@ -435,12 +499,20 @@ const JapScreen = () => {
             </Animated.View>
 
             {/* Center tap sphere */}
-            <Pressable onPress={handleChantPress}>
+            <Pressable
+              onPress={handleChantPress}
+              hitSlop={{
+                top: scale(25),
+                bottom: scale(25),
+                left: scale(25),
+                right: scale(25),
+              }}
+            >
               <Animated.View style={[styles.chantSphere, animatedSphereStyle]}>
                 <Text style={styles.chantCountText}>{count}</Text>
                 <Text style={styles.chantTargetText}>/ {target}</Text>
                 <Text style={styles.chantLabel}>
-                  {currentLanguage === 'hi' ? 'जाप' : 'CHANT'}
+                  {t(Translation.JAP_CHANT_LABEL)}
                 </Text>
               </Animated.View>
             </Pressable>
@@ -455,7 +527,7 @@ const JapScreen = () => {
             >
               <Text style={styles.actionBtnIcon}>↺</Text>
               <Text style={[styles.actionBtnLabel, styles.resetBtnText]}>
-                {currentLanguage === 'hi' ? 'रीसेट' : 'Reset'}
+                {t(Translation.RESET_LABEL)}
               </Text>
             </TouchableOpacity>
           </View>
@@ -480,7 +552,6 @@ const JapScreen = () => {
   );
 };
 
-// ─── Styles ─────────────────────────────────────────────────────────────────────
 const MALA_CONTAINER_SIZE = scale(270);
 
 const styles = StyleSheet.create({
@@ -574,7 +645,7 @@ const styles = StyleSheet.create({
     marginHorizontal: scale(16),
     backgroundColor: colors.white,
     borderRadius: scale(14),
-    paddingVertical: scale(4),
+    paddingVertical: scale(10),
     paddingHorizontal: scale(8),
     borderWidth: 1,
     borderColor: 'rgba(183, 168, 151, 0.15)',
@@ -611,8 +682,15 @@ const styles = StyleSheet.create({
   },
   statDivider: {
     width: 1,
-    height: scale(32),
+    height: scale(42),
     backgroundColor: 'rgba(183, 168, 151, 0.2)',
+  },
+  statChipSubValue: {
+    fontSize: fs(8.5),
+    fontFamily: fonts.PoppinsRegular,
+    color: colors.mutedForeground,
+    opacity: 0.8,
+    marginTop: scale(1),
   },
 
   // Mantra card

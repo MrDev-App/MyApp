@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -16,6 +16,9 @@ import GradientBackground from '../../components/GradientBackground';
 import imagePath from '../../assets';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { favStoriesData, profileLabels } from '../../constants/profileData';
+import OverlayModal, { OverlayModalHandle } from '../../components/OverlayModal';
+import { useIsFocused } from '@react-navigation/native';
+import { Storage, STORAGE_KEYS } from '../../utile/storage';
 
 const ProfileScreen = () => {
   const { i18n } = useTranslation();
@@ -23,9 +26,28 @@ const ProfileScreen = () => {
   const labels = profileLabels[currentLanguage] || profileLabels.en;
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const overlayRef = useRef<OverlayModalHandle>(null);
+
+  const isFocused = useIsFocused();
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalMala, setTotalMala] = useState(0);
+  const [todayCount, setTodayCount] = useState(0);
+
+  useEffect(() => {
+    if (isFocused) {
+      Storage.checkAndResetTodayStats();
+      setTotalCount(Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_COUNT, 0));
+      setTotalMala(Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_MALA, 0));
+      setTodayCount(Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0));
+    }
+  }, [isFocused]);
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
+  };
+
+  const handleStoryPress = () => {
+    overlayRef.current?.open();
   };
 
   return (
@@ -54,18 +76,20 @@ const ProfileScreen = () => {
             <Text style={styles.sectionTitle}>{labels.totalStats}</Text>
             <View style={styles.statsGrid}>
               <View style={styles.statItem}>
-                <Text style={styles.statValue}>10,800</Text>
+                <Text style={styles.statValue}>
+                  {totalCount.toLocaleString()}
+                </Text>
                 <Text style={styles.statLabel}>{labels.totalChants}</Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statItem}>
-                <Text style={styles.statValue}>100</Text>
+                <Text style={styles.statValue}>{totalMala}</Text>
                 <Text style={styles.statLabel}>{labels.malasDone}</Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statItem}>
-                <Text style={styles.statValue}>8</Text>
-                <Text style={styles.statLabel}>{labels.storiesRead}</Text>
+                <Text style={styles.statValue}>{todayCount}</Text>
+                <Text style={styles.statLabel}>{labels.todayJap}</Text>
               </View>
             </View>
           </View>
@@ -82,7 +106,12 @@ const ProfileScreen = () => {
                 const title = currentLanguage === 'hi' ? story.titleHi : story.titleEn;
                 const category = currentLanguage === 'hi' ? story.categoryHi : story.categoryEn;
                 return (
-                  <View key={story.id} style={styles.storyBookCard}>
+                  <TouchableOpacity
+                    key={story.id}
+                    style={styles.storyBookCard}
+                    onPress={handleStoryPress}
+                    activeOpacity={0.85}
+                  >
                     <View style={styles.bookCoverContainer}>
                       <Image source={story.image} style={styles.bookCoverImage} />
                       <View style={styles.categoryBadge}>
@@ -94,7 +123,7 @@ const ProfileScreen = () => {
                     <Text style={styles.storyBookTitle} numberOfLines={1}>
                       {title}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 );
               })}
             </ScrollView>
@@ -172,6 +201,34 @@ const ProfileScreen = () => {
           </View>
         </ScrollView>
       </SafeAreaView>
+
+      <OverlayModal
+        ref={overlayRef}
+        closeOnBackdropPress={true}
+      >
+        <View style={styles.modalCenterContainer}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalIcon}>✨</Text>
+            <Text style={styles.modalTitle}>
+              {currentLanguage === 'hi' ? 'जल्द आ रहा है' : 'Coming Soon'}
+            </Text>
+            <Text style={styles.modalMessage}>
+              {currentLanguage === 'hi'
+                ? 'यह कहानी जल्द ही उपलब्ध होगी। हम आपके लिए सुंदर भक्ति अनुभव तैयार कर रहे हैं!'
+                : 'This story is coming soon. We are building a beautiful devotional experience for you!'}
+            </Text>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => overlayRef.current?.close()}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.modalButtonText}>
+                {currentLanguage === 'hi' ? 'ठीक है' : 'Okay'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </OverlayModal>
     </GradientBackground>
   );
 };
@@ -400,6 +457,58 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: 'rgba(183, 168, 151, 0.15)',
     marginVertical: scale(10),
+  },
+  modalCenterContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  },
+  modalCard: {
+    width: '80%',
+    backgroundColor: colors.white,
+    borderRadius: scale(20),
+    padding: scale(24),
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(183, 168, 151, 0.25)',
+    shadowColor: colors.ring,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 5,
+  },
+  modalIcon: {
+    fontSize: fs(36),
+    marginBottom: scale(12),
+  },
+  modalTitle: {
+    fontSize: fs(18),
+    fontFamily: fonts.Marcellus,
+    color: colors.secondary,
+    marginBottom: scale(8),
+    textAlign: 'center',
+  },
+  modalMessage: {
+    fontSize: fs(12),
+    fontFamily: fonts.PoppinsRegular,
+    color: colors.mutedForeground,
+    textAlign: 'center',
+    lineHeight: scale(18),
+    marginBottom: scale(20),
+  },
+  modalButton: {
+    backgroundColor: colors.ring,
+    paddingHorizontal: scale(28),
+    paddingVertical: scale(10),
+    borderRadius: scale(12),
+    width: '100%',
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: colors.white,
+    fontSize: fs(13),
+    fontFamily: fonts.PoppinsMedium,
   },
 });
 

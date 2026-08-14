@@ -41,4 +41,12 @@ export default {
   SKIP_LABEL: 'छोड़ें',
   APP_NAME_HI: 'गुरुवाणी',
   APP_NAME: 'GuruVani',
+  JAP_TODAY_JAP: 'आज जाप',
+  JAP_TODAY_MALA: 'आज माला',
+  JAP_TOTAL_MALA: 'कुल माला',
+  SESSION_LABEL: 'सत्र: {{count}}',
+  CHANTS_COUNT_LABEL: '{{count}} जाप',
+  RESET_LABEL: 'रीसेट',
+  MALA_COUNT_LABEL: '{{count}} माला',
+  JAP_CHANT_LABEL: 'जाप',
 };

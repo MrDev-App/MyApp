@@ -1,5 +1,5 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import React, { useRef } from 'react';
+import { ScrollView, StyleSheet, Text, View, Image } from 'react-native';
+import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Video from 'react-native-video';
 import GradientBackground from '../../components/GradientBackground';
@@ -19,31 +19,47 @@ import { OverlayModalHandle } from '../../components/OverlayModal';
 
 const HomeScreen = () => {
   const { t } = useTranslation();
+  const [videoError, setVideoError] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   const overlayRef = useRef<OverlayModalHandle>(null);
   const buttonRef = useRef<View>(null);
 
   const handleOpen = () => {
-    // Option A: Tap point se spread (button ki position se)
     buttonRef.current?.measureInWindow((x, y, width, height) => {
       overlayRef.current?.open({ x: x + width / 2, y: y + height / 2 });
     });
-
-    // Option B: Simply center se spread (agar tap point matter nahi karta)
-    // overlayRef.current?.open();
   };
 
   return (
     <GradientBackground style={Globalstyles.containerFull}>
       <View style={styles.imageContainer}>
-        <Video
-          source={imagePath.bhaktiVideo}
-          style={styles.greetingImage}
-          resizeMode="cover"
-          repeat={true}
-          muted={true}
-          paused={false}
-        />
+        {(!videoLoaded || videoError) && (
+          <Image
+            source={imagePath.greeting}
+            style={styles.greetingImage}
+            resizeMode="cover"
+          />
+        )}
+
+        {!videoError && (
+          <Video
+            source={imagePath.bhaktiVideo}
+            style={[styles.greetingImage, !videoLoaded && styles.videoHidden]}
+            resizeMode="cover"
+            repeat={true}
+            muted={true}
+            paused={false}
+            onLoad={() => setVideoLoaded(true)}
+            onError={e => {
+              console.log(
+                '[Video] Error loading background video, falling back to image:',
+                e,
+              );
+              setVideoError(true);
+            }}
+          />
+        )}
 
         <GradientOverlay
           colors={[colors.gradientStart, colors.primary]}
@@ -131,6 +147,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 310,
     resizeMode: 'cover',
+  },
+  videoHidden: {
+    position: 'absolute',
+    opacity: 0,
   },
   greetingTime: {
     fontSize: fs(10),
