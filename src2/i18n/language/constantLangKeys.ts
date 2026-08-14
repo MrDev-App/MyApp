@@ -41,4 +41,5 @@ export default {
   SKIP_LABEL: 'SKIP_LABEL',
   APP_NAME_EN: 'APP_NAME_EN',
   APP_NAME_HI: 'APP_NAME_HI',
+  APP_NAME: 'APP_NAME',
 };

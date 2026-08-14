@@ -118,7 +118,7 @@ const SplashScreen = () => {
           {t(Translation.APP_NAME_EN)}
         </Animated.Text>
         <Animated.Text style={[styles.hindiText, hinStyle]}>
-          {t(Translation.APP_NAME_HI)}
+          {t(Translation.APP_NAME)}
         </Animated.Text>
       </View>
     </View>

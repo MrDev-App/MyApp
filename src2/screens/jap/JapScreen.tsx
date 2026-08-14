@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,6 +9,8 @@ import {
   LayoutAnimation,
   Pressable,
   Image,
+  Vibration,
+  Platform,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -31,11 +33,30 @@ import SwitchMantraModal from './component/SwitchMantraModal';
 import HapticFeedback from 'react-native-haptic-feedback';
 
 const TriggerHaptic = () => {
-  const options = {
-    enableVibrateFallback: true,
-    ignoreAndroidSystemSettings: false,
-  };
-  HapticFeedback.trigger('impactHeavy', options);
+  if (Platform.OS === 'android') {
+    try {
+      console.log('[Haptic] Triggering vibration on Android...');
+      Vibration.vibrate([0, 40, 0, 0]);
+    } catch (error) {
+      console.log('[Haptic] Android vibration failed:', error);
+    }
+  } else {
+    // iOS: Use native Taptic engine
+    const options = {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: true,
+    };
+    try {
+      console.log('[Haptic] Triggering impactHeavy haptic feedback on iOS...');
+      HapticFeedback.trigger('impactHeavy', options);
+    } catch (error) {
+      console.log(
+        '[Haptic] Failed to trigger haptics, falling back to Vibration:',
+        error,
+      );
+      Vibration.vibrate(30);
+    }
+  }
 };
 
 const TOTAL_BEADS = 108;
@@ -132,6 +153,11 @@ const JapScreen = () => {
   const [rounds, setRounds] = useState(0);
   const [target, _setTarget] = useState(108);
   const [isHapticOn, setIsHapticOn] = useState(true);
+  const isHapticOnRef = useRef(isHapticOn);
+
+  useEffect(() => {
+    isHapticOnRef.current = isHapticOn;
+  }, [isHapticOn]);
 
   const [pendingMantra, setPendingMantra] = useState<MantraSelectorItem | null>(
     null,
@@ -159,11 +185,6 @@ const JapScreen = () => {
 
   const animatedSphereStyle = useAnimatedStyle(() => ({
     transform: [{ scale: sphereScale.value }],
-  }));
-
-  const animatedRippleStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: rippleScale.value }],
-    opacity: rippleOpacity.value,
   }));
 
   // Mantra text swap animation
@@ -223,7 +244,7 @@ const JapScreen = () => {
       sphereScale.value = withSpring(1, { damping: 14, stiffness: 200 });
     }, 120);
 
-    if (isHapticOn) {
+    if (isHapticOnRef.current) {
       TriggerHaptic();
     }
 
@@ -237,14 +258,7 @@ const JapScreen = () => {
       duration: 500,
       easing: Easing.out(Easing.quad),
     });
-  }, [
-    target,
-    malaRotation,
-    sphereScale,
-    rippleScale,
-    rippleOpacity,
-    isHapticOn,
-  ]);
+  }, [target, malaRotation, sphereScale, rippleScale, rippleOpacity]);
 
   const handleReset = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -303,7 +317,9 @@ const JapScreen = () => {
               style={[styles.hapticBtn, isHapticOn && styles.hapticBtnActive]}
               onPress={() => {
                 const next = !isHapticOn;
+                console.log('[Haptic] Toggled haptics state to:', next);
                 setIsHapticOn(next);
+                isHapticOnRef.current = next;
                 if (next) {
                   TriggerHaptic();
                 }
@@ -417,12 +433,6 @@ const JapScreen = () => {
                 />
               ))}
             </Animated.View>
-
-            {/* Ripple ring */}
-            <Animated.View
-              style={[styles.rippleRing, animatedRippleStyle]}
-              pointerEvents="none"
-            />
 
             {/* Center tap sphere */}
             <Pressable onPress={handleChantPress}>
@@ -682,15 +692,7 @@ const styles = StyleSheet.create({
     height: MALA_CONTAINER_SIZE,
     position: 'absolute',
   },
-  rippleRing: {
-    position: 'absolute',
-    width: scale(160),
-    height: scale(160),
-    borderRadius: scale(80),
-    borderWidth: 3,
-    borderColor: 'rgba(251, 148, 55, 0.35)',
-    backgroundColor: 'rgba(251, 148, 55, 0.06)',
-  },
+
   chantSphere: {
     width: scale(160),
     height: scale(160),

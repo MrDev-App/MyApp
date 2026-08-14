@@ -40,5 +40,5 @@ export default {
   GET_STARTED_LABEL: 'Get Started',
   SKIP_LABEL: 'Skip',
   APP_NAME_EN: 'GuruVani',
-  APP_NAME_HI: 'GuruVani',
+  APP_NAME: 'गुरुवाणी',
 };

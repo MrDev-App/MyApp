@@ -39,6 +39,6 @@ export default {
   DAYS_COUNT_LABEL: '{{count}} दिन',
   GET_STARTED_LABEL: 'शुरू करें',
   SKIP_LABEL: 'छोड़ें',
-  APP_NAME_EN: 'गुरुवाणी',
   APP_NAME_HI: 'गुरुवाणी',
+  APP_NAME: 'GuruVani',
 };
