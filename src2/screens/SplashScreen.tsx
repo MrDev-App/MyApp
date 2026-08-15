@@ -107,7 +107,6 @@ const SplashScreen = () => {
   ]);
 
   return (
-    // <GradientBackground style={styles.container}>
     <View style={styles.contentContainer}>
       <Animated.View style={[styles.omContainer, omStyle]}>
         <Text style={styles.omText}>ॐ</Text>
@@ -122,7 +121,6 @@ const SplashScreen = () => {
         </Animated.Text>
       </View>
     </View>
-    // </GradientBackground>
   );
 };
 

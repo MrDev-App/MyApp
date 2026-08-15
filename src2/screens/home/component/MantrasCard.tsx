@@ -118,9 +118,8 @@ const MantrasCard = () => {
                         name:
                           currentLanguage === 'hi' && m.nameHi
                             ? m.nameHi
-                            : m.name,
-                        mantraHi: m.mantraHi,
-                        mantraEn: m.mantraEn,
+                            : m.nameEn || m.name,
+                        mantra: m.mantra,
                       });
                     }}
                   >
@@ -128,13 +127,10 @@ const MantrasCard = () => {
                       <Text style={styles.mantraName}>
                         {currentLanguage === 'hi' && m.nameHi
                           ? m.nameHi
-                          : m.name}
+                          : m.nameEn || m.name}
                       </Text>
                     </View>
-                    <Text style={styles.mantraTextHi}>{m.mantraHi}</Text>
-                    {m.mantraEn && (
-                      <Text style={styles.mantraTextEn}>{m.mantraEn}</Text>
-                    )}
+                    <Text style={styles.mantraTextHi}>{m.mantra}</Text>
                   </TouchableOpacity>
                 ))
               ) : (
@@ -150,8 +146,7 @@ const MantrasCard = () => {
                           ? god.hindiName
                           : god.englishName,
                       name: t(Translation.MANTRAS_LABEL),
-                      mantraHi: god.mantraHi,
-                      mantraEn: god.mantraEn,
+                      mantra: god.mantra,
                     });
                   }}
                 >
@@ -160,10 +155,7 @@ const MantrasCard = () => {
                       {t(Translation.MANTRAS_LABEL)}
                     </Text>
                   </View>
-                  <Text style={styles.mantraTextHi}>{god.mantraHi}</Text>
-                  {god.mantraEn && (
-                    <Text style={styles.mantraTextEn}>{god.mantraEn}</Text>
-                  )}
+                  <Text style={styles.mantraTextHi}>{god.mantra}</Text>
                 </TouchableOpacity>
               )}
             </ScrollView>
@@ -193,10 +185,7 @@ const MantrasCard = () => {
               contentContainerStyle={styles.modalScrollContent}
             >
               <View style={styles.mantraDetailCard}>
-                <Text style={styles.mantraDetailHi}>{item.mantraHi}</Text>
-                {item.mantraEn && (
-                  <Text style={styles.mantraDetailEn}>{item.mantraEn}</Text>
-                )}
+                <Text style={styles.mantraDetailHi}>{item.mantra}</Text>
               </View>
             </ScrollView>
           </>

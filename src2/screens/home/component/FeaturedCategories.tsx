@@ -121,7 +121,6 @@ const FeaturedCategories = () => {
         imageMargin={scale(20)}
         getImage={(item: CategoryItem) => item.image}
         renderContent={(item, close) => {
-          const itemText = currentLanguage === 'hi' ? item.textHi : item.textEn;
           return (
             <>
               <ScrollView
@@ -130,7 +129,7 @@ const FeaturedCategories = () => {
                 contentContainerStyle={styles.scrollListContent}
               >
                 <View style={styles.aartiDetailCard}>
-                  <Text style={styles.aartiDetailText}>{itemText}</Text>
+                  <Text style={styles.aartiDetailText}>{item.textHi}</Text>
                 </View>
               </ScrollView>
             </>
