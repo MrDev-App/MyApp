@@ -10,7 +10,7 @@ const imagePath = {
   Rama: require('./png/Ramji.png'),
   Saraswati: require('./png/Saraswatima.png'),
   Surya: require('./png/Suryadev.png'),
-  Vishnu: require('./png/Vishnu.png'),
+  Vishnu: require('./png/Vishnu1.png'),
   Kubera: require('./png/Kubera.png'),
   ShaniDev: require('./png/ShaniDev.png'),
   SriRadha: require('./png/Radhaji.png'),
@@ -29,7 +29,7 @@ const imagePath = {
   Navratri: require('./png/Navratri.png'),
   RakhiBandan: require('./png/RakhiBandan.png'),
   RakshaBandhan: require('./png/RakhiBandan.png'),
-  compressedVishnu: require('./png/compressed-Vishnu ji.webp'),
+  compressedVishnu: require('./png/Vishnu1.png'),
   OnBoarding: [
     require('./png/OnBoarding1.png'),
     require('./png/OnBoarding2.png'),

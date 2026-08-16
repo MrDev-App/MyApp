@@ -39,6 +39,7 @@ type Props<T> = {
   expandedWidth?: number;
   expandedHeight?: number;
   topOffset?: number;
+  bottomOffset?: number;
   horizontalPadding?: number;
   imageMargin?: number;
 };
@@ -50,6 +51,7 @@ function ExpandableCardInner<T>(
 
     expandedHeight = 340,
     topOffset = 60,
+    bottomOffset,
     horizontalPadding = scale(10),
     imageMargin = 0,
   }: Props<T>,
@@ -156,7 +158,8 @@ function ExpandableCardInner<T>(
   const contentAnimatedStyle = useAnimatedStyle(() => ({
     opacity: interpolate(progress.value, [0.3, 1], [0, 1], Extrapolation.CLAMP),
     top: hasImage ? expandedHeight + topOffset + scale20 : topOffset,
-    bottom: scale20,
+
+    bottom: bottomOffset !== undefined ? bottomOffset : scale20,
     transform: [
       {
         translateY: interpolate(
@@ -243,7 +246,7 @@ const styles = StyleSheet.create({
   expandedImage: {
     position: 'absolute',
     resizeMode: 'contain',
-    backgroundColor: colors.white,
+    overflow: 'hidden',
   },
   expandedContent: {
     position: 'absolute',

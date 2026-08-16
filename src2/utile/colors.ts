@@ -21,7 +21,7 @@ export const colors = {
   border: 'rgba(255, 255, 255, 0.12)',
   input: 'rgba(255, 255, 255, 0.16)',
   ring: '#fb9437',
-
+  
   // Charts
   chart1: '#1447e6',
   chart2: '#00bc7d',

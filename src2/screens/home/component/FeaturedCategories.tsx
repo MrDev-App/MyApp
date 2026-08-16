@@ -72,6 +72,7 @@ const FeaturedCategories = () => {
       <ExpandableCard<Category>
         ref={cardRef}
         imageMargin={scale(16)}
+        bottomOffset={0}
         renderContent={(category, _close) => {
           const categoryTitle =
             currentLanguage === 'hi' ? category.titleHi : category.titleEn;
@@ -118,22 +119,20 @@ const FeaturedCategories = () => {
       {/* Nested Item Detail Modal for Aartis */}
       <ExpandableCard<CategoryItem>
         ref={detailCardRef}
-        imageMargin={scale(20)}
+        imageMargin={scale(0)}
+        expandedHeight={scale(190)}
         getImage={(item: CategoryItem) => item.image}
-        renderContent={(item, close) => {
+        renderContent={(item, _close) => {
           return (
-            <>
-              <Text style={{ textAlign: 'center', fontSize: fs(20), fontFamily: fonts.Marcellus, color: colors.secondary, borderWidth: 1 }}>{item.nameHi}</Text>
+            <View style={styles.aartiFixedCard}>
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 style={styles.scrollList}
                 contentContainerStyle={styles.scrollListContent}
               >
-                <View style={styles.aartiDetailCard}>
-                  <Text style={styles.aartiDetailText}>{item.textHi}</Text>
-                </View>
+                <Text style={styles.aartiDetailText}>{item.textHi}</Text>
               </ScrollView>
-            </>
+            </View>
           );
         }}
       />
@@ -195,7 +194,7 @@ const styles = StyleSheet.create({
   modalHeaderRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: scale(16),
+    marginBottom: scale(4),
     width: '100%',
   },
   modalHeaderTitleCol: {
@@ -218,16 +217,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollListContent: {
-    paddingBottom: scale(20),
+    paddingVertical: scale(4),
   },
 
   // Detail Modal Content
-  aartiDetailCard: {
+  aartiFixedCard: {
+    flex: 1,
     backgroundColor: 'rgba(252, 224, 180, 0.12)',
     borderRadius: scale(8),
-    padding: scale(18),
+    padding: scale(16),
     borderWidth: 1,
-    alignItems: 'center',
+    borderColor: 'rgba(183, 168, 151, 0.3)',
   },
   aartiDetailText: {
     fontSize: fs(14),
