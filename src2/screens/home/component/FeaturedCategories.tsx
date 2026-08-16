@@ -123,6 +123,7 @@ const FeaturedCategories = () => {
         renderContent={(item, close) => {
           return (
             <>
+              <Text style={{ textAlign: 'center', fontSize: fs(20), fontFamily: fonts.Marcellus, color: colors.secondary, borderWidth: 1 }}>{item.nameHi}</Text>
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 style={styles.scrollList}

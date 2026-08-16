@@ -39,6 +39,7 @@ const HomeScreen = () => {
             source={imagePath.greeting}
             style={styles.greetingImage}
             resizeMode="cover"
+            fadeDuration={0}
           />
         )}
 

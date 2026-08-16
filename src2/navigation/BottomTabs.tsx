@@ -4,6 +4,7 @@ import {
   View,
   TouchableOpacity,
   LayoutAnimation,
+  Image,
 } from 'react-native';
 import { fs, scale, verticalScale } from '../utile/sizes';
 import colors from '../utile/colors';
@@ -16,6 +17,7 @@ import Animated, {
   withSequence,
   Easing,
 } from 'react-native-reanimated';
+import imagePath from '../assets';
 
 const bubbleWidth = scale(64);
 const bubbleHeight = scale(36);
@@ -29,14 +31,14 @@ const getIcon = (routeName: string) => {
     case 'Book':
       return '📖';
     case 'Profile':
-      return '👤';
+      return imagePath.user;
     default:
       return '🪷';
   }
 };
 
 interface TabIconProps {
-  icon: string;
+  icon: any;
   isFocused: boolean;
 }
 
@@ -58,6 +60,19 @@ const TabIcon = ({ icon, isFocused }: TabIconProps) => {
       transform: [{ scale: scaleVal.value }],
     };
   });
+
+  if (typeof icon !== 'string') {
+    return (
+      <Animated.View style={animatedStyle}>
+        <Image
+          source={icon}
+          style={styles.iconImage}
+          resizeMode="contain"
+          fadeDuration={0}
+        />
+      </Animated.View>
+    );
+  }
 
   const isBiggerIcon = icon === '🪷' || icon === '📖';
   const customFontSize = isBiggerIcon ? fs(23) : fs(18);
@@ -207,6 +222,10 @@ const styles = StyleSheet.create({
   iconText: {
     fontSize: fs(20),
     textAlign: 'center',
+  },
+  iconImage: {
+    width: scale(22),
+    height: scale(22),
   },
 });
 export default CustomTabBar;

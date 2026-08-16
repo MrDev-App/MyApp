@@ -37,7 +37,7 @@ export const categoriesData: Category[] = [
       {
         id: 'ganesha_aarti',
         nameEn: 'Ganesha Aarti',
-        nameHi: 'श्री गणेश आरती',
+        nameHi: 'श्री गणेश जी आरती',
         subtitleEn: 'Jai Ganesh Deva',
         subtitleHi: 'जय गणेश देवा',
         textHi:
@@ -47,7 +47,7 @@ export const categoriesData: Category[] = [
       {
         id: 'shiva_aarti',
         nameEn: 'Shiva Aarti',
-        nameHi: 'शिव आरती',
+        nameHi: 'शिव जी आरती',
         subtitleEn: 'Om Jai Shiv Omkara',
         subtitleHi: 'ॐ जय शिव ओंकारा',
         textHi:
@@ -56,10 +56,10 @@ export const categoriesData: Category[] = [
       },
       {
         id: 'laxmi_aarti',
-        nameEn: 'Lakshmi Aarti',
+        nameEn: 'Lakshmi Aarti', 
         nameHi: 'लक्ष्मी आरती',
-        subtitleEn: '॥ आरती श्री लक्ष्मी जी ॥',
-        subtitleHi: '॥ आरती श्री लक्ष्मी जी ॥',
+        subtitleEn: 'om Jai Lakshmi Mata',
+        subtitleHi: 'ॐ जय लक्ष्मी माता',
         textHi:
           'ॐ जय लक्ष्मी माता, मैया जय लक्ष्मी माता।\nतुमको निशिदिन सेवत, हरि विष्णु विधाता॥\nॐ जय लक्ष्मी माता॥\n\nउमा, रमा, ब्रह्माणी, तुम ही जग-माता।\nसूर्य-चन्द्रमा ध्यावत, नारद ऋषि गाता॥\nॐ जय लक्ष्मी माता॥\n\nदुर्गा रुप निरंजनी, सुख सम्पत्ति दाता।\nजो कोई तुमको ध्यावत, ऋद्धि-सिद्धि धन पाता॥\nॐ जय लक्ष्मी माता॥\n\nतुम पाताल-निवासिनि, तुम ही शुभदाता।\nकर्म-प्रभाव-प्रकाशिनी, भवनिधि की त्राता॥\nॐ जय लक्ष्मी माता॥\n\nजिस घर में तुम रहतीं, सब सद्गुण आता।\nसब सम्भव हो जाता, मन नहीं घबराता॥\nॐ जय लक्ष्मी माता॥\n\nतुम बिन यज्ञ न होते, वस्त्र न कोई पाता।\nखान-पान का वैभव, सब तुमसे आता॥\nॐ जय लक्ष्मी माता॥\n\nशुभ-गुण मन्दिर सुन्दर, क्षीरोदधि-जाता।\nरत्न चतुर्दश तुम बिन, कोई नहीं पाता॥\nॐ जय लक्ष्मी माता॥\n\nमहालक्ष्मीजी की आरती, जो कोई जन गाता।\nउर आनन्द समाता, पाप उतर जाता॥\nॐ जय लक्ष्मी माता॥',
         image: imagePath.Laxmi,

@@ -97,12 +97,7 @@ const FestivalHighlights = ({ onPress }: any) => {
               : `in ${daysLeft} days `;
 
           // Select background image based on festival id, using greeting as fallback
-          let bgImage = imagePath.greeting;
-          if (item.id === 'nag_panchami') {
-            bgImage = imagePath.nagpachmi;
-          } else if (item.id === 'janmashtami') {
-            bgImage = imagePath.dhahiHande;
-          }
+          const bgImage = item.image || imagePath.greeting;
 
           return (
             <AnimatedButton
@@ -118,6 +113,7 @@ const FestivalHighlights = ({ onPress }: any) => {
                 source={bgImage}
                 style={styles.card}
                 imageStyle={styles.cardImageStyle}
+                fadeDuration={0}
               >
                 <View style={styles.cardOverlay}>
                   <Text style={styles.name}>{name}</Text>
@@ -142,15 +138,10 @@ const FestivalHighlights = ({ onPress }: any) => {
         {selectedFestival && (
           <View style={styles.modalContainer}>
             <ImageBackground
-              source={
-                selectedFestival.id === 'nag_panchami'
-                  ? imagePath.nagpachmi
-                  : selectedFestival.id === 'janmashtami'
-                  ? imagePath.dhahiHande
-                  : imagePath.greeting
-              }
+              source={selectedFestival.image || imagePath.greeting}
               style={styles.modalBg}
               imageStyle={styles.modalBgImage}
+              fadeDuration={0}
             >
               <GradientOverlay
                 colors={[

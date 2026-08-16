@@ -1,3 +1,5 @@
+import imagePath from '../../../assets';
+
 export interface Festival {
   id: string;
   englishName: string;
@@ -12,6 +14,7 @@ export interface Festival {
   description: string;
   regions: string[];
   icon?: string;
+  image?: any;
 }
 
 export const festivalData: Festival[] = [
@@ -29,6 +32,7 @@ export const festivalData: Festival[] = [
     description:
       'A winter harvest festival traditionally celebrated with bonfires.',
     regions: ['Punjab'],
+    image: imagePath.greeting,
   },
   {
     id: 'makar_sankranti',
@@ -44,6 +48,7 @@ export const festivalData: Festival[] = [
     description:
       "A solar festival marking the Sun's transition into Capricorn.",
     regions: ['Pan-India'],
+    image: imagePath.Surya,
   },
   {
     id: 'vasant_panchami',
@@ -66,27 +71,7 @@ export const festivalData: Festival[] = [
       'Uttar Pradesh',
       'Rajasthan',
     ],
-  },
-  {
-    id: 'ratha_saptami',
-    englishName: 'Ratha Saptami',
-    hindiName: 'रथ सप्तमी',
-    month: 1,
-    day: 25,
-    dateStrEn: 'Jan 25',
-    dateStrHi: '25 जनवरी',
-    deity: ['Surya'],
-    category: 'Deity Festival',
-    tithi: 'Magha Shukla Saptami',
-    description:
-      "A festival dedicated to Surya representing the Sun God's chariot turning toward the northern direction.",
-    regions: [
-      'Pan-India',
-      'Andhra Pradesh',
-      'Telangana',
-      'Karnataka',
-      'Tamil Nadu',
-    ],
+    image: imagePath.VasantPanchami,
   },
   {
     id: 'maha_shivratri',
@@ -101,21 +86,7 @@ export const festivalData: Festival[] = [
     tithi: 'Phalguna Krishna Chaturdashi',
     description: 'A major festival dedicated to Lord Shiva.',
     regions: ['Pan-India'],
-  },
-  {
-    id: 'phulera_dooj',
-    englishName: 'Phulera Dooj',
-    hindiName: 'फुलेरा दूज',
-    month: 2,
-    day: 19,
-    dateStrEn: 'Feb 19',
-    dateStrHi: '19 फ़रवरी',
-    deity: ['Krishna', 'Radha'],
-    category: 'Deity Festival',
-    tithi: 'Phalguna Shukla Dwitiya',
-    description:
-      'A Braj tradition associated with Radha and Krishna and the beginning of Holi celebrations.',
-    regions: ['Uttar Pradesh', 'Rajasthan', 'Haryana'],
+    image: imagePath.MahaShivratri,
   },
   {
     id: 'holika_dahan',
@@ -131,6 +102,7 @@ export const festivalData: Festival[] = [
     description:
       "A bonfire ritual commemorating Prahlada's devotion and the defeat of Holika.",
     regions: ['Pan-India'],
+    image: imagePath.HoliDahan,
   },
   {
     id: 'holi',
@@ -146,6 +118,7 @@ export const festivalData: Festival[] = [
     description:
       'The festival of colors celebrating spring, joy, devotion and the triumph of good over evil.',
     regions: ['Pan-India', 'Nepal'],
+    image: imagePath.Holi,
   },
   {
     id: 'chaitra_navratri',
@@ -161,6 +134,7 @@ export const festivalData: Festival[] = [
     description:
       'Nine nights dedicated to Goddess Durga and her manifestations, marking the beginning of the Hindu lunar year in many traditions.',
     regions: ['Pan-India', 'North India', 'West India'],
+    image: imagePath.Navratri,
   },
   {
     id: 'rama_navami',
@@ -176,6 +150,7 @@ export const festivalData: Festival[] = [
     description:
       'Celebrates the birth of Lord Rama, an important figure in the Ramayana.',
     regions: ['Pan-India', 'Nepal'],
+    image: imagePath.Rama,
   },
   {
     id: 'hanuman_jayanti',
@@ -191,6 +166,7 @@ export const festivalData: Festival[] = [
     description:
       'Celebrates the birth of Lord Hanuman and is marked by prayer, chanting and Hanuman worship.',
     regions: ['Pan-India'],
+    image: imagePath.Hanuman,
   },
   {
     id: 'buddha_purnima',
@@ -206,6 +182,7 @@ export const festivalData: Festival[] = [
     description:
       'Commemorates important events associated with Gautama Buddha.',
     regions: ['Pan-India', 'Nepal'],
+    image: imagePath.greeting,
   },
   {
     id: 'ganga_dussehra',
@@ -220,6 +197,7 @@ export const festivalData: Festival[] = [
     tithi: 'Jyeshtha Shukla Dashami',
     description: 'Celebrates the descent of the sacred river Ganga to Earth.',
     regions: ['North India', 'Uttar Pradesh', 'Uttarakhand', 'Bihar'],
+    image: imagePath.Dussehra,
   },
   {
     id: 'nirjala_ekadashi',
@@ -235,6 +213,7 @@ export const festivalData: Festival[] = [
     description:
       'A particularly strict Ekadashi traditionally associated with fasting and Vishnu devotion.',
     regions: ['Pan-India'],
+    image: imagePath.Vishnu,
   },
   {
     id: 'jagannath_rath_yatra',
@@ -250,6 +229,7 @@ export const festivalData: Festival[] = [
     description:
       'The famous chariot festival of Lord Jagannath and his siblings.',
     regions: ['Odisha', 'West Bengal', 'Gujarat', 'Pan-India'],
+    image: imagePath.JagannathRathYatra,
   },
   {
     id: 'guru_purnima',
@@ -265,6 +245,7 @@ export const festivalData: Festival[] = [
     description:
       'A day dedicated to honoring spiritual teachers and the guru tradition.',
     regions: ['Pan-India', 'Nepal'],
+    image: imagePath.greeting,
   },
   {
     id: 'nag_panchami',
@@ -281,6 +262,7 @@ export const festivalData: Festival[] = [
       'A traditional festival honoring serpent deities and seeking protection and blessings.',
     regions: ['Pan-India', 'Nepal'],
     icon: '🐍',
+    image: imagePath.nagpachmi,
   },
   {
     id: 'raksha_bandhan',
@@ -297,6 +279,7 @@ export const festivalData: Festival[] = [
       'A festival celebrating the bond of protection and affection between siblings.',
     regions: ['Pan-India', 'Nepal'],
     icon: '📿',
+    image: imagePath.RakshaBandhan,
   },
   {
     id: 'janmashtami',
@@ -312,6 +295,7 @@ export const festivalData: Festival[] = [
     description: 'Celebrates the birth of Lord Krishna.',
     regions: ['Pan-India'],
     icon: '🏺',
+    image: imagePath.dhahiHande,
   },
   {
     id: 'ganesh_chaturthi',
@@ -327,6 +311,7 @@ export const festivalData: Festival[] = [
     description: 'Celebrates the birth of Lord Ganesha.',
     regions: ['Maharashtra', 'Karnataka'],
     icon: '🐘',
+    image: imagePath.GaneshChaturthi,
   },
   {
     id: 'gauri_puja',
@@ -342,6 +327,7 @@ export const festivalData: Festival[] = [
     description: 'A festival honoring Goddess Gauri, a form of Parvati.',
     regions: ['Maharashtra', 'Karnataka', 'Rajasthan', 'Gujarat'],
     icon: '🌺',
+    image: imagePath.GauriPuja,
   },
   {
     id: 'navratri',
@@ -357,6 +343,7 @@ export const festivalData: Festival[] = [
     description: 'Nine nights of worship dedicated to Goddess Durga.',
     regions: ['Pan-India'],
     icon: '🔱',
+    image: imagePath.Navratri,
   },
   {
     id: 'dussehra',
@@ -373,6 +360,7 @@ export const festivalData: Festival[] = [
       "Celebrates the victory of good over evil and is associated with Rama's victory over Ravana.",
     regions: ['Pan-India'],
     icon: '🏹',
+    image: imagePath.Dussehra,
   },
   {
     id: 'karwa_chauth',
@@ -388,6 +376,7 @@ export const festivalData: Festival[] = [
     description: 'A traditional fasting observance for marital devotion.',
     regions: ['North India'],
     icon: '🌙',
+    image: imagePath.KarwaChauth,
   },
   {
     id: 'diwali',
@@ -403,6 +392,7 @@ export const festivalData: Festival[] = [
     description: 'The festival of lights.',
     regions: ['Pan-India'],
     icon: '🪔',
+    image: imagePath.Diwali,
   },
   {
     id: 'lakshmi_puja',
@@ -419,6 +409,7 @@ export const festivalData: Festival[] = [
       'A Diwali worship tradition dedicated to Goddess Lakshmi and Lord Ganesha.',
     regions: ['Pan-India'],
     icon: '🪙',
+    image: imagePath.Laxmi,
   },
   {
     id: 'govardhan_puja',
@@ -435,6 +426,7 @@ export const festivalData: Festival[] = [
       "Celebrates Krishna's protection of the people of Braj through the lifting of Govardhan Hill.",
     regions: ['Uttar Pradesh', 'Rajasthan', 'Madhya Pradesh', 'Gujarat'],
     icon: '⛰️',
+    image: imagePath.Govardhan,
   },
   {
     id: 'bhai_dooj',
@@ -451,5 +443,6 @@ export const festivalData: Festival[] = [
       'A festival celebrating the bond between brothers and sisters.',
     regions: ['Pan-India', 'Nepal'],
     icon: '❤️',
+    image: imagePath.BhaiDooj,
   },
 ];
