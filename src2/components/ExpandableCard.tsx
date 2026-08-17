@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ImageSourcePropType,
   useWindowDimensions,
+  Text,
 } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -16,7 +17,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { runOnJS } from 'react-native-worklets';
-import { scale } from '../utile/sizes';
+import { scale, fs } from '../utile/sizes';
 import colors from '../utile/colors';
 
 export type ExpandOrigin = {
@@ -194,11 +195,6 @@ function ExpandableCardInner<T>(
         }}
       >
         <Animated.View style={[styles.backdrop, backdropAnimatedStyle]} />
-        <TouchableOpacity
-          style={StyleSheet.absoluteFill}
-          activeOpacity={1}
-          onPress={handleClose}
-        />
 
         {data && hasImage && getImage && getImage(data) && (
           <Animated.Image
@@ -206,6 +202,12 @@ function ExpandableCardInner<T>(
             style={[styles.expandedImage, imageAnimatedStyle]}
           />
         )}
+
+        <TouchableOpacity
+          style={StyleSheet.absoluteFill}
+          activeOpacity={1}
+          onPress={handleClose}
+        />
 
         {data && (
           <Animated.View
@@ -218,6 +220,27 @@ function ExpandableCardInner<T>(
             {renderContent(data, handleClose)}
           </Animated.View>
         )}
+
+        <Animated.View
+          style={[
+            styles.closeButton,
+            { top: topOffset, right: scale(20), zIndex: 100 },
+            backdropAnimatedStyle,
+          ]}
+        >
+          <TouchableOpacity
+            onPress={handleClose}
+            activeOpacity={0.8}
+            style={{
+              width: '100%',
+              height: '100%',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Text style={styles.closeButtonText}>✕</Text>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
     </Modal>
   );
@@ -243,5 +266,19 @@ const styles = StyleSheet.create({
   },
   expandedContent: {
     position: 'absolute',
+  },
+  closeButton: {
+    position: 'absolute',
+    width: scale(30),
+    height: scale(30),
+    borderRadius: scale(18),
+    backgroundColor: 'rgba(251, 148, 55, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  closeButtonText: {
+    color: colors.ring,
+    fontSize: fs(18),
+    fontWeight: '600',
   },
 });

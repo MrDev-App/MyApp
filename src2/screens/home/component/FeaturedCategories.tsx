@@ -26,6 +26,7 @@ import {
   StoriesView,
   TemplesView,
 } from '../../../components/CategoryDetailViews';
+import GradientOverlay from '../../../components/GradientOverlay';
 
 const FeaturedCategories = () => {
   const { t, i18n } = useTranslation();
@@ -200,6 +201,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: scale(4),
     width: '100%',
+    paddingRight: scale(45),
   },
   modalHeaderTitleCol: {
     flex: 1,
@@ -221,19 +223,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollListContent: {
-    // paddingVertical: scale(4),
     padding: scale(16),
-    backgroundColor: 'rgba(252, 224, 180, 0.12)',
-    borderWidth: 1,
+
     borderColor: 'rgba(183, 168, 151, 0.3)',
     borderRadius: scale(8),
   },
 
-  // Detail Modal Content
   aartiFixedCard: {
     flex: 1,
-    marginBottom: scale(20),
     backgroundColor: colors.white,
+
+    borderRadius: scale(8),
   },
   aartiDetailText: {
     fontSize: fs(14),
@@ -249,5 +249,6 @@ const styles = StyleSheet.create({
     color: colors.secondary,
     lineHeight: fs(23),
     paddingVertical: scale(4),
+    paddingHorizontal: scale(45),
   },
 });

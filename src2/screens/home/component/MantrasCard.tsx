@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -18,6 +18,9 @@ import ExpandableCard, {
   ExpandableCardHandle,
 } from '../../../components/ExpandableCard';
 import { useExpandTrigger } from '../../../hook/useExpandTrigger';
+import OverlayModal, {
+  OverlayModalHandle,
+} from '../../../components/OverlayModal';
 
 const MantrasCard = () => {
   const { t, i18n } = useTranslation();
@@ -28,9 +31,8 @@ const MantrasCard = () => {
   const { registerRef, trigger } = useExpandTrigger(cardRef);
 
   // Nested Mantra Detail Modal
-  const detailCardRef = useRef<ExpandableCardHandle>(null);
-  const { registerRef: registerItemRef, trigger: triggerItem } =
-    useExpandTrigger(detailCardRef);
+  const detailCardRef = useRef<OverlayModalHandle>(null);
+  const [selectedMantra, setSelectedMantra] = useState<any>(null);
 
   const pairedGods = React.useMemo(() => {
     const pairs = [];
@@ -90,7 +92,7 @@ const MantrasCard = () => {
         getImage={(god: any) => god.image}
         renderContent={(god: any) => (
           <>
-            <View style={styles.modalHeaderRow}>
+            <View style={[styles.modalHeaderRow, { paddingRight: scale(45) }]}>
               <Text style={styles.expandedName}>
                 {currentLanguage === 'hi' ? god.hindiName : god.englishName}
               </Text>
@@ -105,11 +107,10 @@ const MantrasCard = () => {
                 god.mantras.map((m: any, index: number) => (
                   <TouchableOpacity
                     key={index}
-                    ref={registerItemRef(String(index))}
                     style={styles.mantraItemCard}
                     activeOpacity={0.8}
                     onPress={() => {
-                      triggerItem(String(index), {
+                      setSelectedMantra({
                         image: god.image,
                         deityName:
                           currentLanguage === 'hi'
@@ -121,6 +122,7 @@ const MantrasCard = () => {
                             : m.nameEn || m.name,
                         mantra: m.mantra,
                       });
+                      detailCardRef.current?.open();
                     }}
                   >
                     <View style={styles.mantraCardHeader}>
@@ -135,11 +137,10 @@ const MantrasCard = () => {
                 ))
               ) : (
                 <TouchableOpacity
-                  ref={registerItemRef('single')}
                   style={styles.mantraItemCard}
                   activeOpacity={0.8}
                   onPress={() => {
-                    triggerItem('single', {
+                    setSelectedMantra({
                       image: god.image,
                       deityName:
                         currentLanguage === 'hi'
@@ -148,6 +149,7 @@ const MantrasCard = () => {
                       name: t(Translation.MANTRAS_LABEL),
                       mantra: god.mantra,
                     });
+                    detailCardRef.current?.open();
                   }}
                 >
                   <View style={styles.mantraCardHeader}>
@@ -164,33 +166,41 @@ const MantrasCard = () => {
       />
 
       {/* Nested Mantra Detail Modal */}
-      <ExpandableCard<any>
+      <OverlayModal
         ref={detailCardRef}
-        imageMargin={scale(20)}
-        getImage={(item: any) => item.image}
-        renderContent={(item, close) => (
-          <>
-            <View style={styles.modalHeaderRow}>
-              <View style={styles.modalHeaderTitleCol}>
-                <Text style={styles.expandedName}>{item.name}</Text>
-                {item.deityName && (
-                  <Text style={styles.modalSubtitle}>{item.deityName}</Text>
-                )}
+        closeOnBackdropPress={true}
+        onClose={() => setSelectedMantra(null)}
+      >
+        {selectedMantra && (
+          <View style={styles.modalCenterContainer}>
+            <View style={styles.modalCard}>
+              <View style={styles.modalHeaderRow}>
+                <View style={styles.modalHeaderTitleCol}>
+                  <Text style={styles.expandedName}>{selectedMantra.name}</Text>
+                  {selectedMantra.deityName && (
+                    <Text style={styles.modalSubtitle}>
+                      {selectedMantra.deityName}
+                    </Text>
+                  )}
+                </View>
+                <TouchableOpacity
+                  style={styles.modalCloseButton}
+                  onPress={() => detailCardRef.current?.close()}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.modalCloseButtonText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.mantraDetailCard}>
+                <Text style={styles.mantraDetailHi}>
+                  {selectedMantra.mantra}
+                </Text>
               </View>
             </View>
-
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              style={styles.modalScroll}
-              contentContainerStyle={styles.modalScrollContent}
-            >
-              <View style={styles.mantraDetailCard}>
-                <Text style={styles.mantraDetailHi}>{item.mantra}</Text>
-              </View>
-            </ScrollView>
-          </>
+          </View>
         )}
-      />
+      </OverlayModal>
     </View>
   );
 };
@@ -340,6 +350,39 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: fs(22),
     fontStyle: 'italic',
+  },
+  modalCenterContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  },
+  modalCard: {
+    width: '90%',
+    maxHeight: '75%',
+    backgroundColor: colors.white,
+    borderRadius: scale(20),
+    padding: scale(20),
+    borderWidth: 1,
+    borderColor: 'rgba(183, 168, 151, 0.25)',
+    shadowColor: colors.secondary,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 6,
+  },
+  modalCloseButton: {
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
+    backgroundColor: 'rgba(251, 148, 55, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCloseButtonText: {
+    color: colors.ring,
+    fontSize: fs(16),
+    fontWeight: 'bold',
   },
 });
 
