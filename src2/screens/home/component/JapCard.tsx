@@ -1,16 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
 import { fs, scale } from '../../../utile/sizes';
 import { Translation } from '../../../i18n/language';
 import AnimatedButton from '../../../components/AnimatedButton';
+import { Storage, STORAGE_KEYS } from '../../../utile/storage';
 
 const JapCard = () => {
   const navigation = useNavigation<any>();
+  const isFocused = useIsFocused();
   const { t } = useTranslation();
+
+  const [todayCount, setTodayCount] = useState(() =>
+    Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0),
+  );
+  const [todayMala, setTodayMala] = useState(() =>
+    Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA, 0),
+  );
+
+  useEffect(() => {
+    if (isFocused) {
+      Storage.checkAndResetTodayStats();
+      setTodayCount(Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0));
+      setTodayMala(Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA, 0));
+    }
+  }, [isFocused]);
 
   return (
     <View style={styles.container}>
@@ -24,14 +41,14 @@ const JapCard = () => {
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
             <Text style={styles.label}>{t(Translation.JAP_TODAYS_COUNT)}</Text>
-            <Text style={styles.value}>108</Text>
+            <Text style={styles.value}>{todayCount}</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.statItem}>
             <Text style={styles.label}>
               {t(Translation.JAP_MALA_COMPLETED)}
             </Text>
-            <Text style={styles.value}>1</Text>
+            <Text style={styles.value}>{todayMala}</Text>
           </View>
         </View>
 

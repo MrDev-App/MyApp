@@ -7,6 +7,7 @@ import {
   ScrollView,
   Image,
   Switch,
+  Alert,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import colors from '../../utile/colors';
@@ -16,7 +17,9 @@ import GradientBackground from '../../components/GradientBackground';
 import imagePath from '../../assets';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { favStoriesData, profileLabels } from '../../constants/profileData';
-import OverlayModal, { OverlayModalHandle } from '../../components/OverlayModal';
+import OverlayModal, {
+  OverlayModalHandle,
+} from '../../components/OverlayModal';
 import { useIsFocused } from '@react-navigation/native';
 import { Storage, STORAGE_KEYS } from '../../utile/storage';
 
@@ -32,6 +35,8 @@ const ProfileScreen = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [totalMala, setTotalMala] = useState(0);
   const [todayCount, setTodayCount] = useState(0);
+  const [challengeStarted, setChallengeStarted] = useState(false);
+  const [challengeTotalDays, setChallengeTotalDays] = useState(21);
 
   useEffect(() => {
     if (isFocused) {
@@ -39,6 +44,8 @@ const ProfileScreen = () => {
       setTotalCount(Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_COUNT, 0));
       setTotalMala(Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_MALA, 0));
       setTodayCount(Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0));
+      setChallengeStarted(Storage.getBoolean('CHALLENGE_STARTED', false));
+      setChallengeTotalDays(Storage.getNumber('CHALLENGE_TOTAL_DAYS', 21));
     }
   }, [isFocused]);
 
@@ -50,13 +57,44 @@ const ProfileScreen = () => {
     overlayRef.current?.open();
   };
 
+  const handleGiveUpChallenge = () => {
+    const title =
+      currentLanguage === 'hi' ? 'संकल्प रद्द करें?' : 'Abandon Challenge?';
+    const message =
+      currentLanguage === 'hi'
+        ? 'क्या आप निश्चित रूप से वर्तमान जाप संकल्प को छोड़ना चाहते हैं? आपकी प्रगति हटा दी जाएगी।'
+        : 'Are you sure you want to abandon the current Japa challenge? Your progress will be lost.';
+    const cancelText = currentLanguage === 'hi' ? 'नहीं' : 'Cancel';
+    const confirmText =
+      currentLanguage === 'hi' ? 'हाँ, रद्द करें' : 'Yes, Abandon';
+
+    Alert.alert(
+      title,
+      message,
+      [
+        { text: cancelText, style: 'cancel' },
+        {
+          text: confirmText,
+          style: 'destructive',
+          onPress: () => {
+            Storage.set('CHALLENGE_STARTED', false);
+            Storage.set('CHALLENGE_PROGRESS_DAYS', 0);
+            Storage.set('CHALLENGE_STREAK', 0);
+            setChallengeStarted(false);
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
+
   return (
     <GradientBackground>
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
-        <View style={styles.headerRow}>
+        {/* <View style={styles.headerRow}>
           <Text style={styles.headerTitle}>{labels.myProfile}</Text>
-        </View>
+        </View> */}
 
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -65,10 +103,20 @@ const ProfileScreen = () => {
           {/* User Profile Card */}
           <View style={styles.profileCard}>
             <View style={styles.avatarBorder}>
-              <Image source={imagePath.Ganesha} style={styles.avatarImage} />
+              <Image source={imagePath.Krishna} style={styles.avatarImage} />
             </View>
-            <Text style={styles.userName}>{labels.devotee}</Text>
-            <Text style={styles.userJoined}>{labels.joinedSince}</Text>
+            <View style={{ flex: 1, marginTop: scale(10) }}>
+              <Text style={styles.userName}>{labels.devotee}</Text>
+              <Text style={styles.userJoined}>{labels.joinedSince}</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.editButton}
+              activeOpacity={0.7}
+              onPress={() => overlayRef.current?.open()}
+            >
+              <Image source={imagePath.pencil} style={styles.editIconImage} />
+              <Text style={styles.editButtonText}>edit</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Statistics Grid */}
@@ -103,8 +151,12 @@ const ProfileScreen = () => {
               contentContainerStyle={styles.favStoriesScroll}
             >
               {favStoriesData.map(story => {
-                const title = currentLanguage === 'hi' ? story.titleHi : story.titleEn;
-                const category = currentLanguage === 'hi' ? story.categoryHi : story.categoryEn;
+                const title =
+                  currentLanguage === 'hi' ? story.titleHi : story.titleEn;
+                const category =
+                  currentLanguage === 'hi'
+                    ? story.categoryHi
+                    : story.categoryEn;
                 return (
                   <TouchableOpacity
                     key={story.id}
@@ -113,11 +165,12 @@ const ProfileScreen = () => {
                     activeOpacity={0.85}
                   >
                     <View style={styles.bookCoverContainer}>
-                      <Image source={story.image} style={styles.bookCoverImage} />
+                      <Image
+                        source={story.image}
+                        style={styles.bookCoverImage}
+                      />
                       <View style={styles.categoryBadge}>
-                        <Text style={styles.categoryBadgeText}>
-                          {category}
-                        </Text>
+                        <Text style={styles.categoryBadgeText}>{category}</Text>
                       </View>
                     </View>
                     <Text style={styles.storyBookTitle} numberOfLines={1}>
@@ -198,14 +251,40 @@ const ProfileScreen = () => {
                 value={notificationsEnabled}
               />
             </View>
+
+            {challengeStarted && (
+              <>
+                <View style={styles.separator} />
+                <View style={styles.settingRow}>
+                  <View style={styles.settingInfo}>
+                    <Text style={styles.settingLabel}>
+                      {currentLanguage === 'hi'
+                        ? 'संकल्प रद्द करें'
+                        : 'Give Up Challenge'}
+                    </Text>
+                    <Text style={styles.settingSubLabel}>
+                      {currentLanguage === 'hi'
+                        ? `${challengeTotalDays} दिवसीय जाप संकल्प की प्रगति को छोड़ें`
+                        : `Abandon the active ${challengeTotalDays} Days Japa Challenge`}
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.giveUpButton}
+                    onPress={handleGiveUpChallenge}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.giveUpButtonText}>
+                      {currentLanguage === 'hi' ? 'रद्द करें' : 'Abandon'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
           </View>
         </ScrollView>
       </SafeAreaView>
 
-      <OverlayModal
-        ref={overlayRef}
-        closeOnBackdropPress={true}
-      >
+      <OverlayModal ref={overlayRef} closeOnBackdropPress={true}>
         <View style={styles.modalCenterContainer}>
           <View style={styles.modalCard}>
             <Text style={styles.modalIcon}>✨</Text>
@@ -239,7 +318,7 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     paddingHorizontal: scale(16),
-    paddingVertical: scale(16),
+    paddingVertical: scale(10),
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(183, 168, 151, 0.1)',
   },
@@ -253,25 +332,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   profileCard: {
+    flexDirection: 'row',
     width: '90%',
-    backgroundColor: colors.white,
-    borderRadius: scale(20),
-    paddingVertical: scale(24),
-    paddingHorizontal: scale(16),
-    alignItems: 'center',
-    marginTop: scale(20),
-    marginBottom: scale(16),
-    borderWidth: 1,
-    borderColor: 'rgba(183, 168, 151, 0.2)',
-    shadowColor: colors.ring,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 3,
+
+    gap: scale(10),
   },
   avatarBorder: {
-    width: scale(90),
-    height: scale(90),
+    width: scale(60),
+    height: scale(60),
     borderRadius: scale(45),
     borderWidth: 3,
     borderColor: colors.ring,
@@ -289,14 +357,13 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: fs(18),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.PoppinsMedium,
     color: colors.secondary,
-    marginBottom: scale(4),
   },
   userJoined: {
     fontSize: fs(11),
     fontFamily: fonts.PoppinsRegular,
-    color: colors.ring,
+    color: colors.accent,
     opacity: 0.8,
   },
   sectionCard: {
@@ -508,6 +575,38 @@ const styles = StyleSheet.create({
   modalButtonText: {
     color: colors.white,
     fontSize: fs(13),
+    fontFamily: fonts.PoppinsMedium,
+  },
+  editButton: {
+    width: scale(36),
+    height: scale(36),
+    borderRadius: scale(18),
+    marginTop: scale(5),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editIconImage: {
+    width: scale(18),
+    height: scale(18),
+    resizeMode: 'contain',
+    // tintColor: colors.ring,
+  },
+  editButtonText: {
+    color: colors.ring,
+    fontSize: fs(13),
+    fontFamily: fonts.PoppinsMedium,
+  },
+  giveUpButton: {
+    backgroundColor: '#ffebee',
+    borderWidth: 1,
+    borderColor: '#ffcdd2',
+    paddingHorizontal: scale(14),
+    paddingVertical: scale(6),
+    borderRadius: scale(8),
+  },
+  giveUpButtonText: {
+    color: '#c62828',
+    fontSize: fs(11.5),
     fontFamily: fonts.PoppinsMedium,
   },
 });

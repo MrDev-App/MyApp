@@ -51,6 +51,7 @@ const imagePath = {
   VasantPanchami: require('./png/VasantPanchami .png'),
   user: require('./png/user.png'),
   profile: require('./png/user.png'),
+  pencil: require('./png/pencil.png'),
 };
 
 export default imagePath;

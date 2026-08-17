@@ -22,6 +22,7 @@ import FestivalHighlights from './component/FestivalHighlights';
 import MantrasCard from './component/MantrasCard';
 import FeaturedCategories from './component/FeaturedCategories';
 import JapCard from './component/JapCard';
+import ChallengeCard from './component/ChallengeCard';
 import { OverlayModalHandle } from '../../components/OverlayModal';
 
 const HomeScreen = () => {
@@ -119,6 +120,7 @@ const HomeScreen = () => {
 
           <JapCard />
           <MantrasCard />
+          <ChallengeCard />
           <FeaturedCategories />
           <FestivalHighlights onPress={handleOpen} />
         </ScrollView>
