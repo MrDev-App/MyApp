@@ -119,12 +119,16 @@ const FeaturedCategories = () => {
       {/* Nested Item Detail Modal for Aartis */}
       <ExpandableCard<CategoryItem>
         ref={detailCardRef}
-        imageMargin={scale(0)}
         expandedHeight={scale(190)}
         getImage={(item: CategoryItem) => item.image}
         renderContent={(item, _close) => {
           return (
             <View style={styles.aartiFixedCard}>
+              <Text style={styles.artiTitle}>
+                {currentLanguage === 'hi'
+                  ? item.headerTitleHi || item.nameHi
+                  : item.headerTitleEn || item.nameEn}
+              </Text>
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 style={styles.scrollList}
@@ -217,17 +221,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollListContent: {
-    paddingVertical: scale(4),
+    // paddingVertical: scale(4),
+    padding: scale(16),
+    backgroundColor: 'rgba(252, 224, 180, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(183, 168, 151, 0.3)',
+    borderRadius: scale(8),
   },
 
   // Detail Modal Content
   aartiFixedCard: {
     flex: 1,
-    backgroundColor: 'rgba(252, 224, 180, 0.12)',
-    borderRadius: scale(8),
-    padding: scale(16),
-    borderWidth: 1,
-    borderColor: 'rgba(183, 168, 151, 0.3)',
+    marginBottom: scale(20),
+    backgroundColor: colors.white,
   },
   aartiDetailText: {
     fontSize: fs(14),
@@ -235,5 +241,13 @@ const styles = StyleSheet.create({
     color: colors.secondary,
     textAlign: 'center',
     lineHeight: fs(23),
+  },
+  artiTitle: {
+    fontFamily: fonts.Marcellus,
+    textAlign: 'center',
+    fontSize: fs(20),
+    color: colors.secondary,
+    lineHeight: fs(23),
+    paddingVertical: scale(4),
   },
 });

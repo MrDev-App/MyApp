@@ -19,8 +19,6 @@ import { runOnJS } from 'react-native-worklets';
 import { scale } from '../utile/sizes';
 import colors from '../utile/colors';
 
-
-
 export type ExpandOrigin = {
   x: number;
   y: number;
@@ -107,13 +105,13 @@ function ExpandableCardInner<T>(
     close: handleClose,
   }));
 
-  const scale20 = scale(20);
+  const scale20 = scale(0);
 
   const imageAnimatedStyle = useAnimatedStyle(() => {
     const targetLeft = horizontalPadding + imageMargin;
     const targetWidth = containerWidth.value - targetLeft * 2;
-    const targetTop = topOffset + imageMargin;
-    const targetHeight = expandedHeight - imageMargin * 2;
+    const targetTop = topOffset;
+    const targetHeight = expandedHeight;
 
     const top = interpolate(progress.value, [0, 1], [originY.value, targetTop]);
     const left = interpolate(
@@ -136,11 +134,7 @@ function ExpandableCardInner<T>(
       [0, 1],
       [originWidth.value / 2, 0],
     );
-    const borderWidth = interpolate(
-      progress.value,
-      [0, 1],
-      [1.5, 0],
-    );
+    const borderWidth = interpolate(progress.value, [0, 1], [1.5, 0]);
 
     return {
       top,
@@ -246,7 +240,6 @@ const styles = StyleSheet.create({
   expandedImage: {
     position: 'absolute',
     resizeMode: 'contain',
-    overflow: 'hidden',
   },
   expandedContent: {
     position: 'absolute',

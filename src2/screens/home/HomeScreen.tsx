@@ -1,5 +1,12 @@
-import { ScrollView, StyleSheet, Text, View, Image } from 'react-native';
-import React, { useRef, useState } from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  Animated,
+} from 'react-native';
+import React, { useRef, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Video from 'react-native-video';
 import GradientBackground from '../../components/GradientBackground';
@@ -21,6 +28,23 @@ const HomeScreen = () => {
   const { t } = useTranslation();
   const [videoError, setVideoError] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const imageOpacity = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (videoLoaded && !videoError) {
+      Animated.timing(imageOpacity, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(imageOpacity, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [videoLoaded, videoError]);
 
   const overlayRef = useRef<OverlayModalHandle>(null);
   const buttonRef = useRef<View>(null);
@@ -34,19 +58,10 @@ const HomeScreen = () => {
   return (
     <GradientBackground style={Globalstyles.containerFull}>
       <View style={styles.imageContainer}>
-        {(!videoLoaded || videoError) && (
-          <Image
-            source={imagePath.greeting}
-            style={styles.greetingImage}
-            resizeMode="cover"
-            fadeDuration={0}
-          />
-        )}
-
         {!videoError && (
           <Video
             source={imagePath.bhaktiVideo}
-            style={[styles.greetingImage, !videoLoaded && styles.videoHidden]}
+            style={[styles.greetingImage, styles.absoluteVideo]}
             resizeMode="cover"
             repeat={true}
             muted={true}
@@ -61,6 +76,17 @@ const HomeScreen = () => {
             }}
           />
         )}
+
+        <Animated.View
+          style={[styles.greetingImage, { opacity: imageOpacity }]}
+          pointerEvents={videoLoaded && !videoError ? 'none' : 'auto'}
+        >
+          <Image
+            source={imagePath.greeting}
+            style={styles.greetingImage}
+            resizeMode="cover"
+          />
+        </Animated.View>
 
         <GradientOverlay
           colors={[colors.gradientStart, colors.primary]}
@@ -149,9 +175,12 @@ const styles = StyleSheet.create({
     height: 310,
     resizeMode: 'cover',
   },
-  videoHidden: {
+  absoluteVideo: {
     position: 'absolute',
-    opacity: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   greetingTime: {
     fontSize: fs(10),

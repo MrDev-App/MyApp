@@ -238,9 +238,17 @@ const FestivalHighlights = ({ onPress }: any) => {
                       {selectedFestival.regions.map((r, i) => (
                         <View
                           key={i}
-                          style={[styles.chip, { backgroundColor: colors.chipBg }]}
+                          style={[
+                            styles.chip,
+                            { backgroundColor: colors.chipBg },
+                          ]}
                         >
-                          <Text style={[styles.chipText, { color: colors.chipText }]}>
+                          <Text
+                            style={[
+                              styles.chipText,
+                              { color: colors.chipText },
+                            ]}
+                          >
                             {r}
                           </Text>
                         </View>

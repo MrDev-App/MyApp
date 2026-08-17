@@ -243,6 +243,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: scale(15),
+    padding: scale(0),
   },
   topLeftBackButton: {
     width: scale(36),
