@@ -18,6 +18,7 @@ import { Translation } from '../../i18n/language';
 import { RootStackParamList } from '../../navigation/type';
 import GradientBackground from '../../components/GradientBackground';
 import { festivalData, Festival } from './component/festivalData';
+import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 
 const { width } = Dimensions.get('window');
 
@@ -95,7 +96,44 @@ const AllFestivalsScreen = () => {
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language || 'en';
 
+  const getTodayString = () => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const [selectedDate, setSelectedDate] = React.useState(getTodayString());
+  const [currentMonthDate, setCurrentMonthDate] = React.useState(
+    getTodayString(),
+  );
   const today = new Date();
+
+  const formatDate = (d: Date) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const handlePrevMonth = () => {
+    const d = new Date(currentMonthDate);
+    d.setMonth(d.getMonth() - 1);
+    setCurrentMonthDate(formatDate(d));
+  };
+
+  const handleNextMonth = () => {
+    const d = new Date(currentMonthDate);
+    d.setMonth(d.getMonth() + 1);
+    setCurrentMonthDate(formatDate(d));
+  };
+
+  const currentMonthName = React.useMemo(() => {
+    const d = new Date(currentMonthDate);
+    const monthNum = d.getMonth() + 1;
+    return getMonthName(monthNum, currentLanguage) + '  ' + d.getFullYear();
+  }, [currentMonthDate, currentLanguage]);
 
   const calculateDaysRemaining = (month: number, day: number) => {
     const currentYear = today.getFullYear();
@@ -142,7 +180,7 @@ const AllFestivalsScreen = () => {
   return (
     <GradientBackground>
       <SafeAreaView style={styles.container}>
-        {/* Premium Header */}
+        {/* Premium Header: Back button on far-left, Month navigation in center */}
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
@@ -151,62 +189,147 @@ const AllFestivalsScreen = () => {
           >
             <Text style={styles.backArrow}>←</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t(Translation.ALL_FESTIVALS)}</Text>
+
+          <View style={styles.calendarNavContainer}>
+            <TouchableOpacity
+              onPress={handlePrevMonth}
+              activeOpacity={0.7}
+              style={styles.navArrowButton}
+            >
+              <Text style={styles.calendarArrow}>‹</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.headerTitle}>{currentMonthName}</Text>
+
+            <TouchableOpacity
+              onPress={handleNextMonth}
+              activeOpacity={0.7}
+              style={styles.navArrowButton}
+            >
+              <Text style={styles.calendarArrow}>›</Text>
+            </TouchableOpacity>
+          </View>
+
           <View style={styles.headerPlaceholder} />
         </View>
 
-        {/* Section List for Grouped Festivals */}
-        <SectionList
-          sections={sections}
-          keyExtractor={item => item.id}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
-          renderSectionHeader={({ section: { title } }) => (
-            <View style={styles.sectionHeaderContainer}>
-              <Text style={styles.sectionHeaderText}>{title}</Text>
-            </View>
-          )}
-          renderItem={({ item }) => {
-            const daysLeft = calculateDaysRemaining(item.month, item.day);
-            const name =
-              currentLanguage === 'hi' ? item.hindiName : item.englishName;
-            const monthAbbrev = getMonthAbbrev(item.month, currentLanguage);
-            const countdownText = t(Translation.DAYS_COUNT_LABEL, {
-              count: daysLeft,
-            });
-
-            return (
-              <View style={styles.card}>
-                {/* Left side: Date Badge */}
-                <View style={styles.dateBadge}>
-                  <Text style={styles.dateDay}>{item.day}</Text>
-                  <Text style={styles.dateMonth}>{monthAbbrev}</Text>
-                </View>
-
-                {/* Middle details */}
-                <View style={styles.detailsContainer}>
-                  <Text
-                    style={styles.festivalName}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {name}
-                  </Text>
-                  <Text style={styles.festivalCategory}>{item.category}</Text>
-                  {item.tithi && (
-                    <Text style={styles.festivalTithi} numberOfLines={1}>
-                      {item.tithi}
-                    </Text>
-                  )}
-                </View>
-              </View>
-            );
+        <Calendar
+          current={currentMonthDate}
+          onDayPress={day => {
+            console.log('selected day', day);
+            setSelectedDate(day.dateString);
+            setCurrentMonthDate(day.dateString);
+          }}
+          hideArrows={true}
+          renderHeader={() => null}
+          markedDates={{
+            [selectedDate]: {
+              selected: true,
+              selectedColor: colors.ring,
+              selectedTextColor: colors.white,
+            },
+          }}
+          theme={{
+            calendarBackground: 'transparent',
+            textDisabledColor: colors.neutralDisabled,
+            textSectionTitleColor: colors.ring,
+            textDayFontSize: fs(14),
+            textMonthFontSize: fs(20),
+            textDayHeaderFontSize: fs(12),
+            monthTextColor: colors.secondary,
+            todayTextColor: colors.ring,
+            dayTextColor: colors.secondary,
+            selectedDayBackgroundColor: colors.ring,
+            selectedDayTextColor: colors.white,
+            textDayFontFamily: 'CormorantGaramond_700Bold',
+            textMonthFontFamily: 'CormorantGaramond_700Bold',
+            textDayHeaderFontFamily: 'CormorantGaramond_700Bold',
           }}
         />
       </SafeAreaView>
     </GradientBackground>
   );
+  // return (
+  //   <GradientBackground>
+  //     <SafeAreaView style={styles.container}>
+  //       {/* Premium Header */}
+  //       {/* <View style={styles.header}>
+  //         <TouchableOpacity
+  //           style={styles.backButton}
+  //           onPress={() => navigation.goBack()}
+  //           activeOpacity={0.7}
+  //         >
+  //           <Text style={styles.backArrow}>←</Text>
+  //         </TouchableOpacity>
+  //         <Text style={styles.headerTitle}>{t(Translation.ALL_FESTIVALS)}</Text>
+  //         <View style={styles.headerPlaceholder} />
+  //       </View> */}
+
+  //       {/* Section List for Grouped Festivals */}
+  //       <SectionList
+  //         sections={sections}
+  //         keyExtractor={item => item.id}
+  //         showsVerticalScrollIndicator={false}
+  //         contentContainerStyle={styles.listContent}
+  //         renderSectionHeader={({ section: { title } }) => (
+  //           <View style={styles.sectionHeaderContainer}>
+  //             <Text style={styles.sectionHeaderText}>{title}</Text>
+  //           </View>
+  //         )}
+  //         renderItem={({ item }) => {
+  //           const daysLeft = calculateDaysRemaining(item.month, item.day);
+  //           const name =
+  //             currentLanguage === 'hi' ? item.hindiName : item.englishName;
+  //           const monthAbbrev = getMonthAbbrev(item.month, currentLanguage);
+  //           const countdownText = t(Translation.DAYS_COUNT_LABEL, {
+  //             count: daysLeft,
+  //           });
+
+  //           return (
+  //             <View style={styles.card}>
+  //               {/* Left side: Date Badge */}
+  //               <View style={styles.dateBadge}>
+  //                 <Text style={styles.dateDay}>{item.day}</Text>
+  //                 <Text style={styles.dateMonth}>{monthAbbrev}</Text>
+  //               </View>
+
+  //               {/* Middle details */}
+  //               <View style={styles.detailsContainer}>
+  //                 <Text
+  //                   style={styles.festivalName}
+  //                   numberOfLines={1}
+  //                   ellipsizeMode="tail"
+  //                 >
+  //                   {name}
+  //                 </Text>
+  //                 <Text style={styles.festivalCategory}>{item.category}</Text>
+  //                 {item.tithi && (
+  //                   <Text style={styles.festivalTithi} numberOfLines={1}>
+  //                     {item.tithi}
+  //                   </Text>
+  //                 )}
+  //               </View>
+  //             </View>
+  //           );
+  //         }}
+  //       />
+  //     </SafeAreaView>
+  //   </GradientBackground>
+  // );
 };
+
+//   selectedDayBackgroundColor: '#b6a897',
+//   selectedDayTextColor: '#0000',
+//   todayTextColor: '#b6a897',
+//   // dayTextColor: '#ffffff',
+//   textDisabledColor: '#444444',
+//   dotColor: '#b6a897',
+//   // selectedDotColor: '#ffffff',
+//   // arrowColor: '#b6a897',
+//   // monthTextColor: '#b6a897',
+//   textDayFontFamily: 'CormorantGaramond_700Bold',
+//   textMonthFontFamily: 'CormorantGaramond_700Bold',
+//   textDayHeaderFontFamily: 'CormorantGaramond_700Bold',
 
 const styles = StyleSheet.create({
   container: {
@@ -219,7 +342,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
     height: scale(56),
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(183, 168, 151, 0.1)',
+    borderBottomColor: colors.borderVerySubtle,
   },
   backButton: {
     width: scale(36),
@@ -227,11 +350,11 @@ const styles = StyleSheet.create({
     borderRadius: scale(18),
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(183, 168, 151, 0.1)',
+    backgroundColor: colors.ring,
   },
   backArrow: {
     fontSize: fs(20),
-    color: colors.black,
+    color: colors.white,
     fontFamily: fonts.PoppinsMedium,
   },
   headerTitle: {
@@ -267,7 +390,7 @@ const styles = StyleSheet.create({
     padding: scale(12),
     marginBottom: scale(10),
     borderWidth: 1,
-    borderColor: 'rgba(183, 168, 151, 0.15)',
+    borderColor: colors.borderSubtle,
     // Subtle premium shadow
     shadowColor: colors.ring,
     shadowOffset: { width: 0, height: 3 },
@@ -279,7 +402,7 @@ const styles = StyleSheet.create({
     width: scale(46),
     height: scale(46),
     borderRadius: scale(8),
-    backgroundColor: 'rgba(183, 168, 151, 0.1)',
+    backgroundColor: colors.borderVerySubtle,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: scale(12),
@@ -325,6 +448,23 @@ const styles = StyleSheet.create({
     fontSize: fs(11),
     fontFamily: fonts.PoppinsSemiBold,
     color: colors.ring,
+  },
+  calendarArrow: {
+    fontSize: fs(28),
+    color: colors.ring,
+    fontFamily: fonts.PoppinsSemiBold,
+  },
+  calendarNavContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  navArrowButton: {
+    paddingHorizontal: scale(14),
+    paddingVertical: scale(4),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

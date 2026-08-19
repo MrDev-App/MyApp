@@ -28,25 +28,6 @@ import { OverlayModalHandle } from '../../components/OverlayModal';
 const HomeScreen = () => {
   const { t } = useTranslation();
   const [videoError, setVideoError] = useState(false);
-  const [videoLoaded, setVideoLoaded] = useState(false);
-  const imageOpacity = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    if (videoLoaded && !videoError) {
-      Animated.timing(imageOpacity, {
-        toValue: 0,
-        duration: 800,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.timing(imageOpacity, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [videoLoaded, videoError]);
-
   const overlayRef = useRef<OverlayModalHandle>(null);
   const buttonRef = useRef<View>(null);
 
@@ -59,6 +40,13 @@ const HomeScreen = () => {
   return (
     <GradientBackground style={Globalstyles.containerFull}>
       <View style={styles.imageContainer}>
+        {/* Fallback/Background image is always rendered underneath the video player */}
+        <Image
+          source={imagePath.greeting}
+          style={styles.greetingImage}
+          resizeMode="cover"
+        />
+
         {!videoError && (
           <Video
             source={imagePath.bhaktiVideo}
@@ -67,7 +55,10 @@ const HomeScreen = () => {
             repeat={true}
             muted={true}
             paused={false}
-            onLoad={() => setVideoLoaded(true)}
+            disableFocus={true}
+            mixWithOthers="mix"
+            ignoreSilentSwitch="ignore"
+            selectedAudioTrack={{ type: 'disabled' as any }}
             onError={e => {
               console.log(
                 '[Video] Error loading background video, falling back to image:',
@@ -77,17 +68,6 @@ const HomeScreen = () => {
             }}
           />
         )}
-
-        <Animated.View
-          style={[styles.greetingImage, { opacity: imageOpacity }]}
-          pointerEvents={videoLoaded && !videoError ? 'none' : 'auto'}
-        >
-          <Image
-            source={imagePath.greeting}
-            style={styles.greetingImage}
-            resizeMode="cover"
-          />
-        </Animated.View>
 
         <GradientOverlay
           colors={[colors.gradientStart, colors.primary]}
@@ -183,6 +163,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    backgroundColor: 'transparent',
   },
   greetingTime: {
     fontSize: fs(10),

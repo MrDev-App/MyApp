@@ -155,14 +155,14 @@ const FestivalHighlights = ({ onPress }: any) => {
                 >
                   <Text style={styles.closeBtnText}>✕</Text>
                 </TouchableOpacity>
+              </SafeAreaView>
+
+              <View style={styles.modalHero}>
                 <View style={styles.categoryBadge}>
                   <Text style={styles.categoryBadgeText}>
                     {selectedFestival.category}
                   </Text>
                 </View>
-              </SafeAreaView>
-
-              <View style={styles.modalHero}>
                 <Text style={styles.modalTitleText}>
                   {currentLanguage === 'hi'
                     ? selectedFestival.hindiName
@@ -365,8 +365,8 @@ const styles = StyleSheet.create({
     marginTop: scale(10),
   },
   closeBtn: {
-    width: scale(36),
-    height: scale(36),
+    width: scale(30),
+    height: scale(30),
     borderRadius: scale(18),
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
     alignItems: 'center',
@@ -378,10 +378,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   categoryBadge: {
+    alignSelf: 'flex-start',
     backgroundColor: colors.ring,
     paddingHorizontal: scale(12),
     paddingVertical: scale(6),
     borderRadius: scale(20),
+    marginBottom: scale(8),
   },
   categoryBadgeText: {
     color: colors.white,
