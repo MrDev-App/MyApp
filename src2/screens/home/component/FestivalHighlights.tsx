@@ -40,7 +40,6 @@ const FestivalHighlights = ({ onPress }: any) => {
   const today = new Date();
   const currentMonth = today.getMonth() + 1;
 
-  // Filter festivals from the current month to the end of the year, sorted chronologically
   const filteredFestivals = festivalData
     .filter(item => item.month >= currentMonth)
     .sort((a, b) => {
@@ -77,7 +76,6 @@ const FestivalHighlights = ({ onPress }: any) => {
         </TouchableOpacity>
       </View>
 
-      {/* Horizontal FlatList */}
       <FlatList
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -96,7 +94,6 @@ const FestivalHighlights = ({ onPress }: any) => {
               ? `${daysLeft} दिनों में`
               : `in ${daysLeft} days `;
 
-          // Select background image based on festival id, using greeting as fallback
           const bgImage = item.image || imagePath.greeting;
 
           return (
@@ -129,7 +126,6 @@ const FestivalHighlights = ({ onPress }: any) => {
         }}
       />
 
-      {/* Festival Detail Modal */}
       <OverlayModal
         ref={overlayModalRef}
         closeOnBackdropPress={true}

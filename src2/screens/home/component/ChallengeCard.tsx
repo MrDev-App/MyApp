@@ -8,6 +8,7 @@ import {
   Image,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Translation } from '../../../i18n/language';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
@@ -28,6 +29,16 @@ const ChallengeCard = () => {
 
   const started = Storage.getBoolean('CHALLENGE_STARTED', false);
   const todayChants = Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0);
+
+  // Deduct previous chants if challenge was started today with pre-existing chants
+  const baseChants = Storage.getNumber('CHALLENGE_BASE_CHANTS', 0);
+  const baseDate = Storage.getString('CHALLENGE_BASE_DATE', '');
+  const todayStr = new Date().toDateString();
+  const challengeChantsToday =
+    started && baseDate === todayStr
+      ? Math.max(0, todayChants - baseChants)
+      : todayChants;
+
   const [dailyTargetGoal, setDailyTargetGoal] = useState(() =>
     Storage.getNumber('CHALLENGE_DAILY_TARGET', 108),
   );
@@ -53,25 +64,19 @@ const ChallengeCard = () => {
   let statusText = '';
 
   if (started) {
-    if (todayChants >= dailyTargetGoal) {
+    if (challengeChantsToday >= dailyTargetGoal) {
       percentage = Math.round((days / challengeTotalDays) * 100);
-      statusText =
-        currentLanguage === 'hi'
-          ? 'आज का संकल्प पूर्ण! ✨'
-          : "Today's goal completed! ✨";
+      statusText = t(Translation.CHALLENGE_STATUS_COMPLETED);
     } else {
       percentage = Math.round(((days - 1) / challengeTotalDays) * 100);
-      statusText =
-        currentLanguage === 'hi'
-          ? `आज: ${todayChants} / ${dailyTargetGoal} जाप`
-          : `Today: ${todayChants} / ${dailyTargetGoal} chants`;
+      const chantsLeft = Math.max(0, dailyTargetGoal - challengeChantsToday);
+      statusText = t(Translation.CHALLENGE_STATUS_PROGRESS, {
+        count: chantsLeft,
+      });
     }
   } else {
     percentage = 0;
-    statusText =
-      currentLanguage === 'hi'
-        ? 'संकल्प अभी शुरू नहीं हुआ है'
-        : 'Challenge not started yet';
+    statusText = t(Translation.CHALLENGE_STATUS_NOT_STARTED);
   }
 
   // Clip percentage between 0 and 100
@@ -108,33 +113,27 @@ const ChallengeCard = () => {
   };
 
   const texts = {
-    en: {
-      sectionTitle: 'Bhakti Challenges',
-      challengeName: `${challengeTotalDays} Days Japa Challenge`,
-      streak: `🔥 ${streak} Days Streak`,
-      target: `Goal: ${dailyTargetGoal} chants daily`,
-      progress: `Day ${days} of ${challengeTotalDays}`,
-      buttonStart: 'Start Challenge',
-      buttonView: 'Start Chant',
-    },
-    hi: {
-      sectionTitle: 'भक्ति संकल्प (चैलेंज)',
-      challengeName: `${challengeTotalDays} दिवसीय जाप संकल्प`,
-      streak: `🔥 ${streak} दिनों का क्रम`,
-      target: `लक्ष्य: ${dailyTargetGoal} जाप प्रतिदिन`,
-      progress: `${challengeTotalDays} में से ${days}वां दिन`,
-      buttonStart: 'शूरू करे संकल्प',
-      buttonView: 'जाप शुरू करें',
-    },
+    sectionTitle: t(Translation.CHALLENGE_SECTION_TITLE),
+    challengeName: t(Translation.CHALLENGE_NAME, { count: challengeTotalDays }),
+    streak:
+      streak === 1
+        ? t(Translation.CHALLENGE_STREAK_ONE, { count: streak })
+        : t(Translation.CHALLENGE_STREAK_OTHER, { count: streak }),
+    progress: t(Translation.CHALLENGE_PROGRESS, {
+      day: days,
+      total: challengeTotalDays,
+    }),
+    buttonStart: t(Translation.CHALLENGE_BTN_START),
+    buttonView: t(Translation.CHALLENGE_BTN_VIEW),
   };
-
-  const currentText = currentLanguage === 'hi' ? texts.hi : texts.en;
 
   const handlePress = () => {
     if (!started) {
       Storage.set('CHALLENGE_STARTED', true);
       Storage.set('CHALLENGE_PROGRESS_DAYS', 1);
       Storage.set('CHALLENGE_STREAK', 1);
+      Storage.set('CHALLENGE_BASE_CHANTS', todayChants);
+      Storage.set('CHALLENGE_BASE_DATE', new Date().toDateString());
     }
     navigation.navigate('BottomTabs', { screen: 'Jap' });
   };
@@ -143,10 +142,10 @@ const ChallengeCard = () => {
     <View style={styles.container}>
       {/* Header Row */}
       <View style={styles.header}>
-        <Text style={styles.title}>{currentText.sectionTitle}</Text>
+        <Text style={styles.title}>{texts.sectionTitle}</Text>
         {started && (
           <View style={styles.streakBadge}>
-            <Text style={styles.streakText}>{currentText.streak}</Text>
+            <Text style={styles.streakText}>{texts.streak}</Text>
           </View>
         )}
       </View>
@@ -158,21 +157,27 @@ const ChallengeCard = () => {
             <Text style={styles.iconText}>📿</Text>
           </View>
           <View style={styles.titleContainer}>
-            <Text style={styles.challengeName}>
-              {currentText.challengeName}
-            </Text>
+            <Text style={styles.challengeName}>{texts.challengeName}</Text>
             <View style={styles.targetRow}>
-              <Text style={styles.targetText}>{currentText.target}</Text>
+              <Text style={styles.targetText}>
+                {t(Translation.CHALLENGE_TARGET_PREFIX)}
+                <Text
+                  style={{
+                    color: colors.ring,
+                    fontFamily: fonts.PoppinsSemiBold,
+                  }}
+                >
+                  {dailyTargetGoal}
+                </Text>
+                {t(Translation.CHALLENGE_TARGET_SUFFIX)}
+              </Text>
               {!started && (
                 <TouchableOpacity
                   style={styles.editTargetBtn}
                   onPress={handleOpenEditModal}
                   activeOpacity={0.7}
                 >
-                  <Image
-                    source={imagePath.pencil}
-                    style={styles.editTargetIcon}
-                  />
+                  <Text style={styles.editTargetIcon}>edit</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -182,7 +187,7 @@ const ChallengeCard = () => {
         {/* Progress Section */}
         <View style={styles.progressSection}>
           <View style={styles.progressInfo}>
-            <Text style={styles.progressText}>{currentText.progress}</Text>
+            <Text style={styles.progressText}>{texts.progress}</Text>
             <Text style={styles.percentageText}>{percentage}%</Text>
           </View>
           <View style={styles.progressBarBg}>
@@ -195,22 +200,28 @@ const ChallengeCard = () => {
         {/* Footer Info & Action Button */}
         <View style={styles.footer}>
           <Text
-            style={[styles.statusText, !started && styles.statusTextInactive]}
+            style={[
+              styles.statusText,
+              !started && styles.statusTextInactive,
+              started && challengeChantsToday < dailyTargetGoal && { color: colors.danger }
+            ]}
           >
             {statusText}
           </Text>
-          <AnimatedButton style={styles.actionButton} onPress={handlePress}>
+          <AnimatedButton
+            style={styles.actionButton}
+            onPress={handlePress}
+            disabled={started && challengeChantsToday >= dailyTargetGoal}
+          >
             <Text style={styles.actionButtonText}>
-              {started ? currentText.buttonView : currentText.buttonStart}
+              {started ? texts.buttonView : texts.buttonStart}
             </Text>
           </AnimatedButton>
         </View>
 
         {started && (
           <Text style={styles.activeWarningText}>
-            {currentLanguage === 'hi'
-              ? '* संकल्प पहले से ही सक्रिय है'
-              : '* Challenge already active'}
+            {t(Translation.CHALLENGE_ACTIVE_WARNING)}
           </Text>
         )}
       </View>
@@ -229,16 +240,12 @@ const ChallengeCard = () => {
             </TouchableOpacity>
 
             <Text style={styles.modalTitle}>
-              {currentLanguage === 'hi'
-                ? 'संकल्प सेटिंग्स बदलें'
-                : 'Edit Challenge Settings'}
+              {t(Translation.CHALLENGE_EDIT_TITLE)}
             </Text>
 
             {/* Input 1: Daily Target Chants */}
             <Text style={styles.inputLabel}>
-              {currentLanguage === 'hi'
-                ? 'दैनिक जाप लक्ष्य'
-                : 'Daily Chants Target'}
+              {t(Translation.CHALLENGE_EDIT_TARGET_LABEL)}
             </Text>
             <TextInput
               style={styles.textInput}
@@ -252,9 +259,7 @@ const ChallengeCard = () => {
 
             {/* Input 2: Challenge Duration Days */}
             <Text style={[styles.inputLabel, { marginTop: scale(12) }]}>
-              {currentLanguage === 'hi'
-                ? 'संकल्प अवधि (दिन)'
-                : 'Challenge Duration (Days)'}
+              {t(Translation.CHALLENGE_EDIT_DURATION_LABEL)}
             </Text>
             <TextInput
               style={styles.textInput}
@@ -273,7 +278,7 @@ const ChallengeCard = () => {
               activeOpacity={0.8}
             >
               <Text style={styles.setGoalBtnText}>
-                {currentLanguage === 'hi' ? 'सहेजें (Save)' : 'Save Settings'}
+                {t(Translation.CHALLENGE_EDIT_SAVE_BTN)}
               </Text>
             </TouchableOpacity>
           </View>
@@ -316,7 +321,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.white,
     borderRadius: scale(14),
-    padding: scale(16),
+    padding: scale(14),
     borderWidth: 1,
     borderColor: 'rgba(183, 168, 151, 0.22)',
     shadowColor: colors.ring,
@@ -328,7 +333,7 @@ const styles = StyleSheet.create({
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: scale(16),
+    marginBottom: scale(10),
   },
   iconContainer: {
     width: scale(44),
@@ -351,7 +356,6 @@ const styles = StyleSheet.create({
     fontSize: fs(14.5),
     fontFamily: fonts.PoppinsMedium,
     color: colors.secondary,
-    marginBottom: scale(2),
   },
   targetText: {
     fontSize: fs(11),
@@ -360,7 +364,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   progressSection: {
-    marginBottom: scale(16),
+    marginBottom: scale(12),
   },
   progressInfo: {
     flexDirection: 'row',
@@ -396,7 +400,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderTopWidth: 1,
     borderTopColor: 'rgba(183, 168, 151, 0.12)',
-    paddingTop: scale(12),
+    paddingTop: scale(8),
   },
   statusText: {
     fontSize: fs(11),
@@ -409,7 +413,7 @@ const styles = StyleSheet.create({
   actionButton: {
     backgroundColor: colors.ring,
     borderRadius: scale(8),
-    paddingHorizontal: scale(14),
+    paddingHorizontal: scale(12),
     paddingVertical: scale(8),
     shadowColor: colors.ring,
     shadowOffset: { width: 0, height: 3 },
@@ -425,18 +429,14 @@ const styles = StyleSheet.create({
   targetRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: scale(2),
   },
   editTargetBtn: {
-    paddingHorizontal: scale(8),
-    paddingVertical: scale(2),
-    marginLeft: scale(2),
+    paddingHorizontal: scale(6),
   },
   editTargetIcon: {
-    width: scale(11),
-    height: scale(11),
-    resizeMode: 'contain',
-    tintColor: colors.ring,
+    fontSize: fs(11),
+    fontFamily: fonts.PoppinsMedium,
+    color: colors.ring,
   },
   modalCenterContainer: {
     flex: 1,
