@@ -1,4 +1,4 @@
-import imagePath from '../../../assets';
+import imagePath from '../assets';
 
 export interface Festival {
   id: string;

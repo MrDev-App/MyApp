@@ -1,35 +1,52 @@
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  Animated,
-} from 'react-native';
-import React, { useRef, useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import Video from 'react-native-video';
-import GradientBackground from '../../components/GradientBackground';
-import GradientOverlay from '../../components/GradientOverlay';
-import Globalstyles from '../../utile/GlobalStyle';
-import { Translation } from '../../i18n/language';
-import imagePath from '../../assets';
+import React, { useRef, useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { fs, scale } from '../../utile/sizes';
-import colors from '../../utile/colors';
-import fonts from '../../utile/fonts';
-import FestivalHighlights from './component/FestivalHighlights';
-import MantrasCard from './component/MantrasCard';
-import FeaturedCategories from './component/FeaturedCategories';
-import JapCard from './component/JapCard';
-import ChallengeCard from './component/ChallengeCard';
+import GradientBackground from '../../components/GradientBackground';
+import Globalstyles from '../../utile/GlobalStyle';
+import { scale } from '../../utile/sizes';
 import { OverlayModalHandle } from '../../components/OverlayModal';
 
-const HomeScreen = () => {
-  const { t } = useTranslation();
-  const [videoError, setVideoError] = useState(false);
+// Sub-components
+import HomeHeaderMedia from './component/HomeHeaderMedia';
+import HomeGreetingHeader from './component/HomeGreetingHeader';
+import HomeSkeleton from './component/HomeSkeleton';
+import JapCard from './component/JapCard';
+import MantrasCard from './component/MantrasCard';
+import ChallengeCard from './component/ChallengeCard';
+import FeaturedCategories from './component/FeaturedCategories';
+import FestivalHighlights from './component/FestivalHighlights';
+import GradientOverlay from '../../components/GradientOverlay';
+import colors from '../../utile/colors';
+
+export const HomeScreen = () => {
+  const [loading, setLoading] = useState(true);
   const overlayRef = useRef<OverlayModalHandle>(null);
   const buttonRef = useRef<View>(null);
+
+  // Media load tracking refs to prevent race conditions
+  const imageLoadedRef = useRef(false);
+  const videoErrorRef = useRef(false);
+
+  const handleVideoLoad = () => {
+    // Video loaded successfully, we can safely hide the shimmer
+    setLoading(false);
+  };
+
+  const handleImageLoad = () => {
+    imageLoadedRef.current = true;
+    // If video has already failed, switch to loaded view instantly
+    if (videoErrorRef.current) {
+      setLoading(false);
+    }
+  };
+
+  const handleVideoError = () => {
+    videoErrorRef.current = true;
+    // If fallback image has already loaded, switch to loaded view
+    if (imageLoadedRef.current) {
+      setLoading(false);
+    }
+  };
 
   const handleOpen = () => {
     buttonRef.current?.measureInWindow((x, y, width, height) => {
@@ -39,160 +56,69 @@ const HomeScreen = () => {
 
   return (
     <GradientBackground style={Globalstyles.containerFull}>
-      <View style={styles.imageContainer}>
-        {/* Fallback/Background image is always rendered underneath the video player */}
-        <Image
-          source={imagePath.greeting}
-          style={styles.greetingImage}
-          resizeMode="cover"
-        />
+      {/* Background Header Image, Video, and Shimmer Overlay */}
+      <HomeHeaderMedia
+        loading={loading}
+        onVideoLoad={handleVideoLoad}
+        onImageLoad={handleImageLoad}
+        onVideoError={handleVideoError}
+      />
 
-        {!videoError && (
-          <Video
-            source={imagePath.bhaktiVideo}
-            style={[styles.greetingImage, styles.absoluteVideo]}
-            resizeMode="cover"
-            repeat={true}
-            muted={true}
-            paused={false}
-            disableFocus={true}
-            mixWithOthers="mix"
-            ignoreSilentSwitch="ignore"
-            selectedAudioTrack={{ type: 'disabled' as any }}
-            onError={e => {
-              console.log(
-                '[Video] Error loading background video, falling back to image:',
-                e,
-              );
-              setVideoError(true);
-            }}
-          />
-        )}
+      {/* Top status bar gradient overlay */}
+      <GradientOverlay
+        colors={[
+          colors.gradientStart,
+          colors.primary,
+          colors.primary,
 
-        <GradientOverlay
-          colors={[colors.gradientStart, colors.primary]}
-          direction="top-to-bottom"
-        />
-      </View>
+          'transparent',
+        ]}
+        direction="bottom-to-top"
+        style={styles.topGradient}
+      />
+
       <SafeAreaView style={Globalstyles.containerMargin20}>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          <View style={styles.mainView}>
-            <View style={styles.greetingMainView}>
-              <View>
-                <Text style={styles.greetingTime}>
-                  {t(Translation.SHUBH_PRABHAT)}
-                </Text>
-                <Text style={styles.greetingText}>
-                  {t(Translation.RADHE_RADHE)}
-                </Text>
-              </View>
-              <View style={styles.bellIconView}>
-                <Text style={styles.bellIconText}>🔔︎</Text>
-                <View style={styles.badgeView}>
-                  <Text style={styles.badgeText}>2</Text>
-                </View>
-              </View>
-            </View>
-          </View>
+          {/* Greeting Banner */}
+          <HomeGreetingHeader loading={loading} />
 
-          <JapCard />
-          <MantrasCard />
-          <ChallengeCard />
-          <FeaturedCategories />
-          <FestivalHighlights onPress={handleOpen} />
+          {/* Loading Skeleton OR Cards List */}
+          {loading ? (
+            <HomeSkeleton />
+          ) : (
+            <>
+              <JapCard />
+              <MantrasCard />
+              <ChallengeCard />
+              <FeaturedCategories />
+              <FestivalHighlights onPress={handleOpen} />
+            </>
+          )}
         </ScrollView>
       </SafeAreaView>
     </GradientBackground>
   );
 };
 
-export default HomeScreen;
-
 const styles = StyleSheet.create({
-  mainView: {
-    marginBottom: 150,
-  },
-  imageContainer: {
-    width: '100%',
-    position: 'absolute',
-  },
-  greetingMainView: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  bellIconView: {
-    width: scale(36),
-    height: scale(36),
-    borderRadius: scale(40),
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.ring,
-    // backgroundColor: colors.cardForeground,
-  },
-  bellIconText: {
-    fontSize: fs(15),
-    borderColor: colors.ring,
-  },
-  badgeView: {
-    position: 'absolute',
-    top: scale(-1),
-    right: scale(-1),
-    width: scale(15),
-    height: scale(15),
-    borderRadius: scale(18),
-    backgroundColor: colors.ring,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  badgeText: {
-    color: colors.white,
-    fontSize: fs(10),
-  },
-  greetingImage: {
-    width: '100%',
-    height: 310,
-    resizeMode: 'cover',
-  },
-  absoluteVideo: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'transparent',
-  },
-  greetingTime: {
-    fontSize: fs(10),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.black,
-    letterSpacing: 4,
-  },
-  greetingText: {
-    fontSize: fs(26),
-    fontFamily: fonts.PoppinsRegular,
-    color: colors.black,
-    letterSpacing: 1,
-  },
-  dailyPravacnaText: {
-    fontSize: fs(12),
-    fontFamily: fonts.Marcellus,
-    color: colors.accent,
-    letterSpacing: 2,
-  },
-  DailyPravachanView: {
-    marginTop: 200,
-    borderWidth: 1,
-    width: '100%',
-    height: 200,
-    borderRadius: 10,
-    marginVertical: 10,
-    backgroundColor: colors.white,
-  },
   scrollContent: {
     paddingBottom: scale(70),
   },
+  topGradient: {
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 900,
+  },
+  bottomGradient: {
+    top: 230,
+    left: 0,
+    right: 0,
+    height: 80,
+  },
 });
+
+export default HomeScreen;

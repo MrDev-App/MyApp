@@ -22,7 +22,7 @@ export const colors = {
   input: 'rgba(255, 255, 255, 0.16)',
   ring: '#fb9437',
   danger: '#d32f2f',
-  
+
   // Charts
   chart1: '#1447e6',
   chart2: '#00bc7d',
@@ -117,7 +117,9 @@ export const colors = {
   overlayEnd: 'rgba(0, 0, 0, 0.85)',
   chipBg: '#ECEFF1',
   chipText: '#455A64',
-  gradientStart: 'rgba(255, 254, 254, 0)',
+  gradientStart: 'rgba(255, 254, 254, 0.2)',
+  skeletonBase: '#e8e2d4',
+  skeletonHighlight: 'rgba(255, 255, 255, 0.6)',
 };
 
 export type ColorsType = typeof colors;

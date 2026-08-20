@@ -18,7 +18,7 @@ import fonts from '../../../utile/fonts';
 import { fs, scale } from '../../../utile/sizes';
 import { Translation } from '../../../i18n/language';
 import { RootStackParamList } from '../../../navigation/type';
-import { festivalData, Festival } from './festivalData';
+import { festivalData, Festival } from '../../../constants/festivalData';
 import imagePath from '../../../assets';
 import AnimatedButton from '../../../components/AnimatedButton';
 import OverlayModal, {

@@ -17,7 +17,7 @@ import { fs, scale } from '../../utile/sizes';
 import { Translation } from '../../i18n/language';
 import { RootStackParamList } from '../../navigation/type';
 import GradientBackground from '../../components/GradientBackground';
-import { festivalData, Festival } from './component/festivalData';
+import { festivalData, Festival } from '../../constants/festivalData';
 import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 
 const { width } = Dimensions.get('window');
