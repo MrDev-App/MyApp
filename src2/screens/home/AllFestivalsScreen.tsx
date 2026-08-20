@@ -391,7 +391,6 @@ const styles = StyleSheet.create({
     marginBottom: scale(10),
     borderWidth: 1,
     borderColor: colors.borderSubtle,
-    // Subtle premium shadow
     shadowColor: colors.ring,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.02,
