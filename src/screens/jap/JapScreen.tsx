@@ -160,20 +160,28 @@ const JapScreen = () => {
     isHapticOnRef.current = isHapticOn;
   }, [isHapticOn]);
 
-  // Persistent States
-  const [totalCount, setTotalCount] = useState(
-    () => Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_COUNT) || 0,
-  );
-  const [_totalMala, setTotalMala] = useState(
-    () => Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_MALA) || 0,
-  );
+  // Persistent States (Mantra-specific for display on this screen)
+  const [totalCount, setTotalCount] = useState(() => {
+    const mantraId = MANTRAS_LIST[0].id;
+    return (
+      Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`) || 0
+    );
+  });
+  const [_totalMala, setTotalMala] = useState(() => {
+    const mantraId = MANTRAS_LIST[0].id;
+    return Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`) || 0;
+  });
   const [todayCount, setTodayCount] = useState(() => {
     Storage.checkAndResetTodayStats();
-    return Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT) || 0;
+    const mantraId = MANTRAS_LIST[0].id;
+    return (
+      Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`) || 0
+    );
   });
   const [todayMala, setTodayMala] = useState(() => {
     Storage.checkAndResetTodayStats();
-    return Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA) || 0;
+    const mantraId = MANTRAS_LIST[0].id;
+    return Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_MALA}_${mantraId}`) || 0;
   });
 
   const handleDateCheck = useCallback(() => {
@@ -187,6 +195,24 @@ const JapScreen = () => {
   useEffect(() => {
     handleDateCheck();
   }, [handleDateCheck]);
+
+  // Load mantra-specific stats when selectedMantra changes
+  useEffect(() => {
+    handleDateCheck();
+    const mantraId = selectedMantra.id;
+    setTodayCount(
+      Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`, 0),
+    );
+    setTodayMala(
+      Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_MALA}_${mantraId}`, 0),
+    );
+    setTotalCount(
+      Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`, 0),
+    );
+    setTotalMala(
+      Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`, 0),
+    );
+  }, [selectedMantra, handleDateCheck]);
 
   const [pendingMantra, setPendingMantra] = useState<MantraSelectorItem | null>(
     null,
@@ -265,32 +291,51 @@ const JapScreen = () => {
       return next;
     });
 
-    // Persistent Tap Stats
-    const currentTotalCount =
-      Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_COUNT) || 0;
-    const currentTodayCount =
-      Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT) || 0;
+    const mantraId = selectedMantra.id;
+    const todayCountKey = `${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`;
+    const todayMalaKey = `${STORAGE_KEYS.JAP_TODAY_MALA}_${mantraId}`;
+    const totalCountKey = `${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`;
+    const totalMalaKey = `${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`;
+
+    // 1. Increment Mantra-Specific stats & update local screen state
+    const currentTotalCount = Storage.getNumber(totalCountKey) || 0;
+    const currentTodayCount = Storage.getNumber(todayCountKey) || 0;
     const nextTotalCount = currentTotalCount + 1;
     const nextTodayCount = currentTodayCount + 1;
 
-    Storage.set(STORAGE_KEYS.JAP_TOTAL_COUNT, nextTotalCount);
-    Storage.set(STORAGE_KEYS.JAP_TODAY_COUNT, nextTodayCount);
+    Storage.set(totalCountKey, nextTotalCount);
+    Storage.set(todayCountKey, nextTodayCount);
     setTotalCount(nextTotalCount);
     setTodayCount(nextTodayCount);
 
+    // 2. Increment Global stats (existing functionality elsewhere, e.g. ProfileScreen)
+    const currentGlobalTotalCount =
+      Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_COUNT) || 0;
+    const currentGlobalTodayCount =
+      Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT) || 0;
+    Storage.set(STORAGE_KEYS.JAP_TOTAL_COUNT, currentGlobalTotalCount + 1);
+    Storage.set(STORAGE_KEYS.JAP_TODAY_COUNT, currentGlobalTodayCount + 1);
+
     // Persistent Mala Stats
     if (isMalaCompleted) {
-      const currentTotalMala =
-        Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_MALA) || 0;
-      const currentTodayMala =
-        Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA) || 0;
+      // 1. Mantra-Specific Malas
+      const currentTotalMala = Storage.getNumber(totalMalaKey) || 0;
+      const currentTodayMala = Storage.getNumber(todayMalaKey) || 0;
       const nextTotalMala = currentTotalMala + 1;
       const nextTodayMala = currentTodayMala + 1;
 
-      Storage.set(STORAGE_KEYS.JAP_TOTAL_MALA, nextTotalMala);
-      Storage.set(STORAGE_KEYS.JAP_TODAY_MALA, nextTodayMala);
+      Storage.set(totalMalaKey, nextTotalMala);
+      Storage.set(todayMalaKey, nextTodayMala);
       setTotalMala(nextTotalMala);
       setTodayMala(nextTodayMala);
+
+      // 2. Global Malas
+      const currentGlobalTotalMala =
+        Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_MALA) || 0;
+      const currentGlobalTodayMala =
+        Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA) || 0;
+      Storage.set(STORAGE_KEYS.JAP_TOTAL_MALA, currentGlobalTotalMala + 1);
+      Storage.set(STORAGE_KEYS.JAP_TODAY_MALA, currentGlobalTodayMala + 1);
     }
 
     const step = 360 / TOTAL_BEADS;
@@ -321,6 +366,7 @@ const JapScreen = () => {
     });
   }, [
     target,
+    selectedMantra,
     malaRotation,
     sphereScale,
     rippleScale,
@@ -446,7 +492,9 @@ const JapScreen = () => {
               <Text style={styles.statChipLabel}>
                 {t(Translation.JAP_TODAY_JAP)}
               </Text>
-              <Text style={styles.statChipValue}>{todayCount}</Text>
+              <Animated.Text style={[styles.statChipValue, animatedTextStyle]}>
+                {todayCount}
+              </Animated.Text>
             </View>
             <View style={styles.statDivider} />
 
@@ -456,7 +504,9 @@ const JapScreen = () => {
               <Text style={styles.statChipLabel}>
                 {t(Translation.JAP_TODAY_MALA)}
               </Text>
-              <Text style={styles.statChipValue}>{todayMala}</Text>
+              <Animated.Text style={[styles.statChipValue, animatedTextStyle]}>
+                {todayMala}
+              </Animated.Text>
             </View>
             <View style={styles.statDivider} />
 
@@ -466,7 +516,10 @@ const JapScreen = () => {
               <Text style={styles.statChipLabel}>
                 {t(Translation.JAP_TOTAL_CHANTS)}
               </Text>
-              <Text style={styles.statChipValue}>{totalCount}</Text>
+              <Animated.Text style={[styles.statChipValue, animatedTextStyle]}>
+                {' '}
+                {totalCount}
+              </Animated.Text>
             </View>
           </View>
 

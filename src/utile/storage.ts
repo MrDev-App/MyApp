@@ -14,8 +14,16 @@ const checkAndResetTodayStats = (): boolean => {
   const todayStr = new Date().toDateString();
   const lastSavedDate = storage.getString(STORAGE_KEYS.JAP_LAST_DATE) || '';
   if (lastSavedDate !== todayStr) {
-    storage.remove(STORAGE_KEYS.JAP_TODAY_MALA);
-    storage.remove(STORAGE_KEYS.JAP_TODAY_COUNT);
+    const keys = storage.getAllKeys();
+    keys.forEach(key => {
+      if (
+        key.startsWith('JAP_TODAY_') ||
+        key === STORAGE_KEYS.JAP_TODAY_MALA ||
+        key === STORAGE_KEYS.JAP_TODAY_COUNT
+      ) {
+        storage.remove(key);
+      }
+    });
     storage.set(STORAGE_KEYS.JAP_LAST_DATE, todayStr);
     return true;
   }
