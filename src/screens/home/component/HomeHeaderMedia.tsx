@@ -5,6 +5,7 @@ import Skeleton from '../../../components/Skeleton';
 import GradientOverlay from '../../../components/GradientOverlay';
 import imagePath from '../../../assets';
 import colors from '../../../utile/colors';
+import { verticalScale } from '../../../utile/sizes';
 
 interface HomeHeaderMediaProps {
   loading: boolean;
@@ -58,7 +59,7 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
       {loading && (
         <Skeleton
           width="100%"
-          height={310}
+          height={verticalScale(310)}
           baseColor={colors.foreground}
           highlightColor="rgba(255, 255, 255, 0.45)"
           style={styles.absoluteSkeleton}
@@ -76,7 +77,7 @@ const styles = StyleSheet.create({
   },
   greetingImage: {
     width: '100%',
-    height: 310,
+    height: verticalScale(310),
     resizeMode: 'cover',
   },
   absoluteVideo: {

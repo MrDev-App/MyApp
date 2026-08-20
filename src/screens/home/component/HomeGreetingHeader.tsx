@@ -5,7 +5,7 @@ import Skeleton from '../../../components/Skeleton';
 import { Translation } from '../../../i18n/language';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
-import { fs, scale } from '../../../utile/sizes';
+import { fs, scale, verticalScale } from '../../../utile/sizes';
 
 interface HomeGreetingHeaderProps {
   loading: boolean;
@@ -52,7 +52,7 @@ export const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
 
 const styles = StyleSheet.create({
   mainView: {
-    marginBottom: 150,
+    marginBottom: verticalScale(150),
   },
   greetingMainView: {
     flexDirection: 'row',
