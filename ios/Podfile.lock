@@ -1,50 +1,28 @@
 PODS:
-  - AsyncStorage (3.1.1):
-    - hermes-engine
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-Core-prebuilt
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - ReactNativeDependencies
-    - Yoga
   - BVLinearGradient (2.8.3):
     - React-Core
   - FBLazyVector (0.86.2)
-  - Firebase/CoreOnly (12.17.0):
-    - FirebaseCore (~> 12.17.0)
-  - Firebase/Messaging (12.17.0):
+  - Firebase/CoreOnly (12.18.0):
+    - FirebaseCore (~> 12.18.0)
+  - Firebase/Messaging (12.18.0):
     - Firebase/CoreOnly
-    - FirebaseMessaging (~> 12.17.0)
-  - FirebaseCore (12.17.0):
-    - FirebaseCoreInternal (~> 12.17.0)
+    - FirebaseMessaging (~> 12.18.0)
+  - FirebaseCore (12.18.0):
+    - FirebaseCoreInternal (~> 12.18.0)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/Logger (~> 8.1)
-  - FirebaseCoreExtension (12.17.0):
-    - FirebaseCore (~> 12.17.0)
-  - FirebaseCoreInternal (12.17.0):
+  - FirebaseCoreExtension (12.18.0):
+    - FirebaseCore (~> 12.18.0)
+  - FirebaseCoreInternal (12.18.0):
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
-  - FirebaseInstallations (12.17.0):
-    - FirebaseCore (~> 12.17.0)
+  - FirebaseInstallations (12.18.0):
+    - FirebaseCore (~> 12.18.0)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/UserDefaults (~> 8.1)
     - PromisesObjC (~> 2.4)
-  - FirebaseMessaging (12.17.0):
-    - FirebaseCore (~> 12.17.0)
-    - FirebaseInstallations (~> 12.17.0)
+  - FirebaseMessaging (12.18.0):
+    - FirebaseCore (~> 12.18.0)
+    - FirebaseInstallations (~> 12.18.0)
     - GoogleDataTransport (~> 10.1)
     - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
     - GoogleUtilities/Environment (~> 8.1)
@@ -2117,8 +2095,8 @@ PODS:
     - React-utils (= 0.86.2)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.86.2)
-  - RNFBApp (26.1.0):
-    - Firebase/CoreOnly (= 12.17.0)
+  - RNFBApp (26.3.0):
+    - Firebase/CoreOnly (= 12.18.0)
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2140,9 +2118,9 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNFBMessaging (26.1.0):
-    - Firebase/Messaging (= 12.17.0)
-    - FirebaseCoreExtension (= 12.17.0)
+  - RNFBMessaging (26.3.0):
+    - Firebase/Messaging (= 12.18.0)
+    - FirebaseCoreExtension (= 12.18.0)
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2479,7 +2457,6 @@ PODS:
   - Yoga (0.0.0)
 
 DEPENDENCIES:
-  - "AsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
@@ -2588,8 +2565,6 @@ SPEC REPOS:
     - PromisesObjC
 
 EXTERNAL SOURCES:
-  AsyncStorage:
-    :path: "../node_modules/@react-native-async-storage/async-storage"
   BVLinearGradient:
     :path: "../node_modules/react-native-linear-gradient"
   FBLazyVector:
@@ -2773,15 +2748,14 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  AsyncStorage: 163ab23f6aa37a58b7f2379d0b4ee7ac84d6655c
   BVLinearGradient: cb006ba232a1f3e4f341bb62c42d1098c284da70
   FBLazyVector: 3c3be9a019176b5699455f7f66c5444b78a411c6
-  Firebase: e8400c058702940d53f31fc0653e4e7a06332326
-  FirebaseCore: 52d4512296984a44a8c8870c6494870fc7aeee2f
-  FirebaseCoreExtension: be2d62bfcf339c7dd94646d43d910aaf37fe17c1
-  FirebaseCoreInternal: 3b310521b34a51ce3a6c605e4618b9aef8f6c112
-  FirebaseInstallations: bd8e80f51d4c8bdc6c872011dede0b800c5b49ea
-  FirebaseMessaging: 313d69fe6529c8846813d1660b65d7d38bc16954
+  Firebase: 5523dd53ebe603451b4e1befcd99fa20a5c015cd
+  FirebaseCore: 96787d19ee32dc2242cc487b301bc616afeb398b
+  FirebaseCoreExtension: a86bab02524ca2bff95dddab7a3fcad505c2ddeb
+  FirebaseCoreInternal: 93b2d5f9e184c6818a04433891c358b0720a6a38
+  FirebaseInstallations: 933b2747e8594084c9117b65e8358fce29d7ced7
+  FirebaseMessaging: 422bb80cbf8ff83e69e50bea4d4984fc4704f665
   GoogleDataTransport: a24e58982ab3ba2f64d79613e027fe7f57e88539
   GoogleUtilities: 766ace00c6b10d8148408f329d10c4f051931850
   hermes-engine: 12498bb95c913e1a5206b81b72e4c16e3949e90f
@@ -2866,8 +2840,8 @@ SPEC CHECKSUMS:
   ReactCodegen: 3bbb7de19774794a7428ef623a7b777106cf3737
   ReactCommon: 9002f006f571256348994183f7d4387aa7cf84e8
   ReactNativeDependencies: 2bd6854ade79bf1b60586d1ab7813a389df1b6bf
-  RNFBApp: e86670e2588b469947c41f10bf7c3b7445f189b4
-  RNFBMessaging: 491e1e3c68a4486cba040f2e62ce29d1bed28e25
+  RNFBApp: 19c334e23078bb42fffbf4be4f3d96a9bd2bc401
+  RNFBMessaging: 6623ce0e7a895d40ac37395040a03b30a23bb8e0
   RNLocalize: f370284ea42c48f29f0d8dd3a7bcc28a04f82155
   RNNotifee: 5e3b271e8ea7456a36eec994085543c9adca9168
   RNReactNativeHapticFeedback: 16e5f7fd37e2acc5a33ea14f48bfd88ff43776ee
