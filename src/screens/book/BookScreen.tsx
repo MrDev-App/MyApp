@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Text,
@@ -14,12 +14,10 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 
 import HapticFeedback from 'react-native-haptic-feedback';
-import Animated from 'react-native-reanimated';
 
 import colors from '../../utile/colors';
 import fonts from '../../utile/fonts';
 import { fs, scale, screenWidth } from '../../utile/sizes';
-import { Storage } from '../../utile/storage';
 import { MahaBharatStories, Story } from '../../constants/storiesData';
 import GradientBackground from '../../components/GradientBackground';
 
@@ -84,52 +82,16 @@ const BookScreen = () => {
     storiesFromRamayan: t(Translation.BOOK_STORIES_FROM_RAMAYAN),
   };
 
-  // Bookmarking & Progress State
-  const [bookmarks, setBookmarks] = useState<string[]>([]);
-  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
-
-  // Load saved bookmarks and reading progress from MMKV on mount
-  useEffect(() => {
-    try {
-      const savedBookmarksStr = Storage.getString('STORY_BOOKMARKS', '[]');
-      const savedBookmarks = JSON.parse(savedBookmarksStr);
-      if (Array.isArray(savedBookmarks)) {
-        setBookmarks(savedBookmarks);
-      }
-
-      const savedProgressStr = Storage.getString('STORY_PROGRESS', '{}');
-      const savedProgress = JSON.parse(savedProgressStr);
-      if (savedProgress && typeof savedProgress === 'object') {
-        setProgressMap(savedProgress);
-      }
-    } catch (error) {
-      console.log('[Storage] Error loading books storage:', error);
-    }
-  }, []);
-
   // Helper: Open Reader
   const openStoryReader = (story: Story) => {
     triggerHaptic('impactHeavy');
     navigation.navigate('ReadingScreen', { storyId: story.id });
   };
 
-  // Get active bookmarked stories array
-  const bookmarkedStories = MahaBharatStories.filter(s =>
-    bookmarks.includes(s.id),
-  );
-  const inProgressStories = MahaBharatStories.filter(
-    s => progressMap[s.id] && progressMap[s.id] > 0 && progressMap[s.id] < 100,
-  );
-
-  // Library composite list (unique set of in-progress or bookmarked stories)
-  const libraryStories = Array.from(
-    new Set([...bookmarkedStories, ...inProgressStories]),
-  );
-
   return (
     <GradientBackground style={styles.containerFull}>
       <StatusBar barStyle="dark-content" />
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         {/* Header Section */}
         <View style={styles.header}>
           <View>

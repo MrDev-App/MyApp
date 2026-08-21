@@ -123,7 +123,7 @@ const SearchScreen = () => {
   return (
     <GradientBackground style={styles.containerFull}>
       <StatusBar barStyle="dark-content" />
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         {/* Header Search Bar Row */}
         <View style={styles.headerRow}>
           <TouchableOpacity
