@@ -37,6 +37,7 @@ interface ReadingFooterProps {
   onPrev: () => void;
   onNext: () => void;
   currentLang?: 'en' | 'hi';
+  isDarkMode?: boolean;
 }
 
 const ReadingFooter = ({
@@ -45,6 +46,7 @@ const ReadingFooter = ({
   onPrev,
   onNext,
   currentLang = 'en',
+  isDarkMode = true,
 }: ReadingFooterProps) => {
   const isFirst = currentPage === 0;
   const isLast = currentPage >= totalPages;
@@ -58,7 +60,12 @@ const ReadingFooter = ({
     : `Page ${currentPage} / ${totalPages}`;
 
   return (
-    <View style={styles.footerRow}>
+    <View
+      style={[
+        styles.footerRow,
+        { borderTopColor: isDarkMode ? '#2C2A29' : colors.borderMedium },
+      ]}
+    >
       {/* Back / Prev button */}
       <TouchableOpacity
         style={[styles.navButton, isFirst && styles.navButtonDisabled]}
@@ -72,13 +79,28 @@ const ReadingFooter = ({
         <Back
           width={scale(14)}
           height={scale(14)}
-          stroke={isFirst ? colors.neutralDisabled : colors.ring}
+          stroke={isFirst ? (isDarkMode ? '#555' : colors.neutralDisabled) : colors.ring}
         />
       </TouchableOpacity>
 
       {/* Page number pill */}
-      <View style={styles.pageNumberPill}>
-        <Text style={styles.pageNumberText}>{pageLabel}</Text>
+      <View
+        style={[
+          styles.pageNumberPill,
+          {
+            borderColor: isDarkMode ? '#333' : colors.borderMedium,
+            backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'transparent',
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.pageNumberText,
+            { color: isDarkMode ? '#F5EFE6' : colors.secondary },
+          ]}
+        >
+          {pageLabel}
+        </Text>
       </View>
 
       {/* Forward / Next button */}
@@ -94,7 +116,7 @@ const ReadingFooter = ({
         <Forward
           width={scale(14)}
           height={scale(14)}
-          stroke={isLast ? colors.neutralDisabled : colors.ring}
+          stroke={isLast ? (isDarkMode ? '#555' : colors.neutralDisabled) : colors.ring}
         />
       </TouchableOpacity>
     </View>

@@ -156,8 +156,6 @@ const BookScreen = () => {
                 styles.searchInput,
                 {
                   color: colors.neutralDisabled,
-                  lineHeight: scale(20),
-                  paddingTop: Platform.OS === 'ios' ? scale(12) : scale(10),
                 },
               ]}
             >
@@ -394,6 +392,7 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
+
     backgroundColor: colors.white,
     borderRadius: scale(14),
     paddingHorizontal: scale(12),

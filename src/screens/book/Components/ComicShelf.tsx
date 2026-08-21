@@ -59,21 +59,6 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
                   style={styles.comicImage}
                   sharedTransitionTag={`story_image_${story.id}`}
                 />
-                {isFav && (
-                  <View style={styles.comicBookmarkBadge}>
-                    <Text style={styles.comicBookmarkBadgeText}>❤️</Text>
-                  </View>
-                )}
-                {progress > 0 && (
-                  <View style={styles.comicProgressOverlay}>
-                    <Text style={styles.comicProgressOverlayText}>
-                      {recentProgressLabel.replace(
-                        '{{progress}}',
-                        String(progress),
-                      )}
-                    </Text>
-                  </View>
-                )}
               </View>
               <Text style={styles.comicCardTitle} numberOfLines={1}>
                 {currentLang === 'hi' ? story.titleHi : story.titleEn}

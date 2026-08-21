@@ -35,7 +35,15 @@ const triggerHaptic = (type: string = 'impactLight') => {
   }
 };
 
-const ReadingHeader = () => {
+interface ReadingHeaderProps {
+  isDarkMode?: boolean;
+  onToggleTheme?: () => void;
+}
+
+const ReadingHeader = ({
+  isDarkMode = true,
+  onToggleTheme,
+}: ReadingHeaderProps) => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { i18n } = useTranslation();
@@ -46,6 +54,7 @@ const ReadingHeader = () => {
 
   const [isFav, setIsFav] = useState(false);
 
+  // Load saved bookmark status on mount
   useEffect(() => {
     if (!storyId) {
       return;
@@ -59,6 +68,7 @@ const ReadingHeader = () => {
     } catch {}
   }, [storyId]);
 
+  // Toggle bookmark in MMKV storage
   const toggleBookmark = () => {
     if (!storyId) {
       return;
@@ -70,6 +80,7 @@ const ReadingHeader = () => {
       if (!Array.isArray(list)) {
         list = [];
       }
+
       if (list.includes(storyId)) {
         list = list.filter(id => id !== storyId);
         setIsFav(false);
@@ -93,7 +104,6 @@ const ReadingHeader = () => {
       <TouchableOpacity
         style={styles.ringButton}
         onPress={() => {
-          triggerHaptic('selection');
           navigation.goBack();
         }}
         activeOpacity={0.8}
@@ -103,19 +113,37 @@ const ReadingHeader = () => {
 
       {/* Book name centered */}
       <View style={styles.titleContainer}>
-        <Text style={styles.headerTitle} numberOfLines={1}>
+        <Text
+          style={[
+            styles.headerTitle,
+            { color: isDarkMode ? '#F5EFE6' : colors.secondary },
+          ]}
+          numberOfLines={1}
+        >
           {title}
         </Text>
       </View>
 
-      {/* Heart bookmark with ring border */}
-      <TouchableOpacity
-        style={styles.ringButton}
-        onPress={toggleBookmark}
-        activeOpacity={0.8}
-      >
-        <Text style={styles.heartIcon}>{isFav ? '❤️' : '🤍'}</Text>
-      </TouchableOpacity>
+      {/* Action Buttons: Theme toggle & Heart bookmark */}
+      <View style={styles.actionRow}>
+        {onToggleTheme && (
+          <TouchableOpacity
+            style={[styles.ringButton, styles.themeToggleBtn]}
+            onPress={onToggleTheme}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.actionIcon}>{isDarkMode ? '☀️' : '🌙'}</Text>
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity
+          style={styles.ringButton}
+          onPress={toggleBookmark}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.actionIcon}>{isFav ? '❤️' : '🤍'}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -158,7 +186,14 @@ const styles = StyleSheet.create({
     color: colors.secondary,
     textAlign: 'center',
   },
-  heartIcon: {
-    fontSize: fs(16),
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  themeToggleBtn: {
+    marginRight: scale(8),
+  },
+  actionIcon: {
+    fontSize: fs(14),
   },
 });

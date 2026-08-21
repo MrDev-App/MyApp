@@ -25,9 +25,9 @@ import { Storage } from '../../utile/storage';
 import { MahaBharatStories } from '../../constants/storiesData';
 import GradientBackground from '../../components/GradientBackground';
 import { Translation } from '../../i18n/language';
+import { Back } from '../../assets';
 
 // Localization
-
 
 // Haptic feedback helper
 const triggerHaptic = (type: string = 'impactLight') => {
@@ -133,7 +133,7 @@ const SearchScreen = () => {
               navigation.goBack();
             }}
           >
-            <Text style={styles.backButtonText}>←</Text>
+            <Back width={scale(12)} height={scale(12)} stroke={colors.ring} />
           </TouchableOpacity>
 
           <View style={styles.searchBar}>
@@ -174,9 +174,7 @@ const SearchScreen = () => {
             // Empty Search State
             <View style={styles.emptyStateContainer}>
               <Text style={styles.emptyStateEmoji}>✨</Text>
-              <Text style={styles.emptyStateText}>
-                {labels.emptyState}
-              </Text>
+              <Text style={styles.emptyStateText}>{labels.emptyState}</Text>
             </View>
           ) : filteredStories.length === 0 ? (
             // No Results State
@@ -279,15 +277,15 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: scale(20),
-    paddingVertical: scale(10),
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(5),
   },
   backButton: {
-    marginRight: scale(14),
-    width: scale(36),
-    height: scale(36),
+    marginRight: scale(10),
+    width: scale(32),
+    height: scale(32),
     borderRadius: scale(18),
-    backgroundColor: colors.white,
+    backgroundColor: colors.ring,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
@@ -311,8 +309,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.white,
     borderRadius: scale(14),
-    paddingHorizontal: scale(14),
-    height: scale(44),
+    paddingHorizontal: scale(10),
+    height: scale(38),
     borderWidth: 1.5,
     borderColor: colors.borderMedium,
     shadowColor: colors.secondary,
