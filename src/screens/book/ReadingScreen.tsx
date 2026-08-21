@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -72,45 +72,13 @@ const ReadingScreen = () => {
   const [containerWidth, setContainerWidth] = useState(windowWidth);
   const flatListRef = useRef<FlatList>(null);
 
-  // Restore saved progress on mount
-  useEffect(() => {
-    if (!story) return;
-    try {
-      const rawProgress = Storage.getString('STORY_PROGRESS', '{}');
-      const progressMap = JSON.parse(rawProgress);
-      const savedPercent = progressMap[story.id] || 0;
-      if (savedPercent > 0 && pages.length > 1) {
-        const targetIndex = Math.min(
-          Math.max(0, Math.round((savedPercent / 100) * (pages.length - 1))),
-          pages.length - 1,
-        );
-        setCurrentPageIndex(targetIndex);
-        setTimeout(() => {
-          flatListRef.current?.scrollToIndex({
-            index: targetIndex,
-            animated: false,
-          });
-        }, 200);
-      }
-    } catch {}
-  }, [story, pages.length]);
-
-  // Save progress percentage when page changes
+  // Page change handler - triggers haptic feedback without saving progress
   const handlePageChange = (index: number) => {
-    if (index === currentPageIndex || index < 0 || index >= pages.length)
+    if (index === currentPageIndex || index < 0 || index >= pages.length) {
       return;
+    }
     setCurrentPageIndex(index);
     triggerHaptic();
-
-    if (story && pages.length > 1) {
-      try {
-        const percent = Math.round((index / (pages.length - 1)) * 100);
-        const rawProgress = Storage.getString('STORY_PROGRESS', '{}');
-        const progressMap = JSON.parse(rawProgress) || {};
-        progressMap[story.id] = percent;
-        Storage.set('STORY_PROGRESS', JSON.stringify(progressMap));
-      } catch {}
-    }
   };
 
   const handleScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {

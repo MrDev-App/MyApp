@@ -173,98 +173,26 @@ const BookScreen = () => {
             title={labels.storiesFromMahabharat}
             data={MahaBharatStories}
             onPressBook={openStoryReader}
-            progressMap={progressMap}
-            bookmarks={bookmarks}
             currentLang={currentLang}
-            recentProgressLabel={labels.recentProgress}
           />
           <ComicShelf
             title={labels.storiesFromMahabharat}
             data={MahaBharatStories}
             onPressBook={openStoryReader}
-            progressMap={progressMap}
-            bookmarks={bookmarks}
             currentLang={currentLang}
-            recentProgressLabel={labels.recentProgress}
           />
           <ComicShelf
             title={labels.storiesFromMahabharat}
             data={MahaBharatStories}
             onPressBook={openStoryReader}
-            progressMap={progressMap}
-            bookmarks={bookmarks}
             currentLang={currentLang}
-            recentProgressLabel={labels.recentProgress}
           />
           <ComicShelf
             title={labels.storiesFromMahabharat}
             data={MahaBharatStories}
             onPressBook={openStoryReader}
-            progressMap={progressMap}
-            bookmarks={bookmarks}
             currentLang={currentLang}
-            recentProgressLabel={labels.recentProgress}
           />
-
-          {/*  Progress stories */}
-          {libraryStories.length > 0 && (
-            <View style={styles.librarySection}>
-              <Text style={styles.sectionTitle}>{labels.myLibrary}</Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.libraryScroll}
-              >
-                {libraryStories.map(story => {
-                  const progress = progressMap[story.id] || 0;
-                  return (
-                    <TouchableOpacity
-                      key={story.id}
-                      style={styles.libraryCard}
-                      onPress={() => openStoryReader(story)}
-                      activeOpacity={0.8}
-                    >
-                      <View style={styles.libraryImageContainer}>
-                        <Animated.Image
-                          source={story.image}
-                          style={styles.libraryImage}
-                          sharedTransitionTag={`story_image_${story.id}`}
-                        />
-                        {progress > 0 && (
-                          <View style={styles.libraryProgressOverlay}>
-                            <Text style={styles.libraryProgressOverlayText}>
-                              {labels.recentProgress.replace(
-                                '{{progress}}',
-                                String(progress),
-                              )}
-                            </Text>
-                          </View>
-                        )}
-                      </View>
-                      <Text style={styles.libraryCardTitle} numberOfLines={1}>
-                        {currentLang === 'hi' ? story.titleHi : story.titleEn}
-                      </Text>
-                      <Text style={styles.libraryCardMeta}>
-                        {currentLang === 'hi'
-                          ? story.categoryHi
-                          : story.categoryEn}
-                      </Text>
-                      {progress > 0 && (
-                        <View style={styles.progressBarBg}>
-                          <View
-                            style={[
-                              styles.progressBarFill,
-                              { width: `${progress}%` },
-                            ]}
-                          />
-                        </View>
-                      )}
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-            </View>
-          )}
         </ScrollView>
       </SafeAreaView>
     </GradientBackground>

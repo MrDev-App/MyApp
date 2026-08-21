@@ -104,6 +104,16 @@ const ReadingHeader = ({
       <TouchableOpacity
         style={styles.ringButton}
         onPress={() => {
+          if (storyId) {
+            try {
+              const rawProgress = Storage.getString('STORY_PROGRESS', '{}');
+              const progressMap = JSON.parse(rawProgress) || {};
+              if (progressMap[storyId] !== undefined) {
+                delete progressMap[storyId];
+                Storage.set('STORY_PROGRESS', JSON.stringify(progressMap));
+              }
+            } catch {}
+          }
           navigation.goBack();
         }}
         activeOpacity={0.8}

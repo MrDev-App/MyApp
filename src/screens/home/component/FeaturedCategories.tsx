@@ -27,6 +27,7 @@ import {
   TemplesView,
 } from '../../../components/CategoryDetailViews';
 import GradientOverlay from '../../../components/GradientOverlay';
+import AnimatedButton from '../../../components/AnimatedButton';
 
 const FeaturedCategories = () => {
   const { t, i18n } = useTranslation();
@@ -50,10 +51,9 @@ const FeaturedCategories = () => {
           const categoryTitle =
             currentLanguage === 'hi' ? category.titleHi : category.titleEn;
           return (
-            <TouchableOpacity
+            <AnimatedButton
               key={category.id}
               style={styles.card}
-              activeOpacity={0.8}
               onPress={() => trigger(category.id, category)}
             >
               <View
@@ -64,7 +64,7 @@ const FeaturedCategories = () => {
                 <Text style={styles.iconText}>{category.icon}</Text>
               </View>
               <Text style={styles.cardTitle}>{categoryTitle}</Text>
-            </TouchableOpacity>
+            </AnimatedButton>
           );
         })}
       </View>

@@ -11,25 +11,20 @@ import { Story } from '../../../constants/storiesData';
 import { fs, scale } from '../../../utile/sizes';
 import fonts from '../../../utile/fonts';
 import colors from '../../../utile/colors';
+import AnimatedButton from '../../../components/AnimatedButton';
 
 interface ComicShelfProps {
   title: string;
   data: Story[];
   onPressBook: (story: Story) => void;
-  progressMap?: Record<string, number>;
-  bookmarks?: string[];
   currentLang?: 'en' | 'hi';
-  recentProgressLabel?: string;
 }
 
 export const ComicShelf: React.FC<ComicShelfProps> = ({
   title,
   data,
   onPressBook,
-  progressMap = {},
-  bookmarks = [],
   currentLang = 'en',
-  recentProgressLabel = '{{progress}}% Read',
 }) => {
   if (!data || data.length === 0) {
     return null;
@@ -44,14 +39,11 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
         contentContainerStyle={styles.comicsScroll}
       >
         {data.map(story => {
-          const progress = progressMap[story.id] || 0;
-          const isFav = bookmarks.includes(story.id);
           return (
-            <TouchableOpacity
+            <AnimatedButton
               key={story.id}
               style={styles.comicCard}
               onPress={() => onPressBook(story)}
-              activeOpacity={0.8}
             >
               <View style={styles.comicImageContainer}>
                 <Animated.Image
@@ -66,7 +58,7 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
               <Text style={styles.comicCardMeta}>
                 {currentLang === 'hi' ? story.sourceHi : story.sourceEn}
               </Text>
-            </TouchableOpacity>
+            </AnimatedButton>
           );
         })}
       </ScrollView>

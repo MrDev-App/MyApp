@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import colors from '../utile/colors';
 import fonts from '../utile/fonts';
 import { fs, scale } from '../utile/sizes';
+import AnimatedButton from './AnimatedButton';
 
 export const AartiView = ({
   items,
@@ -24,10 +25,9 @@ export const AartiView = ({
         const subtitle =
           currentLanguage === 'hi' ? item.subtitleHi : item.subtitleEn;
         return (
-          <TouchableOpacity
+          <AnimatedButton
             key={item.id}
             style={styles.aartiGridCard}
-            activeOpacity={0.8}
             onPress={() => onItemPress(item.id, item)}
           >
             <View
@@ -41,7 +41,7 @@ export const AartiView = ({
             {subtitle && (
               <Text style={styles.aartiGridSubtitle}>{subtitle}</Text>
             )}
-          </TouchableOpacity>
+          </AnimatedButton>
         );
       })}
     </View>
