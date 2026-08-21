@@ -6,6 +6,20 @@
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
         <item name="android:navigationBarColor">#FFFFFF</item>
         <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:dialogTheme">@style/AppDialogTheme</item>
+        <item name="android:alertDialogTheme">@style/AppDialogTheme</item>
+    </style>
+
+    <!-- Dialog / Alert Dialog Theme -->
+    <style name="AppDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:navigationBarColor">#FFFFFF</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <!-- Theme for React Native Modal Dialogs -->
+    <style name="Theme.ReactNative.Modal" parent="Theme.AppCompat.DayNight.Dialog">
+        <item name="android:navigationBarColor">#FFFFFF</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 
 </resources>

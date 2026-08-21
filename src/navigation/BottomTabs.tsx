@@ -87,10 +87,15 @@ const TabIcon = ({ icon, isFocused }: TabIconProps) => {
   );
 };
 
-export const CustomTabBar = ({ state, navigation, insets }: BottomTabBarProps) => {
+export const CustomTabBar = ({
+  state,
+  navigation,
+  insets,
+}: BottomTabBarProps) => {
   const safeInsets = useSafeAreaInsets();
   const bottomInset = insets?.bottom ?? safeInsets.bottom;
-  const bottomOffset = bottomInset > 0 ? bottomInset + verticalScale(8) : verticalScale(20);
+  const bottomOffset =
+    bottomInset > 0 ? bottomInset + verticalScale(8) : verticalScale(20);
 
   const buttonWidthShared = useSharedValue(0);
   const activeIndexShared = useSharedValue(state.index);

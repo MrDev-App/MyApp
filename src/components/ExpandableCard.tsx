@@ -58,8 +58,14 @@ function ExpandableCardInner<T>(
   ref: React.Ref<ExpandableCardHandle>,
 ) {
   const insets = useSafeAreaInsets();
-  const effectiveTop = topOffset !== undefined ? Math.max(topOffset, insets.top + scale(10)) : insets.top + scale(10);
-  const effectiveBottom = bottomOffset !== undefined && bottomOffset > 0 ? bottomOffset : insets.bottom + scale(10);
+  const effectiveTop =
+    topOffset !== undefined
+      ? Math.max(topOffset, insets.top + scale(10))
+      : insets.top + scale(10);
+  const effectiveBottom =
+    bottomOffset !== undefined && bottomOffset > 0
+      ? bottomOffset
+      : insets.bottom + scale(0);
 
   const { width: windowWidth } = useWindowDimensions();
   const [data, setData] = useState<T | null>(null);
