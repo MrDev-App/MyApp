@@ -1,11 +1,5 @@
 import React, { useRef } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
@@ -21,12 +15,11 @@ import ExpandableCard, {
 import { useExpandTrigger } from '../../../hook/useExpandTrigger';
 import { Translation } from '../../../i18n/language';
 import {
-  AartiView,
-  ShlokView,
-  StoriesView,
-  TemplesView,
-} from '../../../components/CategoryDetailViews';
-import GradientOverlay from '../../../components/GradientOverlay';
+  AartiScreen,
+  ShlokScreen,
+  StoriesScreen,
+  TemplesScreen,
+} from '../categories';
 import AnimatedButton from '../../../components/AnimatedButton';
 
 const FeaturedCategories = () => {
@@ -95,20 +88,20 @@ const FeaturedCategories = () => {
                 contentContainerStyle={styles.scrollListContent}
               >
                 {category.id === 'aarti' && (
-                  <AartiView
+                  <AartiScreen
                     items={category.items}
                     registerItemRef={registerItemRef}
                     onItemPress={triggerItem}
                   />
                 )}
                 {category.id === 'shlok' && (
-                  <ShlokView items={category.items} />
+                  <ShlokScreen items={category.items} />
                 )}
                 {category.id === 'stories' && (
-                  <StoriesView items={category.items} />
+                  <StoriesScreen items={category.items} />
                 )}
                 {category.id === 'temples' && (
-                  <TemplesView items={category.items} />
+                  <TemplesScreen items={category.items} />
                 )}
               </ScrollView>
             </>
