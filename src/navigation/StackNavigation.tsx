@@ -5,8 +5,9 @@ import SplashScreen from '../screens/SplashScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import BottomNavigation from './BottomNavigation';
 import AllFestivalsScreen from '../screens/home/AllFestivalsScreen';
-import JapScreen from '../screens/jap/JapScreen';
 import '../i18n';
+import ReadingScreen from '../screens/book/ReadingScreen';
+import SearchScreen from '../screens/book/SearchScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -22,6 +23,16 @@ const StackNavigation = () => {
       <Stack.Screen
         name="AllFestivals"
         component={AllFestivalsScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="ReadingScreen"
+        component={ReadingScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="SearchScreen"
+        component={SearchScreen}
         options={{ animation: 'slide_from_right' }}
       />
     </Stack.Navigator>

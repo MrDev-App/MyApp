@@ -120,6 +120,8 @@ export const colors = {
   gradientStart: 'rgba(255, 254, 254, 0.2)',
   skeletonBase: '#e8e2d4',
   skeletonHighlight: 'rgba(255, 255, 255, 0.6)',
+  backgroundLight: '#f5ecd6',
+  neutralDark: '#2e1c0c',
 };
 
 export type ColorsType = typeof colors;

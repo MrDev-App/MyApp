@@ -421,7 +421,7 @@ const JapScreen = () => {
 
   return (
     <GradientBackground>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         {/* ── Header ── */}
         <View style={styles.headerRow}>
           <Text style={styles.headerTitle}>{t(Translation.JAP_CHANTING)}</Text>
@@ -484,7 +484,7 @@ const JapScreen = () => {
             />
           </View>
 
-          {/* Stats Bar: TODAY JAP | TODAY MALA | TOTAL CHANTS */}
+          {/* Stats Bar: TODAY JAP | TOTAL MALA | TOTAL CHANTS */}
           <View style={styles.statsBar}>
             {/* Today Jap Card */}
             <View style={styles.statChip}>
@@ -502,7 +502,7 @@ const JapScreen = () => {
             <View style={styles.statChip}>
               <Text style={styles.statChipIcon}>📿</Text>
               <Text style={styles.statChipLabel}>
-                {t(Translation.JAP_TODAY_MALA)}
+                {t(Translation.JAP_TOTAL_MALA)}
               </Text>
               <Animated.Text style={[styles.statChipValue, animatedTextStyle]}>
                 {todayMala}
@@ -723,7 +723,7 @@ const styles = StyleSheet.create({
   },
   statChipIcon: { fontSize: fs(14) },
   statChipLabel: {
-    fontSize: fs(9),
+    fontSize: fs(10),
     fontFamily: fonts.PoppinsMedium,
     color: colors.mutedForeground,
     letterSpacing: 0.8,

@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import GradientBackground from '../../components/GradientBackground';
 import Globalstyles from '../../utile/GlobalStyle';
-import { scale, verticalScale } from '../../utile/sizes';
+import { scale } from '../../utile/sizes';
 import { OverlayModalHandle } from '../../components/OverlayModal';
 
 // Sub-components
@@ -77,7 +77,10 @@ export const HomeScreen = () => {
         style={styles.topGradient}
       />
 
-      <SafeAreaView style={Globalstyles.containerMargin20}>
+      <SafeAreaView
+        style={Globalstyles.containerMargin20}
+        edges={['top', 'bottom']}
+      >
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
@@ -105,7 +108,7 @@ export const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingBottom: scale(70),
+    paddingBottom: scale(50),
   },
   topGradient: {
     position: 'absolute',

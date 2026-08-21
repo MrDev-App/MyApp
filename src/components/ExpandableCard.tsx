@@ -17,6 +17,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { runOnJS } from 'react-native-worklets';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scale, fs } from '../utile/sizes';
 import colors from '../utile/colors';
 
@@ -49,13 +50,17 @@ function ExpandableCardInner<T>(
     renderContent,
 
     expandedHeight = 340,
-    topOffset = 60,
+    topOffset,
     bottomOffset,
     horizontalPadding = scale(10),
     imageMargin = 0,
   }: Props<T>,
   ref: React.Ref<ExpandableCardHandle>,
 ) {
+  const insets = useSafeAreaInsets();
+  const effectiveTop = topOffset !== undefined ? Math.max(topOffset, insets.top + scale(10)) : insets.top + scale(10);
+  const effectiveBottom = bottomOffset !== undefined && bottomOffset > 0 ? bottomOffset : insets.bottom + scale(10);
+
   const { width: windowWidth } = useWindowDimensions();
   const [data, setData] = useState<T | null>(null);
   const [_origin, setOrigin] = useState<ExpandOrigin>({
@@ -111,7 +116,7 @@ function ExpandableCardInner<T>(
   const imageAnimatedStyle = useAnimatedStyle(() => {
     const targetLeft = horizontalPadding + imageMargin;
     const targetWidth = containerWidth.value - targetLeft * 2;
-    const targetTop = topOffset;
+    const targetTop = effectiveTop;
     const targetHeight = expandedHeight;
 
     const top = interpolate(progress.value, [0, 1], [originY.value, targetTop]);
@@ -152,9 +157,9 @@ function ExpandableCardInner<T>(
 
   const contentAnimatedStyle = useAnimatedStyle(() => ({
     opacity: interpolate(progress.value, [0.3, 1], [0, 1], Extrapolation.CLAMP),
-    top: hasImage ? expandedHeight + topOffset + scale20 : topOffset,
+    top: hasImage ? expandedHeight + effectiveTop + scale20 : effectiveTop,
 
-    bottom: bottomOffset !== undefined ? bottomOffset : scale20,
+    bottom: effectiveBottom,
     transform: [
       {
         translateY: interpolate(
@@ -224,7 +229,7 @@ function ExpandableCardInner<T>(
         <Animated.View
           style={[
             styles.closeButton,
-            { top: topOffset, right: scale(20), zIndex: 100 },
+            { top: effectiveTop, right: scale(20), zIndex: 100 },
             backdropAnimatedStyle,
           ]}
         >

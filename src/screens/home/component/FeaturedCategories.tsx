@@ -73,7 +73,6 @@ const FeaturedCategories = () => {
       <ExpandableCard<Category>
         ref={cardRef}
         imageMargin={scale(16)}
-        bottomOffset={0}
         renderContent={(category, _close) => {
           const categoryTitle =
             currentLanguage === 'hi' ? category.titleHi : category.titleEn;

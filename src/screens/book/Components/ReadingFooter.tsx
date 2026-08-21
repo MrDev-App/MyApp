@@ -1,0 +1,154 @@
+import React from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Platform,
+  Vibration,
+} from 'react-native';
+import HapticFeedback from 'react-native-haptic-feedback';
+
+import { Back, Forward } from '../../../assets';
+import colors from '../../../utile/colors';
+import fonts from '../../../utile/fonts';
+import { fs, scale } from '../../../utile/sizes';
+
+const triggerHaptic = (type: string = 'selection') => {
+  if (Platform.OS === 'android') {
+    try {
+      Vibration.vibrate(30);
+    } catch {}
+  } else {
+    try {
+      HapticFeedback.trigger(type as any, {
+        enableVibrateFallback: true,
+        ignoreAndroidSystemSettings: true,
+      });
+    } catch {
+      Vibration.vibrate(30);
+    }
+  }
+};
+
+interface ReadingFooterProps {
+  currentPage: number; // 0 = cover, 1..n = comic pages
+  totalPages: number; // total comic pages (excluding cover)
+  onPrev: () => void;
+  onNext: () => void;
+  currentLang?: 'en' | 'hi';
+}
+
+const ReadingFooter = ({
+  currentPage,
+  totalPages,
+  onPrev,
+  onNext,
+  currentLang = 'en',
+}: ReadingFooterProps) => {
+  const isFirst = currentPage === 0;
+  const isLast = currentPage >= totalPages;
+
+  const pageLabel = isFirst
+    ? currentLang === 'hi'
+      ? 'कवर पेज'
+      : 'Cover Page'
+    : currentLang === 'hi'
+    ? `पृष्ठ ${currentPage} / ${totalPages}`
+    : `Page ${currentPage} / ${totalPages}`;
+
+  return (
+    <View style={styles.footerRow}>
+      {/* Back / Prev button */}
+      <TouchableOpacity
+        style={[styles.navButton, isFirst && styles.navButtonDisabled]}
+        onPress={() => {
+          triggerHaptic();
+          onPrev();
+        }}
+        disabled={isFirst}
+        activeOpacity={0.7}
+      >
+        <Back
+          width={scale(14)}
+          height={scale(14)}
+          stroke={isFirst ? colors.neutralDisabled : colors.ring}
+        />
+      </TouchableOpacity>
+
+      {/* Page number pill */}
+      <View style={styles.pageNumberPill}>
+        <Text style={styles.pageNumberText}>{pageLabel}</Text>
+      </View>
+
+      {/* Forward / Next button */}
+      <TouchableOpacity
+        style={[styles.navButton, isLast && styles.navButtonDisabled]}
+        onPress={() => {
+          triggerHaptic();
+          onNext();
+        }}
+        disabled={isLast}
+        activeOpacity={0.7}
+      >
+        <Forward
+          width={scale(14)}
+          height={scale(14)}
+          stroke={isLast ? colors.neutralDisabled : colors.ring}
+        />
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+export default ReadingFooter;
+
+const styles = StyleSheet.create({
+  footerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: scale(20),
+    paddingVertical: scale(10),
+    borderTopWidth: 1,
+    borderTopColor: colors.borderMedium,
+    width: '100%',
+  },
+  navButton: {
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(19),
+    borderWidth: 1.5,
+    borderColor: colors.ring,
+    backgroundColor: colors.ring,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.ring,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  navButtonDisabled: {
+    borderColor: colors.neutralDisabled,
+    backgroundColor: 'transparent',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  pageNumberPill: {
+    flex: 1,
+    marginHorizontal: scale(12),
+    paddingVertical: scale(6),
+    paddingHorizontal: scale(14),
+    borderRadius: scale(20),
+    borderWidth: 1,
+    borderColor: colors.borderMedium,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pageNumberText: {
+    fontSize: fs(12),
+    fontFamily: fonts.PoppinsMedium,
+    color: colors.secondary,
+  },
+});

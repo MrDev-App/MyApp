@@ -153,7 +153,7 @@ const ProfileScreen = () => {
 
   return (
     <GradientBackground>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         {/* Header */}
         {/* <View style={styles.headerRow}>
           <Text style={styles.headerTitle}>{labels.myProfile}</Text>

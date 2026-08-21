@@ -1,0 +1,164 @@
+import React, { useState, useEffect } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Platform,
+  Vibration,
+} from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
+import HapticFeedback from 'react-native-haptic-feedback';
+
+import { Back } from '../../../assets';
+import colors from '../../../utile/colors';
+import fonts from '../../../utile/fonts';
+import { fs, scale } from '../../../utile/sizes';
+import { Storage } from '../../../utile/storage';
+import { MahaBharatStories } from '../../../constants/storiesData';
+
+const triggerHaptic = (type: string = 'impactLight') => {
+  if (Platform.OS === 'android') {
+    try {
+      Vibration.vibrate(40);
+    } catch {}
+  } else {
+    try {
+      HapticFeedback.trigger(type as any, {
+        enableVibrateFallback: true,
+        ignoreAndroidSystemSettings: true,
+      });
+    } catch {
+      Vibration.vibrate(30);
+    }
+  }
+};
+
+const ReadingHeader = () => {
+  const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const { i18n } = useTranslation();
+  const currentLang = (i18n.language === 'hi' ? 'hi' : 'en') as 'en' | 'hi';
+
+  const { storyId } = route.params || {};
+  const story = MahaBharatStories.find(s => s.id === storyId);
+
+  const [isFav, setIsFav] = useState(false);
+
+  useEffect(() => {
+    if (!storyId) {
+      return;
+    }
+    try {
+      const raw = Storage.getString('STORY_BOOKMARKS', '[]');
+      const list = JSON.parse(raw);
+      if (Array.isArray(list)) {
+        setIsFav(list.includes(storyId));
+      }
+    } catch {}
+  }, [storyId]);
+
+  const toggleBookmark = () => {
+    if (!storyId) {
+      return;
+    }
+    triggerHaptic('impactMedium');
+    try {
+      const raw = Storage.getString('STORY_BOOKMARKS', '[]');
+      let list: string[] = JSON.parse(raw);
+      if (!Array.isArray(list)) {
+        list = [];
+      }
+      if (list.includes(storyId)) {
+        list = list.filter(id => id !== storyId);
+        setIsFav(false);
+      } else {
+        list.push(storyId);
+        setIsFav(true);
+      }
+      Storage.set('STORY_BOOKMARKS', JSON.stringify(list));
+    } catch {}
+  };
+
+  const title = story
+    ? currentLang === 'hi'
+      ? story.titleHi
+      : story.titleEn
+    : '';
+
+  return (
+    <View style={styles.headerRow}>
+      {/* ← Back button with ring border */}
+      <TouchableOpacity
+        style={styles.ringButton}
+        onPress={() => {
+          triggerHaptic('selection');
+          navigation.goBack();
+        }}
+        activeOpacity={0.8}
+      >
+        <Back width={scale(12)} height={scale(12)} stroke={colors.ring} />
+      </TouchableOpacity>
+
+      {/* Book name centered */}
+      <View style={styles.titleContainer}>
+        <Text style={styles.headerTitle} numberOfLines={1}>
+          {title}
+        </Text>
+      </View>
+
+      {/* Heart bookmark with ring border */}
+      <TouchableOpacity
+        style={styles.ringButton}
+        onPress={toggleBookmark}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.heartIcon}>{isFav ? '❤️' : '🤍'}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+export default ReadingHeader;
+
+const styles = StyleSheet.create({
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: scale(20),
+    paddingVertical: scale(10),
+    width: '100%',
+  },
+  ringButton: {
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(19),
+    borderWidth: 1.5,
+    borderColor: colors.ring,
+    backgroundColor: colors.ring,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.ring,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  titleContainer: {
+    flex: 1,
+    marginHorizontal: scale(12),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    fontSize: fs(15),
+    fontFamily: fonts.Marcellus,
+    color: colors.secondary,
+    textAlign: 'center',
+  },
+  heartIcon: {
+    fontSize: fs(16),
+  },
+});

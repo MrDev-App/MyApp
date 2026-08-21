@@ -179,7 +179,7 @@ const AllFestivalsScreen = () => {
 
   return (
     <GradientBackground>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
         {/* Premium Header: Back button on far-left, Month navigation in center */}
         <View style={styles.header}>
           <TouchableOpacity

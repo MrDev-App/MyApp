@@ -9,6 +9,7 @@ import {
 import { fs, scale, verticalScale } from '../utile/sizes';
 import colors from '../utile/colors';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -86,7 +87,11 @@ const TabIcon = ({ icon, isFocused }: TabIconProps) => {
   );
 };
 
-export const CustomTabBar = ({ state, navigation }: BottomTabBarProps) => {
+export const CustomTabBar = ({ state, navigation, insets }: BottomTabBarProps) => {
+  const safeInsets = useSafeAreaInsets();
+  const bottomInset = insets?.bottom ?? safeInsets.bottom;
+  const bottomOffset = bottomInset > 0 ? bottomInset + verticalScale(8) : verticalScale(20);
+
   const buttonWidthShared = useSharedValue(0);
   const activeIndexShared = useSharedValue(state.index);
 
@@ -119,7 +124,7 @@ export const CustomTabBar = ({ state, navigation }: BottomTabBarProps) => {
   });
 
   return (
-    <View style={styles.tabBarContainer}>
+    <View style={[styles.tabBarContainer, { bottom: bottomOffset }]}>
       <View style={styles.tabBar} onLayout={onLayout}>
         {/* Smooth sliding background pill behind the icons */}
         <Animated.View style={[styles.slidingBg, animatedBgStyle]} />
@@ -175,7 +180,6 @@ export const CustomTabBar = ({ state, navigation }: BottomTabBarProps) => {
 const styles = StyleSheet.create({
   tabBarContainer: {
     position: 'absolute',
-    bottom: verticalScale(30),
     left: scale(20),
     right: scale(20),
     alignItems: 'center',

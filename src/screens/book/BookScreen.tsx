@@ -1,105 +1,30 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   ScrollView,
-  TextInput,
   TouchableOpacity,
-  Image,
-  Modal,
-  Share,
   Platform,
   Vibration,
   StatusBar,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import LinearGradient from 'react-native-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
+
 import HapticFeedback from 'react-native-haptic-feedback';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-  withRepeat,
-  withSequence,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import colors from '../../utile/colors';
 import fonts from '../../utile/fonts';
-import {
-  fs,
-  scale,
-  verticalScale,
-  screenWidth,
-  screenHeight,
-} from '../../utile/sizes';
+import { fs, scale, screenWidth } from '../../utile/sizes';
 import { Storage } from '../../utile/storage';
-import { mythologyStories, Story } from '../../constants/storiesData';
+import { MahaBharatStories, Story } from '../../constants/storiesData';
 import GradientBackground from '../../components/GradientBackground';
 
-// Localized strings following the ProfileScreen pattern
-const bookLabels = {
-  en: {
-    screenTitle: 'Sacred Scriptures',
-    screenSubtitle: 'Dive into timeless tales of wisdom',
-    searchPlaceholder: 'Search stories, epics, deities...',
-    featuredTitle: 'STORY OF THE DAY',
-    readNow: 'Read Now',
-    myLibrary: 'My Library / In Progress',
-    recentProgress: '{{progress}}% Read',
-    allStories: 'Explore All Stories',
-    noStoriesFound: 'No stories found matching search',
-    moralLabel: 'Moral Wisdom',
-    sourceLabel: 'Scripture Source',
-    difficultyLabel: 'Difficulty',
-    readingTime: '{{time}} Min Read',
-    bookmarkRemoved: 'Removed from library',
-    bookmarkAdded: 'Saved to library',
-    parchmentTheme: 'Parchment',
-    midnightTheme: 'Midnight',
-    classicTheme: 'Classic',
-    fontSizeLabel: 'Font Size',
-    shareWisdom: 'Share Wisdom',
-    closeReader: 'Close Reader',
-    copiedToClipboard: 'Copied wisdom to clipboard!',
-    shareTitle: 'Divine Wisdom from GuruVani',
-    wisdomCardHeader: 'DIVINE WISDOM',
-    wisdomClose: 'Okay',
-    resumeReading: 'Resume Reading',
-  },
-  hi: {
-    screenTitle: 'पौराणिक गाथाएं',
-    screenSubtitle: 'सत्य और ज्ञान की अमर आध्यात्मिक कथाएं',
-    searchPlaceholder: 'कहानियां, ग्रंथ या देवी-देवता खोजें...',
-    featuredTitle: 'आज की विशेष कथा',
-    readNow: 'अभी पढ़ें',
-    myLibrary: 'मेरा पुस्तकालय / निरंतर पठन',
-    recentProgress: '{{progress}}% पढ़ा गया',
-    allStories: 'सभी कथाएं खोजें',
-    noStoriesFound: 'खोज के अनुकूल कोई कहानी नहीं मिली',
-    moralLabel: 'सच्ची सीख (नैतिकता)',
-    sourceLabel: 'धर्मग्रंथ स्रोत',
-    difficultyLabel: 'स्तर',
-    readingTime: '{{time}} मिनट पठन',
-    bookmarkRemoved: 'पुस्तकालय से हटाया गया',
-    bookmarkAdded: 'पुस्तकालय में सहेजा गया',
-    parchmentTheme: 'ताम्रपत्र',
-    midnightTheme: 'मध्यरात्रि',
-    classicTheme: 'क्लासिक',
-    fontSizeLabel: 'अक्षर का आकार',
-    shareWisdom: 'सुविचार साझा करें',
-    closeReader: 'पठन बंद करें',
-    copiedToClipboard: 'सुविचार क्लिपबोर्ड पर सहेजा गया!',
-    shareTitle: 'गुरुवाणी से दिव्य सुविचार',
-    wisdomCardHeader: 'दिव्य सुविचार',
-    wisdomClose: 'ठीक है',
-    resumeReading: 'पुनः पढ़ें',
-  },
-};
+import { Translation } from '../../i18n/language';
+import ComicShelf from './Components/ComicShelf';
 
 // Haptic feedback trigger function matching the app pattern
 const triggerHaptic = (type: string = 'impactLight') => {
@@ -123,68 +48,45 @@ const triggerHaptic = (type: string = 'impactLight') => {
 };
 
 const BookScreen = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const currentLang = (i18n.language === 'hi' ? 'hi' : 'en') as 'en' | 'hi';
-  const labels = bookLabels[currentLang];
+  const navigation = useNavigation<any>();
 
-  // Search & Filter State
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const labels = {
+    screenTitle: t(Translation.BOOK_SCREEN_TITLE),
+    screenSubtitle: t(Translation.BOOK_SCREEN_SUBTITLE),
+    searchPlaceholder: t(Translation.BOOK_SEARCH_PLACEHOLDER),
+    featuredTitle: t(Translation.BOOK_FEATURED_TITLE),
+    readNow: t(Translation.BOOK_READ_NOW),
+    myLibrary: t(Translation.BOOK_MY_LIBRARY),
+    recentProgress: t(Translation.BOOK_RECENT_PROGRESS),
+    allStories: t(Translation.BOOK_ALL_STORIES),
+    noStoriesFound: t(Translation.BOOK_NO_STORIES_FOUND),
+    moralLabel: t(Translation.BOOK_MORAL_LABEL),
+    sourceLabel: t(Translation.BOOK_SOURCE_LABEL),
+    difficultyLabel: t(Translation.BOOK_DIFFICULTY_LABEL),
+    readingTime: t(Translation.BOOK_READING_TIME),
+    bookmarkRemoved: t(Translation.BOOK_BOOKMARK_REMOVED),
+    bookmarkAdded: t(Translation.BOOK_BOOKMARK_ADDED),
+    parchmentTheme: t(Translation.BOOK_PARCHMENT_THEME),
+    midnightTheme: t(Translation.BOOK_MIDNIGHT_THEME),
+    classicTheme: t(Translation.BOOK_CLASSIC_THEME),
+    fontSizeLabel: t(Translation.BOOK_FONT_SIZE_LABEL),
+    shareWisdom: t(Translation.BOOK_SHARE_WISDOM),
+    closeReader: t(Translation.BOOK_CLOSE_READER),
+    copiedToClipboard: t(Translation.BOOK_COPIED_TO_CLIPBOARD),
+    shareTitle: t(Translation.BOOK_SHARE_TITLE),
+    wisdomCardHeader: t(Translation.BOOK_WISDOM_CARD_HEADER),
+    wisdomClose: t(Translation.BOOK_WISDOM_CLOSE),
+    illustratedComics: t(Translation.BOOK_ILLUSTRATED_COMICS),
+    popularStories: t(Translation.BOOK_POPULAR_STORIES),
+    storiesFromMahabharat: t(Translation.BOOK_STORIES_FROM_MAHABHARAT),
+    storiesFromRamayan: t(Translation.BOOK_STORIES_FROM_RAMAYAN),
+  };
 
   // Bookmarking & Progress State
   const [bookmarks, setBookmarks] = useState<string[]>([]);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
-
-  // Active Story Reader State
-  const [activeStory, setActiveStory] = useState<Story | null>(null);
-  const [isReaderOpen, setIsReaderOpen] = useState(false);
-  const [readerFontSize, setReaderFontSize] = useState(16);
-  const [readerTheme, setReaderTheme] = useState<
-    'parchment' | 'midnight' | 'classic'
-  >('parchment');
-  const [readingProgress, setReadingProgress] = useState(0);
-
-  // Sharing Wisdom Overlay State
-  const [showWisdomShare, setShowWisdomShare] = useState(false);
-
-  // Sound visualization state (mock chanting visualizer)
-  const [isChantingSoundOn, setIsChantingSoundOn] = useState(false);
-  const chantAnimVal = useSharedValue(1);
-
-  // References
-  const readerScrollRef = useRef<ScrollView>(null);
-
-  // Dynamic Categories (compiled from stories database)
-  const categoriesList = [
-    'All',
-    'Ramayana',
-    'Mahabharata',
-    'Krishna Leela',
-    'Shiva Purana',
-    'Devi Mahatmya',
-  ];
-
-  // Sound wave animation for chanting mock visualizer
-  useEffect(() => {
-    if (isChantingSoundOn) {
-      chantAnimVal.value = withRepeat(
-        withSequence(
-          withTiming(1.5, { duration: 400 }),
-          withTiming(0.8, { duration: 400 }),
-        ),
-        -1,
-        true,
-      );
-    } else {
-      chantAnimVal.value = withTiming(1, { duration: 300 });
-    }
-  }, [isChantingSoundOn]);
-
-  const animatedChantStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: chantAnimVal.value }],
-    };
-  });
 
   // Load saved bookmarks and reading progress from MMKV on mount
   useEffect(() => {
@@ -205,167 +107,17 @@ const BookScreen = () => {
     }
   }, []);
 
-  // Filter stories based on query and selected category
-  const filteredStories = mythologyStories.filter(story => {
-    const q = searchQuery.toLowerCase().trim();
-    if (!q)
-      return (
-        selectedCategory === 'All' ||
-        story.categoryEn.toLowerCase() === selectedCategory.toLowerCase()
-      );
-
-    // Combine all fields in both English and Hindi for universal search
-    const searchTarget = [
-      story.titleEn,
-      story.titleHi,
-      story.subtitleEn,
-      story.subtitleHi,
-      story.descriptionEn,
-      story.descriptionHi,
-      story.categoryEn,
-      story.categoryHi,
-      story.contentEn,
-      story.contentHi,
-      story.sourceEn,
-      story.sourceHi,
-      story.keywords || '',
-    ]
-      .join(' ')
-      .toLowerCase();
-
-    const matchesSearch = searchTarget.includes(q);
-
-    const matchesCategory =
-      selectedCategory === 'All' ||
-      story.categoryEn.toLowerCase() === selectedCategory.toLowerCase();
-
-    return matchesSearch && matchesCategory;
-  });
-
-  // Highlight first story as featured
-  const featuredStory = mythologyStories[0];
-
-  // Helper: toggle bookmarks
-  const toggleBookmark = (storyId: string) => {
-    triggerHaptic('impactMedium');
-    let nextBookmarks = [...bookmarks];
-    if (bookmarks.includes(storyId)) {
-      nextBookmarks = nextBookmarks.filter(id => id !== storyId);
-    } else {
-      nextBookmarks.push(storyId);
-    }
-    setBookmarks(nextBookmarks);
-    Storage.set('STORY_BOOKMARKS', JSON.stringify(nextBookmarks));
-  };
-
   // Helper: Open Reader
   const openStoryReader = (story: Story) => {
     triggerHaptic('impactHeavy');
-    setActiveStory(story);
-    setIsChantingSoundOn(false); // Reset chanting sound when opening
-    setReadingProgress(progressMap[story.id] || 0);
-    setIsReaderOpen(true);
-
-    // After modal renders, if progress exists, restore scroll position
-    setTimeout(() => {
-      if (progressMap[story.id] && readerScrollRef.current) {
-        // approximate restoration - simple trigger to scroll to position
-        // We will do dynamic scroll capture, let's keep progress saved
-      }
-    }, 500);
-  };
-
-  // Helper: Update reading progress during scroll
-  const handleReaderScroll = (
-    event: NativeSyntheticEvent<NativeScrollEvent>,
-  ) => {
-    if (!activeStory) return;
-    const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-    const totalHeight = contentSize.height - layoutMeasurement.height;
-    if (totalHeight <= 0) return;
-
-    const rawProgress = Math.min(
-      Math.max((contentOffset.y / totalHeight) * 100, 0),
-      100,
-    );
-    const progress = Math.round(rawProgress);
-    setReadingProgress(progress);
-
-    // Save progress to MMKV
-    const nextProgressMap = {
-      ...progressMap,
-      [activeStory.id]: progress,
-    };
-    setProgressMap(nextProgressMap);
-    Storage.set('STORY_PROGRESS', JSON.stringify(nextProgressMap));
-  };
-
-  // Get active reading themes styles
-  const getThemeStyles = () => {
-    switch (readerTheme) {
-      case 'midnight':
-        return {
-          background: colors.midnightDark,
-          text: colors.midnightText,
-          cardBg: colors.midnightCard,
-          border: colors.borderMidnightSubtle,
-          shlokaBg: colors.shlokaBgMidnight,
-          shlokaText: colors.ring,
-          quoteSymbol: colors.shlokaQuoteMidnight,
-        };
-      case 'classic':
-        return {
-          background: colors.white,
-          text: colors.black,
-          cardBg: colors.classicCard,
-          border: colors.borderClassicSubtle,
-          shlokaBg: colors.shlokaBgClassic,
-          shlokaText: colors.shlokaTextClassic,
-          quoteSymbol: colors.shlokaQuoteClassic,
-        };
-      case 'parchment':
-      default:
-        return {
-          background: colors.parchmentLight,
-          text: colors.parchmentDark,
-          cardBg: colors.parchmentMedium,
-          border: colors.borderStrong,
-          shlokaBg: colors.shlokaBgParchment,
-          shlokaText: colors.rust,
-          quoteSymbol: colors.shlokaQuoteParchment,
-        };
-    }
-  };
-
-  const themeStyles = getThemeStyles();
-
-  // Share Wisdom quote generator handler
-  const handleShareWisdom = async () => {
-    if (!activeStory) return;
-    triggerHaptic('notificationSuccess');
-    const title =
-      currentLang === 'hi' ? activeStory.titleHi : activeStory.titleEn;
-    const moral =
-      currentLang === 'hi' ? activeStory.moralHi : activeStory.moralEn;
-    const shloka = activeStory.shloka ? `\n\n"${activeStory.shloka}"` : '';
-
-    const shareText = `✨ *${labels.wisdomCardHeader}* ✨\n\nFrom Story: "${title}"\n\n"${moral}"${shloka}\n\nRead more spiritual stories on *GuruVani* app! 📿`;
-
-    try {
-      await Share.share({
-        title: labels.shareTitle,
-        message: shareText,
-      });
-    } catch (e) {
-      console.log('[Share] Error sharing story:', e);
-    }
+    navigation.navigate('ReadingScreen', { storyId: story.id });
   };
 
   // Get active bookmarked stories array
-  const bookmarkedStories = mythologyStories.filter(s =>
+  const bookmarkedStories = MahaBharatStories.filter(s =>
     bookmarks.includes(s.id),
   );
-  const inProgressStories = mythologyStories.filter(
+  const inProgressStories = MahaBharatStories.filter(
     s => progressMap[s.id] && progressMap[s.id] > 0 && progressMap[s.id] < 100,
   );
 
@@ -386,148 +138,78 @@ const BookScreen = () => {
             </Text>
             <Text style={styles.headerTitle}>{labels.screenTitle}</Text>
           </View>
-          <View style={styles.bellIconContainer}>
-            <Text style={styles.bellIcon}>📖</Text>
-          </View>
         </View>
 
-        {/* Search Bar */}
-        <View style={styles.searchContainer}>
+        {/* Search Bar Button Trigger */}
+        <TouchableOpacity
+          style={styles.searchContainer}
+          onPress={() => {
+            triggerHaptic('impactLight');
+            navigation.navigate('SearchScreen');
+          }}
+          activeOpacity={0.9}
+        >
           <View style={styles.searchBar}>
             <Text style={styles.searchIcon}>🔍</Text>
-            <TextInput
-              style={styles.searchInput}
-              placeholder={labels.searchPlaceholder}
-              placeholderTextColor={colors.neutralDisabled}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity
-                onPress={() => {
-                  triggerHaptic('selection');
-                  setSearchQuery('');
-                }}
-              >
-                <Text style={styles.clearIcon}>✕</Text>
-              </TouchableOpacity>
-            )}
+            <Text
+              style={[
+                styles.searchInput,
+                {
+                  color: colors.neutralDisabled,
+                  lineHeight: scale(20),
+                  paddingTop: Platform.OS === 'ios' ? scale(12) : scale(10),
+                },
+              ]}
+            >
+              {labels.searchPlaceholder}
+            </Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Categories Tab Scroll */}
-          <View style={styles.categoriesContainer}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.categoriesScroll}
-            >
-              {categoriesList.map(cat => {
-                const isSelected = selectedCategory === cat;
-                let displayIcon = '🌸';
-                if (cat === 'Ramayana') displayIcon = '🏹';
-                if (cat === 'Mahabharata') displayIcon = '🛡️';
-                if (cat === 'Krishna Leela') displayIcon = '🪈';
-                if (cat === 'Shiva Purana') displayIcon = '🔱';
-                if (cat === 'Ganesha') displayIcon = '🐘';
-                if (cat === 'Devi Mahatmya') displayIcon = '🦁';
+          {/* Comics Shelf List */}
+          <ComicShelf
+            title={labels.storiesFromMahabharat}
+            data={MahaBharatStories}
+            onPressBook={openStoryReader}
+            progressMap={progressMap}
+            bookmarks={bookmarks}
+            currentLang={currentLang}
+            recentProgressLabel={labels.recentProgress}
+          />
+          <ComicShelf
+            title={labels.storiesFromMahabharat}
+            data={MahaBharatStories}
+            onPressBook={openStoryReader}
+            progressMap={progressMap}
+            bookmarks={bookmarks}
+            currentLang={currentLang}
+            recentProgressLabel={labels.recentProgress}
+          />
+          <ComicShelf
+            title={labels.storiesFromMahabharat}
+            data={MahaBharatStories}
+            onPressBook={openStoryReader}
+            progressMap={progressMap}
+            bookmarks={bookmarks}
+            currentLang={currentLang}
+            recentProgressLabel={labels.recentProgress}
+          />
+          <ComicShelf
+            title={labels.storiesFromMahabharat}
+            data={MahaBharatStories}
+            onPressBook={openStoryReader}
+            progressMap={progressMap}
+            bookmarks={bookmarks}
+            currentLang={currentLang}
+            recentProgressLabel={labels.recentProgress}
+          />
 
-                return (
-                  <TouchableOpacity
-                    key={cat}
-                    style={[
-                      styles.categoryChip,
-                      isSelected && styles.categoryChipSelected,
-                    ]}
-                    onPress={() => {
-                      triggerHaptic('selection');
-                      setSelectedCategory(cat);
-                    }}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={styles.categoryChipIcon}>{displayIcon}</Text>
-                    <Text
-                      style={[
-                        styles.categoryChipText,
-                        isSelected && styles.categoryChipTextSelected,
-                      ]}
-                    >
-                      {cat}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-          </View>
-
-          {/* Featured Card (renders only if category is All and search is empty) */}
-          {selectedCategory === 'All' &&
-            searchQuery === '' &&
-            featuredStory && (
-              <View style={styles.featuredContainer}>
-                <Text style={styles.sectionTitle}>{labels.featuredTitle}</Text>
-                <TouchableOpacity
-                  style={styles.featuredCard}
-                  onPress={() => openStoryReader(featuredStory)}
-                  activeOpacity={0.9}
-                >
-                  <Image
-                    source={featuredStory.image}
-                    style={styles.featuredImage}
-                  />
-                  <LinearGradient
-                    colors={[
-                      'transparent',
-                      colors.overlayBrownStart,
-                      colors.overlayBrownEnd,
-                    ]}
-                    style={styles.featuredGradient}
-                  >
-                    <View style={styles.featuredTextContent}>
-                      <View style={styles.featuredTagRow}>
-                        <View style={styles.featuredBadge}>
-                          <Text style={styles.featuredBadgeText}>
-                            {currentLang === 'hi'
-                              ? featuredStory.categoryHi
-                              : featuredStory.categoryEn}
-                          </Text>
-                        </View>
-                        <Text style={styles.featuredMetaText}>
-                          •{' '}
-                          {labels.readingTime.replace(
-                            '{{time}}',
-                            String(featuredStory.readingTimeMin),
-                          )}
-                        </Text>
-                      </View>
-                      <Text style={styles.featuredStoryTitle}>
-                        {currentLang === 'hi'
-                          ? featuredStory.titleHi
-                          : featuredStory.titleEn}
-                      </Text>
-                      <Text style={styles.featuredStoryDesc} numberOfLines={2}>
-                        {currentLang === 'hi'
-                          ? featuredStory.descriptionHi
-                          : featuredStory.descriptionEn}
-                      </Text>
-                      <View style={styles.featuredActionBtn}>
-                        <Text style={styles.featuredActionBtnText}>
-                          {labels.readNow}
-                        </Text>
-                        <Text style={styles.featuredActionBtnIcon}>➔</Text>
-                      </View>
-                    </View>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </View>
-            )}
-
-          {/* My Library / Recent reads */}
-          {libraryStories.length > 0 && searchQuery === '' && (
+          {/*  Progress stories */}
+          {libraryStories.length > 0 && (
             <View style={styles.librarySection}>
               <Text style={styles.sectionTitle}>{labels.myLibrary}</Text>
               <ScrollView
@@ -537,7 +219,6 @@ const BookScreen = () => {
               >
                 {libraryStories.map(story => {
                   const progress = progressMap[story.id] || 0;
-                  const isFav = bookmarks.includes(story.id);
                   return (
                     <TouchableOpacity
                       key={story.id}
@@ -546,17 +227,11 @@ const BookScreen = () => {
                       activeOpacity={0.8}
                     >
                       <View style={styles.libraryImageContainer}>
-                        <Image
+                        <Animated.Image
                           source={story.image}
                           style={styles.libraryImage}
+                          sharedTransitionTag={`story_image_${story.id}`}
                         />
-                        {isFav && (
-                          <View style={styles.libraryBookmarkBadge}>
-                            <Text style={styles.libraryBookmarkBadgeText}>
-                              ❤️
-                            </Text>
-                          </View>
-                        )}
                         {progress > 0 && (
                           <View style={styles.libraryProgressOverlay}>
                             <Text style={styles.libraryProgressOverlayText}>
@@ -592,539 +267,8 @@ const BookScreen = () => {
               </ScrollView>
             </View>
           )}
-
-          {/* All Stories List */}
-          <View style={styles.allStoriesSection}>
-            <Text style={styles.sectionTitle}>{labels.allStories}</Text>
-            {filteredStories.length === 0 ? (
-              <View style={styles.noStoriesCard}>
-                <Text style={styles.noStoriesText}>
-                  ✨ {labels.noStoriesFound} ✨
-                </Text>
-              </View>
-            ) : (
-              filteredStories.map(story => {
-                const progress = progressMap[story.id] || 0;
-                const isBookmarked = bookmarks.includes(story.id);
-                return (
-                  <TouchableOpacity
-                    key={story.id}
-                    style={styles.storyCard}
-                    onPress={() => openStoryReader(story)}
-                    activeOpacity={0.8}
-                  >
-                    <Image source={story.image} style={styles.storyCardImage} />
-                    <View style={styles.storyCardContent}>
-                      <View style={styles.storyCardHeader}>
-                        <View style={styles.categoryBadge}>
-                          <Text style={styles.categoryBadgeText}>
-                            {currentLang === 'hi'
-                              ? story.categoryHi
-                              : story.categoryEn}
-                          </Text>
-                        </View>
-                        <Text style={styles.storyCardTime}>
-                          {labels.readingTime.replace(
-                            '{{time}}',
-                            String(story.readingTimeMin),
-                          )}
-                        </Text>
-                      </View>
-                      <Text style={styles.storyCardTitle}>
-                        {currentLang === 'hi' ? story.titleHi : story.titleEn}
-                      </Text>
-                      <Text style={styles.storyCardDesc} numberOfLines={2}>
-                        {currentLang === 'hi'
-                          ? story.descriptionHi
-                          : story.descriptionEn}
-                      </Text>
-                      <View style={styles.storyCardFooter}>
-                        <Text style={styles.storyCardSource}>
-                          📜{' '}
-                          {currentLang === 'hi'
-                            ? story.sourceHi
-                            : story.sourceEn}
-                        </Text>
-                        {progress > 0 && (
-                          <Text style={styles.storyCardProgress}>
-                            {progress}% Read
-                          </Text>
-                        )}
-                      </View>
-                    </View>
-                    <TouchableOpacity
-                      style={styles.bookmarkButton}
-                      onPress={() => toggleBookmark(story.id)}
-                    >
-                      <Text style={styles.bookmarkButtonIcon}>
-                        {isBookmarked ? '❤️' : '🤍'}
-                      </Text>
-                    </TouchableOpacity>
-                  </TouchableOpacity>
-                );
-              })
-            )}
-          </View>
         </ScrollView>
       </SafeAreaView>
-
-      {/* Full Screen Animated Story Reader Modal */}
-      {activeStory && (
-        <Modal
-          visible={isReaderOpen}
-          animationType="slide"
-          transparent={false}
-          onRequestClose={() => {
-            triggerHaptic('impactLight');
-            setIsReaderOpen(false);
-          }}
-        >
-          <View
-            style={[
-              styles.readerContainer,
-              { backgroundColor: themeStyles.background },
-            ]}
-          >
-            {/* Top Reading Progress Bar */}
-            <View style={styles.readerProgressContainer}>
-              <View
-                style={[
-                  styles.readerProgressBarFill,
-                  {
-                    width: `${readingProgress}%`,
-                    backgroundColor: colors.ring,
-                  },
-                ]}
-              />
-            </View>
-
-            {/* Reader Header */}
-            <SafeAreaView
-              style={[
-                styles.readerHeader,
-                { borderBottomColor: themeStyles.border },
-              ]}
-              edges={['top']}
-            >
-              <TouchableOpacity
-                style={styles.readerCloseBtn}
-                onPress={() => {
-                  triggerHaptic('impactLight');
-                  setIsReaderOpen(false);
-                }}
-              >
-                <Text
-                  style={[
-                    styles.readerCloseBtnIcon,
-                    { color: themeStyles.text },
-                  ]}
-                >
-                  ✕
-                </Text>
-              </TouchableOpacity>
-              <Text
-                style={[styles.readerHeaderTitle, { color: themeStyles.text }]}
-                numberOfLines={1}
-              >
-                {currentLang === 'hi'
-                  ? activeStory.titleHi
-                  : activeStory.titleEn}
-              </Text>
-              <View style={styles.readerHeaderActions}>
-                {/* Mock chanting visualizer toggle */}
-                <TouchableOpacity
-                  style={[
-                    styles.readerActionIconBtn,
-                    isChantingSoundOn && styles.chantingBtnActive,
-                  ]}
-                  onPress={() => {
-                    triggerHaptic('selection');
-                    setIsChantingSoundOn(!isChantingSoundOn);
-                  }}
-                >
-                  <Animated.Text
-                    style={[styles.readerActionEmoji, animatedChantStyle]}
-                  >
-                    {isChantingSoundOn ? '📿' : '🎵'}
-                  </Animated.Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.readerActionIconBtn}
-                  onPress={() => toggleBookmark(activeStory.id)}
-                >
-                  <Text style={styles.readerActionEmoji}>
-                    {bookmarks.includes(activeStory.id) ? '❤️' : '🤍'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </SafeAreaView>
-
-            {/* Main Reading Area */}
-            <ScrollView
-              ref={readerScrollRef}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.readerScrollContent}
-              scrollEventThrottle={16}
-              onScroll={handleReaderScroll}
-            >
-              {/* Cover Image Parallax-like frame */}
-              <View style={styles.readerImageWrapper}>
-                <Image source={activeStory.image} style={styles.readerImage} />
-                <LinearGradient
-                  colors={[
-                    'transparent',
-                    colors.overlayDarkSubtle,
-                    themeStyles.background,
-                  ]}
-                  style={styles.readerImageGradient}
-                />
-              </View>
-
-              {/* Story Context Block */}
-              <View style={styles.readerContentContainer}>
-                <View style={styles.readerMetaRow}>
-                  <View style={styles.readerMetaTag}>
-                    <Text style={styles.readerMetaTagLabel}>
-                      {labels.sourceLabel}:
-                    </Text>
-                    <Text
-                      style={[
-                        styles.readerMetaTagValue,
-                        { color: colors.ring },
-                      ]}
-                    >
-                      {currentLang === 'hi'
-                        ? activeStory.sourceHi
-                        : activeStory.sourceEn}
-                    </Text>
-                  </View>
-                  <View style={styles.readerMetaTag}>
-                    <Text style={styles.readerMetaTagLabel}>
-                      {labels.difficultyLabel}:
-                    </Text>
-                    <Text
-                      style={[
-                        styles.readerMetaTagValue,
-                        { color: themeStyles.text },
-                      ]}
-                    >
-                      {currentLang === 'hi'
-                        ? activeStory.difficultyHi
-                        : activeStory.difficultyEn}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Main Story Title */}
-                <Text
-                  style={[styles.readerStoryTitle, { color: themeStyles.text }]}
-                >
-                  {currentLang === 'hi'
-                    ? activeStory.titleHi
-                    : activeStory.titleEn}
-                </Text>
-                <Text style={styles.readerStorySubtitle}>
-                  {currentLang === 'hi'
-                    ? activeStory.subtitleHi
-                    : activeStory.subtitleEn}
-                </Text>
-
-                <View style={styles.readerDivider}>
-                  <Text
-                    style={[styles.readerDividerSymbol, { color: colors.ring }]}
-                  >
-                    ✨ ॐ ✨
-                  </Text>
-                </View>
-
-                {/* Shloka/Verse Highlight block if available */}
-                {activeStory.shloka && (
-                  <View
-                    style={[
-                      styles.shlokaBox,
-                      { backgroundColor: themeStyles.shlokaBg },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.shlokaTextQuote,
-                        { color: themeStyles.quoteSymbol },
-                      ]}
-                    >
-                      “
-                    </Text>
-                    <Text
-                      style={[
-                        styles.shlokaTextContent,
-                        { color: themeStyles.shlokaText },
-                      ]}
-                    >
-                      {activeStory.shloka}
-                    </Text>
-                    {activeStory.shlokaTranslationEn && (
-                      <Text
-                        style={[
-                          styles.shlokaTranslation,
-                          { color: themeStyles.text },
-                        ]}
-                      >
-                        {currentLang === 'hi'
-                          ? activeStory.shlokaTranslationHi
-                          : activeStory.shlokaTranslationEn}
-                      </Text>
-                    )}
-                  </View>
-                )}
-
-                {/* Story Body Paragraphs */}
-                <View style={styles.readerContentBody}>
-                  {/* Drop-cap styled first letter if in English */}
-                  {currentLang === 'en' ? (
-                    <Text
-                      style={[
-                        styles.readerBodyText,
-                        {
-                          color: themeStyles.text,
-                          fontSize: fs(readerFontSize),
-                        },
-                      ]}
-                    >
-                      <Text style={[styles.dropCap, { color: colors.ring }]}>
-                        {activeStory.contentEn.charAt(0)}
-                      </Text>
-                      {activeStory.contentEn.slice(1)}
-                    </Text>
-                  ) : (
-                    <Text
-                      style={[
-                        styles.readerBodyText,
-                        {
-                          color: themeStyles.text,
-                          fontSize: fs(readerFontSize),
-                        },
-                      ]}
-                    >
-                      {activeStory.contentHi}
-                    </Text>
-                  )}
-                </View>
-
-                {/* Moral/Wisdom Lesson Card */}
-                <View
-                  style={[
-                    styles.moralCard,
-                    {
-                      backgroundColor: themeStyles.cardBg,
-                      borderColor: themeStyles.border,
-                    },
-                  ]}
-                >
-                  <View style={styles.moralHeader}>
-                    <Text style={styles.moralHeaderIcon}>🕊️</Text>
-                    <Text style={styles.moralHeaderTitle}>
-                      {labels.moralLabel}
-                    </Text>
-                  </View>
-                  <Text style={[styles.moralText, { color: themeStyles.text }]}>
-                    {currentLang === 'hi'
-                      ? activeStory.moralHi
-                      : activeStory.moralEn}
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.shareWisdomBtn}
-                    onPress={() => setShowWisdomShare(true)}
-                  >
-                    <Text style={styles.shareWisdomBtnText}>
-                      🌟 {labels.shareWisdom}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </ScrollView>
-
-            {/* Customization Floating Bar */}
-            <View
-              style={[
-                styles.customizationBar,
-                {
-                  backgroundColor: themeStyles.background,
-                  borderTopColor: themeStyles.border,
-                },
-              ]}
-            >
-              {/* Font scaling controls */}
-              <View style={styles.fontSizeControls}>
-                <Text
-                  style={[styles.fontSizeLabel, { color: themeStyles.text }]}
-                >
-                  A
-                </Text>
-                <TouchableOpacity
-                  style={[
-                    styles.fontSizeBtn,
-                    { borderColor: themeStyles.border },
-                  ]}
-                  onPress={() => {
-                    triggerHaptic('selection');
-                    setReaderFontSize(Math.max(14, readerFontSize - 1));
-                  }}
-                >
-                  <Text
-                    style={[
-                      styles.fontSizeBtnText,
-                      { color: themeStyles.text },
-                    ]}
-                  >
-                    -
-                  </Text>
-                </TouchableOpacity>
-                <Text
-                  style={[styles.fontSizeValue, { color: themeStyles.text }]}
-                >
-                  {readerFontSize}
-                </Text>
-                <TouchableOpacity
-                  style={[
-                    styles.fontSizeBtn,
-                    { borderColor: themeStyles.border },
-                  ]}
-                  onPress={() => {
-                    triggerHaptic('selection');
-                    setReaderFontSize(Math.min(24, readerFontSize + 1));
-                  }}
-                >
-                  <Text
-                    style={[
-                      styles.fontSizeBtnText,
-                      { color: themeStyles.text },
-                    ]}
-                  >
-                    +
-                  </Text>
-                </TouchableOpacity>
-                <Text
-                  style={[
-                    styles.fontSizeLabelLarge,
-                    { color: themeStyles.text },
-                  ]}
-                >
-                  A
-                </Text>
-              </View>
-
-              {/* Theme selection buttons */}
-              <View style={styles.themeSelector}>
-                <TouchableOpacity
-                  style={[
-                    styles.themeOptionBtn,
-                    styles.themeOptionParchment,
-                    readerTheme === 'parchment' && styles.themeOptionSelected,
-                  ]}
-                  onPress={() => {
-                    triggerHaptic('selection');
-                    setReaderTheme('parchment');
-                  }}
-                >
-                  <Text style={styles.themeOptionTextHi}>📜</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.themeOptionBtn,
-                    styles.themeOptionMidnight,
-                    readerTheme === 'midnight' && styles.themeOptionSelected,
-                  ]}
-                  onPress={() => {
-                    triggerHaptic('selection');
-                    setReaderTheme('midnight');
-                  }}
-                >
-                  <Text style={styles.themeOptionTextHi}>🌑</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.themeOptionBtn,
-                    styles.themeOptionClassic,
-                    readerTheme === 'classic' && styles.themeOptionSelected,
-                  ]}
-                  onPress={() => {
-                    triggerHaptic('selection');
-                    setReaderTheme('classic');
-                  }}
-                >
-                  <Text style={styles.themeOptionTextHi}>☀️</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Chanting Mock Indicator */}
-            {isChantingSoundOn && (
-              <View style={styles.chantingBar}>
-                <Text style={styles.chantingBarText}>
-                  {currentLang === 'hi'
-                    ? '🌸 ओम नमो भगवते वासुदेवाय - दिव्य राग सक्रिय'
-                    : '🌸 Om Namo Bhagavate Vasudevaya Chanting active'}
-                </Text>
-              </View>
-            )}
-
-            {/* Wisdom Share Overlay Modal */}
-            <Modal
-              visible={showWisdomShare}
-              transparent={true}
-              animationType="fade"
-              onRequestClose={() => setShowWisdomShare(false)}
-            >
-              <View style={styles.wisdomModalOverlay}>
-                <View style={styles.wisdomModalCard}>
-                  <Text style={styles.wisdomModalEmoji}>✨</Text>
-                  <Text style={styles.wisdomModalHeader}>
-                    {labels.wisdomCardHeader}
-                  </Text>
-                  <View style={styles.wisdomModalContentFrame}>
-                    <Text style={styles.wisdomModalStoryTitle}>
-                      {currentLang === 'hi'
-                        ? activeStory.titleHi
-                        : activeStory.titleEn}
-                    </Text>
-                    <View style={styles.wisdomModalDivider} />
-                    <Text style={styles.wisdomModalBody}>
-                      "
-                      {currentLang === 'hi'
-                        ? activeStory.moralHi
-                        : activeStory.moralEn}
-                      "
-                    </Text>
-                    {activeStory.shloka && (
-                      <Text style={styles.wisdomModalShloka}>
-                        {activeStory.shloka}
-                      </Text>
-                    )}
-                  </View>
-                  <View style={styles.wisdomModalActions}>
-                    <TouchableOpacity
-                      style={styles.wisdomModalCloseBtn}
-                      onPress={() => setShowWisdomShare(false)}
-                    >
-                      <Text style={styles.wisdomModalCloseBtnText}>
-                        {labels.wisdomClose}
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.wisdomModalShareBtn}
-                      onPress={handleShareWisdom}
-                    >
-                      <Text style={styles.wisdomModalShareBtnText}>
-                        🔗 {labels.shareWisdom}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            </Modal>
-          </View>
-        </Modal>
-      )}
     </GradientBackground>
   );
 };
@@ -1132,6 +276,78 @@ const BookScreen = () => {
 export default BookScreen;
 
 const styles = StyleSheet.create({
+  comicsSection: {
+    width: '100%',
+    marginTop: scale(15),
+  },
+  comicsScroll: {
+    paddingHorizontal: scale(20),
+    paddingBottom: scale(10),
+  },
+  comicCard: {
+    width: scale(130),
+    marginRight: scale(16),
+  },
+  comicImageContainer: {
+    width: '100%',
+    height: scale(180),
+    borderRadius: scale(14),
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: colors.borderMedium,
+    backgroundColor: colors.white,
+    position: 'relative',
+    shadowColor: colors.secondary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+    marginBottom: scale(6),
+  },
+  comicImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  comicBookmarkBadge: {
+    position: 'absolute',
+    top: scale(6),
+    right: scale(6),
+    backgroundColor: colors.overlayStrong,
+    borderRadius: scale(20),
+    width: scale(22),
+    height: scale(22),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  comicBookmarkBadgeText: {
+    fontSize: fs(11),
+  },
+  comicProgressOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.overlayDarkMedium,
+    paddingVertical: scale(2),
+    alignItems: 'center',
+  },
+  comicProgressOverlayText: {
+    color: colors.white,
+    fontSize: fs(9),
+    fontFamily: fonts.PoppinsMedium,
+  },
+  comicCardTitle: {
+    fontSize: fs(12),
+    fontFamily: fonts.PoppinsSemiBold,
+    color: colors.secondary,
+    marginTop: scale(2),
+  },
+  comicCardMeta: {
+    fontSize: fs(10),
+    fontFamily: fonts.PoppinsRegular,
+    color: colors.neutralDisabled,
+  },
   containerFull: {
     flex: 1,
   },
@@ -1209,12 +425,9 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: scale(110), // ensures content is scrollable past bottom tabs
   },
-  categoriesContainer: {
-    marginVertical: scale(6),
-  },
+  categoriesContainer: {},
   categoriesScroll: {
     paddingHorizontal: scale(20),
-    paddingBottom: scale(6),
   },
   categoryChip: {
     flexDirection: 'row',
@@ -1222,7 +435,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accentLightBgMedium,
     borderRadius: scale(12),
     paddingHorizontal: scale(14),
-    paddingVertical: scale(8),
+    paddingVertical: scale(6),
     marginRight: scale(10),
     borderWidth: 1,
     borderColor: colors.accentBorderVerySubtle,

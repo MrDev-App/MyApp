@@ -1,4 +1,9 @@
+import Back from './svg/Back.svg';
+import Forward from './svg/Forward.svg';
+
 const imagePath = {
+  Back,
+  Forward,
   greeting: require('./png/greeting.webp'),
   Bholenath: require('./png/Bhole.webp'),
   Brahma: require('./png/Bramaji.webp'),
@@ -52,6 +57,23 @@ const imagePath = {
   user: require('./png/user.webp'),
   profile: require('./png/user.webp'),
   pencil: require('./png/pencil.webp'),
+  Kalimaa: require('./png/Kalimaa.webp'),
+  KaliMaa: require('./png/Kalimaa.webp'),
+  KarnChaPage1: require('./png/KarnChaPage1.png'),
+  KarnChaPage2: require('./png/KarnChaPage2.png'),
+  KarnChaPage3: require('./png/KarnChaPage3.png'),
+  KarnChaPage4: require('./png/KarnChaPage4.jpg'),
+  KarnChaPage5: require('./png/KarnChaPage5.png'),
+  KarnChaPages: [
+    require('./png/KarnChaPage1.png'),
+    require('./png/KarnChaPage2.png'),
+    require('./png/KarnChaPage3.png'),
+    require('./png/KarnChaPage4.jpg'),
+    require('./png/KarnChaPage5.png'),
+  ],
+  KarnChallenge: require('./png/KarnChallenge.png'),
+  Logo: require('./png/Logo.png'),
 };
 
+export { Back, Forward };
 export default imagePath;

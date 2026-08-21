@@ -158,7 +158,7 @@ const OnboardingScreen = () => {
       </View>
 
       {/* Floating Bottom UI */}
-      <SafeAreaView style={styles.overlayContainer}>
+      <SafeAreaView style={styles.overlayContainer} edges={['top', 'bottom']}>
         <View style={styles.bottomRow}>
           {/* Pagination Indicators */}
           <View style={styles.indicatorContainer}>
