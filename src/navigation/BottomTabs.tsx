@@ -26,7 +26,7 @@ const bubbleHeight = scale(36);
 const getIcon = (routeName: string) => {
   switch (routeName) {
     case 'Home':
-      return '🪷';
+      return imagePath.lotus;
     case 'Jap':
       return '📿';
     case 'Book':
@@ -34,7 +34,7 @@ const getIcon = (routeName: string) => {
     case 'Profile':
       return imagePath.user;
     default:
-      return '🪷';
+      return imagePath.lotus;
   }
 };
 

@@ -1,10 +1,12 @@
 import Back from './svg/Back.svg';
 import Forward from './svg/Forward.svg';
+import Bell from './svg/bell.svg';
 
 const imagePath = {
   Back,
   Forward,
   greeting: require('./png/greeting.webp'),
+  lotus: require('./png/lotus.webp'),
   Bholenath: require('./png/Bhole.webp'),
   Brahma: require('./png/Bramaji.webp'),
   Durga: require('./png/Durgama.webp'),
@@ -73,7 +75,9 @@ const imagePath = {
   ],
   KarnChallenge: require('./png/KarnChallenge.png'),
   Logo: require('./png/Logo.png'),
+  Vibration: require('./png/Vibration.webp'),
+  VibrationOff: require('./png/VibrationOff.webp'),
 };
 
-export { Back, Forward };
+export { Back, Forward, Bell };
 export default imagePath;

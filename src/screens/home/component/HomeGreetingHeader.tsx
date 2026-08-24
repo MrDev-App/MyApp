@@ -6,6 +6,7 @@ import { Translation } from '../../../i18n/language';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
 import { fs, scale, verticalScale } from '../../../utile/sizes';
+import { Bell } from '../../../assets';
 
 interface HomeGreetingHeaderProps {
   loading: boolean;
@@ -38,7 +39,7 @@ export const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
               </Text>
             </View>
             <View style={styles.bellIconView}>
-              <Text style={styles.bellIconText}>🔔︎</Text>
+              <Bell width={scale(18)} height={scale(18)} />
               <View style={styles.badgeView}>
                 <Text style={styles.badgeText}>2</Text>
               </View>
@@ -86,10 +87,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.ring,
   },
-  bellIconText: {
-    fontSize: fs(15),
-    borderColor: colors.ring,
-  },
+
   badgeView: {
     position: 'absolute',
     top: scale(-1),

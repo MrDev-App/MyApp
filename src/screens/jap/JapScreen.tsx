@@ -439,9 +439,25 @@ const JapScreen = () => {
               }}
               activeOpacity={0.7}
             >
-              <Text style={styles.hapticBtnIcon}>
-                {isHapticOn ? '📳' : '🔕'}
-              </Text>
+              {isHapticOn ? (
+                <Image
+                  source={imagePath.Vibration}
+                  style={{
+                    width: scale(18),
+                    height: scale(18),
+                  }}
+                  resizeMode="contain"
+                />
+              ) : (
+                <Image
+                  source={imagePath.VibrationOff}
+                  style={{
+                    width: scale(18),
+                    height: scale(18),
+                  }}
+                  resizeMode="contain"
+                />
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -645,9 +661,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accentOrangeBg,
     borderColor: colors.accentOrangeBorder,
   },
-  hapticBtnIcon: {
-    fontSize: fs(14),
-  },
+
   streakBadge: {
     paddingHorizontal: scale(12),
     paddingVertical: scale(5),
