@@ -96,4 +96,11 @@ export default {
   BOOK_STORIES_FROM_MAHABHARAT: 'महाभारत की कहानियां',
   BOOK_STORIES_FROM_RAMAYAN: 'रामायण की कहानियां',
   BOOK_SEARCH_EMPTY_STATE: 'दिव्य कथाएं और पात्र खोजें...',
+  CHALLENGE_GIVE_UP: 'संकल्प छोड़ें',
+  CHALLENGE_ABANDON_DESC: 'सक्रिय {{count}} दिनों का जाप संकल्प छोड़ें',
+  CHALLENGE_ABANDON_BTN: 'छोड़ें',
+  CHALLENGE_ABANDON_ALERT_TITLE: 'संकल्प छोड़ें?',
+  CHALLENGE_ABANDON_ALERT_MSG: 'क्या आप निश्चित रूप से वर्तमान जाप संकल्प को छोड़ना चाहते हैं? आपकी प्रगति हटा दी जाएगी।',
+  CANCEL_LABEL: 'नहीं',
+  CHALLENGE_ABANDON_CONFIRM: 'हाँ, छोड़ें',
 };

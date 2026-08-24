@@ -77,6 +77,11 @@ const imagePath = {
   Logo: require('./png/Logo.png'),
   Vibration: require('./png/Vibration.webp'),
   VibrationOff: require('./png/VibrationOff.webp'),
+  book: require('./png/book.webp'),
+  books: require('./png/books.webp'),
+  mala: require('./png/mala.webp'),
+  star: require('./png/star.webp'),
+  warning: require('./png/warning.webp'),
 };
 
 export { Back, Forward, Bell };

@@ -31,41 +31,26 @@ const checkAndResetTodayStats = (): boolean => {
 };
 
 export const Storage = {
-  /**
-   * Set a value in storage (string, number, or boolean)
-   */
   set: (key: string, value: string | number | boolean): void => {
     checkAndResetTodayStats();
     storage.set(key, value);
   },
 
-  /**
-   * Get a string value with a default fallback
-   */
   getString: (key: string, defaultValue = ''): string => {
     checkAndResetTodayStats();
     return storage.getString(key) ?? defaultValue;
   },
 
-  /**
-   * Get a number value with a default fallback
-   */
   getNumber: (key: string, defaultValue = 0): number => {
     checkAndResetTodayStats();
     return storage.getNumber(key) ?? defaultValue;
   },
 
-  /**
-   * Get a boolean value with a default fallback
-   */
   getBoolean: (key: string, defaultValue = false): boolean => {
     checkAndResetTodayStats();
     return storage.getBoolean(key) ?? defaultValue;
   },
 
-  /**
-   * Delete a key from storage
-   */
   delete: (key: string): void => {
     storage.remove(key);
   },

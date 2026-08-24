@@ -13,6 +13,7 @@ import {
   Vibration,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Translation } from '../../i18n/language';
 import colors from '../../utile/colors';
 import fonts from '../../utile/fonts';
 import { fs, scale } from '../../utile/sizes';
@@ -28,7 +29,7 @@ import { Storage, STORAGE_KEYS } from '../../utile/storage';
 import HapticFeedback from 'react-native-haptic-feedback';
 
 const ProfileScreen = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const currentLanguage = (i18n.language || 'en') as 'en' | 'hi';
   const labels = profileLabels[currentLanguage] || profileLabels.en;
 
@@ -116,15 +117,10 @@ const ProfileScreen = () => {
   };
 
   const handleGiveUpChallenge = () => {
-    const title =
-      currentLanguage === 'hi' ? 'संकल्प रद्द करें?' : 'Abandon Challenge?';
-    const message =
-      currentLanguage === 'hi'
-        ? 'क्या आप निश्चित रूप से वर्तमान जाप संकल्प को छोड़ना चाहते हैं? आपकी प्रगति हटा दी जाएगी।'
-        : 'Are you sure you want to abandon the current Japa challenge? Your progress will be lost.';
-    const cancelText = currentLanguage === 'hi' ? 'नहीं' : 'Cancel';
-    const confirmText =
-      currentLanguage === 'hi' ? 'हाँ, रद्द करें' : 'Yes, Abandon';
+    const title = t(Translation.CHALLENGE_ABANDON_ALERT_TITLE);
+    const message = t(Translation.CHALLENGE_ABANDON_ALERT_MSG);
+    const cancelText = t(Translation.CANCEL_LABEL);
+    const confirmText = t(Translation.CHALLENGE_ABANDON_CONFIRM);
 
     Alert.alert(
       title,
@@ -321,14 +317,10 @@ const ProfileScreen = () => {
                 <View style={styles.settingRow}>
                   <View style={styles.settingInfo}>
                     <Text style={styles.settingLabel}>
-                      {currentLanguage === 'hi'
-                        ? 'संकल्प रद्द करें'
-                        : 'Give Up Challenge'}
+                      {t(Translation.CHALLENGE_GIVE_UP)}
                     </Text>
                     <Text style={styles.settingSubLabel}>
-                      {currentLanguage === 'hi'
-                        ? `${challengeTotalDays} दिवसीय जाप संकल्प की प्रगति को छोड़ें`
-                        : `Abandon the active ${challengeTotalDays} Days Japa Challenge`}
+                      {t(Translation.CHALLENGE_ABANDON_DESC, { count: challengeTotalDays })}
                     </Text>
                   </View>
                   <TouchableOpacity
@@ -337,7 +329,7 @@ const ProfileScreen = () => {
                     activeOpacity={0.8}
                   >
                     <Text style={styles.giveUpButtonText}>
-                      {currentLanguage === 'hi' ? 'रद्द करें' : 'Abandon'}
+                      {t(Translation.CHALLENGE_ABANDON_BTN)}
                     </Text>
                   </TouchableOpacity>
                 </View>

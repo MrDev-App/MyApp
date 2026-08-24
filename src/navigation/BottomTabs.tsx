@@ -28,9 +28,9 @@ const getIcon = (routeName: string) => {
     case 'Home':
       return imagePath.lotus;
     case 'Jap':
-      return '📿';
+      return imagePath.mala;
     case 'Book':
-      return '📖';
+      return imagePath.books;
     case 'Profile':
       return imagePath.user;
     default:
@@ -75,7 +75,7 @@ const TabIcon = ({ icon, isFocused }: TabIconProps) => {
     );
   }
 
-  const isBiggerIcon = icon === '🪷' || icon === '📖';
+  const isBiggerIcon = icon === imagePath.lotus || icon === imagePath.books;
   const customFontSize = isBiggerIcon ? fs(23) : fs(18);
 
   return (

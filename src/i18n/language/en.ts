@@ -96,4 +96,11 @@ export default {
   BOOK_STORIES_FROM_MAHABHARAT: 'Stories from Mahabharat',
   BOOK_STORIES_FROM_RAMAYAN: 'Stories from Ramayan',
   BOOK_SEARCH_EMPTY_STATE: 'Search for divine tales & characters...',
+  CHALLENGE_GIVE_UP: 'Give Up Challenge',
+  CHALLENGE_ABANDON_DESC: 'Abandon the active {{count}} Days Japa Challenge',
+  CHALLENGE_ABANDON_BTN: 'Abandon',
+  CHALLENGE_ABANDON_ALERT_TITLE: 'Abandon Challenge?',
+  CHALLENGE_ABANDON_ALERT_MSG: 'Are you sure you want to abandon the current Japa challenge? Your progress will be lost.',
+  CANCEL_LABEL: 'Cancel',
+  CHALLENGE_ABANDON_CONFIRM: 'Yes, Abandon',
 };
