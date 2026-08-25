@@ -118,10 +118,6 @@ export default AnimatedButton;
 const styles = StyleSheet.create({
   base: {
     width: '100%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 4,
-    elevation: 6,
   },
   disabled: {
     opacity: 0.5,

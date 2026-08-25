@@ -17,52 +17,47 @@ import fonts from '../../utile/fonts';
 import { fs, scale } from '../../utile/sizes';
 import GradientBackground from '../../components/GradientBackground';
 import { festivalData, Festival } from '../../constants/festivalData';
-import { Calendar } from 'react-native-calendars';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { Back, Forward } from '../../assets';
 import AnimatedButton from '../../components/AnimatedButton';
 import imagePath from '../../assets';
 import FestivalModal from '../../components/FestivalModal';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import {
+  getMonthName,
+  monthsHi,
+  weekdaysHi,
+  dayNamesHi,
+  monthsEn,
+  weekdaysEn,
+  dayNamesEn,
+} from '../../constants/calendarData';
+
+LocaleConfig.locales['hi'] = {
+  monthNames: monthsHi,
+  monthNamesShort: monthsHi,
+  dayNames: dayNamesHi,
+  dayNamesShort: weekdaysHi,
+  today: 'आज',
+};
+
+LocaleConfig.locales['en'] = {
+  monthNames: monthsEn,
+  monthNamesShort: monthsEn,
+  dayNames: dayNamesEn,
+  dayNamesShort: weekdaysEn,
+  today: 'Today',
+};
 
 const { width } = Dimensions.get('window');
-
-const getMonthName = (monthNum: number, currentLanguage: string) => {
-  const monthsEn = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
-  const monthsHi = [
-    'जनवरी',
-    'फरवरी',
-    'मार्च',
-    'अप्रैल',
-    'मई',
-    'जून',
-    'जुलाई',
-    'अगस्त',
-    'सितंबर',
-    'अक्टूबर',
-    'नवंबर',
-    'दिसंबर',
-  ];
-  return currentLanguage === 'hi'
-    ? monthsHi[monthNum - 1]
-    : monthsEn[monthNum - 1];
-};
 
 const AllFestivalsScreen = () => {
   const navigation = useNavigation<any>();
   const { i18n } = useTranslation();
-  const currentLanguage = i18n.language || 'en';
+  const currentLanguage = (i18n.language || 'en').substring(0, 2);
+
+  // Synchronously update the calendar locale configuration during the render phase
+  LocaleConfig.defaultLocale = currentLanguage;
 
   const getTodayString = () => {
     const d = new Date();
@@ -79,13 +74,6 @@ const AllFestivalsScreen = () => {
   const [detailFestival, setDetailFestival] = React.useState<Festival | null>(
     null,
   );
-
-  const formatDate = (d: Date) => {
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
 
   const currentMonthName = React.useMemo(() => {
     const d = new Date(currentMonthDate);
@@ -124,8 +112,8 @@ const AllFestivalsScreen = () => {
 
       marks[dateString] = {
         selected: true,
-        selectedColor: colors.borderStrong, // light primary bg
-        selectedTextColor: colors.secondary, // preserve readable text color
+        selectedColor: colors.white, // light primary bg
+        selectedTextColor: colors.background, // preserve readable text color
       };
     });
 
@@ -146,41 +134,46 @@ const AllFestivalsScreen = () => {
     const tithi = item.tithi;
 
     return (
-      <AnimatedButton
-        key={item.id}
-        style={styles.festivalCardContainer}
-        onPress={() => setDetailFestival(item)}
-      >
-        <ImageBackground
-          source={item.image || imagePath.greeting}
-          style={styles.cardBgImage}
-          imageStyle={styles.cardBgImageStyle}
+      <Animated.View key={item.id} entering={FadeInDown.duration(500)}>
+        <AnimatedButton
+          style={styles.festivalCardContainer}
+          onPress={() => setDetailFestival(item)}
         >
-          <View style={styles.cardTintOverlay}>
-            {/* Top Row: Date capsule & Info marker */}
-            <View style={styles.cardTopRow}>
-              <View style={styles.dateCapsule}>
-                <Text style={styles.dateCapsuleText}>{dateStr}</Text>
+          <ImageBackground
+            source={item.image || imagePath.greeting}
+            style={styles.cardBgImage}
+            imageStyle={styles.cardBgImageStyle}
+            fadeDuration={0}
+          >
+            <View style={styles.cardTintOverlay}>
+              {/* Top Row: Date capsule & Info marker */}
+              <View style={styles.cardTopRow}>
+                <View style={styles.dateCapsule}>
+                  <Text style={styles.dateCapsuleText}>{dateStr}</Text>
+                </View>
+              </View>
+
+              {/* Bottom Row: Festival Name & Sub-details */}
+              <View style={styles.cardBottomRow}>
+                <Text style={styles.cardFestivalName} numberOfLines={1}>
+                  {name}
+                </Text>
+                {tithi && (
+                  <View style={styles.tithiRow}>
+                    <Image
+                      source={imagePath.sakura}
+                      style={styles.sakuraIcon}
+                    />
+                    <Text style={styles.cardFestivalTithi} numberOfLines={1}>
+                      {tithi}
+                    </Text>
+                  </View>
+                )}
               </View>
             </View>
-
-            {/* Bottom Row: Festival Name & Sub-details */}
-            <View style={styles.cardBottomRow}>
-              <Text style={styles.cardFestivalName} numberOfLines={1}>
-                {name}
-              </Text>
-              {tithi && (
-                <View style={styles.tithiRow}>
-                  <Image source={imagePath.sakura} style={styles.sakuraIcon} />
-                  <Text style={styles.cardFestivalTithi} numberOfLines={1}>
-                    {tithi}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </View>
-        </ImageBackground>
-      </AnimatedButton>
+          </ImageBackground>
+        </AnimatedButton>
+      </Animated.View>
     );
   };
 
@@ -205,7 +198,7 @@ const AllFestivalsScreen = () => {
         >
           {/* Calendar Calendar view */}
           <Calendar
-            key={currentMonthDate.substring(0, 7)}
+            key={`${currentLanguage}-${currentMonthDate.substring(0, 7)}`}
             current={currentMonthDate}
             onDayPress={day => {
               setSelectedDate(day.dateString);
@@ -322,11 +315,6 @@ const styles = StyleSheet.create({
     borderRadius: scale(16),
     overflow: 'hidden',
     marginBottom: scale(12),
-    shadowColor: '#39261b',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
   },
   cardBgImage: {
     flex: 1,
@@ -360,14 +348,7 @@ const styles = StyleSheet.create({
     fontSize: fs(10),
     fontFamily: fonts.PoppinsMedium,
   },
-  infoIconCircle: {
-    width: scale(22),
-    height: scale(22),
-    borderRadius: scale(11),
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+
   infoIconText: {
     color: colors.white,
     fontSize: fs(11),
