@@ -32,7 +32,7 @@ const FestivalModal: React.FC<FestivalModalProps> = ({
   return (
     <Modal
       visible={visible}
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       onRequestClose={onClose}
     >
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderTopLeftRadius: scale(24),
     borderTopRightRadius: scale(24),
-    maxHeight: '80%',
+    maxHeight: '90%',
     overflow: 'hidden',
   },
   modalImage: {
@@ -169,6 +169,7 @@ const styles = StyleSheet.create({
   modalContent: {
     padding: scale(20),
     paddingBottom: scale(32),
+    flexShrink: 1,
   },
   modalFestivalName: {
     fontSize: fs(18),
@@ -202,7 +203,7 @@ const styles = StyleSheet.create({
     color: colors.ring,
   },
   modalTextScroll: {
-    maxHeight: scale(200),
+    flexShrink: 1,
     marginBottom: scale(20),
   },
   modalSectionLabel: {

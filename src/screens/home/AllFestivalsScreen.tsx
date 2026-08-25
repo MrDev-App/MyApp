@@ -73,7 +73,7 @@ const AllFestivalsScreen = () => {
   };
 
   const [selectedDate, setSelectedDate] = React.useState(getTodayString());
-  const [currentMonthDate, setCurrentMonthDate] = React.useState(
+  const [currentMonthDate, setCurrentMonthDate] = React.useState<string>(
     getTodayString(),
   );
   const [detailFestival, setDetailFestival] = React.useState<Festival | null>(
@@ -85,18 +85,6 @@ const AllFestivalsScreen = () => {
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
-  };
-
-  const handlePrevMonth = () => {
-    const d = new Date(currentMonthDate);
-    d.setMonth(d.getMonth() - 1);
-    setCurrentMonthDate(formatDate(d));
-  };
-
-  const handleNextMonth = () => {
-    const d = new Date(currentMonthDate);
-    d.setMonth(d.getMonth() + 1);
-    setCurrentMonthDate(formatDate(d));
   };
 
   const currentMonthName = React.useMemo(() => {
@@ -127,10 +115,9 @@ const AllFestivalsScreen = () => {
     const tithi = item.tithi;
 
     return (
-      <TouchableOpacity
+      <AnimatedButton
         key={item.id}
         style={styles.festivalCardContainer}
-        activeOpacity={0.9}
         onPress={() => setDetailFestival(item)}
       >
         <ImageBackground
@@ -162,7 +149,7 @@ const AllFestivalsScreen = () => {
             </View>
           </View>
         </ImageBackground>
-      </TouchableOpacity>
+      </AnimatedButton>
     );
   };
 
@@ -178,29 +165,7 @@ const AllFestivalsScreen = () => {
           >
             <Back width={scale(12)} height={scale(12)} stroke={colors.white} />
           </TouchableOpacity>
-        </View>
-
-        {/* Month Navigation Row */}
-        <View style={styles.calendarNavContainer}>
-          <AnimatedButton
-            onPress={handlePrevMonth}
-            style={styles.navArrowButton}
-          >
-            <Back width={scale(12)} height={scale(12)} stroke={colors.white} />
-          </AnimatedButton>
-
           <Text style={styles.headerTitle}>{currentMonthName}</Text>
-
-          <AnimatedButton
-            onPress={handleNextMonth}
-            style={styles.navArrowButton}
-          >
-            <Forward
-              width={scale(12)}
-              height={scale(12)}
-              stroke={colors.white}
-            />
-          </AnimatedButton>
         </View>
 
         <ScrollView
@@ -215,8 +180,11 @@ const AllFestivalsScreen = () => {
               setSelectedDate(day.dateString);
               setCurrentMonthDate(day.dateString);
             }}
-            hideArrows={true}
+            hideArrows={false}
             renderHeader={() => null}
+            onMonthChange={month => {
+              setCurrentMonthDate(month.dateString);
+            }}
             markedDates={{
               [selectedDate]: {
                 selected: true,
@@ -228,7 +196,7 @@ const AllFestivalsScreen = () => {
               calendarBackground: 'transparent',
               textDisabledColor: colors.neutralDisabled,
               textSectionTitleColor: colors.ring,
-              textDayFontSize: fs(18),
+              textDayFontSize: fs(16),
               textMonthFontSize: fs(20),
               textDayHeaderFontSize: fs(12),
               monthTextColor: colors.secondary,
@@ -239,20 +207,9 @@ const AllFestivalsScreen = () => {
               textDayFontFamily: 'CormorantGaramond_700Bold',
               textMonthFontFamily: 'CormorantGaramond_700Bold',
               textDayHeaderFontFamily: 'CormorantGaramond_700Bold',
+              arrowColor: colors.ring,
             }}
           />
-
-          {/* Selected Day's Festival Section */}
-          {/* {selectedDayFestivals.length > 0 && (
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>
-                {currentLanguage === 'hi'
-                  ? 'चयनित दिन का त्योहार'
-                  : "Selected Day's Festival"}
-              </Text>
-              {selectedDayFestivals.map(renderFestivalCard)}
-            </View>
-          )} */}
 
           {/* Month's Other Festivals Section */}
           <View style={styles.sectionContainer}>
@@ -290,7 +247,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: scale(16),
     paddingHorizontal: scale(16),
     height: scale(56),
   },
