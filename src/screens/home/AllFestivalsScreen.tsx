@@ -109,6 +109,37 @@ const AllFestivalsScreen = () => {
     return festivalData.filter(f => f.month === currentMonthNum);
   }, [currentMonthNum, selectedMonth]);
 
+  // Compute marked dates for the calendar, showing a light primary color background on every day that has a festival
+  const calendarMarkedDates = React.useMemo(() => {
+    const marks: { [date: string]: any } = {};
+
+    // 1. Extract current year from currentMonthDate
+    const currentYear = new Date(currentMonthDate).getFullYear();
+
+    // 2. Mark all festivals of the year with a light primary color background
+    festivalData.forEach(fest => {
+      const mm = String(fest.month).padStart(2, '0');
+      const dd = String(fest.day).padStart(2, '0');
+      const dateString = `${currentYear}-${mm}-${dd}`;
+
+      marks[dateString] = {
+        selected: true,
+        selectedColor: colors.borderStrong, // light primary bg
+        selectedTextColor: colors.secondary, // preserve readable text color
+      };
+    });
+
+    // 3. Mark the currently selected date (with a highlighted circle/background)
+    marks[selectedDate] = {
+      ...marks[selectedDate],
+      selected: true,
+      selectedColor: colors.ring, // primary color bg for selection
+      selectedTextColor: colors.white, // white text color for selection
+    };
+
+    return marks;
+  }, [selectedDate, currentMonthDate]);
+
   const renderFestivalCard = (item: Festival) => {
     const name = currentLanguage === 'hi' ? item.hindiName : item.englishName;
     const dateStr = currentLanguage === 'hi' ? item.dateStrHi : item.dateStrEn;
@@ -185,18 +216,12 @@ const AllFestivalsScreen = () => {
             onMonthChange={month => {
               setCurrentMonthDate(month.dateString);
             }}
-            markedDates={{
-              [selectedDate]: {
-                selected: true,
-                selectedColor: colors.ring,
-                selectedTextColor: colors.white,
-              },
-            }}
+            markedDates={calendarMarkedDates}
             theme={{
               calendarBackground: 'transparent',
               textDisabledColor: colors.neutralDisabled,
               textSectionTitleColor: colors.ring,
-              textDayFontSize: fs(16),
+              textDayFontSize: fs(14),
               textMonthFontSize: fs(20),
               textDayHeaderFontSize: fs(12),
               monthTextColor: colors.secondary,
