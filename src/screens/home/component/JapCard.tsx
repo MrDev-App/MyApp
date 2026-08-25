@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import colors from '../../../utile/colors';
@@ -8,6 +8,7 @@ import { fs, scale } from '../../../utile/sizes';
 import { Translation } from '../../../i18n/language';
 import AnimatedButton from '../../../components/AnimatedButton';
 import { Storage, STORAGE_KEYS } from '../../../utile/storage';
+import imagePath from '../../../assets';
 
 const JapCard = () => {
   const navigation = useNavigation<any>();
@@ -57,8 +58,14 @@ const JapCard = () => {
           style={styles.chantButton}
           onPress={() => navigation.navigate('BottomTabs', { screen: 'Jap' })}
         >
-          <View style={{ flexDirection: 'row', gap: scale(8) }}>
-            <Text>📿</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: scale(8),
+            }}
+          >
+            <Image source={imagePath.mala} style={styles.malaIcon} />
             <Text style={styles.chantButtonText}>
               {t(Translation.JAP_START_CHANTING)}
             </Text>
@@ -139,6 +146,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 3,
+  },
+  malaIcon: {
+    width: scale(16),
+    height: scale(16),
+    resizeMode: 'contain',
   },
   chantButtonText: {
     fontSize: fs(12),

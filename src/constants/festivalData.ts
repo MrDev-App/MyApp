@@ -4,15 +4,20 @@ export interface Festival {
   id: string;
   englishName: string;
   hindiName: string;
-  month: number; // 1-12
+  month: number;
   day: number;
   dateStrEn: string;
   dateStrHi: string;
   deity: string[];
+  deityHi?: string[];
   category: string;
+  categoryHi?: string;
   tithi: string;
+  tithiHi?: string;
   description: string;
+  descriptionHi?: string;
   regions: string[];
+  regionsHi?: string[];
   icon?: string;
   image?: any;
 }
@@ -27,11 +32,17 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Jan 13',
     dateStrHi: '13 जनवरी',
     deity: ['Surya', 'Agni'],
+    deityHi: ['सूर्य', 'अग्नि'],
     category: 'Regional Festival',
+    categoryHi: 'क्षेत्रीय त्योहार',
     tithi: 'Around Magha Sankranti',
+    tithiHi: 'माघ संक्रांति के आसपास',
     description:
       'A winter harvest festival traditionally celebrated with bonfires.',
+    descriptionHi:
+      'पारंपरिक रूप से अलाव जलाकर मनाया जाने वाला एक शीतकालीन फसल उत्सव।',
     regions: ['Punjab'],
+    regionsHi: ['पंजाब'],
     image: imagePath.greeting,
   },
   {
@@ -43,11 +54,16 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Jan 14',
     dateStrHi: '14 जनवरी',
     deity: ['Surya'],
+    deityHi: ['सूर्य'],
     category: 'Sankranti',
+    categoryHi: 'संक्रांति',
     tithi: 'Solar transition into Makara',
+    tithiHi: 'मकर राशि में सूर्य का प्रवेश',
     description:
       "A solar festival marking the Sun's transition into Capricorn.",
+    descriptionHi: 'सूर्य के मकर राशि में गोचर का प्रतीक एक सौर उत्सव।',
     regions: ['Pan-India'],
+    regionsHi: ['पूरे भारत में'],
     image: imagePath.Surya,
   },
   {
@@ -59,10 +75,15 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Jan 23',
     dateStrHi: '23 जनवरी',
     deity: ['Saraswati'],
+    deityHi: ['सरस्वती'],
     category: 'Deity Festival',
+    categoryHi: 'देवता उत्सव',
     tithi: 'Magha Shukla Panchami',
+    tithiHi: 'माघ शुक्ल पंचमी',
     description:
       'A festival welcoming spring and honoring Goddess Saraswati, associated with knowledge, music and learning.',
+    descriptionHi:
+      'ज्ञान, संगीत और शिक्षा की देवी सरस्वती के सम्मान में वसंत ऋतु का स्वागत करने वाला त्योहार।',
     regions: [
       'Pan-India',
       'West Bengal',
@@ -70,6 +91,14 @@ export const festivalData: Festival[] = [
       'Odisha',
       'Uttar Pradesh',
       'Rajasthan',
+    ],
+    regionsHi: [
+      'पूरे भारत में',
+      'पश्चिम बंगाल',
+      'बिहार',
+      'ओडिशा',
+      'उत्तर प्रदेश',
+      'राजस्थान',
     ],
     image: imagePath.VasantPanchami,
   },
@@ -82,10 +111,15 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Feb 15',
     dateStrHi: '15 फ़रवरी',
     deity: ['Shiva'],
+    deityHi: ['शिव'],
     category: 'Deity Festival',
+    categoryHi: 'देवता उत्सव',
     tithi: 'Phalguna Krishna Chaturdashi',
+    tithiHi: 'फाल्गुन कृष्ण चतुर्दशी',
     description: 'A major festival dedicated to Lord Shiva.',
+    descriptionHi: 'भगवान शिव को समर्पित एक प्रमुख त्योहार।',
     regions: ['Pan-India'],
+    regionsHi: ['पूरे भारत में'],
     image: imagePath.MahaShivratri,
   },
   {
@@ -97,11 +131,17 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Mar 2',
     dateStrHi: '2 मार्च',
     deity: ['Vishnu', 'Prahlada', 'Holika'],
+    deityHi: ['विष्णु', 'प्रहलाद', 'होलिका'],
     category: 'Major Festival',
+    categoryHi: 'प्रमुख त्योहार',
     tithi: 'Phalguna Purnima',
+    tithiHi: 'फाल्गुन पूर्णिमा',
     description:
       "A bonfire ritual commemorating Prahlada's devotion and the defeat of Holika.",
+    descriptionHi:
+      'प्रहलाद की भक्ति और होलिका की पराजय की स्मृति में अलाव जलाने की रस्म।',
     regions: ['Pan-India'],
+    regionsHi: ['पूरे भारत में'],
     image: imagePath.HoliDahan,
   },
   {
@@ -113,11 +153,17 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Mar 3',
     dateStrHi: '3 मार्च',
     deity: ['Krishna', 'Radha'],
+    deityHi: ['कृष्ण', 'राधा'],
     category: 'Major Festival',
+    categoryHi: 'प्रमुख त्योहार',
     tithi: 'Phalguna Purnima / following day',
+    tithiHi: 'फाल्गुन पूर्णिमा / अगला दिन',
     description:
       'The festival of colors celebrating spring, joy, devotion and the triumph of good over evil.',
+    descriptionHi:
+      'वसंत, हर्ष, भक्ति और बुराई पर अच्छाई की विजय का प्रतीक रंगों का त्योहार।',
     regions: ['Pan-India', 'Nepal'],
+    regionsHi: ['पूरे भारत में', 'नेपाल'],
     image: imagePath.Holi,
   },
   {
@@ -129,11 +175,17 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Mar 19',
     dateStrHi: '19 मार्च',
     deity: ['Durga', 'Shakti'],
+    deityHi: ['दुर्गा', 'शक्ति'],
     category: 'Navratri',
+    categoryHi: 'नवरात्रि',
     tithi: 'Chaitra Shukla Pratipada to Navami',
+    tithiHi: 'चैत्र शुक्ल प्रतिपदा से नवमी',
     description:
       'Nine nights dedicated to Goddess Durga and her manifestations, marking the beginning of the Hindu lunar year in many traditions.',
+    descriptionHi:
+      'देवी दुर्गा और उनके रूपों को समर्पित नौ रातें, जो हिंदू चंद्र वर्ष के प्रारंभ का प्रतीक हैं।',
     regions: ['Pan-India', 'North India', 'West India'],
+    regionsHi: ['पूरे भारत में', 'उत्तर भारत', 'पश्चिम भारत'],
     image: imagePath.Navratri,
   },
   {
@@ -145,11 +197,16 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Mar 26',
     dateStrHi: '26 मार्च',
     deity: ['Rama'],
+    deityHi: ['राम'],
     category: 'Deity Festival',
+    categoryHi: 'देवता उत्सव',
     tithi: 'Chaitra Shukla Navami',
+    tithiHi: 'चैत्र शुक्ल नवमी',
     description:
       'Celebrates the birth of Lord Rama, an important figure in the Ramayana.',
+    descriptionHi: 'रामायण के मुख्य पात्र भगवान राम के जन्मोत्सव का प्रतीक।',
     regions: ['Pan-India', 'Nepal'],
+    regionsHi: ['पूरे भारत में', 'नेपाल'],
     image: imagePath.Rama,
   },
   {
@@ -161,11 +218,17 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Apr 2',
     dateStrHi: '2 अप्रैल',
     deity: ['Hanuman'],
+    deityHi: ['हनुमान'],
     category: 'Deity Festival',
+    categoryHi: 'देवता उत्सव',
     tithi: 'Chaitra Purnima',
+    tithiHi: 'चैत्र पूर्णिमा',
     description:
       'Celebrates the birth of Lord Hanuman and is marked by prayer, chanting and Hanuman worship.',
+    descriptionHi:
+      'भगवान हनुमान के जन्मोत्सव का प्रतीक, जो प्रार्थना और भजन-कीर्तन के साथ मनाया जाता है।',
     regions: ['Pan-India'],
+    regionsHi: ['पूरे भारत में'],
     image: imagePath.Hanuman,
   },
   {
@@ -177,11 +240,17 @@ export const festivalData: Festival[] = [
     dateStrEn: 'May 1',
     dateStrHi: '1 मई',
     deity: ['Buddha'],
+    deityHi: ['बुद्ध'],
     category: 'Religious Observance',
+    categoryHi: 'धार्मिक उत्सव',
     tithi: 'Vaishakha Purnima',
+    tithiHi: 'वैशाख पूर्णिमा',
     description:
       'Commemorates important events associated with Gautama Buddha.',
+    descriptionHi:
+      'गौतम बुद्ध से जुड़े महत्वपूर्ण प्रसंगों की स्मृति में मनाया जाने वाला दिवस।',
     regions: ['Pan-India', 'Nepal'],
+    regionsHi: ['पूरे भारत में', 'नेपाल'],
     image: imagePath.greeting,
   },
   {
@@ -193,10 +262,15 @@ export const festivalData: Festival[] = [
     dateStrEn: 'May 25',
     dateStrHi: '25 मई',
     deity: ['Ganga'],
+    deityHi: ['गंगा'],
     category: 'Deity Festival',
+    categoryHi: 'देवता उत्सव',
     tithi: 'Jyeshtha Shukla Dashami',
+    tithiHi: 'ज्येष्ठ शुक्ल दशमी',
     description: 'Celebrates the descent of the sacred river Ganga to Earth.',
+    descriptionHi: 'पवित्र नदी गंगा के पृथ्वी पर अवतरण का उत्सव।',
     regions: ['North India', 'Uttar Pradesh', 'Uttarakhand', 'Bihar'],
+    regionsHi: ['उत्तर भारत', 'उत्तर प्रदेश', 'उत्तराखंड', 'बिहार'],
     image: imagePath.Dussehra,
   },
   {
@@ -208,11 +282,16 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Jun 25',
     dateStrHi: '25 जून',
     deity: ['Vishnu'],
+    deityHi: ['विष्णु'],
     category: 'Ekadashi',
+    categoryHi: 'एकादशी',
     tithi: 'Jyeshtha Shukla Ekadashi',
+    tithiHi: 'ज्येष्ठ शुक्ल एकादशी',
     description:
       'A particularly strict Ekadashi traditionally associated with fasting and Vishnu devotion.',
+    descriptionHi: 'व्रत और विष्णु भक्ति से जुड़ा एक अत्यंत कठिन एकादशी उपवास।',
     regions: ['Pan-India'],
+    regionsHi: ['पूरे भारत में'],
     image: imagePath.Vishnu,
   },
   {
@@ -224,11 +303,16 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Jul 16',
     dateStrHi: '16 जुलाई',
     deity: ['Jagannath', 'Balabhadra', 'Subhadra'],
+    deityHi: ['जगन्नाथ', 'बलभद्र', 'सुभद्रा'],
     category: 'Deity Festival',
+    categoryHi: 'देवता उत्सव',
     tithi: 'Ashadha Shukla Dwitiya',
+    tithiHi: 'आषाढ़ शुक्ल द्वितीया',
     description:
       'The famous chariot festival of Lord Jagannath and his siblings.',
+    descriptionHi: 'भगवान जगन्नाथ और उनके भाई-बहन का प्रसिद्ध रथ उत्सव।',
     regions: ['Odisha', 'West Bengal', 'Gujarat', 'Pan-India'],
+    regionsHi: ['ओडिशा', 'पश्चिम बंगाल', 'गुजरात', 'पूरे भारत में'],
     image: imagePath.JagannathRathYatra,
   },
   {
@@ -240,11 +324,17 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Jul 29',
     dateStrHi: '29 जुलाई',
     deity: ['Guru', 'Vyasa'],
+    deityHi: ['गुरु', 'व्यास'],
     category: 'Religious Observance',
+    categoryHi: 'धार्मिक उत्सव',
     tithi: 'Ashadha Purnima',
+    tithiHi: 'आषाढ़ पूर्णिमा',
     description:
       'A day dedicated to honoring spiritual teachers and the guru tradition.',
+    descriptionHi:
+      'आध्यात्मिक गुरुओं के सम्मान और गुरु परंपरा के प्रति कृतज्ञता व्यक्त करने का दिन।',
     regions: ['Pan-India', 'Nepal'],
+    regionsHi: ['पूरे भारत में', 'नेपाल'],
     image: imagePath.greeting,
   },
   {
@@ -256,11 +346,17 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Aug 17',
     dateStrHi: '17 अगस्त',
     deity: ['Naga', 'Shiva'],
+    deityHi: ['नाग', 'शिव'],
     category: 'Deity Festival',
+    categoryHi: 'देवता उत्सव',
     tithi: 'Shravana Shukla Panchami',
+    tithiHi: 'श्रावण शुक्ल पंचमी',
     description:
       'A traditional festival honoring serpent deities and seeking protection and blessings.',
+    descriptionHi:
+      'नाग देवताओं की पूजा और उनकी सुरक्षा व आशीर्वाद प्राप्त करने का पारंपरिक त्योहार।',
     regions: ['Pan-India', 'Nepal'],
+    regionsHi: ['पूरे भारत में', 'नेपाल'],
     icon: '🐍',
     image: imagePath.nagpachmi,
   },
@@ -273,11 +369,16 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Aug 28',
     dateStrHi: '28 अगस्त',
     deity: ['Krishna', 'Indra'],
+    deityHi: ['कृष्ण', 'इंद्र'],
     category: 'Major Festival',
+    categoryHi: 'प्रमुख त्योहार',
     tithi: 'Shravana Purnima',
+    tithiHi: 'श्रावण पूर्णिमा',
     description:
       'A festival celebrating the bond of protection and affection between siblings.',
+    descriptionHi: 'भाई-बहन के बीच सुरक्षा और स्नेह के अटूट बंधन का उत्सव।',
     regions: ['Pan-India', 'Nepal'],
+    regionsHi: ['पूरे भारत में', 'नेपाल'],
     icon: '📿',
     image: imagePath.RakshaBandhan,
   },
@@ -290,10 +391,15 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Sep 4',
     dateStrHi: '4 सितंबर',
     deity: ['Krishna'],
+    deityHi: ['कृष्ण'],
     category: 'Major Festival',
+    categoryHi: 'प्रमुख त्योहार',
     tithi: 'Bhadrapada Krishna Ashtami',
+    tithiHi: 'भाद्रपद कृष्ण अष्टमी',
     description: 'Celebrates the birth of Lord Krishna.',
+    descriptionHi: 'भगवान कृष्ण के जन्मोत्सव का प्रतीक।',
     regions: ['Pan-India'],
+    regionsHi: ['पूरे भारत में'],
     icon: '🏺',
     image: imagePath.dhahiHande,
   },
@@ -306,10 +412,15 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Sep 14',
     dateStrHi: '14 सितंबर',
     deity: ['Ganesha'],
+    deityHi: ['गणेश'],
     category: 'Major Festival',
+    categoryHi: 'प्रमुख त्योहार',
     tithi: 'Bhadrapada Shukla Chaturthi',
+    tithiHi: 'भाद्रपद शुक्ल चतुर्थी',
     description: 'Celebrates the birth of Lord Ganesha.',
+    descriptionHi: 'भगवान गणेश के जन्मोत्सव का प्रतीक।',
     regions: ['Maharashtra', 'Karnataka'],
+    regionsHi: ['महाराष्ट्र', 'कर्नाटक'],
     icon: '🐘',
     image: imagePath.GaneshChaturthi,
   },
@@ -322,10 +433,16 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Sep 18',
     dateStrHi: '18 सितंबर',
     deity: ['Gauri', 'Parvati'],
+    deityHi: ['गौरी', 'पार्वती'],
     category: 'Deity Festival',
+    categoryHi: 'देवता उत्सव',
     tithi: 'Varies by regional tradition',
+    tithiHi: 'क्षेत्रीय परंपरा के अनुसार भिन्न',
     description: 'A festival honoring Goddess Gauri, a form of Parvati.',
+    descriptionHi:
+      'पार्वती के रूप देवी गौरी के सम्मान में मनाया जाने वाला त्योहार।',
     regions: ['Maharashtra', 'Karnataka', 'Rajasthan', 'Gujarat'],
+    regionsHi: ['महाराष्ट्र', 'कर्नाटक', 'राजस्थान', 'गुजरात'],
     icon: '🌺',
     image: imagePath.GauriPuja,
   },
@@ -338,10 +455,15 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Oct 11',
     dateStrHi: '11 अक्टूबर',
     deity: ['Durga'],
+    deityHi: ['दुर्गा'],
     category: 'Navratri',
+    categoryHi: 'नवरात्रि',
     tithi: 'Ashwin Shukla Pratipada',
+    tithiHi: 'आश्विन शुक्ल प्रतिपदा',
     description: 'Nine nights of worship dedicated to Goddess Durga.',
+    descriptionHi: 'देवी दुर्गा की आराधना को समर्पित नौ पवित्र रातें।',
     regions: ['Pan-India'],
+    regionsHi: ['पूरे भारत में'],
     icon: '🔱',
     image: imagePath.Navratri,
   },
@@ -354,11 +476,17 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Oct 20',
     dateStrHi: '20 अक्टूबर',
     deity: ['Rama', 'Durga'],
+    deityHi: ['राम', 'दुर्गा'],
     category: 'Major Festival',
+    categoryHi: 'प्रमुख त्योहार',
     tithi: 'Ashwin Shukla Dashami',
+    tithiHi: 'आश्विन शुक्ल दशमी',
     description:
       "Celebrates the victory of good over evil and is associated with Rama's victory over Ravana.",
+    descriptionHi:
+      'बुराई पर अच्छाई की विजय का प्रतीक, जो रावण पर राम की विजय से जुड़ा है।',
     regions: ['Pan-India'],
+    regionsHi: ['पूरे भारत में'],
     icon: '🏹',
     image: imagePath.Dussehra,
   },
@@ -371,10 +499,16 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Oct 29',
     dateStrHi: '29 अक्टूबर',
     deity: ['Parvati'],
+    deityHi: ['पार्वती'],
     category: 'Vrat',
+    categoryHi: 'व्रत',
     tithi: 'Kartika Krishna Chaturthi',
+    tithiHi: 'कार्तिक कृष्ण चतुर्थी',
     description: 'A traditional fasting observance for marital devotion.',
+    descriptionHi:
+      'वैवाहिक सुख और पति की दीर्घायु के लिए मनाया जाने वाला पारंपरिक उपवास।',
     regions: ['North India'],
+    regionsHi: ['उत्तर भारत'],
     icon: '🌙',
     image: imagePath.KarwaChauth,
   },
@@ -387,10 +521,15 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Nov 8',
     dateStrHi: '8 नवंबर',
     deity: ['Lakshmi', 'Ganesha'],
+    deityHi: ['लक्ष्मी', 'गणेश'],
     category: 'Major Festival',
+    categoryHi: 'प्रमुख त्योहार',
     tithi: 'Kartika Amavasya',
+    tithiHi: 'कार्तिक अमावस्या',
     description: 'The festival of lights.',
+    descriptionHi: 'दीपों का त्योहार जो अंधकार पर प्रकाश की विजय का प्रतीक है।',
     regions: ['Pan-India'],
+    regionsHi: ['पूरे भारत में'],
     icon: '🪔',
     image: imagePath.Diwali,
   },
@@ -403,11 +542,16 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Nov 8',
     dateStrHi: '8 नवंबर',
     deity: ['Lakshmi', 'Ganesha'],
+    deityHi: ['लक्ष्मी', 'गणेश'],
     category: 'Diwali',
+    categoryHi: 'दीपावली',
     tithi: 'Kartika Amavasya',
+    tithiHi: 'कार्तिक अमावस्या',
     description:
       'A Diwali worship tradition dedicated to Goddess Lakshmi and Lord Ganesha.',
+    descriptionHi: 'देवी लक्ष्मी और भगवान गणेश के पूजन की एक दीपावली परंपरा।',
     regions: ['Pan-India'],
+    regionsHi: ['पूरे भारत में'],
     icon: '🪙',
     image: imagePath.Laxmi,
   },
@@ -420,11 +564,17 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Nov 10',
     dateStrHi: '10 नवंबर',
     deity: ['Krishna', 'Govardhan'],
+    deityHi: ['कृष्ण', 'गोवर्धन'],
     category: 'Diwali',
+    categoryHi: 'दीपावली',
     tithi: 'Kartika Shukla Pratipada',
+    tithiHi: 'कार्तिक शुक्ल प्रतिपदा',
     description:
       "Celebrates Krishna's protection of the people of Braj through the lifting of Govardhan Hill.",
+    descriptionHi:
+      'भगवान कृष्ण द्वारा गोवर्धन पर्वत उठाकर ब्रजवासियों की रक्षा करने की स्मृति में मनाया जाने वाला पर्व।',
     regions: ['Uttar Pradesh', 'Rajasthan', 'Madhya Pradesh', 'Gujarat'],
+    regionsHi: ['उत्तर प्रदेश', 'राजस्थान', 'मध्य प्रदेश', 'गुजरात'],
     icon: '⛰️',
     image: imagePath.Govardhan,
   },
@@ -437,11 +587,17 @@ export const festivalData: Festival[] = [
     dateStrEn: 'Nov 11',
     dateStrHi: '11 नवंबर',
     deity: ['Yama', 'Yamuna'],
+    deityHi: ['यम', 'यमुना'],
     category: 'Diwali',
+    categoryHi: 'दीपावली',
     tithi: 'Kartika Shukla Dwitiya',
+    tithiHi: 'कार्तिक शुक्ल द्वितीया',
     description:
       'A festival celebrating the bond between brothers and sisters.',
+    descriptionHi:
+      'भाई और बहन के बीच स्नेह और सुरक्षा के पवित्र रिश्ते का उत्सव।',
     regions: ['Pan-India', 'Nepal'],
+    regionsHi: ['पूरे भारत में', 'नेपाल'],
     icon: '❤️',
     image: imagePath.BhaiDooj,
   },

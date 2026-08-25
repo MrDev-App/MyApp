@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -21,10 +21,7 @@ import { RootStackParamList } from '../../../navigation/type';
 import { festivalData, Festival } from '../../../constants/festivalData';
 import imagePath from '../../../assets';
 import AnimatedButton from '../../../components/AnimatedButton';
-import OverlayModal, {
-  OverlayModalHandle,
-} from '../../../components/OverlayModal';
-import GradientOverlay from '../../../components/GradientOverlay';
+import FestivalModal from '../../../components/FestivalModal';
 
 const FestivalHighlights = ({ onPress }: any) => {
   const navigation =
@@ -32,16 +29,26 @@ const FestivalHighlights = ({ onPress }: any) => {
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language || 'en';
 
-  const overlayModalRef = useRef<OverlayModalHandle>(null);
   const [selectedFestival, setSelectedFestival] = useState<Festival | null>(
     null,
   );
 
   const today = new Date();
-  const currentMonth = today.getMonth() + 1;
+  const todayStart = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
 
   const filteredFestivals = festivalData
-    .filter(item => item.month >= currentMonth)
+    .filter(item => {
+      const festivalDateThisYear = new Date(
+        today.getFullYear(),
+        item.month - 1,
+        item.day,
+      );
+      return festivalDateThisYear.getTime() >= todayStart.getTime();
+    })
     .sort((a, b) => {
       if (a.month !== b.month) {
         return a.month - b.month;
@@ -90,19 +97,21 @@ const FestivalHighlights = ({ onPress }: any) => {
             currentLanguage === 'hi' ? item.dateStrHi : item.dateStrEn;
           const iconPrefix = item.icon ? `${item.icon} ` : '';
           const countdownText =
-            currentLanguage === 'hi'
+            daysLeft === 0
+              ? currentLanguage === 'hi'
+                ? 'आज'
+                : 'Today'
+              : currentLanguage === 'hi'
               ? `${daysLeft} दिनों में`
-              : `in ${daysLeft} days `;
+              : `in ${daysLeft} days`;
 
           const bgImage = item.image || imagePath.greeting;
 
           return (
             <AnimatedButton
               style={styles.cardContainer}
-              onPress={(event: GestureResponderEvent) => {
-                const { pageX, pageY } = event.nativeEvent;
+              onPress={() => {
                 setSelectedFestival(item);
-                overlayModalRef.current?.open({ x: pageX, y: pageY });
                 if (onPress) onPress(item);
               }}
             >
@@ -126,145 +135,11 @@ const FestivalHighlights = ({ onPress }: any) => {
         }}
       />
 
-      <OverlayModal
-        ref={overlayModalRef}
-        closeOnBackdropPress={true}
+      <FestivalModal
+        visible={selectedFestival !== null}
+        festival={selectedFestival}
         onClose={() => setSelectedFestival(null)}
-      >
-        {selectedFestival && (
-          <View style={styles.modalContainer}>
-            <ImageBackground
-              source={selectedFestival.image || imagePath.greeting}
-              style={styles.modalBg}
-              imageStyle={styles.modalBgImage}
-              fadeDuration={0}
-            >
-              <GradientOverlay
-                colors={[
-                  colors.overlayStart,
-                  colors.overlayMid,
-                  colors.overlayEnd,
-                ]}
-                direction="bottom-to-top"
-              />
-              <SafeAreaView style={styles.modalHeader}>
-                <TouchableOpacity
-                  style={styles.closeBtn}
-                  onPress={() => overlayModalRef.current?.close()}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.closeBtnText}>✕</Text>
-                </TouchableOpacity>
-              </SafeAreaView>
-
-              <View style={styles.modalHero}>
-                <View style={styles.categoryBadge}>
-                  <Text style={styles.categoryBadgeText}>
-                    {selectedFestival.category}
-                  </Text>
-                </View>
-                <Text style={styles.modalTitleText}>
-                  {currentLanguage === 'hi'
-                    ? selectedFestival.hindiName
-                    : selectedFestival.englishName}
-                </Text>
-                <Text style={styles.modalDateText}>
-                  {currentLanguage === 'hi'
-                    ? selectedFestival.dateStrHi
-                    : selectedFestival.dateStrEn}
-                </Text>
-              </View>
-            </ImageBackground>
-
-            <ScrollView
-              style={styles.modalDetailsScroll}
-              contentContainerStyle={styles.modalDetailsContent}
-              showsVerticalScrollIndicator={false}
-            >
-              <View style={styles.detailRow}>
-                <View style={styles.detailCard}>
-                  <Text style={styles.detailLabel}>
-                    {t(Translation.TITHI_TIME_LABEL)}
-                  </Text>
-                  <Text style={styles.detailValue}>
-                    {selectedFestival.tithi}
-                  </Text>
-                </View>
-
-                <View style={[styles.detailCard]}>
-                  <Text style={styles.detailLabel}>
-                    {t(Translation.COUNTDOWN_LABEL)}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.detailValue,
-                      { color: colors.ring, fontFamily: fonts.PoppinsSemiBold },
-                    ]}
-                  >
-                    {t(Translation.DAYS_LEFT_LABEL, {
-                      count: calculateDaysRemaining(
-                        selectedFestival.month,
-                        selectedFestival.day,
-                      ),
-                    })}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={styles.infoSection}>
-                <Text style={styles.sectionTitle}>
-                  {t(Translation.ASSOCIATED_DEITY_LABEL)}
-                </Text>
-                <View style={styles.chipsContainer}>
-                  {selectedFestival.deity.map((d, i) => (
-                    <View key={i} style={styles.chip}>
-                      <Text style={styles.chipText}>{d}</Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-
-              {selectedFestival.regions &&
-                selectedFestival.regions.length > 0 && (
-                  <View style={styles.infoSection}>
-                    <Text style={styles.sectionTitle}>
-                      {t(Translation.KEY_REGIONS_LABEL)}
-                    </Text>
-                    <View style={styles.chipsContainer}>
-                      {selectedFestival.regions.map((r, i) => (
-                        <View
-                          key={i}
-                          style={[
-                            styles.chip,
-                            { backgroundColor: colors.chipBg },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.chipText,
-                              { color: colors.chipText },
-                            ]}
-                          >
-                            {r}
-                          </Text>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-                )}
-
-              <View style={styles.descriptionCard}>
-                <Text style={styles.descriptionTitle}>
-                  {t(Translation.SIGNIFICANCE_HISTORY_LABEL)}
-                </Text>
-                <Text style={styles.descriptionText}>
-                  {selectedFestival.description}
-                </Text>
-              </View>
-            </ScrollView>
-          </View>
-        )}
-      </OverlayModal>
+      />
     </View>
   );
 };
@@ -338,172 +213,12 @@ const styles = StyleSheet.create({
   countdown: {
     fontSize: fs(9.5),
     fontFamily: fonts.PoppinsMedium,
-    color: '#FFE0B2', // Soft premium gold color
+    color: '#FFE0B2',
   },
   icon: {
     fontSize: fs(16),
     fontFamily: fonts.PoppinsMedium,
     color: '#FFE0B2',
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: '#FAFAF9',
-  },
-  modalBg: {
-    width: '100%',
-    height: scale(260),
-    justifyContent: 'space-between',
-  },
-  modalBgImage: {
-    resizeMode: 'cover',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: scale(16),
-    marginTop: scale(10),
-  },
-  closeBtn: {
-    width: scale(30),
-    height: scale(30),
-    borderRadius: scale(18),
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  closeBtnText: {
-    color: colors.white,
-    fontSize: fs(16),
-    fontWeight: 'bold',
-  },
-  categoryBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.ring,
-    paddingHorizontal: scale(12),
-    paddingVertical: scale(6),
-    borderRadius: scale(20),
-    marginBottom: scale(8),
-  },
-  categoryBadgeText: {
-    color: colors.white,
-    fontSize: fs(10),
-    fontFamily: fonts.PoppinsSemiBold,
-    textTransform: 'uppercase',
-  },
-  modalHero: {
-    paddingHorizontal: scale(20),
-    paddingBottom: scale(20),
-    zIndex: 10,
-  },
-  modalTitleText: {
-    fontSize: fs(28),
-    fontFamily: fonts.Marcellus,
-    color: colors.white,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 4,
-  },
-  modalDateText: {
-    fontSize: fs(14),
-    fontFamily: fonts.PoppinsMedium,
-    color: '#FFE0B2',
-    marginTop: scale(4),
-  },
-  modalDetailsScroll: {
-    flex: 1,
-    marginTop: scale(-15),
-    borderTopLeftRadius: scale(20),
-    borderTopRightRadius: scale(20),
-    backgroundColor: '#FAFAF9',
-  },
-  modalDetailsContent: {
-    paddingHorizontal: scale(20),
-    paddingTop: scale(24),
-    paddingBottom: scale(40),
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: scale(24),
-  },
-  detailCard: {
-    width: '48%',
-    // backgroundColor: colors.white,
-    borderRadius: scale(16),
-    paddingHorizontal: scale(16),
-    paddingVertical: scale(14),
-    // borderWidth: 1,
-    // borderColor: 'rgba(183, 168, 151, 0.12)',
-    // shadowColor: colors.ring,
-    // shadowOffset: { width: 0, height: 4 },
-    // shadowOpacity: 0.04,
-    // shadowRadius: 6,
-    // elevation: 2,
-  },
-  detailLabel: {
-    fontSize: fs(10),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.mutedForeground,
-    textTransform: 'uppercase',
-    marginBottom: scale(4),
-  },
-  detailValue: {
-    fontSize: fs(13),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.secondary,
-  },
-  infoSection: {
-    marginBottom: scale(20),
-  },
-  sectionTitle: {
-    fontSize: fs(13),
-    fontFamily: fonts.PoppinsSemiBold,
-    color: colors.secondary,
-    marginBottom: scale(10),
-  },
-  chipsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  chip: {
-    backgroundColor: 'rgba(251, 148, 55, 0.08)',
-    paddingHorizontal: scale(14),
-    paddingVertical: scale(8),
-    borderRadius: scale(20),
-    marginRight: scale(8),
-    marginBottom: scale(8),
-  },
-  chipText: {
-    fontSize: fs(11),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.ring,
-  },
-  descriptionCard: {
-    backgroundColor: colors.white,
-    borderRadius: scale(16),
-    paddingHorizontal: scale(16),
-    paddingVertical: scale(16),
-    borderWidth: 1,
-    borderColor: 'rgba(183, 168, 151, 0.12)',
-    shadowColor: colors.ring,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
-    marginTop: scale(8),
-  },
-  descriptionTitle: {
-    fontSize: fs(13),
-    fontFamily: fonts.PoppinsSemiBold,
-    color: colors.secondary,
-    marginBottom: scale(8),
-  },
-  descriptionText: {
-    fontSize: fs(12),
-    fontFamily: fonts.PoppinsRegular,
-    color: colors.secondary,
-    lineHeight: fs(18),
   },
 });
 

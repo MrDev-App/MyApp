@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import colors from '../utile/colors';
 import fonts from '../utile/fonts';
 import { fs, scale } from '../utile/sizes';
-import imagePath from '../assets';
+import imagePath, { Tag, Location, Pin, FoldedHands } from '../assets';
 import { Festival } from '../constants/festivalData';
 
 interface FestivalModalProps {
@@ -28,6 +28,36 @@ const FestivalModal: React.FC<FestivalModalProps> = ({
 }) => {
   const { i18n } = useTranslation();
   const currentLanguage = i18n.language || 'en';
+
+  const categoryText = festival
+    ? currentLanguage === 'hi' && festival.categoryHi
+      ? festival.categoryHi
+      : festival.category
+    : '';
+
+  const tithiText = festival
+    ? currentLanguage === 'hi' && festival.tithiHi
+      ? festival.tithiHi
+      : festival.tithi
+    : '';
+
+  const deityText = festival
+    ? currentLanguage === 'hi' && festival.deityHi
+      ? festival.deityHi.join(', ')
+      : festival.deity.join(', ')
+    : '';
+
+  const regionsText = festival
+    ? currentLanguage === 'hi' && festival.regionsHi
+      ? festival.regionsHi.join(', ')
+      : festival.regions.join(', ')
+    : '';
+
+  const descriptionText = festival
+    ? currentLanguage === 'hi' && festival.descriptionHi
+      ? festival.descriptionHi
+      : festival.description
+    : '';
 
   return (
     <Modal
@@ -68,65 +98,77 @@ const FestivalModal: React.FC<FestivalModalProps> = ({
                         : festival.dateStrEn}
                     </Text>
                   </View>
-                  {festival.category && (
+                  {categoryText ? (
                     <View style={styles.metaBadge}>
+                      <Tag width={scale(10)} height={scale(10)} />
                       <Text style={styles.metaBadgeText}>
-                        🏷️ {festival.category}
+                        {categoryText}
                       </Text>
                     </View>
-                  )}
+                  ) : null}
                 </View>
 
                 <ScrollView
                   style={styles.modalTextScroll}
                   showsVerticalScrollIndicator={false}
                 >
-                  {festival.tithi && (
-                    <Text style={styles.modalSectionLabel}>
-                      📌{' '}
-                      {currentLanguage === 'hi'
-                        ? 'तिथि / नक्षत्र:'
-                        : 'Tithi / Astro:'}{' '}
-                      <Text style={styles.modalSectionValue}>
-                        {festival.tithi}
+                  {tithiText ? (
+                    <View style={styles.sectionRow}>
+                      <Pin
+                        width={scale(14)}
+                        height={scale(14)}
+                        fill={colors.ring}
+                      />
+                      <Text style={styles.modalSectionLabel}>
+                        {currentLanguage === 'hi'
+                          ? 'तिथि / नक्षत्र: '
+                          : 'Tithi / Astro: '}
+                        <Text style={styles.modalSectionValue}>
+                          {tithiText}
+                        </Text>
                       </Text>
-                    </Text>
-                  )}
+                    </View>
+                  ) : null}
 
-                  {festival.deity && festival.deity.length > 0 && (
-                    <Text style={styles.modalSectionLabel}>
-                      🙏{' '}
-                      {currentLanguage === 'hi'
-                        ? 'पूज्य देवता:'
-                        : 'Deities Worshipped:'}{' '}
-                      <Text style={styles.modalSectionValue}>
-                        {festival.deity.join(', ')}
+                  {deityText ? (
+                    <View style={styles.sectionRow}>
+                      <FoldedHands width={scale(14)} height={scale(14)} />
+                      <Text style={styles.modalSectionLabel}>
+                        {currentLanguage === 'hi'
+                          ? 'पूज्य देवता: '
+                          : 'Deities Worshipped: '}
+                        <Text style={styles.modalSectionValue}>
+                          {deityText}
+                        </Text>
                       </Text>
-                    </Text>
-                  )}
+                    </View>
+                  ) : null}
 
-                  {festival.regions && festival.regions.length > 0 && (
-                    <Text style={styles.modalSectionLabel}>
-                      📍{' '}
-                      {currentLanguage === 'hi'
-                        ? 'प्रमुख क्षेत्र:'
-                        : 'Regions:'}{' '}
-                      <Text style={styles.modalSectionValue}>
-                        {festival.regions.join(', ')}
+                  {regionsText ? (
+                    <View style={styles.sectionRow}>
+                      <Location
+                        width={scale(14)}
+                        height={scale(14)}
+                        fill={colors.ring}
+                      />
+                      <Text style={styles.modalSectionLabel}>
+                        {currentLanguage === 'hi'
+                          ? 'प्रमुख क्षेत्र: '
+                          : 'Regions: '}
+                        <Text style={styles.modalSectionValue}>
+                          {regionsText}
+                        </Text>
                       </Text>
-                    </Text>
-                  )}
+                    </View>
+                  ) : null}
 
                   <Text
-                    style={[
-                      styles.modalSectionLabel,
-                      { marginTop: scale(12) },
-                    ]}
+                    style={[styles.modalSectionLabel, { marginTop: scale(8) }]}
                   >
                     {currentLanguage === 'hi' ? 'विवरण:' : 'Description:'}
                   </Text>
                   <Text style={styles.modalFestivalDesc}>
-                    {festival.description}
+                    {descriptionText}
                   </Text>
                 </ScrollView>
 
@@ -206,11 +248,17 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     marginBottom: scale(20),
   },
+  sectionRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: scale(8),
+    marginBottom: scale(10),
+  },
   modalSectionLabel: {
     fontSize: fs(12),
     fontFamily: fonts.PoppinsSemiBold,
     color: colors.secondary,
-    marginBottom: scale(4),
+    flex: 1,
   },
   modalSectionValue: {
     fontFamily: fonts.PoppinsRegular,

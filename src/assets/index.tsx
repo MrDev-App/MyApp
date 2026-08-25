@@ -1,6 +1,10 @@
 import Back from './svg/Back.svg';
 import Forward from './svg/Forward.svg';
 import Bell from './svg/bell.svg';
+import Pin from './svg/Pin.svg';
+import FoldedHands from './svg/foldedhands.svg';
+import Location from './svg/location.svg';
+import Tag from './svg/tag.svg';
 
 const imagePath = {
   Back,
@@ -123,5 +127,5 @@ const imagePath = {
   calendar: require('./png/calendar.webp'),
 };
 
-export { Back, Forward, Bell };
+export { Back, Forward, Bell, Pin, FoldedHands, Location, Tag };
 export default imagePath;
