@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
 import { fs, scale } from '../../../utile/sizes';
@@ -21,10 +22,12 @@ import {
   TemplesScreen,
 } from '../categories';
 import AnimatedButton from '../../../components/AnimatedButton';
+import imagePath from '../../../assets';
 
 const FeaturedCategories = () => {
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language || 'en';
+  const navigation = useNavigation<any>();
 
   // Main Category Modal
   const cardRef = useRef<ExpandableCardHandle>(null);
@@ -47,14 +50,28 @@ const FeaturedCategories = () => {
             <AnimatedButton
               key={category.id}
               style={styles.card}
-              onPress={() => trigger(category.id, category)}
+              onPress={() => {
+                if (category.id === 'stories') {
+                  navigation.navigate('Book');
+                } else if (category.id === 'temples') {
+                  navigation.navigate('TempleScreen', {
+                    items: category.items,
+                  });
+                } else {
+                  trigger(category.id, category);
+                }
+              }}
             >
               <View
                 ref={registerRef(category.id)}
                 collapsable={false}
                 style={styles.iconContainer}
               >
-                <Text style={styles.iconText}>{category.icon}</Text>
+                <Image
+                  source={category.icon}
+                  style={{ height: scale(60), width: scale(60) }}
+                  resizeMode="contain"
+                />
               </View>
               <Text style={styles.cardTitle}>{categoryTitle}</Text>
             </AnimatedButton>

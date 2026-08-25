@@ -3,22 +3,25 @@ import {
   StyleSheet,
   Text,
   View,
-  SectionList,
   TouchableOpacity,
   Dimensions,
+  ImageBackground,
+  ScrollView,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import colors from '../../utile/colors';
 import fonts from '../../utile/fonts';
 import { fs, scale } from '../../utile/sizes';
-import { Translation } from '../../i18n/language';
-import { RootStackParamList } from '../../navigation/type';
 import GradientBackground from '../../components/GradientBackground';
 import { festivalData, Festival } from '../../constants/festivalData';
-import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
+import { Calendar } from 'react-native-calendars';
+import { Back, Forward } from '../../assets';
+import AnimatedButton from '../../components/AnimatedButton';
+import imagePath from '../../assets';
+import FestivalModal from '../../components/FestivalModal';
 
 const { width } = Dimensions.get('window');
 
@@ -39,7 +42,7 @@ const getMonthName = (monthNum: number, currentLanguage: string) => {
   ];
   const monthsHi = [
     'जनवरी',
-    'फ़रवरी',
+    'फरवरी',
     'मार्च',
     'अप्रैल',
     'मई',
@@ -56,44 +59,9 @@ const getMonthName = (monthNum: number, currentLanguage: string) => {
     : monthsEn[monthNum - 1];
 };
 
-const getMonthAbbrev = (monthNum: number, currentLanguage: string) => {
-  const abbrevEn = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  const abbrevHi = [
-    'जन',
-    'फ़र',
-    'मार्च',
-    'अप्रै',
-    'मई',
-    'जून',
-    'जुला',
-    'अग',
-    'सित',
-    'अक्तू',
-    'नव',
-    'दिस',
-  ];
-  return currentLanguage === 'hi'
-    ? abbrevHi[monthNum - 1]
-    : abbrevEn[monthNum - 1];
-};
-
 const AllFestivalsScreen = () => {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { t, i18n } = useTranslation();
+  const navigation = useNavigation<any>();
+  const { i18n } = useTranslation();
   const currentLanguage = i18n.language || 'en';
 
   const getTodayString = () => {
@@ -108,7 +76,9 @@ const AllFestivalsScreen = () => {
   const [currentMonthDate, setCurrentMonthDate] = React.useState(
     getTodayString(),
   );
-  const today = new Date();
+  const [detailFestival, setDetailFestival] = React.useState<Festival | null>(
+    null,
+  );
 
   const formatDate = (d: Date) => {
     const year = d.getFullYear();
@@ -135,201 +105,183 @@ const AllFestivalsScreen = () => {
     return getMonthName(monthNum, currentLanguage) + '  ' + d.getFullYear();
   }, [currentMonthDate, currentLanguage]);
 
-  const calculateDaysRemaining = (month: number, day: number) => {
-    const currentYear = today.getFullYear();
-    let festivalDate = new Date(currentYear, month - 1, day);
+  const currentMonthNum = React.useMemo(() => {
+    return new Date(currentMonthDate).getMonth() + 1;
+  }, [currentMonthDate]);
 
-    // If the festival has passed this year, roll it over to next year
-    if (festivalDate.getTime() < today.getTime()) {
-      festivalDate = new Date(currentYear + 1, month - 1, day);
-    }
+  const selectedDateObj = React.useMemo(() => {
+    return new Date(selectedDate);
+  }, [selectedDate]);
 
-    const diffTime = festivalDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+  const selectedDay = selectedDateObj.getDate();
+  const selectedMonth = selectedDateObj.getMonth() + 1;
+
+  // Filter other festivals for the active month (excluding selected day's festivals)
+  const otherMonthFestivals = React.useMemo(() => {
+    return festivalData.filter(f => f.month === currentMonthNum);
+  }, [currentMonthNum, selectedMonth]);
+
+  const renderFestivalCard = (item: Festival) => {
+    const name = currentLanguage === 'hi' ? item.hindiName : item.englishName;
+    const dateStr = currentLanguage === 'hi' ? item.dateStrHi : item.dateStrEn;
+    const tithi = item.tithi;
+
+    return (
+      <TouchableOpacity
+        key={item.id}
+        style={styles.festivalCardContainer}
+        activeOpacity={0.9}
+        onPress={() => setDetailFestival(item)}
+      >
+        <ImageBackground
+          source={item.image || imagePath.greeting}
+          style={styles.cardBgImage}
+          imageStyle={styles.cardBgImageStyle}
+        >
+          <View style={styles.cardTintOverlay}>
+            {/* Top Row: Date capsule & Info marker */}
+            <View style={styles.cardTopRow}>
+              <View style={styles.dateCapsule}>
+                <Text style={styles.dateCapsuleText}>{dateStr}</Text>
+              </View>
+            </View>
+
+            {/* Bottom Row: Festival Name & Sub-details */}
+            <View style={styles.cardBottomRow}>
+              <Text style={styles.cardFestivalName} numberOfLines={1}>
+                {name}
+              </Text>
+              {tithi && (
+                <View style={styles.tithiRow}>
+                  <Image source={imagePath.sakura} style={styles.sakuraIcon} />
+                  <Text style={styles.cardFestivalTithi} numberOfLines={1}>
+                    {tithi}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        </ImageBackground>
+      </TouchableOpacity>
+    );
   };
-
-  const sections = React.useMemo(() => {
-    // Group festivals by month
-    const groups: { [key: number]: Festival[] } = {};
-    festivalData.forEach(item => {
-      if (!groups[item.month]) {
-        groups[item.month] = [];
-      }
-      groups[item.month].push(item);
-    });
-
-    // Sort items inside each month chronologically by day
-    Object.keys(groups).forEach(m => {
-      groups[Number(m)].sort((a, b) => a.day - b.day);
-    });
-
-    // Convert into SectionList section structure
-    return Object.keys(groups)
-      .map(m => {
-        const monthNum = Number(m);
-        return {
-          title: getMonthName(monthNum, currentLanguage),
-          month: monthNum,
-          data: groups[monthNum],
-        };
-      })
-      .sort((a, b) => a.month - b.month);
-  }, [currentLanguage]);
 
   return (
     <GradientBackground>
       <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-        {/* Premium Header: Back button on far-left, Month navigation in center */}
+        {/* Premium Header: Back button on far-left */}
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
             activeOpacity={0.7}
           >
-            <Text style={styles.backArrow}>←</Text>
+            <Back width={scale(12)} height={scale(12)} stroke={colors.white} />
           </TouchableOpacity>
-
-          <View style={styles.calendarNavContainer}>
-            <TouchableOpacity
-              onPress={handlePrevMonth}
-              activeOpacity={0.7}
-              style={styles.navArrowButton}
-            >
-              <Text style={styles.calendarArrow}>‹</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.headerTitle}>{currentMonthName}</Text>
-
-            <TouchableOpacity
-              onPress={handleNextMonth}
-              activeOpacity={0.7}
-              style={styles.navArrowButton}
-            >
-              <Text style={styles.calendarArrow}>›</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.headerPlaceholder} />
         </View>
 
-        <Calendar
-          current={currentMonthDate}
-          onDayPress={day => {
-            console.log('selected day', day);
-            setSelectedDate(day.dateString);
-            setCurrentMonthDate(day.dateString);
-          }}
-          hideArrows={true}
-          renderHeader={() => null}
-          markedDates={{
-            [selectedDate]: {
-              selected: true,
-              selectedColor: colors.ring,
-              selectedTextColor: colors.white,
-            },
-          }}
-          theme={{
-            calendarBackground: 'transparent',
-            textDisabledColor: colors.neutralDisabled,
-            textSectionTitleColor: colors.ring,
-            textDayFontSize: fs(14),
-            textMonthFontSize: fs(20),
-            textDayHeaderFontSize: fs(12),
-            monthTextColor: colors.secondary,
-            todayTextColor: colors.ring,
-            dayTextColor: colors.secondary,
-            selectedDayBackgroundColor: colors.ring,
-            selectedDayTextColor: colors.white,
-            textDayFontFamily: 'CormorantGaramond_700Bold',
-            textMonthFontFamily: 'CormorantGaramond_700Bold',
-            textDayHeaderFontFamily: 'CormorantGaramond_700Bold',
-          }}
+        {/* Month Navigation Row */}
+        <View style={styles.calendarNavContainer}>
+          <AnimatedButton
+            onPress={handlePrevMonth}
+            style={styles.navArrowButton}
+          >
+            <Back width={scale(12)} height={scale(12)} stroke={colors.white} />
+          </AnimatedButton>
+
+          <Text style={styles.headerTitle}>{currentMonthName}</Text>
+
+          <AnimatedButton
+            onPress={handleNextMonth}
+            style={styles.navArrowButton}
+          >
+            <Forward
+              width={scale(12)}
+              height={scale(12)}
+              stroke={colors.white}
+            />
+          </AnimatedButton>
+        </View>
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Calendar Calendar view */}
+          <Calendar
+            key={currentMonthDate.substring(0, 7)}
+            current={currentMonthDate}
+            onDayPress={day => {
+              setSelectedDate(day.dateString);
+              setCurrentMonthDate(day.dateString);
+            }}
+            hideArrows={true}
+            renderHeader={() => null}
+            markedDates={{
+              [selectedDate]: {
+                selected: true,
+                selectedColor: colors.ring,
+                selectedTextColor: colors.white,
+              },
+            }}
+            theme={{
+              calendarBackground: 'transparent',
+              textDisabledColor: colors.neutralDisabled,
+              textSectionTitleColor: colors.ring,
+              textDayFontSize: fs(18),
+              textMonthFontSize: fs(20),
+              textDayHeaderFontSize: fs(12),
+              monthTextColor: colors.secondary,
+              todayTextColor: colors.ring,
+              dayTextColor: colors.secondary,
+              selectedDayBackgroundColor: colors.ring,
+              selectedDayTextColor: colors.white,
+              textDayFontFamily: 'CormorantGaramond_700Bold',
+              textMonthFontFamily: 'CormorantGaramond_700Bold',
+              textDayHeaderFontFamily: 'CormorantGaramond_700Bold',
+            }}
+          />
+
+          {/* Selected Day's Festival Section */}
+          {/* {selectedDayFestivals.length > 0 && (
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionTitle}>
+                {currentLanguage === 'hi'
+                  ? 'चयनित दिन का त्योहार'
+                  : "Selected Day's Festival"}
+              </Text>
+              {selectedDayFestivals.map(renderFestivalCard)}
+            </View>
+          )} */}
+
+          {/* Month's Other Festivals Section */}
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>
+              {currentLanguage === 'hi'
+                ? `${currentMonthName.split(' ')[0]} के त्योहार`
+                : `Festivals in ${currentMonthName.split(' ')[0]}`}
+            </Text>
+            {otherMonthFestivals.length === 0 ? (
+              <Text style={styles.noDataText}>
+                {currentLanguage === 'hi'
+                  ? 'इस महीने कोई त्योहार नहीं है'
+                  : 'No festivals this month'}
+              </Text>
+            ) : (
+              otherMonthFestivals.map(renderFestivalCard)
+            )}
+          </View>
+        </ScrollView>
+
+        <FestivalModal
+          visible={detailFestival !== null}
+          festival={detailFestival}
+          onClose={() => setDetailFestival(null)}
         />
       </SafeAreaView>
     </GradientBackground>
   );
-  // return (
-  //   <GradientBackground>
-  //     <SafeAreaView style={styles.container}>
-  //       {/* Premium Header */}
-  //       {/* <View style={styles.header}>
-  //         <TouchableOpacity
-  //           style={styles.backButton}
-  //           onPress={() => navigation.goBack()}
-  //           activeOpacity={0.7}
-  //         >
-  //           <Text style={styles.backArrow}>←</Text>
-  //         </TouchableOpacity>
-  //         <Text style={styles.headerTitle}>{t(Translation.ALL_FESTIVALS)}</Text>
-  //         <View style={styles.headerPlaceholder} />
-  //       </View> */}
-
-  //       {/* Section List for Grouped Festivals */}
-  //       <SectionList
-  //         sections={sections}
-  //         keyExtractor={item => item.id}
-  //         showsVerticalScrollIndicator={false}
-  //         contentContainerStyle={styles.listContent}
-  //         renderSectionHeader={({ section: { title } }) => (
-  //           <View style={styles.sectionHeaderContainer}>
-  //             <Text style={styles.sectionHeaderText}>{title}</Text>
-  //           </View>
-  //         )}
-  //         renderItem={({ item }) => {
-  //           const daysLeft = calculateDaysRemaining(item.month, item.day);
-  //           const name =
-  //             currentLanguage === 'hi' ? item.hindiName : item.englishName;
-  //           const monthAbbrev = getMonthAbbrev(item.month, currentLanguage);
-  //           const countdownText = t(Translation.DAYS_COUNT_LABEL, {
-  //             count: daysLeft,
-  //           });
-
-  //           return (
-  //             <View style={styles.card}>
-  //               {/* Left side: Date Badge */}
-  //               <View style={styles.dateBadge}>
-  //                 <Text style={styles.dateDay}>{item.day}</Text>
-  //                 <Text style={styles.dateMonth}>{monthAbbrev}</Text>
-  //               </View>
-
-  //               {/* Middle details */}
-  //               <View style={styles.detailsContainer}>
-  //                 <Text
-  //                   style={styles.festivalName}
-  //                   numberOfLines={1}
-  //                   ellipsizeMode="tail"
-  //                 >
-  //                   {name}
-  //                 </Text>
-  //                 <Text style={styles.festivalCategory}>{item.category}</Text>
-  //                 {item.tithi && (
-  //                   <Text style={styles.festivalTithi} numberOfLines={1}>
-  //                     {item.tithi}
-  //                   </Text>
-  //                 )}
-  //               </View>
-  //             </View>
-  //           );
-  //         }}
-  //       />
-  //     </SafeAreaView>
-  //   </GradientBackground>
-  // );
 };
-
-//   selectedDayBackgroundColor: '#b6a897',
-//   selectedDayTextColor: '#0000',
-//   todayTextColor: '#b6a897',
-//   // dayTextColor: '#ffffff',
-//   textDisabledColor: '#444444',
-//   dotColor: '#b6a897',
-//   // selectedDotColor: '#ffffff',
-//   // arrowColor: '#b6a897',
-//   // monthTextColor: '#b6a897',
-//   textDayFontFamily: 'CormorantGaramond_700Bold',
-//   textMonthFontFamily: 'CormorantGaramond_700Bold',
-//   textDayHeaderFontFamily: 'CormorantGaramond_700Bold',
 
 const styles = StyleSheet.create({
   container: {
@@ -341,21 +293,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: scale(16),
     height: scale(56),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderVerySubtle,
   },
   backButton: {
-    width: scale(36),
-    height: scale(36),
-    borderRadius: scale(18),
+    width: scale(30),
+    height: scale(30),
+    borderRadius: scale(32),
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.ring,
-  },
-  backArrow: {
-    fontSize: fs(20),
-    color: colors.white,
-    fontFamily: fonts.PoppinsMedium,
   },
   headerTitle: {
     fontSize: fs(18),
@@ -363,107 +308,118 @@ const styles = StyleSheet.create({
     color: colors.secondary,
     textAlign: 'center',
   },
-  headerPlaceholder: {
-    width: scale(36),
-  },
-  listContent: {
-    paddingHorizontal: scale(16),
-    paddingBottom: scale(24),
-  },
-  sectionHeaderContainer: {
-    marginTop: scale(20),
-    marginBottom: scale(8),
-    paddingVertical: scale(4),
-    paddingHorizontal: scale(4),
-  },
-  sectionHeaderText: {
-    fontSize: fs(15),
-    fontFamily: fonts.PoppinsSemiBold,
-    color: colors.ring,
-    letterSpacing: 0.5,
-  },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.white,
-    borderRadius: scale(12),
-    padding: scale(12),
-    marginBottom: scale(10),
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    shadowColor: colors.ring,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.02,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  dateBadge: {
-    width: scale(46),
-    height: scale(46),
-    borderRadius: scale(8),
-    backgroundColor: colors.borderVerySubtle,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: scale(12),
-  },
-  dateDay: {
-    fontSize: fs(16),
-    fontFamily: fonts.PoppinsBold,
-    color: colors.ring,
-    lineHeight: scale(18),
-  },
-  dateMonth: {
-    fontSize: fs(9),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.mutedForeground,
-    textTransform: 'uppercase',
-  },
-  detailsContainer: {
-    flex: 1,
-    marginRight: scale(8),
-  },
-  festivalName: {
-    fontSize: fs(13),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.black,
-    marginBottom: scale(1),
-  },
-  festivalCategory: {
-    fontSize: fs(10),
-    fontFamily: fonts.PoppinsRegular,
-    color: colors.accent,
-    marginBottom: scale(1),
-  },
-  festivalTithi: {
-    fontSize: fs(9),
-    fontFamily: fonts.PoppinsRegular,
-    color: colors.mutedForeground,
-  },
-  countdownContainer: {
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  countdownDays: {
-    fontSize: fs(11),
-    fontFamily: fonts.PoppinsSemiBold,
-    color: colors.ring,
-  },
-  calendarArrow: {
-    fontSize: fs(28),
-    color: colors.ring,
-    fontFamily: fonts.PoppinsSemiBold,
-  },
   calendarNavContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    gap: scale(10),
+    marginBottom: scale(8),
   },
   navArrowButton: {
-    paddingHorizontal: scale(14),
-    paddingVertical: scale(4),
+    borderRadius: scale(32),
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: colors.ring,
+    padding: scale(4),
+  },
+  scrollContent: {
+    paddingBottom: scale(32),
+  },
+  sectionContainer: {
+    paddingHorizontal: scale(16),
+    marginTop: scale(16),
+  },
+  sectionTitle: {
+    fontSize: fs(16),
+    fontFamily: fonts.PoppinsSemiBold,
+    color: colors.secondary,
+    marginBottom: scale(12),
+  },
+  festivalCardContainer: {
+    height: scale(120),
+    borderRadius: scale(16),
+    overflow: 'hidden',
+    marginBottom: scale(12),
+    shadowColor: '#39261b',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  cardBgImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  cardBgImageStyle: {
+    borderRadius: scale(16),
+  },
+  cardTintOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    padding: scale(12),
+    justifyContent: 'space-between',
+  },
+  cardTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  dateCapsule: {
+    backgroundColor: colors.ring,
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(4),
+    borderRadius: scale(12),
+    borderWidth: 1,
+    borderColor: colors.ring,
+  },
+  dateCapsuleText: {
+    color: colors.white,
+    fontSize: fs(10),
+    fontFamily: fonts.PoppinsMedium,
+  },
+  infoIconCircle: {
+    width: scale(22),
+    height: scale(22),
+    borderRadius: scale(11),
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  infoIconText: {
+    color: colors.white,
+    fontSize: fs(11),
+    fontFamily: fonts.PoppinsBold,
+  },
+  cardBottomRow: {
+    gap: scale(2),
+  },
+  cardFestivalName: {
+    color: colors.white,
+    fontSize: fs(16),
+    fontFamily: fonts.PoppinsBold,
+  },
+  cardFestivalTithi: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: fs(11),
+    fontFamily: fonts.PoppinsRegular,
+  },
+  noDataText: {
+    fontSize: fs(14),
+    fontFamily: fonts.PoppinsRegular,
+    color: colors.neutralDisabled,
+    textAlign: 'center',
+    marginTop: scale(20),
+  },
+  tithiRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(6),
+  },
+  sakuraIcon: {
+    width: scale(14),
+    height: scale(14),
+    resizeMode: 'contain',
   },
 });
 

@@ -67,21 +67,29 @@ const ReadingFooter = ({
       ]}
     >
       {/* Back / Prev button */}
-      <TouchableOpacity
-        style={[styles.navButton, isFirst && styles.navButtonDisabled]}
-        onPress={() => {
-          triggerHaptic();
-          onPrev();
-        }}
-        disabled={isFirst}
-        activeOpacity={0.7}
-      >
-        <Back
-          width={scale(14)}
-          height={scale(14)}
-          stroke={isFirst ? (isDarkMode ? '#555' : colors.neutralDisabled) : colors.ring}
-        />
-      </TouchableOpacity>
+      {!isFirst && (
+        <TouchableOpacity
+          style={[styles.navButton, isFirst && styles.navButtonDisabled]}
+          onPress={() => {
+            triggerHaptic();
+            onPrev();
+          }}
+          disabled={isFirst}
+          activeOpacity={0.7}
+        >
+          <Back
+            width={scale(14)}
+            height={scale(14)}
+            stroke={
+              isFirst
+                ? isDarkMode
+                  ? '#555'
+                  : colors.neutralDisabled
+                : colors.ring
+            }
+          />
+        </TouchableOpacity>
+      )}
 
       {/* Page number pill */}
       <View
@@ -89,7 +97,9 @@ const ReadingFooter = ({
           styles.pageNumberPill,
           {
             borderColor: isDarkMode ? '#333' : colors.borderMedium,
-            backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'transparent',
+            backgroundColor: isDarkMode
+              ? 'rgba(255,255,255,0.05)'
+              : 'transparent',
           },
         ]}
       >
@@ -104,21 +114,29 @@ const ReadingFooter = ({
       </View>
 
       {/* Forward / Next button */}
-      <TouchableOpacity
-        style={[styles.navButton, isLast && styles.navButtonDisabled]}
-        onPress={() => {
-          triggerHaptic();
-          onNext();
-        }}
-        disabled={isLast}
-        activeOpacity={0.7}
-      >
-        <Forward
-          width={scale(14)}
-          height={scale(14)}
-          stroke={isLast ? (isDarkMode ? '#555' : colors.neutralDisabled) : colors.ring}
-        />
-      </TouchableOpacity>
+      {!isLast && (
+        <TouchableOpacity
+          style={[styles.navButton, isLast && styles.navButtonDisabled]}
+          onPress={() => {
+            triggerHaptic();
+            onNext();
+          }}
+          disabled={isLast}
+          activeOpacity={0.7}
+        >
+          <Forward
+            width={scale(14)}
+            height={scale(14)}
+            stroke={
+              isLast
+                ? isDarkMode
+                  ? '#555'
+                  : colors.neutralDisabled
+                : colors.ring
+            }
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -140,7 +158,7 @@ const styles = StyleSheet.create({
     width: scale(32),
     height: scale(32),
     borderRadius: scale(19),
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: colors.ring,
     backgroundColor: colors.ring,
     alignItems: 'center',
@@ -153,7 +171,7 @@ const styles = StyleSheet.create({
   },
   navButtonDisabled: {
     borderColor: colors.neutralDisabled,
-    backgroundColor: 'transparent',
+    // backgroundColor: 'transparent',
     shadowOpacity: 0,
     elevation: 0,
   },

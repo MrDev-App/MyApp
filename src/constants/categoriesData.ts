@@ -11,14 +11,15 @@ export interface CategoryItem {
   image: any;
   headerTitleEn?: string;
   headerTitleHi?: string;
+  isJyotirlinga?: boolean;
 }
 
 export interface Category {
   id: string;
   titleEn: string;
   titleHi: string;
-  icon: string;
-  coverImage: any;
+  icon: any;
+  coverImage?: any;
   descriptionEn: string;
   descriptionHi: string;
   items: CategoryItem[];
@@ -29,7 +30,7 @@ export const categoriesData: Category[] = [
     id: 'aarti',
     titleEn: 'Aarti',
     titleHi: 'आरती',
-    icon: '🪔',
+    icon: imagePath.book,
     coverImage: imagePath.Ganesha,
     descriptionEn:
       'Devotional prayers sung in praise of deities to invoke their blessings.',
@@ -211,7 +212,7 @@ export const categoriesData: Category[] = [
     id: 'shlok',
     titleEn: 'Shlok',
     titleHi: 'श्लोक',
-    icon: '📜',
+    icon: imagePath.books,
     coverImage: imagePath.Krishna,
     descriptionEn:
       'Sacred Sanskrit verses holding spiritual wisdom and divine vibrations.',
@@ -260,7 +261,7 @@ export const categoriesData: Category[] = [
     id: 'stories',
     titleEn: 'Mythology Stories',
     titleHi: 'पौराणिक कथाएं',
-    icon: '📖',
+    icon: imagePath.books,
     coverImage: imagePath.Rama,
     descriptionEn:
       'Timeless tales of devotion, righteousness, and divine miracles from Indian scriptures.',
@@ -291,19 +292,103 @@ export const categoriesData: Category[] = [
           'दैत्यराज हिरण्यकश्यप का पुत्र प्रह्लाद भगवान विष्णु का अनन्य भक्त था। अपने ही पुत्र की विष्णु भक्ति से क्रोधित होकर हिरण्यकश्यप ने प्रह्लाद को अनेक यातनाएं दीं, किंतु प्रभु कृपा से प्रह्लाद का बाल भी बांका न हुआ।\n\nजब अभिमानी हिरण्यकश्यप ने पूछा कि "तेरा भगवान कहाँ है?" और खंभे पर प्रहार किया, तो भगवान विष्णु ने संध्या के समय खंभे से "नृसिंह अवतार" (आधा सिंह, आधा मनुष्य) धारण कर प्रकट होकर हिरण्यकश्यप का वध किया और प्रह्लाद की रक्षा की।\n\nयह कथा सिखाती है कि सच्ची भक्ति और विश्वास के आगे अहंकार कभी टिक नहीं सकता।',
         image: imagePath.Vishnu,
       },
+      {
+        id: 'bhakt_prahlad',
+        nameEn: 'Story of Bhakt Prahlad',
+        nameHi: 'भक्त प्रह्लाद की कथा',
+        subtitleEn: 'Unwavering Devotion & Narasimha Avatar',
+        subtitleHi: 'अडिग भक्ति और नरसिंह अवतार',
+        textEn:
+          'Prahlad, the young prince born to the demon king Hiranyakashipu, was an ardent devotee of Lord Vishnu. Enraged by his son’s devotion, Hiranyakashipu subjected Prahlad to numerous torments, yet every attempt to harm him failed through divine grace.\n\nWhen Hiranyakashipu challenged Prahlad to show where his Lord resided and struck a pillar in anger, Lord Vishnu emerged in the fierce half-man, half-lion form of Narasimha Avatar at twilight, destroying the demon and protecting His beloved devotee.\n\nThis sacred tale stands as eternal testimony that pure faith and devotion conquer all arrogance and darkness.',
+        textHi:
+          'दैत्यराज हिरण्यकश्यप का पुत्र प्रह्लाद भगवान विष्णु का अनन्य भक्त था। अपने ही पुत्र की विष्णु भक्ति से क्रोधित होकर हिरण्यकश्यप ने प्रह्लाद को अनेक यातनाएं दीं, किंतु प्रभु कृपा से प्रह्लाद का बाल भी बांका न हुआ।\n\nजब अभिमानी हिरण्यकश्यप ने पूछा कि "तेरा भगवान कहाँ है?" और खंभे पर प्रहार किया, तो भगवान विष्णु ने संध्या के समय खंभे से "नृसिंह अवतार" (आधा सिंह, आधा मनुष्य) धारण कर प्रकट होकर हिरण्यकश्यप का वध किया और प्रह्लाद की रक्षा की।\n\nयह कथा सिखाती है कि सच्ची भक्ति और विश्वास के आगे अहंकार कभी टिक नहीं सकता।',
+        image: imagePath.Vishnu,
+      },
+      {
+        id: 'bhakt_prahlad',
+        nameEn: 'Story of Bhakt Prahlad',
+        nameHi: 'भक्त प्रह्लाद की कथा',
+        subtitleEn: 'Unwavering Devotion & Narasimha Avatar',
+        subtitleHi: 'अडिग भक्ति और नरसिंह अवतार',
+        textEn:
+          'Prahlad, the young prince born to the demon king Hiranyakashipu, was an ardent devotee of Lord Vishnu. Enraged by his son’s devotion, Hiranyakashipu subjected Prahlad to numerous torments, yet every attempt to harm him failed through divine grace.\n\nWhen Hiranyakashipu challenged Prahlad to show where his Lord resided and struck a pillar in anger, Lord Vishnu emerged in the fierce half-man, half-lion form of Narasimha Avatar at twilight, destroying the demon and protecting His beloved devotee.\n\nThis sacred tale stands as eternal testimony that pure faith and devotion conquer all arrogance and darkness.',
+        textHi:
+          'दैत्यराज हिरण्यकश्यप का पुत्र प्रह्लाद भगवान विष्णु का अनन्य भक्त था। अपने ही पुत्र की विष्णु भक्ति से क्रोधित होकर हिरण्यकश्यप ने प्रह्लाद को अनेक यातनाएं दीं, किंतु प्रभु कृपा से प्रह्लाद का बाल भी बांका न हुआ।\n\nजब अभिमानी हिरण्यकश्यप ने पूछा कि "तेरा भगवान कहाँ है?" और खंभे पर प्रहार किया, तो भगवान विष्णु ने संध्या के समय खंभे से "नृसिंह अवतार" (आधा सिंह, आधा मनुष्य) धारण कर प्रकट होकर हिरण्यकश्यप का वध किया और प्रह्लाद की रक्षा की।\n\nयह कथा सिखाती है कि सच्ची भक्ति और विश्वास के आगे अहंकार कभी टिक नहीं सकता।',
+        image: imagePath.Vishnu,
+      },
+      {
+        id: 'bhakt_prahlad',
+        nameEn: 'Story of Bhakt Prahlad',
+        nameHi: 'भक्त प्रह्लाद की कथा',
+        subtitleEn: 'Unwavering Devotion & Narasimha Avatar',
+        subtitleHi: 'अडिग भक्ति और नरसिंह अवतार',
+        textEn:
+          'Prahlad, the young prince born to the demon king Hiranyakashipu, was an ardent devotee of Lord Vishnu. Enraged by his son’s devotion, Hiranyakashipu subjected Prahlad to numerous torments, yet every attempt to harm him failed through divine grace.\n\nWhen Hiranyakashipu challenged Prahlad to show where his Lord resided and struck a pillar in anger, Lord Vishnu emerged in the fierce half-man, half-lion form of Narasimha Avatar at twilight, destroying the demon and protecting His beloved devotee.\n\nThis sacred tale stands as eternal testimony that pure faith and devotion conquer all arrogance and darkness.',
+        textHi:
+          'दैत्यराज हिरण्यकश्यप का पुत्र प्रह्लाद भगवान विष्णु का अनन्य भक्त था। अपने ही पुत्र की विष्णु भक्ति से क्रोधित होकर हिरण्यकश्यप ने प्रह्लाद को अनेक यातनाएं दीं, किंतु प्रभु कृपा से प्रह्लाद का बाल भी बांका न हुआ।\n\nजब अभिमानी हिरण्यकश्यप ने पूछा कि "तेरा भगवान कहाँ है?" और खंभे पर प्रहार किया, तो भगवान विष्णु ने संध्या के समय खंभे से "नृसिंह अवतार" (आधा सिंह, आधा मनुष्य) धारण कर प्रकट होकर हिरण्यकश्यप का वध किया और प्रह्लाद की रक्षा की।\n\nयह कथा सिखाती है कि सच्ची भक्ति और विश्वास के आगे अहंकार कभी टिक नहीं सकता।',
+        image: imagePath.Vishnu,
+      },
     ],
   },
   {
     id: 'temples',
     titleEn: 'Famous Temples',
     titleHi: 'प्रसिद्ध मंदिर',
-    icon: '🏛️',
-    coverImage: imagePath.Rama,
+    icon: imagePath.books,
+    // coverImage: imagePath.Rama,
     descriptionEn:
       'Architectural marvels and sacred pilgrimage destinations of rich heritage.',
     descriptionHi:
       'भारतीय संस्कृति और आध्यात्मिक धरोहर के अद्वितीय वास्तुकला और पावन तीर्थ स्थल।',
     items: [
+      {
+        id: 'somnath',
+        nameEn: 'Somnath Temple',
+        nameHi: 'सोमनाथ मंदिर',
+        subtitleEn: 'Veraval, Gujarat',
+        subtitleHi: 'वेरावल, गुजरात',
+        textEn:
+          'Located in Gujarat, it is traditionally considered the first of the twelve Jyotirlinga shrines of Shiva. It has risen resiliently over history as a symbol of eternal faith.',
+        textHi:
+          'गुजरात के वेरावल में स्थित सोमनाथ मंदिर को 12 ज्योतिर्लिंगों में सर्वप्रथम माना जाता है। इतिहास के झंझावातों से उबरकर यह मंदिर आज भी सनातन आस्था का भव्य प्रतीक है।',
+        image: imagePath.Bholenath,
+      },
+      {
+        id: 'mallikarjuna',
+        nameEn: 'Mallikarjuna Temple',
+        nameHi: 'मल्लिकार्जुन ज्योतिर्लिंग',
+        subtitleEn: 'Srisailam, Andhra Pradesh',
+        subtitleHi: 'श्रीशैलम, आंध्र प्रदेश',
+        textEn:
+          'Perched on the Srisailam hills, it is a unique temple where both a Jyotirlinga (Shiva) and a Shakti Peetha (Parvati) coexist, bringing divine energy together.',
+        textHi:
+          'आंध्र प्रदेश के श्रीशैलम पर्वत पर स्थित मल्लिकार्जुन ज्योतिर्लिंग शिव और शक्ति (पार्वती) दोनों का पावन संगम स्थल है, जो अद्वितीय आध्यात्मिक ऊर्जा प्रदान करता है।',
+        image: imagePath.Bholenath,
+      },
+      {
+        id: 'mahakaleshwar',
+        nameEn: 'Mahakaleshwar Temple',
+        nameHi: 'महाकालेश्वर ज्योतिर्लिंग',
+        subtitleEn: 'Ujjain, Madhya Pradesh',
+        subtitleHi: 'उज्जैन, मध्य प्रदेश',
+        textEn:
+          'Famous for its unique "Bhasma Aarti" and south-facing deity (Dakshinamurti), it stands on the banks of Shipra river in the ancient city of Ujjain.',
+        textHi:
+          'उज्जैन में क्षिप्रा नदी के तट पर स्थित महाकालेश्वर ज्योतिर्लिंग अपने दक्षिणमुखी स्वरूप और भस्म आरती के लिए विश्वभर में प्रसिद्ध है।',
+        image: imagePath.Bholenath,
+      },
+      {
+        id: 'omkareshwar',
+        nameEn: 'Omkareshwar Temple',
+        nameHi: 'ओंकारेश्वर ज्योतिर्लिंग',
+        subtitleEn: 'Khandwa, Madhya Pradesh',
+        subtitleHi: 'खण्डवा, मध्य प्रदेश',
+        textEn:
+          'Situated on Mandhata island in the Narmada river, the shape of the island naturally resembles the sacred symbol "OM", offering deep peace.',
+        textHi:
+          'नर्मदा नदी के मध्य मान्धाता द्वीप पर स्थित ओंकारेश्वर मंदिर का प्राकृतिक स्वरूप पवित्र "ॐ" आकृति के समान दिखाई देता है।',
+        image: imagePath.Bholenath,
+      },
       {
         id: 'kedarnath',
         nameEn: 'Kedarnath Temple',
@@ -311,9 +396,21 @@ export const categoriesData: Category[] = [
         subtitleEn: 'Rudraprayag, Uttarakhand',
         subtitleHi: 'रुद्रप्रयाग, उत्तराखण्ड',
         textEn:
-          'Located in the Himalayas at an altitude of 3,583 meters near the Mandakini River, Kedarnath is one of the twelve Jyotirlingas of Lord Shiva and the most prominent among the Panch Kedar.\n\nLegend attributes its original construction to the Pandavas, and its revival to Adi Shankaracharya in the 8th century. Built of massive grey stone slabs, it stands resilient against severe mountain weather as a beacon of faith.',
+          'Located in the Himalayas near the Mandakini River, Kedarnath is one of the twelve Jyotirlingas of Lord Shiva and the most prominent among the Panch Kedar.',
         textHi:
-          'उत्तराखण्ड के रुद्रप्रयाग जिले में मंदाकिनी नदी के तट पर हिमालय की गोद में स्थित श्री केदारनाथ मंदिर भगवान शिव के बारह ज्योतिर्लिंगों में से एक प्रमुख धाम है।\n\nमान्यता है कि इसका निर्माण पांडवों ने कराया था और 8वीं शताब्दी में आदि शंकराचार्य जी ने इसका जीर्णोद्धार कराया। विशाल शिलाखंडों से निर्मित यह भव्य मंदिर युगों-युगों से श्रद्धालुओं की अटूट आस्था का केंद्र है।',
+          'उत्तराखण्ड के रुद्रप्रयाग जिले में मंदाकिनी नदी के तट पर हिमालय की गोद में स्थित श्री केदारनाथ मंदिर भगवान शिव के बारह ज्योतिर्लिंगों में से एक प्रमुख धाम है।',
+        image: imagePath.Bholenath,
+      },
+      {
+        id: 'bhimashankar',
+        nameEn: 'Bhimashankar Temple',
+        nameHi: 'भीमाशंकर ज्योतिर्लिंग',
+        subtitleEn: 'Pune, Maharashtra',
+        subtitleHi: 'पुणे, महाराष्ट्र',
+        textEn:
+          'Located in the Sahyadri hills near Pune, it is the source of Bhima river, set amidst lush green forests that are home to the giant squirrel.',
+        textHi:
+          'पुणे के निकट सह्याद्रि पहाड़ियों में स्थित भीमाशंकर ज्योतिर्लिंग भीमा नदी का उद्गम स्थल भी है और प्रकृति की सुंदर वादियों में बसा है।',
         image: imagePath.Bholenath,
       },
       {
@@ -323,10 +420,130 @@ export const categoriesData: Category[] = [
         subtitleEn: 'Varanasi, Uttar Pradesh',
         subtitleHi: 'वाराणसी, उत्तर प्रदेश',
         textEn:
-          'Situated on the western bank of the holy river Ganga in Varanasi, Kashi Vishwanath is one of the most revered Shiva temples in the world.\n\nKnown as the City of Light, Kashi is believed to grant liberation (Moksha) to those who visit with devotion. The temple has been a spiritual epicenter of Indian philosophy, music, and prayer for millennia.',
+          'Situated on the western bank of the holy river Ganga in Varanasi, Kashi Vishwanath is one of the most revered Shiva temples in the world.',
         textHi:
-          'पवित्र गंगा नदी के पावन तट पर स्थित वाराणसी का श्री काशी विश्वनाथ मंदिर विश्वभर के शिव भक्तों के लिए परम पावन तीर्थ है।\n\nकाशी को "मोक्षदायिनी नगरी" माना जाता है। यह मंदिर अनादि काल से भारतीय सनातन संस्कृति, धर्म, दर्शन और आध्यात्मिक साधना का प्रमुख केंद्र रहा है।',
+          'पवित्र गंगा नदी के पावन तट पर स्थित वाराणसी का श्री काशी विश्वनाथ मंदिर विश्वभर के शिव भक्तों के लिए परम पावन तीर्थ है।',
         image: imagePath.Bholenath,
+      },
+      {
+        id: 'trimbakeshwar',
+        nameEn: 'Trimbakeshwar Temple',
+        nameHi: 'त्र्यंबकेश्वर ज्योतिर्लिंग',
+        subtitleEn: 'Nashik, Maharashtra',
+        subtitleHi: 'नाशिक, महाराष्ट्र',
+        textEn:
+          'Located in Nashik, it houses a unique three-faced lingam representing Brahma, Vishnu, and Shiva, and is close to the Godavari river source.',
+        textHi:
+          'नाशिक में गोदावरी के उद्गम के पास स्थित इस मंदिर का ज्योतिर्लिंग अनूठा है, जिसमें ब्रह्मा, विष्णु और महेश के प्रतीक तीन मुख हैं।',
+        image: imagePath.Bholenath,
+      },
+      {
+        id: 'baidyanath',
+        nameEn: 'Baidyanath Dham',
+        nameHi: 'वैद्यनाथ धाम',
+        subtitleEn: 'Deoghar, Jharkhand',
+        subtitleHi: 'देवघर, झारखण्ड',
+        textEn:
+          'Known as Baba Dham in Deoghar, it is famous for the annual Shravani Mela where millions carry holy Ganga water from Sultanganj to worship.',
+        textHi:
+          'झारखण्ड के देवघर में स्थित बाबा धाम शिव भक्तों के लिए विशेष है, जहाँ सावन के महीने में कांवड़िए गंगाजल लाकर जलाभिषेक करते हैं।',
+        image: imagePath.Bholenath,
+      },
+      {
+        id: 'nageshwar',
+        nameEn: 'Nageshwar Jyotirlinga',
+        nameHi: 'नागेश्वर ज्योतिर्लिंग',
+        subtitleEn: 'Dwarka, Gujarat',
+        subtitleHi: 'द्वारका, गुजरात',
+        textEn:
+          'Located near Dwarka in Gujarat, it signifies the Lord of Serpents and is believed to protect devotees from all poisons and negative energy.',
+        textHi:
+          'गुजरात में द्वारका के निकट स्थित नागेश्वर ज्योतिर्लिंग भगवान शिव को "नागों का ईश्वर" दर्शाता है। यह भक्तों को नकारात्मक ऊर्जा से बचाता है।',
+        image: imagePath.Bholenath,
+      },
+      {
+        id: 'rameshwaram',
+        nameEn: 'Ramanathaswamy Temple',
+        nameHi: 'रामेश्वरम मंदिर',
+        subtitleEn: 'Rameswaram, Tamil Nadu',
+        subtitleHi: 'रामेश्वरम, तमिलनाडु',
+        textEn:
+          'Located in Tamil Nadu, this Jyotirlinga was established by Lord Rama. It features the longest temple corridor in the world.',
+        textHi:
+          'तमिलनाडु में स्थित इस पावन ज्योतिर्लिंग की स्थापना स्वयं भगवान श्रीराम ने की थी। इस मंदिर का गलियारा विश्व में सबसे लंबा है।',
+        image: imagePath.Bholenath,
+      },
+      {
+        id: 'grishneshwar',
+        nameEn: 'Grishneshwar Temple',
+        nameHi: 'घृष्णेश्वर ज्योतिर्लिंग',
+        subtitleEn: 'Aurangabad, Maharashtra',
+        subtitleHi: 'औरंगाबाद, महाराष्ट्र',
+        textEn:
+          'Located near the ancient Ellora caves, it is the last of the twelve Jyotirlingas, built with beautiful red rocks and carvings.',
+        textHi:
+          'महाराष्ट्र में एलोरा की गुफाओं के पास लाल पत्थरों से निर्मित घृष्णेश्वर ज्योतिर्लिंग 12 ज्योतिर्लिंगों में अंतिम माना जाता है।',
+        image: imagePath.Bholenath,
+      },
+      {
+        id: 'jageshwar',
+        nameEn: 'Jageshwar Dham',
+        nameHi: 'जागेश्वर धाम',
+        subtitleEn: 'Almora, Uttarakhand',
+        subtitleHi: 'अल्मोड़ा, उत्तराखण्ड',
+        textEn:
+          'A valley temple complex of 124 stone temples, it is considered a heritage site showcasing exquisite early medieval architecture.',
+        textHi:
+          'अल्मोड़ा की देवदार वादियों में स्थित 124 छोटे-बड़े पत्थरों के मंदिरों का समूह जागेश्वर धाम स्थापत्य कला का बेजोड़ खजाना है।',
+        image: imagePath.Bholenath,
+      },
+      {
+        id: 'neelkanth',
+        nameEn: 'Neelkanth Mahadev',
+        nameHi: 'नीलकंठ महादेव मंदिर',
+        subtitleEn: 'Rishikesh, Uttarakhand',
+        subtitleHi: 'ऋषिकेश, उत्तराखण्ड',
+        textEn:
+          'Situated at Rishikesh amidst dense forests, it marks the sacred spot where Lord Shiva consumed the poison from the Samudra Manthan.',
+        textHi:
+          'ऋषिकेश की घनी पहाड़ियों के बीच स्थित नीलकंठ महादेव मंदिर वह स्थान है जहाँ शिव ने समुद्र मंथन का विषपान कर सृष्टि की रक्षा की थी।',
+        image: imagePath.Bholenath,
+      },
+      {
+        id: 'badrinath',
+        nameEn: 'Badrinath Temple',
+        nameHi: 'बद्रीनाथ धाम',
+        subtitleEn: 'Chamoli, Uttarakhand',
+        subtitleHi: 'चमोली, उत्तराखण्ड',
+        textEn:
+          'Part of the Char Dham pilgrimage, it is dedicated to Lord Vishnu and is set in the lap of the Nar and Narayana mountain ranges.',
+        textHi:
+          'उत्तराखण्ड के चमोली में अलकनंदा तट पर स्थित बद्रीनाथ धाम भगवान विष्णु को समर्पित प्रमुख चार धाम तीर्थों में से एक है।',
+        image: imagePath.Vishnu,
+      },
+      {
+        id: 'vaishnodevi',
+        nameEn: 'Vaishno Devi Temple',
+        nameHi: 'वैष्णो देवी मंदिर',
+        subtitleEn: 'Katra, Jammu & Kashmir',
+        subtitleHi: 'कटड़ा, जम्मू और कश्मीर',
+        textEn:
+          'Perched on the Trikuta Hills in Jammu, this holy cave shrine attracts millions of devotees seeking blessings from Mother Vaishno Devi.',
+        textHi:
+          'जम्मू के त्रिकुटा पर्वत पर स्थित वैष्णो देवी गुफा मंदिर में शक्ति स्वरूपा माता वैष्णो देवी वास करती हैं, जहाँ प्रतिवर्ष लाखों भक्त आते हैं।',
+        image: imagePath.Durga,
+      },
+      {
+        id: 'goldentemple',
+        nameEn: 'Golden Temple',
+        nameHi: 'स्वर्ण मंदिर',
+        subtitleEn: 'Amritsar, Punjab',
+        subtitleHi: 'अमृतसर, पंजाब',
+        textEn:
+          'Also known as Harmandir Sahib, it is the preeminent spiritual site of Sikhism, representing open doors to all humanity.',
+        textHi:
+          'अमृतसर का हरमंदिर साहिब (स्वर्ण मंदिर) सिख धर्म का परम पवित्र स्थल है, जिसके चारों द्वार सर्वमानव समानता के प्रतीक हैं।',
+        image: imagePath.lotus,
       },
     ],
   },

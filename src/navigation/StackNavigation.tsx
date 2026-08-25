@@ -8,6 +8,7 @@ import AllFestivalsScreen from '../screens/home/AllFestivalsScreen';
 import '../i18n';
 import ReadingScreen from '../screens/book/ReadingScreen';
 import SearchScreen from '../screens/book/SearchScreen';
+import TempleScreen from '../screens/home/TempleScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -33,6 +34,11 @@ const StackNavigation = () => {
       <Stack.Screen
         name="SearchScreen"
         component={SearchScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="TempleScreen"
+        component={TempleScreen}
         options={{ animation: 'slide_from_right' }}
       />
     </Stack.Navigator>

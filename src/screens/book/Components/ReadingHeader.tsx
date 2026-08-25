@@ -101,39 +101,44 @@ const ReadingHeader = ({
   return (
     <View style={styles.headerRow}>
       {/* ← Back button with ring border */}
-      <TouchableOpacity
-        style={styles.ringButton}
-        onPress={() => {
-          if (storyId) {
-            try {
-              const rawProgress = Storage.getString('STORY_PROGRESS', '{}');
-              const progressMap = JSON.parse(rawProgress) || {};
-              if (progressMap[storyId] !== undefined) {
-                delete progressMap[storyId];
-                Storage.set('STORY_PROGRESS', JSON.stringify(progressMap));
-              }
-            } catch {}
-          }
-          navigation.goBack();
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
         }}
-        activeOpacity={0.8}
       >
-        <Back width={scale(12)} height={scale(12)} stroke={colors.ring} />
-      </TouchableOpacity>
-
-      {/* Book name centered */}
-      <View style={styles.titleContainer}>
-        <Text
-          style={[
-            styles.headerTitle,
-            { color: isDarkMode ? '#F5EFE6' : colors.secondary },
-          ]}
-          numberOfLines={1}
+        <TouchableOpacity
+          style={styles.ringButton}
+          onPress={() => {
+            if (storyId) {
+              try {
+                const rawProgress = Storage.getString('STORY_PROGRESS', '{}');
+                const progressMap = JSON.parse(rawProgress) || {};
+                if (progressMap[storyId] !== undefined) {
+                  delete progressMap[storyId];
+                  Storage.set('STORY_PROGRESS', JSON.stringify(progressMap));
+                }
+              } catch {}
+            }
+            navigation.goBack();
+          }}
+          activeOpacity={0.8}
         >
-          {title}
-        </Text>
-      </View>
+          <Back width={scale(12)} height={scale(12)} stroke={colors.ring} />
+        </TouchableOpacity>
 
+        <View style={styles.titleContainer}>
+          <Text
+            style={[
+              styles.headerTitle,
+              { color: isDarkMode ? '#F5EFE6' : colors.secondary },
+            ]}
+            numberOfLines={1}
+          >
+            {title}
+          </Text>
+        </View>
+      </View>
       {/* Action Buttons: Theme toggle & Heart bookmark */}
       <View style={styles.actionRow}>
         {onToggleTheme && (
@@ -165,7 +170,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: scale(20),
+    paddingHorizontal: scale(10),
     paddingVertical: scale(10),
     width: '100%',
   },
@@ -185,8 +190,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   titleContainer: {
-    flex: 1,
-    marginHorizontal: scale(12),
+    // flex: 1,
+    marginHorizontal: scale(8),
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -8,6 +8,7 @@ export type RootStackParamList = {
   ReadingScreen: undefined;
   Jap: undefined;
   SearchScreen: undefined;
+  TempleScreen: { items: any[] };
 };
 
 export type BottomTabParamList = {
