@@ -6,10 +6,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  Image,
 } from 'react-native';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
 import { fs, scale, verticalScale } from '../../../utile/sizes';
+import imagePath from '../../../assets';
 
 type SwitchMantraModalProps = {
   visible: boolean;
@@ -50,7 +52,7 @@ const SwitchMantraModal = ({
             <View style={styles.modalCard}>
               {/* Icon Header */}
               <View style={styles.iconContainer}>
-                <Text style={styles.iconText}>📿</Text>
+                <Image source={imagePath.mala} style={styles.malaIcon} />
               </View>
 
               {/* Title & Description */}
@@ -115,6 +117,11 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(12),
     borderWidth: 1,
     borderColor: 'rgba(251, 148, 55, 0.25)',
+  },
+  malaIcon: {
+    width: scale(25),
+    height: scale(25),
+    resizeMode: 'contain',
   },
   iconText: {
     fontSize: fs(24),

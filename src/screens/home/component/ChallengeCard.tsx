@@ -154,7 +154,7 @@ const ChallengeCard = () => {
       <View style={styles.card}>
         <View style={styles.cardHeader}>
           <View style={styles.iconContainer}>
-            <Text style={styles.iconText}>📿</Text>
+            <Image source={imagePath.mala} style={styles.malaIcon} />
           </View>
           <View style={styles.titleContainer}>
             <Text style={styles.challengeName}>{texts.challengeName}</Text>
@@ -203,7 +203,10 @@ const ChallengeCard = () => {
             style={[
               styles.statusText,
               !started && styles.statusTextInactive,
-              started && challengeChantsToday < dailyTargetGoal && { color: colors.danger }
+              started &&
+                challengeChantsToday < dailyTargetGoal && {
+                  color: colors.danger,
+                },
             ]}
           >
             {statusText}
@@ -345,6 +348,11 @@ const styles = StyleSheet.create({
     marginRight: scale(12),
     borderWidth: 1,
     borderColor: 'rgba(251, 148, 55, 0.15)',
+  },
+  malaIcon: {
+    width: scale(24),
+    height: scale(24),
+    resizeMode: 'contain',
   },
   iconText: {
     fontSize: fs(20),

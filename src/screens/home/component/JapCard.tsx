@@ -148,8 +148,8 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   malaIcon: {
-    width: scale(16),
-    height: scale(16),
+    width: scale(24),
+    height: scale(24),
     resizeMode: 'contain',
   },
   chantButtonText: {

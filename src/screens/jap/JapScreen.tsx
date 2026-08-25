@@ -516,7 +516,7 @@ const JapScreen = () => {
 
             {/* Today Mala Card */}
             <View style={styles.statChip}>
-              <Text style={styles.statChipIcon}>📿</Text>
+              <Image source={imagePath.mala} style={styles.malaIcon} />
               <Text style={styles.statChipLabel}>
                 {t(Translation.JAP_TOTAL_MALA)}
               </Text>
@@ -727,6 +727,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     gap: scale(1),
+  },
+  malaIcon: {
+    width: scale(20),
+    height: scale(20),
+    resizeMode: 'contain',
   },
   ringDot: {
     width: scale(12),
