@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -23,6 +23,7 @@ import GradientBackground from '../../components/GradientBackground';
 
 import { Translation } from '../../i18n/language';
 import ComicShelf from './Components/ComicShelf';
+import BookSkeleton from './Components/BookSkeleton';
 
 // Haptic feedback trigger function matching the app pattern
 const triggerHaptic = (type: string = 'impactLight') => {
@@ -49,6 +50,15 @@ const BookScreen = () => {
   const { t, i18n } = useTranslation();
   const currentLang = (i18n.language === 'hi' ? 'hi' : 'en') as 'en' | 'hi';
   const navigation = useNavigation<any>();
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1800);
+    return () => clearTimeout(timer);
+  }, []);
 
   const labels = {
     screenTitle: t(Translation.BOOK_SCREEN_TITLE),
@@ -126,36 +136,40 @@ const BookScreen = () => {
           </View>
         </TouchableOpacity>
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* Comics Shelf List */}
-          <ComicShelf
-            title={labels.storiesFromMahabharat}
-            data={MahaBharatStories}
-            onPressBook={openStoryReader}
-            currentLang={currentLang}
-          />
-          <ComicShelf
-            title={labels.storiesFromMahabharat}
-            data={MahaBharatStories}
-            onPressBook={openStoryReader}
-            currentLang={currentLang}
-          />
-          <ComicShelf
-            title={labels.storiesFromMahabharat}
-            data={MahaBharatStories}
-            onPressBook={openStoryReader}
-            currentLang={currentLang}
-          />
-          <ComicShelf
-            title={labels.storiesFromMahabharat}
-            data={MahaBharatStories}
-            onPressBook={openStoryReader}
-            currentLang={currentLang}
-          />
-        </ScrollView>
+        {loading ? (
+          <BookSkeleton />
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+          >
+            {/* Comics Shelf List */}
+            <ComicShelf
+              title={labels.storiesFromMahabharat}
+              data={MahaBharatStories}
+              onPressBook={openStoryReader}
+              currentLang={currentLang}
+            />
+            <ComicShelf
+              title={labels.storiesFromMahabharat}
+              data={MahaBharatStories}
+              onPressBook={openStoryReader}
+              currentLang={currentLang}
+            />
+            <ComicShelf
+              title={labels.storiesFromMahabharat}
+              data={MahaBharatStories}
+              onPressBook={openStoryReader}
+              currentLang={currentLang}
+            />
+            <ComicShelf
+              title={labels.storiesFromMahabharat}
+              data={MahaBharatStories}
+              onPressBook={openStoryReader}
+              currentLang={currentLang}
+            />
+          </ScrollView>
+        )}
       </SafeAreaView>
     </GradientBackground>
   );

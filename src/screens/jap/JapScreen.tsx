@@ -22,6 +22,7 @@ import Animated, {
   withTiming,
   withSpring,
   Easing,
+  withSequence,
 } from 'react-native-reanimated';
 import colors from '../../utile/colors';
 import fonts from '../../utile/fonts';
@@ -386,10 +387,10 @@ const JapScreen = () => {
       easing: Easing.out(Easing.cubic),
     });
 
-    sphereScale.value = withSpring(0.94, { damping: 14, stiffness: 200 });
-    setTimeout(() => {
-      sphereScale.value = withSpring(1, { damping: 14, stiffness: 200 });
-    }, 120);
+    sphereScale.value = withSequence(
+      withSpring(0.94, { damping: 14, stiffness: 200 }),
+      withSpring(1, { damping: 14, stiffness: 200 }),
+    );
 
     if (isHapticOnRef.current) {
       TriggerHaptic();
