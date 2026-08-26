@@ -30,7 +30,7 @@ export const categoriesData: Category[] = [
     id: 'aarti',
     titleEn: 'Aarti',
     titleHi: 'आरती',
-    icon: imagePath.book,
+    icon: imagePath.lamp,
     coverImage: imagePath.Ganesha,
     descriptionEn:
       'Devotional prayers sung in praise of deities to invoke their blessings.',
@@ -212,7 +212,7 @@ export const categoriesData: Category[] = [
     id: 'shlok',
     titleEn: 'Shlok',
     titleHi: 'श्लोक',
-    icon: imagePath.books,
+    icon: imagePath.shlok,
     coverImage: imagePath.Krishna,
     descriptionEn:
       'Sacred Sanskrit verses holding spiritual wisdom and divine vibrations.',
@@ -334,7 +334,7 @@ export const categoriesData: Category[] = [
     id: 'temples',
     titleEn: 'Famous Temples',
     titleHi: 'प्रसिद्ध मंदिर',
-    icon: imagePath.books,
+    icon: imagePath.temples,
     // coverImage: imagePath.Rama,
     descriptionEn:
       'Architectural marvels and sacred pilgrimage destinations of rich heritage.',

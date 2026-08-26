@@ -125,6 +125,9 @@ const imagePath = {
   warning: require('./png/warning.webp'),
   sakura: require('./png/sakura.webp'),
   calendar: require('./png/calendar.webp'),
+  lamp: require('./png/lamp.webp'),
+  shlok: require('./png/shlok.webp'),
+  temples: require('./png/temples.webp'),
 };
 
 export { Back, Forward, Bell, Pin, FoldedHands, Location, Tag };

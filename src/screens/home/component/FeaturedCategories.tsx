@@ -22,7 +22,6 @@ import {
   TemplesScreen,
 } from '../categories';
 import AnimatedButton from '../../../components/AnimatedButton';
-import imagePath from '../../../assets';
 
 const FeaturedCategories = () => {
   const { t, i18n } = useTranslation();

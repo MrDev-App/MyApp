@@ -20,7 +20,7 @@ import { fs, scale } from '../../utile/sizes';
 import GradientBackground from '../../components/GradientBackground';
 import imagePath from '../../assets';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { favStoriesData, profileLabels } from '../../constants/profileData';
+import { MahaBharatStories, Story } from '../../constants/storiesData';
 import OverlayModal, {
   OverlayModalHandle,
 } from '../../components/OverlayModal';
@@ -31,7 +31,6 @@ import HapticFeedback from 'react-native-haptic-feedback';
 const ProfileScreen = () => {
   const { t, i18n } = useTranslation();
   const currentLanguage = (i18n.language || 'en') as 'en' | 'hi';
-  const labels = profileLabels[currentLanguage] || profileLabels.en;
 
   const navigation = useNavigation<any>();
 
@@ -39,6 +38,7 @@ const ProfileScreen = () => {
   const overlayRef = useRef<OverlayModalHandle>(null);
 
   const isFocused = useIsFocused();
+  const [favoriteStories, setFavoriteStories] = useState<Story[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [totalMala, setTotalMala] = useState(0);
   const [todayCount, setTodayCount] = useState(0);
@@ -105,15 +105,53 @@ const ProfileScreen = () => {
       setTodayCount(Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0));
       setChallengeStarted(Storage.getBoolean('CHALLENGE_STARTED', false));
       setChallengeTotalDays(Storage.getNumber('CHALLENGE_TOTAL_DAYS', 21));
+
+      // Load favorite stories from storage
+      try {
+        const raw = Storage.getString('STORY_BOOKMARKS', '[]');
+        const bookmarkedIds: string[] = JSON.parse(raw);
+        if (Array.isArray(bookmarkedIds)) {
+          const favs = MahaBharatStories.filter(story =>
+            bookmarkedIds.includes(story.id),
+          );
+          setFavoriteStories(favs);
+        } else {
+          setFavoriteStories([]);
+        }
+      } catch {
+        setFavoriteStories([]);
+      }
     }
   }, [isFocused]);
 
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
+  const handleRemoveFavorite = (storyId: string) => {
+    // Confirmation haptic feedback
+    if (Platform.OS === 'android') {
+      try {
+        Vibration.vibrate(30);
+      } catch {}
+    } else {
+      try {
+        HapticFeedback.trigger('impactLight', {
+          enableVibrateFallback: true,
+          ignoreAndroidSystemSettings: true,
+        });
+      } catch {}
+    }
+
+    try {
+      const raw = Storage.getString('STORY_BOOKMARKS', '[]');
+      let list: string[] = JSON.parse(raw);
+      if (Array.isArray(list)) {
+        list = list.filter(id => id !== storyId);
+        Storage.set('STORY_BOOKMARKS', JSON.stringify(list));
+        setFavoriteStories(prev => prev.filter(story => story.id !== storyId));
+      }
+    } catch {}
   };
 
-  const handleStoryPress = () => {
-    overlayRef.current?.open();
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
   };
 
   const handleGiveUpChallenge = () => {
@@ -152,7 +190,7 @@ const ProfileScreen = () => {
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         {/* Header */}
         {/* <View style={styles.headerRow}>
-          <Text style={styles.headerTitle}>{labels.myProfile}</Text>
+          <Text style={styles.headerTitle}>{t(Translation.PROFILE_TITLE)}</Text>
         </View> */}
 
         <ScrollView
@@ -165,8 +203,8 @@ const ProfileScreen = () => {
               <Image source={imagePath.Krishna} style={styles.avatarImage} />
             </View>
             <View style={{ flex: 1, marginTop: scale(10) }}>
-              <Text style={styles.userName}>{labels.devotee}</Text>
-              <Text style={styles.userJoined}>{labels.joinedSince}</Text>
+              <Text style={styles.userName}>{t(Translation.PROFILE_DEVOTEE)}</Text>
+              <Text style={styles.userJoined}>{t(Translation.PROFILE_JOINED_SINCE)}</Text>
             </View>
             <TouchableOpacity
               style={styles.editButton}
@@ -180,77 +218,92 @@ const ProfileScreen = () => {
 
           {/* Statistics Grid */}
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>{labels.totalStats}</Text>
+            <Text style={styles.sectionTitle}>{t(Translation.PROFILE_TOTAL_STATS)}</Text>
             <View style={styles.statsGrid}>
               <View style={styles.statItem}>
                 <Text style={styles.statValue}>
                   {totalCount.toLocaleString()}
                 </Text>
-                <Text style={styles.statLabel}>{labels.totalChants}</Text>
+                <Text style={styles.statLabel}>{t(Translation.PROFILE_TOTAL_CHANTS)}</Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statItem}>
                 <Text style={styles.statValue}>{totalMala}</Text>
-                <Text style={styles.statLabel}>{labels.malasDone}</Text>
+                <Text style={styles.statLabel}>{t(Translation.PROFILE_MALAS_DONE)}</Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statItem}>
                 <Text style={styles.statValue}>{todayCount}</Text>
-                <Text style={styles.statLabel}>{labels.todayJap}</Text>
+                <Text style={styles.statLabel}>{t(Translation.PROFILE_TODAY_JAP)}</Text>
               </View>
             </View>
           </View>
 
           {/* Favorite Stories Section */}
-          <View style={styles.sectionContainer}>
-            <Text style={styles.rowTitle}>{labels.favStories}</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.favStoriesScroll}
-            >
-              {favStoriesData.map(story => {
-                const title =
-                  currentLanguage === 'hi' ? story.titleHi : story.titleEn;
-                const category =
-                  currentLanguage === 'hi'
-                    ? story.categoryHi
-                    : story.categoryEn;
-                return (
-                  <TouchableOpacity
-                    key={story.id}
-                    style={styles.storyBookCard}
-                    onPress={handleStoryPress}
-                    activeOpacity={0.85}
-                  >
-                    <View style={styles.bookCoverContainer}>
-                      <Image
-                        source={story.image}
-                        style={styles.bookCoverImage}
-                      />
-                      <View style={styles.categoryBadge}>
-                        <Text style={styles.categoryBadgeText}>{category}</Text>
+          {favoriteStories.length > 0 && (
+            <View style={styles.sectionContainer}>
+              <Text style={styles.rowTitle}>{t(Translation.PROFILE_FAV_STORIES)}</Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.favStoriesScroll}
+              >
+                {favoriteStories.map(story => {
+                  const title =
+                    currentLanguage === 'hi' ? story.titleHi : story.titleEn;
+                  const category =
+                    currentLanguage === 'hi'
+                      ? story.categoryHi
+                      : story.categoryEn;
+                  return (
+                    <TouchableOpacity
+                      key={story.id}
+                      style={styles.storyBookCard}
+                      onPress={() =>
+                        navigation.navigate('ReadingScreen', {
+                          storyId: story.id,
+                        })
+                      }
+                      activeOpacity={0.85}
+                    >
+                      <View style={styles.bookCoverContainer}>
+                        <TouchableOpacity
+                          style={styles.removeFavoriteBadge}
+                          onPress={() => handleRemoveFavorite(story.id)}
+                          activeOpacity={0.8}
+                        >
+                          <Text style={styles.removeFavoriteText}>×</Text>
+                        </TouchableOpacity>
+                        <Image
+                          source={story.image}
+                          style={styles.bookCoverImage}
+                        />
+                        <View style={styles.categoryBadge}>
+                          <Text style={styles.categoryBadgeText}>
+                            {category}
+                          </Text>
+                        </View>
                       </View>
-                    </View>
-                    <Text style={styles.storyBookTitle} numberOfLines={1}>
-                      {title}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-          </View>
+                      <Text style={styles.storyBookTitle} numberOfLines={1}>
+                        {title}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          )}
 
           {/* Settings Section */}
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>{labels.settings}</Text>
+            <Text style={styles.sectionTitle}>{t(Translation.PROFILE_SETTINGS)}</Text>
 
             {/* Language Switch Row */}
             <View style={styles.settingRow}>
               <View style={styles.settingInfo}>
-                <Text style={styles.settingLabel}>{labels.changeLanguage}</Text>
+                <Text style={styles.settingLabel}>{t(Translation.PROFILE_CHANGE_LANGUAGE)}</Text>
                 <Text style={styles.settingSubLabel}>
-                  {labels.appMainLanguage}
+                  {t(Translation.PROFILE_APP_MAIN_LANGUAGE)}
                 </Text>
               </View>
               <View style={styles.languageToggleContainer}>
@@ -297,15 +350,20 @@ const ProfileScreen = () => {
             <View style={styles.settingRow}>
               <View style={styles.settingInfo}>
                 <Text style={styles.settingLabel}>
-                  {labels.dailyNotifications}
+                  {t(Translation.PROFILE_DAILY_NOTIFICATIONS)}
                 </Text>
                 <Text style={styles.settingSubLabel}>
-                  {labels.dailySadhanaReminders}
+                  {t(Translation.PROFILE_DAILY_SADHANA_REMINDERS)}
                 </Text>
               </View>
               <Switch
-                trackColor={{ false: colors.switchTrackFalse, true: colors.ring }}
-                thumbColor={notificationsEnabled ? colors.white : colors.switchThumbFalse}
+                trackColor={{
+                  false: colors.switchTrackFalse,
+                  true: colors.ring,
+                }}
+                thumbColor={
+                  notificationsEnabled ? colors.white : colors.switchThumbFalse
+                }
                 onValueChange={setNotificationsEnabled}
                 value={notificationsEnabled}
               />
@@ -320,7 +378,9 @@ const ProfileScreen = () => {
                       {t(Translation.CHALLENGE_GIVE_UP)}
                     </Text>
                     <Text style={styles.settingSubLabel}>
-                      {t(Translation.CHALLENGE_ABANDON_DESC, { count: challengeTotalDays })}
+                      {t(Translation.CHALLENGE_ABANDON_DESC, {
+                        count: challengeTotalDays,
+                      })}
                     </Text>
                   </View>
                   <TouchableOpacity
@@ -340,21 +400,15 @@ const ProfileScreen = () => {
           {/* Danger Zone Section */}
           <View style={[styles.sectionCard, styles.dangerZoneCard]}>
             <Text style={[styles.sectionTitle, { color: colors.danger }]}>
-              {currentLanguage === 'hi'
-                ? 'संवेदनशील क्षेत्र (Danger Zone)'
-                : 'Danger Zone'}
+              {t(Translation.DANGER_ZONE_TITLE)}
             </Text>
             <View style={styles.settingRow}>
               <View style={styles.settingInfo}>
                 <Text style={styles.settingLabel}>
-                  {currentLanguage === 'hi'
-                    ? 'सभी डेटा रीसेट करें'
-                    : 'Reset All App Data'}
+                  {t(Translation.RESET_ALL_DATA_TITLE)}
                 </Text>
                 <Text style={styles.settingSubLabel}>
-                  {currentLanguage === 'hi'
-                    ? 'अपने संपूर्ण आंकड़े, संकल्प प्रगति और सहेजे गए कहानियों को स्थायी रूप से हटाएं'
-                    : 'Permanently wipe all stats, active challenges, and bookmarks'}
+                  {t(Translation.RESET_ALL_DATA_DESC)}
                 </Text>
               </View>
               <TouchableOpacity
@@ -363,7 +417,7 @@ const ProfileScreen = () => {
                 activeOpacity={0.8}
               >
                 <Text style={styles.resetButtonText}>
-                  {currentLanguage === 'hi' ? 'रीसेट' : 'Reset'}
+                  {t(Translation.RESET_LABEL)}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -410,16 +464,11 @@ const ProfileScreen = () => {
             </TouchableOpacity>
 
             <Text style={styles.modalTitleDestructive}>
-              ⚠️{' '}
-              {currentLanguage === 'hi'
-                ? 'डेटा स्थायी रूप से हटाएं?'
-                : 'Wipe All Data Permanently?'}
+              ⚠️ {t(Translation.RESET_MODAL_TITLE)}
             </Text>
 
             <Text style={styles.modalDescription}>
-              {currentLanguage === 'hi'
-                ? 'यह आपके सभी आंकड़े, जाप की गिनती, सक्रिय चुनौतियां और सहेजी गई कहानियों को हटा देगा। यह कार्रवाई अपरिवर्तनीय है।'
-                : 'This will wipe all your stats, japa counts, active challenges, and bookmarked stories. This action cannot be undone.'}
+              {t(Translation.RESET_MODAL_DESC)}
             </Text>
 
             {/* Step 1 Checkbox 1 */}
@@ -437,9 +486,7 @@ const ProfileScreen = () => {
                 {checkedChants && <Text style={styles.checkboxTick}>✓</Text>}
               </View>
               <Text style={styles.checkboxLabel}>
-                {currentLanguage === 'hi'
-                  ? 'हाँ, मैं अपना कुल जाप इतिहास और आंकड़े खोने को तैयार हूँ।'
-                  : 'I understand I will lose my entire japa history and stats.'}
+                {t(Translation.RESET_CONFIRM_LBL1)}
               </Text>
             </TouchableOpacity>
 
@@ -458,17 +505,13 @@ const ProfileScreen = () => {
                 {checkedChallenge && <Text style={styles.checkboxTick}>✓</Text>}
               </View>
               <Text style={styles.checkboxLabel}>
-                {currentLanguage === 'hi'
-                  ? 'हाँ, मैं सक्रिय संकल्प की प्रगति को हटाने के लिए सहमत हूँ।'
-                  : 'I understand my active challenge streak will be reset.'}
+                {t(Translation.RESET_CONFIRM_LBL2)}
               </Text>
             </TouchableOpacity>
 
             {/* Step 2 Typing code confirmation */}
             <Text style={styles.resetConfirmLabel}>
-              {currentLanguage === 'hi'
-                ? 'पुष्टि करने के लिए नीचे "RESET" टाइप करें:'
-                : 'Type "RESET" below to confirm:'}
+              {t(Translation.RESET_CONFIRM_TYPE)}
             </Text>
             <TextInput
               style={styles.resetTextInput}
@@ -487,7 +530,7 @@ const ProfileScreen = () => {
                 activeOpacity={0.8}
               >
                 <Text style={styles.resetCancelText}>
-                  {currentLanguage === 'hi' ? 'रद्द करें' : 'Cancel'}
+                  {t(Translation.RESET_CANCEL_BTN)}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -500,7 +543,7 @@ const ProfileScreen = () => {
                 activeOpacity={0.8}
               >
                 <Text style={styles.resetConfirmText}>
-                  {currentLanguage === 'hi' ? 'रीसेट करें' : 'Confirm Reset'}
+                  {t(Translation.RESET_CONFIRM_BTN)}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -943,6 +986,37 @@ const styles = StyleSheet.create({
     fontSize: fs(14),
     color: colors.mutedForeground,
     fontFamily: fonts.PoppinsRegular,
+  },
+  emptyFavoritesContainer: {
+    paddingHorizontal: scale(20),
+    paddingVertical: scale(20),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyFavoritesText: {
+    fontSize: fs(13),
+    fontFamily: fonts.PoppinsRegular,
+    color: colors.secondary,
+    opacity: 0.6,
+  },
+  removeFavoriteBadge: {
+    position: 'absolute',
+    top: scale(6),
+    right: scale(6),
+    width: scale(22),
+    height: scale(22),
+    borderRadius: scale(11),
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  removeFavoriteText: {
+    color: colors.white,
+    fontSize: fs(14),
+    fontFamily: fonts.PoppinsBold,
+    lineHeight: fs(15),
+    textAlign: 'center',
   },
 });
 
