@@ -4,6 +4,7 @@ export interface MantraSelectorItem {
   nameHi: string;
   textEn: string;
   textHi: string;
+  isCustom?: boolean;
 }
 
 export const MANTRAS_LIST: MantraSelectorItem[] = [

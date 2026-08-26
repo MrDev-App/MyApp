@@ -1,0 +1,233 @@
+import { Storage } from './storage';
+
+export interface MantraRecord {
+  count: number;
+  mala: number;
+}
+
+export interface DayLog {
+  totalCount: number;
+  totalMala: number;
+  mantras: {
+    [mantraId: string]: MantraRecord;
+  };
+}
+
+export interface JapaHistory {
+  [dateStr: string]: DayLog;
+}
+
+export interface CustomMantra {
+  id: string;
+  nameEn: string;
+  nameHi: string;
+  textEn: string;
+  textHi: string;
+  isCustom: boolean;
+}
+
+export const logChant = (mantraId: string, increment = 1) => {
+  const isoDateStr = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD" for key sorting
+
+  // 1. Update Global Cache
+  const currentGlobalToday = Storage.getNumber('JAP_TODAY_COUNT', 0);
+  Storage.set('JAP_TODAY_COUNT', currentGlobalToday + increment);
+
+  const currentGlobalTotal = Storage.getNumber('JAP_TOTAL_COUNT', 0);
+  Storage.set('JAP_TOTAL_COUNT', currentGlobalTotal + increment);
+
+  const globalTodayMala = Math.floor((currentGlobalToday + increment) / 108);
+  Storage.set('JAP_TODAY_MALA', globalTodayMala);
+
+  const globalTotalMala = Math.floor((currentGlobalTotal + increment) / 108);
+  Storage.set('JAP_TOTAL_MALA', globalTotalMala);
+
+  // 2. Update Mantra-Specific Cache
+  const currentMantraToday = Storage.getNumber(`JAP_TODAY_COUNT_${mantraId}`, 0);
+  Storage.set(`JAP_TODAY_COUNT_${mantraId}`, currentMantraToday + increment);
+
+  const currentMantraTotal = Storage.getNumber(`JAP_TOTAL_COUNT_${mantraId}`, 0);
+  Storage.set(`JAP_TOTAL_COUNT_${mantraId}`, currentMantraTotal + increment);
+
+  const mantraTodayMala = Math.floor((currentMantraToday + increment) / 108);
+  Storage.set(`JAP_TODAY_MALA_${mantraId}`, mantraTodayMala);
+
+  const mantraTotalMala = Math.floor((currentMantraTotal + increment) / 108);
+  Storage.set(`JAP_TOTAL_MALA_${mantraId}`, mantraTotalMala);
+
+  // 3. Update Historical logs
+  try {
+    const rawHistory = Storage.getString('JAP_HISTORY', '{}');
+    const history: JapaHistory = JSON.parse(rawHistory);
+
+    if (!history[isoDateStr]) {
+      history[isoDateStr] = { totalCount: 0, totalMala: 0, mantras: {} };
+    }
+
+    history[isoDateStr].totalCount += increment;
+    history[isoDateStr].totalMala = Math.floor(history[isoDateStr].totalCount / 108);
+
+    if (!history[isoDateStr].mantras[mantraId]) {
+      history[isoDateStr].mantras[mantraId] = { count: 0, mala: 0 };
+    }
+    history[isoDateStr].mantras[mantraId].count += increment;
+    history[isoDateStr].mantras[mantraId].mala = Math.floor(
+      history[isoDateStr].mantras[mantraId].count / 108
+    );
+
+    Storage.set('JAP_HISTORY', JSON.stringify(history));
+  } catch (error) {
+    console.error('Failed to log Japa history:', error);
+  }
+};
+
+export const getDayWiseStats = (mantraId?: string) => {
+  try {
+    const rawHistory = Storage.getString('JAP_HISTORY', '{}');
+    const history: JapaHistory = JSON.parse(rawHistory);
+    const data = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      const log = history[dateStr];
+
+      let count = 0;
+      let mala = 0;
+      if (log) {
+        if (mantraId) {
+          count = log.mantras[mantraId]?.count || 0;
+          mala = log.mantras[mantraId]?.mala || 0;
+        } else {
+          count = log.totalCount;
+          mala = log.totalMala;
+        }
+      }
+
+      data.push({
+        label: date.toLocaleDateString('en-US', { weekday: 'short' }),
+        value: count,
+        mala: mala,
+        date: dateStr,
+      });
+    }
+    return data;
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+};
+
+export const getWeekWiseStats = (mantraId?: string) => {
+  try {
+    const rawHistory = Storage.getString('JAP_HISTORY', '{}');
+    const history: JapaHistory = JSON.parse(rawHistory);
+    const weeks = [];
+
+    for (let i = 3; i >= 0; i--) {
+      let weekCount = 0;
+      let weekMala = 0;
+      for (let d = 0; d < 7; d++) {
+        const date = new Date();
+        date.setDate(date.getDate() - (i * 7 + d));
+        const dateStr = date.toISOString().split('T')[0];
+        const log = history[dateStr];
+        if (log) {
+          if (mantraId) {
+            weekCount += log.mantras[mantraId]?.count || 0;
+            weekMala += log.mantras[mantraId]?.mala || 0;
+          } else {
+            weekCount += log.totalCount;
+            weekMala += log.totalMala;
+          }
+        }
+      }
+      weeks.push({
+        label: i === 0 ? 'This Wk' : `${i}w ago`,
+        value: weekCount,
+        mala: weekMala,
+      });
+    }
+    return weeks;
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+};
+
+export const getMonthWiseStats = (mantraId?: string) => {
+  try {
+    const rawHistory = Storage.getString('JAP_HISTORY', '{}');
+    const history: JapaHistory = JSON.parse(rawHistory);
+    const months = [];
+
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+      let count = 0;
+      let mala = 0;
+      Object.keys(history).forEach(dateKey => {
+        if (dateKey.startsWith(yearMonth)) {
+          const log = history[dateKey];
+          if (mantraId) {
+            count += log.mantras[mantraId]?.count || 0;
+            mala += log.mantras[mantraId]?.mala || 0;
+          } else {
+            count += log.totalCount;
+            mala += log.totalMala;
+          }
+        }
+      });
+
+      months.push({
+        label: date.toLocaleDateString('en-US', { month: 'short' }),
+        value: count,
+        mala: mala,
+      });
+    }
+    return months;
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+};
+
+export const getYearWiseStats = (mantraId?: string) => {
+  try {
+    const rawHistory = Storage.getString('JAP_HISTORY', '{}');
+    const history: JapaHistory = JSON.parse(rawHistory);
+    const years = [];
+
+    const currentYear = new Date().getFullYear();
+    for (let i = 2; i >= 0; i--) {
+      const year = currentYear - i;
+      let count = 0;
+      let mala = 0;
+      Object.keys(history).forEach(dateKey => {
+        if (dateKey.startsWith(String(year))) {
+          const log = history[dateKey];
+          if (mantraId) {
+            count += log.mantras[mantraId]?.count || 0;
+            mala += log.mantras[mantraId]?.mala || 0;
+          } else {
+            count += log.totalCount;
+            mala += log.totalMala;
+          }
+        }
+      });
+
+      years.push({
+        label: String(year),
+        value: count,
+        mala: mala,
+      });
+    }
+    return years;
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+};

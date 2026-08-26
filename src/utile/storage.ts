@@ -8,6 +8,8 @@ export const STORAGE_KEYS = {
   JAP_TODAY_MALA: 'JAP_TODAY_MALA',
   JAP_TODAY_COUNT: 'JAP_TODAY_COUNT',
   JAP_LAST_DATE: 'JAP_LAST_DATE',
+  JAP_HISTORY: 'JAP_HISTORY',
+  CUSTOM_MANTRAS: 'CUSTOM_MANTRAS',
 };
 
 const checkAndResetTodayStats = (): boolean => {

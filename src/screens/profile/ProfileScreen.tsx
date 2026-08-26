@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import {
   StyleSheet,
   Text,
@@ -27,7 +33,10 @@ import OverlayModal, {
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Storage, STORAGE_KEYS } from '../../utile/storage';
 import HapticFeedback from 'react-native-haptic-feedback';
-
+import { MANTRAS_LIST } from '../../constants/japData';
+import SadhanaCalendarCard from './components/SadhanaCalendarCard';
+import SelectedDayBreakdownCard from './components/SelectedDayBreakdownCard';
+import ManageCustomMantrasModal from './components/ManageCustomMantrasModal';
 const ProfileScreen = () => {
   const { t, i18n } = useTranslation();
   const currentLanguage = (i18n.language || 'en') as 'en' | 'hi';
@@ -36,6 +45,7 @@ const ProfileScreen = () => {
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const overlayRef = useRef<OverlayModalHandle>(null);
+  const customMantrasModalRef = useRef<OverlayModalHandle>(null);
 
   const isFocused = useIsFocused();
   const [favoriteStories, setFavoriteStories] = useState<Story[]>([]);
@@ -44,6 +54,76 @@ const ProfileScreen = () => {
   const [todayCount, setTodayCount] = useState(0);
   const [challengeStarted, setChallengeStarted] = useState(false);
   const [challengeTotalDays, setChallengeTotalDays] = useState(21);
+
+  // Japa Statistics Chart States
+
+  // Japa Calendar History States
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    return new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+  });
+  const [customMantras, setCustomMantras] = useState<any[]>([]);
+  const [japaHistory, setJapaHistory] = useState<any>(() => {
+    try {
+      const rawHistory = Storage.getString('JAP_HISTORY', '{}');
+      return JSON.parse(rawHistory);
+    } catch {
+      return {};
+    }
+  });
+
+  // Build the markedDates configuration for react-native-calendars
+  const markedDates = useMemo(() => {
+    try {
+      const marked: any = {};
+
+      Object.keys(japaHistory).forEach(dateKey => {
+        if (japaHistory[dateKey] && japaHistory[dateKey].totalCount > 0) {
+          marked[dateKey] = {
+            marked: true,
+            dotColor: colors.ring,
+          };
+        }
+      });
+
+      if (selectedDate) {
+        marked[selectedDate] = {
+          ...marked[selectedDate],
+          selected: true,
+          selectedColor: colors.ring,
+          selectedTextColor: colors.white,
+        };
+      }
+
+      return marked;
+    } catch {
+      return {};
+    }
+  }, [selectedDate, japaHistory]);
+
+  // Retrieve selected date record details
+  const selectedDayRecord = useMemo(() => {
+    return japaHistory[selectedDate] || null;
+  }, [selectedDate, japaHistory]);
+
+  // Helper to map mantra ID to English/Hindi display name
+  const getMantraName = useCallback(
+    (id: string) => {
+      const defaultMantra = MANTRAS_LIST.find(m => m.id === id);
+      if (defaultMantra) {
+        return currentLanguage === 'hi'
+          ? defaultMantra.nameHi
+          : defaultMantra.nameEn;
+      }
+      const customMantra = customMantras.find(m => m.id === id);
+      if (customMantra) {
+        return currentLanguage === 'hi'
+          ? customMantra.nameHi
+          : customMantra.nameEn;
+      }
+      return id;
+    },
+    [customMantras, currentLanguage],
+  );
 
   // Reset Modal States
   const resetModalRef = useRef<OverlayModalHandle>(null);
@@ -106,6 +186,22 @@ const ProfileScreen = () => {
       setChallengeStarted(Storage.getBoolean('CHALLENGE_STARTED', false));
       setChallengeTotalDays(Storage.getNumber('CHALLENGE_TOTAL_DAYS', 21));
 
+      // Load Japa history from storage
+      try {
+        const rawHistory = Storage.getString('JAP_HISTORY', '{}');
+        setJapaHistory(JSON.parse(rawHistory));
+      } catch {
+        setJapaHistory({});
+      }
+
+      // Load custom mantras list to resolve names
+      try {
+        const rawCustom = Storage.getString('CUSTOM_MANTRAS', '[]');
+        setCustomMantras(JSON.parse(rawCustom));
+      } catch {
+        setCustomMantras([]);
+      }
+
       // Load favorite stories from storage
       try {
         const raw = Storage.getString('STORY_BOOKMARKS', '[]');
@@ -123,6 +219,155 @@ const ProfileScreen = () => {
       }
     }
   }, [isFocused]);
+
+  const handleDeleteCustomMantra = (mantraId: string, mantraName: string) => {
+    Alert.alert(
+      currentLanguage === 'hi' ? 'कस्टम मंत्र हटाएं?' : 'Delete Custom Mantra?',
+      currentLanguage === 'hi'
+        ? `क्या आप निश्चित रूप से "${mantraName}" मंत्र को हटाना चाहते हैं?`
+        : `Are you sure you want to delete the mantra "${mantraName}"?`,
+      [
+        {
+          text: currentLanguage === 'hi' ? 'रद्द करें' : 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: currentLanguage === 'hi' ? 'हटाएं' : 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            // Haptic feedback
+            if (Platform.OS === 'android') {
+              try {
+                Vibration.vibrate(30);
+              } catch {}
+            } else {
+              try {
+                HapticFeedback.trigger('impactMedium', {
+                  enableVibrateFallback: true,
+                  ignoreAndroidSystemSettings: true,
+                });
+              } catch {}
+            }
+
+            const updated = customMantras.filter(m => m.id !== mantraId);
+            setCustomMantras(updated);
+            Storage.set('CUSTOM_MANTRAS', JSON.stringify(updated));
+
+            const customTotalCount = Storage.getNumber(
+              `${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`,
+              0,
+            );
+            const customTotalMala = Storage.getNumber(
+              `${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`,
+              0,
+            );
+            const customTodayCount = Storage.getNumber(
+              `${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`,
+              0,
+            );
+            const customTodayMala = Storage.getNumber(
+              `${STORAGE_KEYS.JAP_TODAY_MALA}_${mantraId}`,
+              0,
+            );
+
+            // Subtract from global totals stored in MMKV
+            const globalTotalCount = Storage.getNumber(
+              STORAGE_KEYS.JAP_TOTAL_COUNT,
+              0,
+            );
+            const globalTotalMala = Storage.getNumber(
+              STORAGE_KEYS.JAP_TOTAL_MALA,
+              0,
+            );
+            const globalTodayCount = Storage.getNumber(
+              STORAGE_KEYS.JAP_TODAY_COUNT,
+              0,
+            );
+            const globalTodayMala = Storage.getNumber(
+              STORAGE_KEYS.JAP_TODAY_MALA,
+              0,
+            );
+
+            Storage.set(
+              STORAGE_KEYS.JAP_TOTAL_COUNT,
+              Math.max(0, globalTotalCount - customTotalCount),
+            );
+            Storage.set(
+              STORAGE_KEYS.JAP_TOTAL_MALA,
+              Math.max(0, globalTotalMala - customTotalMala),
+            );
+            Storage.set(
+              STORAGE_KEYS.JAP_TODAY_COUNT,
+              Math.max(0, globalTodayCount - customTodayCount),
+            );
+            Storage.set(
+              STORAGE_KEYS.JAP_TODAY_MALA,
+              Math.max(0, globalTodayMala - customTodayMala),
+            );
+
+            // Update React state hooks dynamically
+            setTotalCount(prev => Math.max(0, prev - customTotalCount));
+            setTotalMala(prev => Math.max(0, prev - customTotalMala));
+            setTodayCount(prev => Math.max(0, prev - customTodayCount));
+
+            // Clean up other stats keys
+            Storage.delete(`${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`);
+            Storage.delete(`${STORAGE_KEYS.JAP_TODAY_MALA}_${mantraId}`);
+            Storage.delete(`${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`);
+            Storage.delete(`${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`);
+            Storage.delete(`JAP_TODAY_MALA_${mantraId}`);
+            Storage.delete(`JAP_TODAY_COUNT_${mantraId}`);
+
+            // Sanitize JAP_HISTORY from the deleted mantra ID
+            try {
+              const rawHistory = Storage.getString('JAP_HISTORY', '{}');
+              const history = JSON.parse(rawHistory);
+              let historyChanged = false;
+
+              Object.keys(history).forEach(dateKey => {
+                const dayRecord = history[dateKey];
+                if (
+                  dayRecord &&
+                  dayRecord.mantras &&
+                  dayRecord.mantras[mantraId]
+                ) {
+                  const record = dayRecord.mantras[mantraId];
+                  dayRecord.totalCount = Math.max(
+                    0,
+                    dayRecord.totalCount - record.count,
+                  );
+                  dayRecord.totalMala = Math.max(
+                    0,
+                    dayRecord.totalMala - record.mala,
+                  );
+                  delete dayRecord.mantras[mantraId];
+
+                  // If no records left for this date, delete the date from history completely
+                  if (
+                    dayRecord.totalCount <= 0 ||
+                    Object.keys(dayRecord.mantras).length === 0
+                  ) {
+                    delete history[dateKey];
+                  }
+                  historyChanged = true;
+                }
+              });
+
+              if (historyChanged) {
+                Storage.set('JAP_HISTORY', JSON.stringify(history));
+                setJapaHistory(history);
+              } else {
+                setJapaHistory({ ...history });
+              }
+            } catch (e) {
+              console.error('Failed to clean history for custom mantra delete', e);
+            }
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
 
   const handleRemoveFavorite = (storyId: string) => {
     // Confirmation haptic feedback
@@ -203,46 +448,70 @@ const ProfileScreen = () => {
               <Image source={imagePath.Krishna} style={styles.avatarImage} />
             </View>
             <View style={{ flex: 1, marginTop: scale(10) }}>
-              <Text style={styles.userName}>{t(Translation.PROFILE_DEVOTEE)}</Text>
-              <Text style={styles.userJoined}>{t(Translation.PROFILE_JOINED_SINCE)}</Text>
+              <Text style={styles.userName}>
+                {t(Translation.PROFILE_DEVOTEE)}
+              </Text>
+              <Text style={styles.userJoined}>
+                {t(Translation.PROFILE_JOINED_SINCE)}
+              </Text>
             </View>
-            <TouchableOpacity
-              style={styles.editButton}
-              activeOpacity={0.7}
-              onPress={() => overlayRef.current?.open()}
-            >
-              <Image source={imagePath.pencil} style={styles.editIconImage} />
-              <Text style={styles.editButtonText}>edit</Text>
-            </TouchableOpacity>
           </View>
 
           {/* Statistics Grid */}
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>{t(Translation.PROFILE_TOTAL_STATS)}</Text>
+            <Text style={styles.sectionTitle}>
+              {t(Translation.PROFILE_TOTAL_STATS)}
+            </Text>
             <View style={styles.statsGrid}>
               <View style={styles.statItem}>
                 <Text style={styles.statValue}>
                   {totalCount.toLocaleString()}
                 </Text>
-                <Text style={styles.statLabel}>{t(Translation.PROFILE_TOTAL_CHANTS)}</Text>
+                <Text style={styles.statLabel}>
+                  {t(Translation.PROFILE_TOTAL_CHANTS)}
+                </Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statItem}>
                 <Text style={styles.statValue}>{totalMala}</Text>
-                <Text style={styles.statLabel}>{t(Translation.PROFILE_MALAS_DONE)}</Text>
+                <Text style={styles.statLabel}>
+                  {t(Translation.PROFILE_MALAS_DONE)}
+                </Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statItem}>
                 <Text style={styles.statValue}>{todayCount}</Text>
-                <Text style={styles.statLabel}>{t(Translation.PROFILE_TODAY_JAP)}</Text>
+                <Text style={styles.statLabel}>
+                  {t(Translation.PROFILE_TODAY_JAP)}
+                </Text>
               </View>
             </View>
           </View>
 
+          {/* Calendar History View Card */}
+          <SadhanaCalendarCard
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+            markedDates={markedDates}
+            currentLanguage={currentLanguage}
+          />
+
+          {/* Selected Date breakdown section */}
+          {selectedDate && (
+            <SelectedDayBreakdownCard
+              selectedDate={selectedDate}
+              selectedDayRecord={selectedDayRecord}
+              getMantraName={getMantraName}
+              currentLanguage={currentLanguage}
+            />
+          )}
+
           {/* Favorite Stories Section */}
           {favoriteStories.length > 0 && (
             <View style={styles.sectionContainer}>
-              <Text style={styles.rowTitle}>{t(Translation.PROFILE_FAV_STORIES)}</Text>
+              <Text style={styles.rowTitle}>
+                {t(Translation.PROFILE_FAV_STORIES)}
+              </Text>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -296,12 +565,16 @@ const ProfileScreen = () => {
 
           {/* Settings Section */}
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>{t(Translation.PROFILE_SETTINGS)}</Text>
+            <Text style={styles.sectionTitle}>
+              {t(Translation.PROFILE_SETTINGS)}
+            </Text>
 
             {/* Language Switch Row */}
             <View style={styles.settingRow}>
               <View style={styles.settingInfo}>
-                <Text style={styles.settingLabel}>{t(Translation.PROFILE_CHANGE_LANGUAGE)}</Text>
+                <Text style={styles.settingLabel}>
+                  {t(Translation.PROFILE_CHANGE_LANGUAGE)}
+                </Text>
                 <Text style={styles.settingSubLabel}>
                   {t(Translation.PROFILE_APP_MAIN_LANGUAGE)}
                 </Text>
@@ -368,6 +641,37 @@ const ProfileScreen = () => {
                 value={notificationsEnabled}
               />
             </View>
+
+            <View style={styles.separator} />
+
+            {/* Manage Custom Mantras Row */}
+            <TouchableOpacity
+              style={styles.settingRow}
+              onPress={() => customMantrasModalRef.current?.open()}
+              activeOpacity={0.8}
+            >
+              <View style={styles.settingInfo}>
+                <Text style={styles.settingLabel}>
+                  {currentLanguage === 'hi'
+                    ? 'कस्टम मंत्र हटाएं'
+                    : 'Delete Custom Mantras'}
+                </Text>
+                <Text style={styles.settingSubLabel}>
+                  {currentLanguage === 'hi'
+                    ? 'अपने बनाए गए कस्टम मंत्रों को हटाएं'
+                    : 'Manage and remove your custom created mantras'}
+                </Text>
+              </View>
+              <Text
+                style={{
+                  fontSize: fs(18),
+                  color: colors.ring,
+                  paddingRight: scale(4),
+                }}
+              >
+                ›
+              </Text>
+            </TouchableOpacity>
 
             {challengeStarted && (
               <>
@@ -449,6 +753,14 @@ const ProfileScreen = () => {
           </View>
         </View>
       </OverlayModal>
+
+      {/* OverlayModal to Manage/Delete Custom Mantras */}
+      <ManageCustomMantrasModal
+        modalRef={customMantrasModalRef}
+        customMantras={customMantras}
+        onDeleteCustomMantra={handleDeleteCustomMantra}
+        currentLanguage={currentLanguage}
+      />
 
       {/* Step-by-step Destructive Reset Modal */}
       <OverlayModal ref={resetModalRef} closeOnBackdropPress={true}>
@@ -609,7 +921,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   sectionCard: {
-    width: '90%',
+    width: '95%',
     backgroundColor: colors.white,
     borderRadius: scale(20),
     padding: scale(18),
@@ -1017,6 +1329,87 @@ const styles = StyleSheet.create({
     fontFamily: fonts.PoppinsBold,
     lineHeight: fs(15),
     textAlign: 'center',
+  },
+
+  // Japa Charts Styles
+  metricContainer: {
+    flexDirection: 'row',
+    backgroundColor: colors.borderSubtle2,
+    borderRadius: scale(8),
+    padding: scale(2),
+    marginBottom: scale(12),
+    marginTop: scale(4),
+  },
+  metricTab: {
+    flex: 1,
+    paddingVertical: scale(6),
+    alignItems: 'center',
+    borderRadius: scale(6),
+  },
+  metricTabActive: {
+    backgroundColor: colors.white,
+    shadowColor: colors.secondary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  metricTabText: {
+    fontSize: fs(12),
+    fontFamily: fonts.PoppinsMedium,
+    color: colors.mutedForeground,
+  },
+  metricTabTextActive: {
+    color: colors.secondary,
+    fontFamily: fonts.PoppinsSemiBold,
+  },
+  periodFilterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: scale(14),
+    gap: scale(4),
+  },
+  periodPill: {
+    flex: 1,
+    paddingVertical: scale(5),
+    alignItems: 'center',
+    borderRadius: scale(14),
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    backgroundColor: colors.white,
+  },
+  periodPillActive: {
+    backgroundColor: colors.ring,
+    borderColor: colors.ring,
+  },
+  periodPillText: {
+    fontSize: fs(11),
+    fontFamily: fonts.PoppinsMedium,
+    color: colors.mutedForeground,
+  },
+  periodPillTextActive: {
+    color: colors.white,
+    fontFamily: fonts.PoppinsSemiBold,
+  },
+  chartWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: scale(6),
+  },
+  emptyChartBox: {
+    height: scale(120),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    borderStyle: 'dashed',
+    borderRadius: scale(10),
+    marginTop: scale(10),
+  },
+  emptyChartText: {
+    fontSize: fs(12),
+    fontFamily: fonts.PoppinsMedium,
+    color: colors.mutedForeground,
   },
 });
 

@@ -1,0 +1,219 @@
+import React from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Dimensions,
+} from 'react-native';
+import OverlayModal, {
+  OverlayModalHandle,
+} from '../../../components/OverlayModal';
+import colors from '../../../utile/colors';
+import fonts from '../../../utile/fonts';
+import { fs, scale } from '../../../utile/sizes';
+import imagePath from '../../../assets';
+
+interface CustomMantra {
+  id: string;
+  nameEn: string;
+  nameHi: string;
+  textEn: string;
+  textHi: string;
+}
+
+interface ManageCustomMantrasModalProps {
+  modalRef: React.RefObject<OverlayModalHandle | null>;
+  customMantras: CustomMantra[];
+  onDeleteCustomMantra: (id: string, name: string) => void;
+  currentLanguage: 'en' | 'hi';
+}
+
+const ManageCustomMantrasModal: React.FC<ManageCustomMantrasModalProps> = ({
+  modalRef,
+  customMantras,
+  onDeleteCustomMantra,
+  currentLanguage,
+}) => {
+  return (
+    <OverlayModal ref={modalRef} closeOnBackdropPress={true}>
+      <View style={styles.modalCenterContainer}>
+        <View
+          style={[
+            styles.modalCard,
+            {
+              width: Dimensions.get('window').width * 0.9,
+              maxHeight: scale(400),
+              paddingBottom: scale(20),
+            },
+          ]}
+        >
+          <TouchableOpacity
+            style={styles.modalCloseBtn}
+            onPress={() => modalRef.current?.close()}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.modalCloseBtnText}>✕</Text>
+          </TouchableOpacity>
+
+          <View
+            style={[
+              styles.titleRow,
+              { justifyContent: 'center', marginBottom: scale(8) },
+            ]}
+          >
+            <Image source={imagePath.mala} style={styles.titleIcon} />
+            <Text style={[styles.modalTitle, { marginBottom: 0 }]}>
+              {currentLanguage === 'hi'
+                ? 'कस्टम मंत्र प्रबंधित करें'
+                : 'Manage Custom Mantras'}
+            </Text>
+          </View>
+
+          {customMantras.length === 0 ? (
+            <View style={styles.emptyCustomBox}>
+              <Text style={styles.emptyCustomText}>
+                {currentLanguage === 'hi'
+                  ? 'कोई कस्टम मंत्र नहीं मिला।'
+                  : 'No custom mantras added yet.'}
+              </Text>
+            </View>
+          ) : (
+            <ScrollView
+              showsVerticalScrollIndicator={true}
+              style={{ width: '100%', marginTop: scale(10) }}
+              contentContainerStyle={{ paddingBottom: scale(10) }}
+            >
+              {customMantras.map(mantra => {
+                const name =
+                  currentLanguage === 'hi' ? mantra.nameHi : mantra.nameEn;
+                const text =
+                  currentLanguage === 'hi' ? mantra.textHi : mantra.textEn;
+                return (
+                  <View key={mantra.id} style={styles.customMantraRow}>
+                    <View style={styles.customMantraInfo}>
+                      <Text style={styles.customMantraName}>{name}</Text>
+                      <Text style={styles.customMantraText} numberOfLines={1}>
+                        {text}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.deleteMantraBtn}
+                      onPress={() => onDeleteCustomMantra(mantra.id, name)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.deleteMantraBtnText}>✕</Text>
+                    </TouchableOpacity>
+                  </View>
+                );
+              })}
+            </ScrollView>
+          )}
+        </View>
+      </View>
+    </OverlayModal>
+  );
+};
+
+const styles = StyleSheet.create({
+  modalCenterContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalCard: {
+    backgroundColor: colors.white,
+    borderRadius: scale(16),
+    padding: scale(20),
+    shadowColor: colors.secondary,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 5,
+  },
+  modalCloseBtn: {
+    backgroundColor: colors.ring,
+    borderRadius: scale(100),
+    position: 'absolute',
+    width: scale(24),
+    height: scale(24),
+    alignItems: 'center',
+    justifyContent: 'center',
+    top: scale(14),
+    right: scale(14),
+    zIndex: 10,
+    padding: scale(4),
+  },
+  modalCloseBtnText: {
+    fontSize: fs(12),
+    color: colors.white,
+    fontFamily: fonts.PoppinsRegular,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(8),
+    marginBottom: scale(14),
+  },
+  titleIcon: {
+    width: scale(18),
+    height: scale(18),
+    resizeMode: 'contain',
+  },
+  modalTitle: {
+    fontSize: fs(18),
+    fontFamily: fonts.Marcellus,
+    color: colors.secondary,
+  },
+  emptyCustomBox: {
+    paddingVertical: scale(30),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyCustomText: {
+    fontSize: fs(12),
+    fontFamily: fonts.PoppinsMedium,
+    color: colors.mutedForeground,
+    textAlign: 'center',
+  },
+  customMantraRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: scale(10),
+    borderBottomWidth: 0.5,
+    borderBottomColor: colors.borderVerySubtle,
+  },
+  customMantraInfo: {
+    flex: 1,
+    paddingRight: scale(12),
+  },
+  customMantraName: {
+    fontSize: fs(13),
+    fontFamily: fonts.PoppinsSemiBold,
+    color: colors.secondary,
+  },
+  customMantraText: {
+    fontSize: fs(11),
+    fontFamily: fonts.PoppinsRegular,
+    color: colors.mutedForeground,
+    marginTop: scale(2),
+  },
+  deleteMantraBtn: {
+    width: scale(28),
+    height: scale(28),
+    borderRadius: scale(14),
+    backgroundColor: colors.dangerSubtle,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deleteMantraBtnText: {
+    fontSize: fs(11),
+    fontFamily: fonts.PoppinsBold,
+    color: colors.danger,
+  },
+});
+
+export default React.memo(ManageCustomMantrasModal);

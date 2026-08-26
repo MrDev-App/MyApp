@@ -283,13 +283,13 @@ const styles = StyleSheet.create({
     width: scale(30),
     height: scale(30),
     borderRadius: scale(18),
-    backgroundColor: 'rgba(251, 148, 55, 0.1)',
+    backgroundColor: colors.ring,
     alignItems: 'center',
     justifyContent: 'center',
   },
   closeButtonText: {
-    color: colors.ring,
-    fontSize: fs(18),
+    color: colors.white,
+    fontSize: fs(14),
     fontWeight: '600',
   },
 });

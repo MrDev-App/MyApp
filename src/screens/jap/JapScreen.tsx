@@ -11,6 +11,9 @@ import {
   Image,
   Vibration,
   Platform,
+  TextInput,
+  Modal,
+  Alert,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -32,6 +35,8 @@ import imagePath from '../../assets';
 import SwitchMantraModal from './component/SwitchMantraModal';
 import HapticFeedback from 'react-native-haptic-feedback';
 import { Storage, STORAGE_KEYS } from '../../utile/storage';
+import { logChant, CustomMantra } from '../../utile/japaStats';
+import { useIsFocused } from '@react-navigation/native';
 
 const TriggerHaptic = () => {
   if (Platform.OS === 'android') {
@@ -148,13 +153,68 @@ const JapScreen = () => {
   const { t, i18n } = useTranslation();
   const currentLanguage = (i18n.language || 'en') as 'en' | 'hi';
 
-  const [selectedMantra, setSelectedMantra] = useState(MANTRAS_LIST[0]);
-  const [displayedMantra, setDisplayedMantra] = useState(MANTRAS_LIST[0]);
+  const [selectedMantra, setSelectedMantra] = useState<MantraSelectorItem>(
+    MANTRAS_LIST[0],
+  );
+  const [displayedMantra, setDisplayedMantra] = useState<MantraSelectorItem>(
+    MANTRAS_LIST[0],
+  );
   const [count, setCount] = useState(0);
   const [rounds, setRounds] = useState(0);
   const [target, _setTarget] = useState(108);
   const [isHapticOn, setIsHapticOn] = useState(true);
   const isHapticOnRef = useRef(isHapticOn);
+  const isFocused = useIsFocused();
+
+  // Custom Mantras State
+  const [customMantras, setCustomMantras] = useState<CustomMantra[]>([]);
+  const [isAddMantraModalVisible, setIsAddMantraModalVisible] = useState(false);
+  const [customNameEn, setCustomNameEn] = useState('');
+  const [customNameHi, setCustomNameHi] = useState('');
+  const [customTextEn, setCustomTextEn] = useState('');
+  const [customTextHi, setCustomTextHi] = useState('');
+
+  // Load custom mantras
+  useEffect(() => {
+    if (isFocused) {
+      try {
+        const raw = Storage.getString('CUSTOM_MANTRAS', '[]');
+        const parsed: CustomMantra[] = JSON.parse(raw);
+        setCustomMantras(parsed);
+
+        // Safety: If the currently selected or displayed mantra was a custom one and it was deleted,
+        // fallback to the first standard mantra so the app doesn't crash or display empty data.
+        const allMantras = [...MANTRAS_LIST, ...parsed];
+        const selectedStillExists = allMantras.some(
+          m => m.id === selectedMantra.id,
+        );
+        if (!selectedStillExists) {
+          setSelectedMantra(MANTRAS_LIST[0]);
+          setDisplayedMantra(MANTRAS_LIST[0]);
+
+          // Reset counts displayed on top sphere to the new selected mantra's counts
+          const firstMantraId = MANTRAS_LIST[0].id;
+          setTotalCount(
+            Storage.getNumber(
+              `${STORAGE_KEYS.JAP_TOTAL_COUNT}_${firstMantraId}`,
+            ) || 0,
+          );
+          setTodayCount(
+            Storage.getNumber(
+              `${STORAGE_KEYS.JAP_TODAY_COUNT}_${firstMantraId}`,
+            ) || 0,
+          );
+          setTodayMala(
+            Storage.getNumber(
+              `${STORAGE_KEYS.JAP_TODAY_MALA}_${firstMantraId}`,
+            ) || 0,
+          );
+        }
+      } catch (e) {
+        console.error('Failed to load custom mantras', e);
+      }
+    }
+  }, [isFocused, selectedMantra.id]);
 
   useEffect(() => {
     isHapticOnRef.current = isHapticOn;
@@ -292,52 +352,33 @@ const JapScreen = () => {
     });
 
     const mantraId = selectedMantra.id;
-    const todayCountKey = `${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`;
-    const todayMalaKey = `${STORAGE_KEYS.JAP_TODAY_MALA}_${mantraId}`;
-    const totalCountKey = `${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`;
-    const totalMalaKey = `${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`;
 
-    // 1. Increment Mantra-Specific stats & update local screen state
-    const currentTotalCount = Storage.getNumber(totalCountKey) || 0;
-    const currentTodayCount = Storage.getNumber(todayCountKey) || 0;
-    const nextTotalCount = currentTotalCount + 1;
-    const nextTodayCount = currentTodayCount + 1;
+    // 1. Log chant in MMKV (increments total, today, and writes to JAP_HISTORY logs)
+    logChant(mantraId, 1);
 
-    Storage.set(totalCountKey, nextTotalCount);
-    Storage.set(todayCountKey, nextTodayCount);
-    setTotalCount(nextTotalCount);
+    // 2. Sync React states
+    const nextTodayCount = Storage.getNumber(
+      `${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`,
+      0,
+    );
+    const nextTotalCount = Storage.getNumber(
+      `${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`,
+      0,
+    );
     setTodayCount(nextTodayCount);
+    setTotalCount(nextTotalCount);
 
-    // 2. Increment Global stats (existing functionality elsewhere, e.g. ProfileScreen)
-    const currentGlobalTotalCount =
-      Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_COUNT) || 0;
-    const currentGlobalTodayCount =
-      Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT) || 0;
-    Storage.set(STORAGE_KEYS.JAP_TOTAL_COUNT, currentGlobalTotalCount + 1);
-    Storage.set(STORAGE_KEYS.JAP_TODAY_COUNT, currentGlobalTodayCount + 1);
-
-    // Persistent Mala Stats
     if (isMalaCompleted) {
-      // 1. Mantra-Specific Malas
-      const currentTotalMala = Storage.getNumber(totalMalaKey) || 0;
-      const currentTodayMala = Storage.getNumber(todayMalaKey) || 0;
-      const nextTotalMala = currentTotalMala + 1;
-      const nextTodayMala = currentTodayMala + 1;
-
-      Storage.set(totalMalaKey, nextTotalMala);
-      Storage.set(todayMalaKey, nextTodayMala);
-      setTotalMala(nextTotalMala);
+      const nextTodayMala = Storage.getNumber(`JAP_TODAY_MALA_${mantraId}`, 0);
+      const nextTotalMala = Storage.getNumber(
+        `${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`,
+        0,
+      );
       setTodayMala(nextTodayMala);
-
-      // 2. Global Malas
-      const currentGlobalTotalMala =
-        Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_MALA) || 0;
-      const currentGlobalTodayMala =
-        Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA) || 0;
-      Storage.set(STORAGE_KEYS.JAP_TOTAL_MALA, currentGlobalTotalMala + 1);
-      Storage.set(STORAGE_KEYS.JAP_TODAY_MALA, currentGlobalTodayMala + 1);
+      setTotalMala(nextTotalMala);
     }
 
+    // Rotation step calculation
     const step = 360 / TOTAL_BEADS;
     const targetRotation = nextCount === 0 ? 0 : -(nextCount * step);
     malaRotation.value = withTiming(targetRotation, {
@@ -414,6 +455,46 @@ const JapScreen = () => {
     setPendingMantra(null);
   };
 
+  const handleSaveCustomMantra = () => {
+    if (
+      !customNameEn.trim() ||
+      !customNameHi.trim() ||
+      !customTextEn.trim() ||
+      !customTextHi.trim()
+    ) {
+      Alert.alert(
+        currentLanguage === 'hi' ? 'त्रुटि' : 'Error',
+        currentLanguage === 'hi'
+          ? 'कृपया सभी फ़ील्ड भरें।'
+          : 'Please fill all fields.',
+      );
+      return;
+    }
+
+    const newMantra: CustomMantra = {
+      id: `custom_${Date.now()}`,
+      nameEn: customNameEn.trim(),
+      nameHi: customNameHi.trim(),
+      textEn: customTextEn.trim(),
+      textHi: customTextHi.trim(),
+      isCustom: true,
+    };
+
+    const updated = [...customMantras, newMantra];
+    setCustomMantras(updated);
+    Storage.set('CUSTOM_MANTRAS', JSON.stringify(updated));
+
+    // Select the new mantra
+    setSelectedMantra(newMantra);
+
+    // Clear inputs and close
+    setCustomNameEn('');
+    setCustomNameHi('');
+    setCustomTextEn('');
+    setCustomTextHi('');
+    setIsAddMantraModalVisible(false);
+  };
+
   const currentBeadIndex =
     Math.round((count / target) * TOTAL_BEADS) % TOTAL_BEADS;
   const mantraText =
@@ -470,7 +551,7 @@ const JapScreen = () => {
             <FlatList
               horizontal
               showsHorizontalScrollIndicator={false}
-              data={MANTRAS_LIST}
+              data={[...MANTRAS_LIST, ...customMantras]}
               keyExtractor={item => item.id}
               contentContainerStyle={styles.selectorList}
               renderItem={({ item }) => {
@@ -497,6 +578,19 @@ const JapScreen = () => {
                   </TouchableOpacity>
                 );
               }}
+              ListFooterComponent={
+                <TouchableOpacity
+                  style={[styles.selectorItem, styles.addCustomSelectorItem]}
+                  onPress={() => setIsAddMantraModalVisible(true)}
+                  activeOpacity={0.8}
+                >
+                  <Text
+                    style={[styles.selectorText, styles.addCustomSelectorText]}
+                  >
+                    + {currentLanguage === 'hi' ? 'कस्टम मंत्र' : 'Add Custom'}
+                  </Text>
+                </TouchableOpacity>
+              }
             />
           </View>
 
@@ -616,6 +710,103 @@ const JapScreen = () => {
           onCancel={handleCancelSwitch}
           onConfirm={handleConfirmSwitch}
         />
+
+        {/* ── Add Custom Mantra Modal ── */}
+        <Modal
+          visible={isAddMantraModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setIsAddMantraModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.customMantraModalCard}>
+              <Text style={styles.modalTitle}>
+                {currentLanguage === 'hi'
+                  ? 'नया कस्टम मंत्र जोड़ें'
+                  : 'Add Custom Mantra'}
+              </Text>
+
+              <Text style={styles.inputLabel}>
+                {currentLanguage === 'hi'
+                  ? 'मंत्र का नाम (English):'
+                  : 'Mantra Name (English):'}
+              </Text>
+              <TextInput
+                style={styles.modalInput}
+                value={customNameEn}
+                onChangeText={setCustomNameEn}
+                placeholder="e.g. Ram Mantra"
+                placeholderTextColor={colors.neutralDisabled}
+              />
+
+              <Text style={styles.inputLabel}>
+                {currentLanguage === 'hi'
+                  ? 'मंत्र का नाम (हिन्दी):'
+                  : 'Mantra Name (Hindi):'}
+              </Text>
+              <TextInput
+                style={styles.modalInput}
+                value={customNameHi}
+                onChangeText={setCustomNameHi}
+                placeholder="उदा. राम मंत्र"
+                placeholderTextColor={colors.neutralDisabled}
+              />
+
+              <Text style={styles.inputLabel}>
+                {currentLanguage === 'hi'
+                  ? 'जाप का पाठ (English):'
+                  : 'Chanting Text (English):'}
+              </Text>
+              <TextInput
+                style={styles.modalInput}
+                value={customTextEn}
+                onChangeText={setCustomTextEn}
+                placeholder="e.g. Om Ram Ramaya Namah"
+                placeholderTextColor={colors.neutralDisabled}
+              />
+
+              <Text style={styles.inputLabel}>
+                {currentLanguage === 'hi'
+                  ? 'जाप का पाठ (हिन्दी):'
+                  : 'Chanting Text (Hindi):'}
+              </Text>
+              <TextInput
+                style={styles.modalInput}
+                value={customTextHi}
+                onChangeText={setCustomTextHi}
+                placeholder="उदा. ॐ राम रामाय नमः"
+                placeholderTextColor={colors.neutralDisabled}
+              />
+
+              <View style={styles.modalButtonsRow}>
+                <TouchableOpacity
+                  style={[styles.modalBtn, styles.modalCancelBtn]}
+                  onPress={() => {
+                    setIsAddMantraModalVisible(false);
+                    setCustomNameEn('');
+                    setCustomNameHi('');
+                    setCustomTextEn('');
+                    setCustomTextHi('');
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.modalCancelText}>
+                    {currentLanguage === 'hi' ? 'रद्द करें' : 'Cancel'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalBtn, styles.modalSaveBtn]}
+                  onPress={handleSaveCustomMantra}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.modalSaveText}>
+                    {currentLanguage === 'hi' ? 'सहेजें' : 'Save'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     </GradientBackground>
   );
@@ -909,6 +1100,248 @@ const styles = StyleSheet.create({
   },
   resetBtnText: {
     color: colors.alertRed,
+  },
+
+  addCustomSelectorItem: {
+    backgroundColor: colors.borderSubtle2,
+    borderColor: colors.borderLight,
+    borderStyle: 'dashed',
+  },
+  addCustomSelectorText: {
+    color: colors.ring,
+  },
+  statsCard: {
+    width: '92%',
+    backgroundColor: colors.white,
+    borderRadius: scale(14),
+    padding: scale(16),
+    marginTop: scale(20),
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    shadowColor: colors.ring,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  statsTitle: {
+    fontSize: fs(14),
+    fontFamily: fonts.PoppinsSemiBold,
+    color: colors.secondary,
+    marginBottom: scale(12),
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: colors.borderSubtle2,
+    borderRadius: scale(8),
+    padding: scale(2),
+    marginBottom: scale(12),
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: scale(6),
+    alignItems: 'center',
+    borderRadius: scale(6),
+  },
+  tabButtonActive: {
+    backgroundColor: colors.white,
+    shadowColor: colors.secondary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  tabButtonText: {
+    fontSize: fs(12),
+    fontFamily: fonts.PoppinsMedium,
+    color: colors.mutedForeground,
+  },
+  tabButtonTextActive: {
+    color: colors.secondary,
+    fontFamily: fonts.PoppinsSemiBold,
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: scale(16),
+    gap: scale(4),
+  },
+  filterButton: {
+    flex: 1,
+    paddingVertical: scale(4),
+    alignItems: 'center',
+    borderRadius: scale(14),
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    backgroundColor: colors.white,
+  },
+  filterButtonActive: {
+    backgroundColor: colors.ring,
+    borderColor: colors.ring,
+  },
+  filterButtonText: {
+    fontSize: fs(11),
+    fontFamily: fonts.PoppinsMedium,
+    color: colors.mutedForeground,
+  },
+  filterButtonTextActive: {
+    color: colors.white,
+    fontFamily: fonts.PoppinsSemiBold,
+  },
+  statsSummaryRow: {
+    flexDirection: 'row',
+    backgroundColor: colors.accentLightBg,
+    borderRadius: scale(10),
+    paddingVertical: scale(12),
+    paddingHorizontal: scale(16),
+    marginBottom: scale(16),
+    borderWidth: 1,
+    borderColor: colors.accentBorderSubtle,
+  },
+  summaryItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  summaryValue: {
+    fontSize: fs(18),
+    fontFamily: fonts.Marcellus,
+    color: colors.ring,
+  },
+  summaryLabel: {
+    fontSize: fs(10),
+    fontFamily: fonts.PoppinsMedium,
+    color: colors.secondary,
+    marginTop: scale(2),
+  },
+  summaryDivider: {
+    width: 1,
+    backgroundColor: colors.accentBorderSubtle,
+    alignSelf: 'stretch',
+  },
+  chartContainer: {
+    height: scale(140),
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'flex-end',
+    paddingTop: scale(20),
+    paddingBottom: scale(6),
+  },
+  emptyChartContainer: {
+    flex: 1,
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyChartText: {
+    fontSize: fs(12),
+    fontFamily: fonts.PoppinsMedium,
+    color: colors.mutedForeground,
+  },
+  barWrapper: {
+    alignItems: 'center',
+    flex: 1,
+    height: '100%',
+    justifyContent: 'flex-end',
+  },
+  barTrack: {
+    width: scale(12),
+    height: '75%',
+    backgroundColor: colors.borderSubtle2,
+    borderRadius: scale(6),
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+  },
+  barFill: {
+    width: '100%',
+    backgroundColor: colors.ring,
+    borderRadius: scale(6),
+  },
+  barValueText: {
+    fontSize: fs(9),
+    fontFamily: fonts.PoppinsRegular,
+    color: colors.mutedForeground,
+    marginBottom: scale(4),
+  },
+  barLabelText: {
+    fontSize: fs(10),
+    fontFamily: fonts.PoppinsMedium,
+    color: colors.secondary,
+    marginTop: scale(6),
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: scale(20),
+  },
+  customMantraModalCard: {
+    width: '100%',
+    backgroundColor: colors.white,
+    borderRadius: scale(16),
+    padding: scale(20),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: fs(16),
+    fontFamily: fonts.PoppinsSemiBold,
+    color: colors.secondary,
+    marginBottom: scale(16),
+    textAlign: 'center',
+  },
+  inputLabel: {
+    fontSize: fs(11),
+    fontFamily: fonts.PoppinsMedium,
+    color: colors.mutedForeground,
+    marginBottom: scale(4),
+    marginTop: scale(8),
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    borderRadius: scale(8),
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(6),
+    fontSize: fs(13),
+    fontFamily: fonts.PoppinsRegular,
+    color: colors.secondary,
+    backgroundColor: colors.borderSubtle2,
+    marginBottom: scale(8),
+  },
+  modalButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: scale(12),
+    marginTop: scale(20),
+  },
+  modalBtn: {
+    paddingHorizontal: scale(18),
+    paddingVertical: scale(8),
+    borderRadius: scale(8),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCancelBtn: {
+    backgroundColor: colors.borderSubtle2,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+  },
+  modalSaveBtn: {
+    backgroundColor: colors.ring,
+  },
+  modalCancelText: {
+    fontSize: fs(12),
+    fontFamily: fonts.PoppinsMedium,
+    color: colors.secondary,
+  },
+  modalSaveText: {
+    fontSize: fs(12),
+    fontFamily: fonts.PoppinsSemiBold,
+    color: colors.white,
   },
 });
 
