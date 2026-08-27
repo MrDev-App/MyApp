@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Modal,
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-} from 'react-native';
+import { Modal, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import colors from '../utile/colors';
 import fonts from '../utile/fonts';
 import { fs, scale } from '../utile/sizes';
@@ -18,10 +12,7 @@ interface NotificationScheduleModalProps {
   initialConfig?: NotificationConfig | null;
 }
 
-import {
-  HOUR_ITEMS,
-  MINUTE_ITEMS,
-} from '../constants/notificationData';
+import { HOUR_ITEMS, MINUTE_ITEMS } from '../constants/notificationData';
 
 import { ScrollPicker } from '../screens/profile/components/ScrollPicker';
 import GradientBackground from './GradientBackground';
@@ -37,12 +28,6 @@ export default function NotificationScheduleModal({
   const [minute, setMinute] = useState(0);
   const [isPm, setIsPm] = useState(false);
 
-  // Frequency States
-  const [type, setType] = useState<'daily' | 'date' | 'weekly'>('daily');
-
-  // Weekly Days States (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
-  const [weekdays, setWeekdays] = useState<number[]>([1, 2, 3, 4, 5]); // Default Mon-Fri
-
   // Reset/Load settings on visible
   useEffect(() => {
     if (visible) {
@@ -50,10 +35,6 @@ export default function NotificationScheduleModal({
         setHour(initialConfig.hour);
         setMinute(initialConfig.minute);
         setIsPm(initialConfig.isPm);
-        setType(initialConfig.type);
-        if (initialConfig.weekdays) {
-          setWeekdays(initialConfig.weekdays);
-        }
       } else {
         // Default defaults
         const now = new Date();
@@ -65,29 +46,16 @@ export default function NotificationScheduleModal({
         setHour(h);
         setMinute(now.getMinutes());
         setIsPm(pm);
-        setType('daily');
-        setWeekdays([1, 2, 3, 4, 5]);
       }
     }
   }, [visible, initialConfig]);
 
-  const toggleWeekday = (day: number) => {
-    if (weekdays.includes(day)) {
-      if (weekdays.length > 1) {
-        setWeekdays(prev => prev.filter(d => d !== day));
-      }
-    } else {
-      setWeekdays(prev => [...prev, day].sort());
-    }
-  };
-
   const handleSave = () => {
     onSchedule({
-      type,
+      type: 'daily',
       hour,
       minute,
       isPm,
-      weekdays: type === 'weekly' ? weekdays : undefined,
     });
   };
 
@@ -163,40 +131,6 @@ export default function NotificationScheduleModal({
                   </TouchableOpacity>
                 </View>
               </View>
-
-              {/* 2. Frequency Selector */}
-
-              {/* 3. Conditional Options */}
-
-              {type === 'weekly' && (
-                <View style={styles.conditionalContainer}>
-                  <Text style={styles.sectionLabel}>Select Days</Text>
-                  <View style={styles.weekdaysContainer}>
-                    {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((dayName, idx) => {
-                      const isSelected = weekdays.includes(idx);
-                      return (
-                        <TouchableOpacity
-                          key={`weekday_${idx}`}
-                          onPress={() => toggleWeekday(idx)}
-                          style={[
-                            styles.dayCircle,
-                            isSelected && styles.dayCircleActive,
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.dayCircleText,
-                              isSelected && styles.dayCircleTextActive,
-                            ]}
-                          >
-                            {dayName}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                </View>
-              )}
             </View>
 
             {/* Action Buttons */}
@@ -297,41 +231,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   ampmActiveText: {
-    color: colors.black,
-  },
-  conditionalContainer: {
-    width: '100%',
-  },
-  weekdaysContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    borderRadius: scale(16),
-    padding: scale(10),
-    marginBottom: scale(10),
-  },
-  dayCircle: {
-    width: scale(30),
-    height: scale(30),
-    borderRadius: scale(15),
-    backgroundColor: '#1E1E22',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#3A3A3E',
-  },
-  dayCircleActive: {
-    backgroundColor: colors.ring,
-    borderColor: colors.ring,
-  },
-  dayCircleText: {
-    fontSize: fs(11),
-    color: colors.white,
-    fontWeight: 'bold',
-  },
-  dayCircleTextActive: {
     color: colors.white,
   },
+
   actionsContainer: {
     flexDirection: 'row',
     width: '100%',
