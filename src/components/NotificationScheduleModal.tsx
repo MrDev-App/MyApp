@@ -91,7 +91,7 @@ export default function NotificationScheduleModal({
                 {/* Scrollable Hours */}
                 <ScrollPicker
                   items={HOUR_ITEMS}
-                  selectedValue={String(hour).padStart(2, '0')}
+                  selectedValue={String(hour)}
                   onValueChange={val => setHour(parseInt(val, 10))}
                 />
 

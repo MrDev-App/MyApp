@@ -1,10 +1,5 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
-import {
-  Modal,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import { Modal, View, StyleSheet, TouchableOpacity } from 'react-native';
 
 export type OverlayOrigin = { x: number; y: number };
 
@@ -54,7 +49,6 @@ const OverlayModal = forwardRef<OverlayModalHandle, Props>(
         onRequestClose={handleClose}
       >
         <View style={StyleSheet.absoluteFill}>
-          {/* Backdrop */}
           <View style={[StyleSheet.absoluteFill, { backgroundColor }]} />
 
           {closeOnBackdropPress && (
