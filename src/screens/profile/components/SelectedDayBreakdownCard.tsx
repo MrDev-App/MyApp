@@ -4,6 +4,8 @@ import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
 import { fs, scale } from '../../../utile/sizes';
 import { SearchIcon } from '../../../utile/customSVG';
+import { useTranslation } from 'react-i18next';
+import { Translation } from '../../../i18n/language';
 
 interface SelectedDayBreakdownCardProps {
   selectedDate: string;
@@ -18,6 +20,8 @@ const SelectedDayBreakdownCard: React.FC<SelectedDayBreakdownCardProps> = ({
   getMantraName,
   currentLanguage,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.sectionCard}>
       <View style={styles.titleRow}>
@@ -38,12 +42,12 @@ const SelectedDayBreakdownCard: React.FC<SelectedDayBreakdownCardProps> = ({
       {selectedDayRecord ? (
         <View style={styles.selectedDayDetails}>
           <Text style={styles.breakdownLabel}>
-            {currentLanguage === 'hi' ? 'मंत्र वार विवरण:' : 'Mantra Breakdown:'}
+            {t(Translation.PROFILE_MANTRA_BREAKDOWN)}
           </Text>
 
           {Object.keys(selectedDayRecord.mantras).length === 0 ? (
             <Text style={styles.noBreakdownText}>
-              {currentLanguage === 'hi' ? 'कोई मंत्र दर्ज नहीं।' : 'No custom breakdown recorded.'}
+              {t(Translation.PROFILE_NO_BREAKDOWN)}
             </Text>
           ) : (
             Object.keys(selectedDayRecord.mantras).map(mantraId => {
@@ -58,11 +62,9 @@ const SelectedDayBreakdownCard: React.FC<SelectedDayBreakdownCardProps> = ({
                   </View>
                   <Text style={styles.breakdownMantraValue}>
                     {record.count.toLocaleString()} ({record.mala}{' '}
-                    {currentLanguage === 'hi'
-                      ? 'माला'
-                      : record.mala === 1
-                      ? 'Mala'
-                      : 'Malas'}
+                    {record.mala === 1
+                      ? t(Translation.PROFILE_MALA)
+                      : t(Translation.PROFILE_MALAS)}
                     )
                   </Text>
                 </View>
@@ -73,9 +75,7 @@ const SelectedDayBreakdownCard: React.FC<SelectedDayBreakdownCardProps> = ({
       ) : (
         <View style={styles.emptyDayBreakdown}>
           <Text style={styles.emptyDayBreakdownText}>
-            {currentLanguage === 'hi'
-              ? 'इस दिन कोई जाप दर्ज नहीं किया गया।'
-              : 'No chants logged on this selected date.'}
+            {t(Translation.PROFILE_NO_CHANTS_RECORDED)}
           </Text>
         </View>
       )}

@@ -9,7 +9,9 @@ import {
   Platform,
   StatusBar,
   Keyboard,
+  Image,
 } from 'react-native';
+import imagePath from '../../assets';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -133,7 +135,7 @@ const SearchScreen = () => {
               navigation.goBack();
             }}
           >
-            <Back width={scale(12)} height={scale(12)} stroke={colors.ring} />
+            <Back width={scale(12)} height={scale(12)} stroke={colors.white} />
           </TouchableOpacity>
 
           <View style={styles.searchBar}>
@@ -173,13 +175,17 @@ const SearchScreen = () => {
           {searchQuery.trim() === '' ? (
             // Empty Search State
             <View style={styles.emptyStateContainer}>
-              <Text style={styles.emptyStateEmoji}>✨</Text>
+              <Image source={imagePath.star} style={styles.emptyStateStar} />
               <Text style={styles.emptyStateText}>{labels.emptyState}</Text>
             </View>
           ) : filteredStories.length === 0 ? (
             // No Results State
             <View style={styles.noResultsCard}>
-              <Text style={styles.noResultsText}>✨ {labels.noResults} ✨</Text>
+              <View style={styles.noResultsContainer}>
+                <Image source={imagePath.star} style={styles.noResultsStar} />
+                <Text style={styles.noResultsText}>{labels.noResults}</Text>
+                <Image source={imagePath.star} style={styles.noResultsStar} />
+              </View>
             </View>
           ) : (
             // Matching Results list
@@ -252,7 +258,11 @@ const SearchScreen = () => {
                   </View>
                   {isFav && (
                     <View style={styles.favoriteBadge}>
-                      <HeartIcon size={scale(12)} color={colors.ring} filled={true} />
+                      <HeartIcon
+                        size={scale(12)}
+                        color={colors.ring}
+                        filled={true}
+                      />
                     </View>
                   )}
                 </TouchableOpacity>
@@ -345,8 +355,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: scale(100),
   },
-  emptyStateEmoji: {
-    fontSize: fs(48),
+  emptyStateStar: {
+    width: scale(48),
+    height: scale(48),
     marginBottom: scale(12),
   },
   emptyStateText: {
@@ -364,11 +375,23 @@ const styles = StyleSheet.create({
     borderColor: colors.borderLight,
     marginTop: scale(40),
   },
+  noResultsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  noResultsStar: {
+    width: scale(16),
+    height: scale(16),
+    marginHorizontal: scale(8),
+  },
   noResultsText: {
     fontSize: fs(13),
     fontFamily: fonts.PoppinsMedium,
     color: colors.neutralDisabled,
     textAlign: 'center',
+    flexShrink: 1,
   },
   searchCard: {
     flexDirection: 'row',

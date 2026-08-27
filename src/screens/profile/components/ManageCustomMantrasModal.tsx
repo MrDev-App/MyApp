@@ -15,6 +15,8 @@ import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
 import { fs, scale } from '../../../utile/sizes';
 import imagePath from '../../../assets';
+import { useTranslation } from 'react-i18next';
+import { Translation } from '../../../i18n/language';
 
 interface CustomMantra {
   id: string;
@@ -37,6 +39,8 @@ const ManageCustomMantrasModal: React.FC<ManageCustomMantrasModalProps> = ({
   onDeleteCustomMantra,
   currentLanguage,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <OverlayModal ref={modalRef} closeOnBackdropPress={true}>
       <View style={styles.modalCenterContainer}>
@@ -66,18 +70,14 @@ const ManageCustomMantrasModal: React.FC<ManageCustomMantrasModalProps> = ({
           >
             <Image source={imagePath.mala} style={styles.titleIcon} />
             <Text style={[styles.modalTitle, { marginBottom: 0 }]}>
-              {currentLanguage === 'hi'
-                ? 'कस्टम मंत्र प्रबंधित करें'
-                : 'Manage Custom Mantras'}
+              {t(Translation.PROFILE_MANAGE_CUSTOM_MANTRAS)}
             </Text>
           </View>
 
           {customMantras.length === 0 ? (
             <View style={styles.emptyCustomBox}>
               <Text style={styles.emptyCustomText}>
-                {currentLanguage === 'hi'
-                  ? 'कोई कस्टम मंत्र नहीं मिला।'
-                  : 'No custom mantras added yet.'}
+                {t(Translation.PROFILE_NO_CUSTOM_MANTRAS_FOUND)}
               </Text>
             </View>
           ) : (

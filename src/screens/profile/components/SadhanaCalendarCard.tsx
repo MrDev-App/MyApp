@@ -5,6 +5,8 @@ import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
 import { fs, scale } from '../../../utile/sizes';
 import imagePath from '../../../assets';
+import { useTranslation } from 'react-i18next';
+import { Translation } from '../../../i18n/language';
 
 interface SadhanaCalendarCardProps {
   selectedDate: string;
@@ -19,12 +21,14 @@ const SadhanaCalendarCard: React.FC<SadhanaCalendarCardProps> = ({
   markedDates,
   currentLanguage,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.sectionCard}>
       <View style={styles.titleRow}>
         <Image source={imagePath.calendar} style={styles.titleIcon} />
         <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>
-          {currentLanguage === 'hi' ? 'साधना कैलेंडर' : 'Sadhana Calendar'}
+          {t(Translation.PROFILE_SADHANA_CALENDAR)}
         </Text>
       </View>
 
