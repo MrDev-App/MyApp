@@ -46,8 +46,8 @@ const ReadingScreen = () => {
 
   // Dark / Light Mode state with MMKV persistence (default dark for immersive comic reading)
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    const saved = Storage.getString('READER_THEME', 'dark');
-    return saved === 'dark';
+    const saved = Storage.getString('READER_THEME');
+    return saved !== 'light';
   });
 
   const toggleTheme = () => {

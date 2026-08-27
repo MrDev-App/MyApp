@@ -3,23 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
 import { fs, scale } from '../../../utile/sizes';
-import Svg, { Path, Circle } from 'react-native-svg';
-
-const SearchIcon = ({ size = 18, color = colors.ring }) => (
-  <Svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth={2.5}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <Circle cx="11" cy="11" r="8" />
-    <Path d="M21 21l-4.35-4.35" />
-  </Svg>
-);
+import { SearchIcon } from '../../../utile/customSVG';
 
 interface SelectedDayBreakdownCardProps {
   selectedDate: string;

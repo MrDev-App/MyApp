@@ -5,6 +5,7 @@ import {
   ViewStyle,
   StyleProp,
   GestureResponderEvent,
+  Insets,
 } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -21,14 +22,15 @@ type AnimatedBtnProps = {
   pressDepth?: number;
   scaleDown?: number;
   elnableHaptics?: boolean;
+  hitSlop?: Insets;
 };
 const AnimatedButton = ({
   onPress,
   children,
   style,
   disabled = false,
-
   scaleDown = 0.9,
+  hitSlop,
 }: AnimatedBtnProps) => {
   const translateY = useSharedValue(0);
   const scale = useSharedValue(1);
@@ -98,6 +100,7 @@ const AnimatedButton = ({
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       style={layoutStyle}
+      hitSlop={hitSlop}
     >
       <Animated.View
         style={[

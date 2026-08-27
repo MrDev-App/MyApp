@@ -25,7 +25,7 @@ import { Storage } from '../../utile/storage';
 import { MahaBharatStories } from '../../constants/storiesData';
 import GradientBackground from '../../components/GradientBackground';
 import { Translation } from '../../i18n/language';
-import { Back } from '../../assets';
+import { SearchIcon, HeartIcon, BackIcon as Back } from '../../utile/customSVG';
 
 // Localization
 
@@ -137,7 +137,7 @@ const SearchScreen = () => {
           </TouchableOpacity>
 
           <View style={styles.searchBar}>
-            <Text style={styles.searchIcon}>🔍</Text>
+            <SearchIcon size={scale(18)} color={colors.ring} />
             <TextInput
               ref={inputRef}
               style={styles.searchInput}
@@ -252,7 +252,7 @@ const SearchScreen = () => {
                   </View>
                   {isFav && (
                     <View style={styles.favoriteBadge}>
-                      <Text style={styles.favoriteBadgeText}>❤️</Text>
+                      <HeartIcon size={scale(12)} color={colors.ring} filled={true} />
                     </View>
                   )}
                 </TouchableOpacity>

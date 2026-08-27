@@ -24,6 +24,7 @@ import GradientBackground from '../../components/GradientBackground';
 import { Translation } from '../../i18n/language';
 import ComicShelf from './Components/ComicShelf';
 import BookSkeleton from './Components/BookSkeleton';
+import { SearchIcon } from '../../utile/customSVG';
 
 // Haptic feedback trigger function matching the app pattern
 const triggerHaptic = (type: string = 'impactLight') => {
@@ -122,7 +123,7 @@ const BookScreen = () => {
           activeOpacity={0.9}
         >
           <View style={styles.searchBar}>
-            <Text style={styles.searchIcon}>🔍</Text>
+            <SearchIcon size={scale(18)} color={colors.ring} />
             <Text
               style={[
                 styles.searchInput,
@@ -309,16 +310,13 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 2,
   },
-  searchIcon: {
-    fontSize: fs(15),
-    marginRight: scale(8),
-  },
+
   searchInput: {
     flex: 1,
     fontFamily: fonts.PoppinsRegular,
-    fontSize: fs(13),
+    fontSize: fs(14),
     color: colors.secondary,
-    padding: 0,
+    marginHorizontal: scale(10),
   },
   clearIcon: {
     fontSize: fs(14),

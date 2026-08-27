@@ -34,6 +34,13 @@ import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Storage, STORAGE_KEYS } from '../../utile/storage';
 import HapticFeedback from 'react-native-haptic-feedback';
 import { MANTRAS_LIST } from '../../constants/japData';
+import {
+  initNotifications,
+  scheduleCustomReminder,
+  cancelAllReminders,
+  NotificationConfig,
+} from '../../notifee/notifications';
+import NotificationScheduleModal from '../../components/NotificationScheduleModal';
 import SadhanaCalendarCard from './components/SadhanaCalendarCard';
 import SelectedDayBreakdownCard from './components/SelectedDayBreakdownCard';
 import ManageCustomMantrasModal from './components/ManageCustomMantrasModal';
@@ -43,11 +50,48 @@ const ProfileScreen = () => {
 
   const navigation = useNavigation<any>();
 
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
+    return Storage.getBoolean('DAILY_REMINDER_ENABLED', true);
+  });
   const overlayRef = useRef<OverlayModalHandle>(null);
   const customMantrasModalRef = useRef<OverlayModalHandle>(null);
+  const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
+  const [reminderConfig, setReminderConfig] =
+    useState<NotificationConfig | null>(() => {
+      try {
+        const raw = Storage.getString('REMINDER_CONFIG', '');
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    });
+
+  const handleSaveSchedule = async (config: NotificationConfig) => {
+    setScheduleModalVisible(false);
+    setReminderConfig(config);
+    Storage.set('REMINDER_CONFIG', JSON.stringify(config));
+    setNotificationsEnabled(true);
+    Storage.set('DAILY_REMINDER_ENABLED', true);
+    await scheduleCustomReminder(config, currentLanguage);
+  };
 
   const isFocused = useIsFocused();
+
+  const handleToggleNotifications = async (value: boolean) => {
+    if (value) {
+      const permissionGranted = await initNotifications();
+      if (permissionGranted) {
+        setScheduleModalVisible(true);
+      } else {
+        setNotificationsEnabled(false);
+        Storage.set('DAILY_REMINDER_ENABLED', false);
+      }
+    } else {
+      setNotificationsEnabled(false);
+      Storage.set('DAILY_REMINDER_ENABLED', false);
+      await cancelAllReminders();
+    }
+  };
   const [favoriteStories, setFavoriteStories] = useState<Story[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [totalMala, setTotalMala] = useState(0);
@@ -360,7 +404,10 @@ const ProfileScreen = () => {
                 setJapaHistory({ ...history });
               }
             } catch (e) {
-              console.error('Failed to clean history for custom mantra delete', e);
+              console.error(
+                'Failed to clean history for custom mantra delete',
+                e,
+              );
             }
           },
         },
@@ -620,7 +667,15 @@ const ProfileScreen = () => {
             <View style={styles.separator} />
 
             {/* Notifications Switch Row */}
-            <View style={styles.settingRow}>
+            <TouchableOpacity
+              activeOpacity={notificationsEnabled ? 0.7 : 1}
+              onPress={() => {
+                if (notificationsEnabled) {
+                  setScheduleModalVisible(true);
+                }
+              }}
+              style={styles.settingRow}
+            >
               <View style={styles.settingInfo}>
                 <Text style={styles.settingLabel}>
                   {t(Translation.PROFILE_DAILY_NOTIFICATIONS)}
@@ -637,10 +692,10 @@ const ProfileScreen = () => {
                 thumbColor={
                   notificationsEnabled ? colors.white : colors.switchThumbFalse
                 }
-                onValueChange={setNotificationsEnabled}
+                onValueChange={handleToggleNotifications}
                 value={notificationsEnabled}
               />
-            </View>
+            </TouchableOpacity>
 
             <View style={styles.separator} />
 
@@ -728,6 +783,13 @@ const ProfileScreen = () => {
           </View>
         </ScrollView>
       </SafeAreaView>
+
+      <NotificationScheduleModal
+        visible={scheduleModalVisible}
+        onClose={() => setScheduleModalVisible(false)}
+        onSchedule={handleSaveSchedule}
+        initialConfig={reminderConfig}
+      />
 
       <OverlayModal ref={overlayRef} closeOnBackdropPress={true}>
         <View style={styles.modalCenterContainer}>

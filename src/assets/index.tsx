@@ -115,7 +115,7 @@ const imagePath = {
     require('./png/abimanyu/Page17.webp'),
     require('./png/abimanyu/Page18.webp'),
   ],
-  Logo: require('./png/Logo.png'),
+  Logo: require('./png/Logo.webp'),
   Vibration: require('./png/Vibration.webp'),
   VibrationOff: require('./png/VibrationOff.webp'),
   book: require('./png/book.webp'),

@@ -1793,7 +1793,7 @@
 
 "@notifee/react-native@^9.1.8":
   version "9.1.8"
-  resolved "https://registry.npmjs.org/@notifee/react-native/-/react-native-9.1.8.tgz"
+  resolved "https://registry.yarnpkg.com/@notifee/react-native/-/react-native-9.1.8.tgz#3d55cb3fbcc21f9e35931e366afdf64b294da891"
   integrity sha512-Az/dueoPerJsbbjRxu8a558wKY+gONUrfoy3Hs++5OqbeMsR0dYe6P+4oN6twrLFyzAhEA1tEoZRvQTFDRmvQg==
 
 "@protobufjs/aspromise@^1.1.1", "@protobufjs/aspromise@^1.1.2":
@@ -6365,6 +6365,14 @@ react-native-calendars@^1.1314.0:
   optionalDependencies:
     moment "^2.29.4"
 
+react-native-gesture-handler@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-3.2.1.tgz#83ee1e6f3453ed46d20cbd9c510e836a3333641d"
+  integrity sha512-VEWscxUN29aeccbD2McF0LSXrwOhSdisaSRFiEWg0O/3WrVghNJp/tOtLrCgzb9gfcZ3xdA+K2Sp8F5G3iHx/Q==
+  dependencies:
+    "@types/react-test-renderer" "^19.1.0"
+    invariant "^2.2.4"
+
 react-native-haptic-feedback@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/react-native-haptic-feedback/-/react-native-haptic-feedback-3.0.0.tgz"
@@ -6394,6 +6402,11 @@ react-native-nitro-modules@^0.36.5:
   version "0.36.5"
   resolved "https://registry.npmjs.org/react-native-nitro-modules/-/react-native-nitro-modules-0.36.5.tgz"
   integrity sha512-SJby84+hovD70JmQ1fq+56tw3oapJeChehUqXA4Gqjm+ktJhMAcj8LGwoAjStSOUwRaK7czbzBPB0Widj+EDoQ==
+
+react-native-reanimated-carousel@^5.1.1:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-reanimated-carousel/-/react-native-reanimated-carousel-5.1.1.tgz#717b975496c48b45de452aab59e3502b1c592deb"
+  integrity sha512-PDt//04VF3PXUlHT9+l1LvBX11srYcdzqE33SPd+nZUvoID2o9jvn7eNBEQHgSYfl1/4KWP5KJdib0LMEUT8wA==
 
 react-native-reanimated@^4.5.3:
   version "4.5.3"

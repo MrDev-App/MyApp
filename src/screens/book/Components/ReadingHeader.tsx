@@ -11,12 +11,18 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import HapticFeedback from 'react-native-haptic-feedback';
 
-import { Back } from '../../../assets';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
 import { fs, scale } from '../../../utile/sizes';
+import {
+  HeartIcon,
+  SunIcon,
+  MoonIcon,
+  BackIcon as Back,
+} from '../../../utile/customSVG';
 import { Storage } from '../../../utile/storage';
 import { MahaBharatStories } from '../../../constants/storiesData';
+import AnimatedButton from '../../../components/AnimatedButton';
 
 const triggerHaptic = (type: string = 'impactLight') => {
   if (Platform.OS === 'android') {
@@ -142,22 +148,36 @@ const ReadingHeader = ({
       {/* Action Buttons: Theme toggle & Heart bookmark */}
       <View style={styles.actionRow}>
         {onToggleTheme && (
-          <TouchableOpacity
+          <AnimatedButton
             style={[styles.ringButton, styles.themeToggleBtn]}
             onPress={onToggleTheme}
-            activeOpacity={0.8}
           >
-            <Text style={styles.actionIcon}>{isDarkMode ? '☀️' : '🌙'}</Text>
-          </TouchableOpacity>
+            {isDarkMode ? (
+              <SunIcon size={scale(16)} color={colors.white} />
+            ) : (
+              <MoonIcon size={scale(16)} color={colors.black} />
+            )}
+          </AnimatedButton>
         )}
 
-        <TouchableOpacity
+        <View
           style={styles.ringButton}
-          onPress={toggleBookmark}
-          activeOpacity={0.8}
+
+          // activeOpacity={0.8}
         >
-          <Text style={styles.actionIcon}>{isFav ? '❤️' : '🤍'}</Text>
-        </TouchableOpacity>
+          <AnimatedButton
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            onPress={toggleBookmark}
+          >
+            <HeartIcon
+              size={scale(16)}
+              color={
+                isFav ? colors.ring : isDarkMode ? colors.white : colors.black
+              }
+              filled={isFav}
+            />
+          </AnimatedButton>
+        </View>
       </View>
     </View>
   );
@@ -180,14 +200,9 @@ const styles = StyleSheet.create({
     borderRadius: scale(19),
     borderWidth: 1.5,
     borderColor: colors.ring,
-    backgroundColor: colors.ring,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.ring,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 4,
-    elevation: 2,
   },
   titleContainer: {
     // flex: 1,

@@ -7,13 +7,9 @@ import {
   ScrollView,
   FlatList,
   LayoutAnimation,
-  Pressable,
   Image,
   Vibration,
   Platform,
-  TextInput,
-  Modal,
-  Alert,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -26,7 +22,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import colors from '../../utile/colors';
 import fonts from '../../utile/fonts';
-import { fs, scale, verticalScale } from '../../utile/sizes';
+import { fs, scale } from '../../utile/sizes';
 import GradientBackground from '../../components/GradientBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MANTRAS_LIST, MantraSelectorItem } from '../../constants/japData';
@@ -34,6 +30,10 @@ import { Translation } from '../../i18n/language';
 import imagePath from '../../assets';
 
 import SwitchMantraModal from './component/SwitchMantraModal';
+import AddCustomMantraModal from './component/AddCustomMantraModal';
+import MalaRing from './component/MalaRing';
+import ChantSphere from './component/ChantSphere';
+
 import HapticFeedback from 'react-native-haptic-feedback';
 import { Storage, STORAGE_KEYS } from '../../utile/storage';
 import { logChant, CustomMantra } from '../../utile/japaStats';
@@ -67,88 +67,6 @@ const TriggerHaptic = () => {
 };
 
 const TOTAL_BEADS = 108;
-const BEAD_RADIUS = scale(7); // size of each bead
-const MALA_RADIUS = scale(122); // radius of the circle path
-const CENTER = scale(135); // half of container size
-
-const BEAD_ANGLES = Array.from({ length: TOTAL_BEADS }, (_, i) => {
-  return (i / TOTAL_BEADS) * 2 * Math.PI - Math.PI / 2;
-});
-
-type MalaBeadProps = {
-  angle: number;
-  filled: boolean;
-  isMarker: boolean;
-  rotationOffset: number; // degrees
-};
-
-const MalaBead = React.memo(
-  ({ angle, filled, isMarker, rotationOffset }: MalaBeadProps) => {
-    const rad = angle + (rotationOffset * Math.PI) / 180;
-    const beadRadius = isMarker ? scale(6) : BEAD_RADIUS;
-    const size = beadRadius * 2;
-    const x = CENTER + MALA_RADIUS * Math.cos(rad) - beadRadius;
-    const y = CENTER + MALA_RADIUS * Math.sin(rad) - beadRadius;
-
-    const renderSize = isMarker ? size * 0.9 : size * 0.7;
-    const offset = (size - renderSize) / 2;
-    const renderX = x + offset;
-    const renderY = y + offset;
-
-    if (isMarker) {
-      return (
-        <View
-          style={{
-            position: 'absolute',
-            left: renderX,
-            top: renderY,
-            width: renderSize,
-            height: renderSize,
-            borderRadius: renderSize / 2,
-            backgroundColor: colors.goldBead,
-            borderWidth: 1.5,
-            borderColor: colors.goldBeadBorder,
-            shadowColor: colors.beadShadow,
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.8,
-            shadowRadius: 4,
-            elevation: 4,
-          }}
-        />
-      );
-    }
-
-    return (
-      <View
-        style={{
-          position: 'absolute',
-          left: renderX,
-          top: renderY,
-          width: renderSize,
-          height: renderSize,
-          borderRadius: renderSize / 2,
-          backgroundColor: colors.borderMedium,
-          borderWidth: filled ? 0 : 1,
-          borderColor: colors.borderStronger,
-          justifyContent: 'center',
-          alignItems: 'center',
-          overflow: 'hidden',
-        }}
-      >
-        {filled && (
-          <Image
-            source={imagePath.MalaMoti}
-            style={{
-              width: '100%',
-              height: '100%',
-            }}
-            resizeMode="cover"
-          />
-        )}
-      </View>
-    );
-  },
-);
 
 const JapScreen = () => {
   const { t, i18n } = useTranslation();
@@ -170,10 +88,6 @@ const JapScreen = () => {
   // Custom Mantras State
   const [customMantras, setCustomMantras] = useState<CustomMantra[]>([]);
   const [isAddMantraModalVisible, setIsAddMantraModalVisible] = useState(false);
-  const [customNameEn, setCustomNameEn] = useState('');
-  const [customNameHi, setCustomNameHi] = useState('');
-  const [customTextEn, setCustomTextEn] = useState('');
-  const [customTextHi, setCustomTextHi] = useState('');
 
   // Load custom mantras
   useEffect(() => {
@@ -281,7 +195,6 @@ const JapScreen = () => {
   const [isSwitchModalVisible, setIsSwitchModalVisible] = useState(false);
 
   const malaRotation = useSharedValue(0);
-
   const sphereScale = useSharedValue(1);
 
   const rippleScale = useSharedValue(1);
@@ -456,45 +369,39 @@ const JapScreen = () => {
     setPendingMantra(null);
   };
 
-  const handleSaveCustomMantra = () => {
-    if (
-      !customNameEn.trim() ||
-      !customNameHi.trim() ||
-      !customTextEn.trim() ||
-      !customTextHi.trim()
-    ) {
-      Alert.alert(
-        currentLanguage === 'hi' ? 'त्रुटि' : 'Error',
-        currentLanguage === 'hi'
-          ? 'कृपया सभी फ़ील्ड भरें।'
-          : 'Please fill all fields.',
-      );
-      return;
-    }
+  const handleSaveCustomMantra = useCallback(
+    ({
+      nameEn,
+      nameHi,
+      textEn,
+      textHi,
+    }: {
+      nameEn: string;
+      nameHi: string;
+      textEn: string;
+      textHi: string;
+    }) => {
+      const newMantra: CustomMantra = {
+        id: `custom_${Date.now()}`,
+        nameEn,
+        nameHi,
+        textEn,
+        textHi,
+        isCustom: true,
+      };
 
-    const newMantra: CustomMantra = {
-      id: `custom_${Date.now()}`,
-      nameEn: customNameEn.trim(),
-      nameHi: customNameHi.trim(),
-      textEn: customTextEn.trim(),
-      textHi: customTextHi.trim(),
-      isCustom: true,
-    };
+      const updated = [...customMantras, newMantra];
+      setCustomMantras(updated);
+      Storage.set('CUSTOM_MANTRAS', JSON.stringify(updated));
 
-    const updated = [...customMantras, newMantra];
-    setCustomMantras(updated);
-    Storage.set('CUSTOM_MANTRAS', JSON.stringify(updated));
+      // Select the new mantra
+      setSelectedMantra(newMantra);
 
-    // Select the new mantra
-    setSelectedMantra(newMantra);
-
-    // Clear inputs and close
-    setCustomNameEn('');
-    setCustomNameHi('');
-    setCustomTextEn('');
-    setCustomTextHi('');
-    setIsAddMantraModalVisible(false);
-  };
+      // Close modal
+      setIsAddMantraModalVisible(false);
+    },
+    [customMantras],
+  );
 
   const currentBeadIndex =
     Math.round((count / target) * TOTAL_BEADS) % TOTAL_BEADS;
@@ -646,40 +553,18 @@ const JapScreen = () => {
 
           {/* ── Mala Circle + Tap Sphere ── */}
           <View style={styles.malaContainer}>
-            {/* Rotating bead ring */}
-            <Animated.View
-              style={[styles.malaRing, animatedMalaStyle]}
-              pointerEvents="none"
-            >
-              {BEAD_ANGLES.map((angle, i) => (
-                <MalaBead
-                  key={i}
-                  angle={angle}
-                  filled={i < currentBeadIndex}
-                  isMarker={i === currentBeadIndex}
-                  rotationOffset={0}
-                />
-              ))}
-            </Animated.View>
+            <MalaRing
+              currentBeadIndex={currentBeadIndex}
+              animatedMalaStyle={animatedMalaStyle}
+            />
 
-            {/* Center tap sphere */}
-            <Pressable
+            <ChantSphere
               onPress={handleChantPress}
-              hitSlop={{
-                top: scale(25),
-                bottom: scale(25),
-                left: scale(25),
-                right: scale(25),
-              }}
-            >
-              <Animated.View style={[styles.chantSphere, animatedSphereStyle]}>
-                <Text style={styles.chantCountText}>{count}</Text>
-                <Text style={styles.chantTargetText}>/ {target}</Text>
-                <Text style={styles.chantLabel}>
-                  {t(Translation.JAP_CHANT_LABEL)}
-                </Text>
-              </Animated.View>
-            </Pressable>
+              count={count}
+              target={target}
+              animatedSphereStyle={animatedSphereStyle}
+              chantLabel={t(Translation.JAP_CHANT_LABEL)}
+            />
           </View>
 
           {/* ── Bottom Buttons ── */}
@@ -713,101 +598,12 @@ const JapScreen = () => {
         />
 
         {/* ── Add Custom Mantra Modal ── */}
-        <Modal
+        <AddCustomMantraModal
           visible={isAddMantraModalVisible}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setIsAddMantraModalVisible(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.customMantraModalCard}>
-              <Text style={styles.modalTitle}>
-                {currentLanguage === 'hi'
-                  ? 'नया कस्टम मंत्र जोड़ें'
-                  : 'Add Custom Mantra'}
-              </Text>
-
-              <Text style={styles.inputLabel}>
-                {currentLanguage === 'hi'
-                  ? 'मंत्र का नाम (English):'
-                  : 'Mantra Name (English):'}
-              </Text>
-              <TextInput
-                style={styles.modalInput}
-                value={customNameEn}
-                onChangeText={setCustomNameEn}
-                placeholder="e.g. Ram Mantra"
-                placeholderTextColor={colors.neutralDisabled}
-              />
-
-              <Text style={styles.inputLabel}>
-                {currentLanguage === 'hi'
-                  ? 'मंत्र का नाम (हिन्दी):'
-                  : 'Mantra Name (Hindi):'}
-              </Text>
-              <TextInput
-                style={styles.modalInput}
-                value={customNameHi}
-                onChangeText={setCustomNameHi}
-                placeholder="उदा. राम मंत्र"
-                placeholderTextColor={colors.neutralDisabled}
-              />
-
-              <Text style={styles.inputLabel}>
-                {currentLanguage === 'hi'
-                  ? 'जाप का पाठ (English):'
-                  : 'Chanting Text (English):'}
-              </Text>
-              <TextInput
-                style={styles.modalInput}
-                value={customTextEn}
-                onChangeText={setCustomTextEn}
-                placeholder="e.g. Om Ram Ramaya Namah"
-                placeholderTextColor={colors.neutralDisabled}
-              />
-
-              <Text style={styles.inputLabel}>
-                {currentLanguage === 'hi'
-                  ? 'जाप का पाठ (हिन्दी):'
-                  : 'Chanting Text (Hindi):'}
-              </Text>
-              <TextInput
-                style={styles.modalInput}
-                value={customTextHi}
-                onChangeText={setCustomTextHi}
-                placeholder="उदा. ॐ राम रामाय नमः"
-                placeholderTextColor={colors.neutralDisabled}
-              />
-
-              <View style={styles.modalButtonsRow}>
-                <TouchableOpacity
-                  style={[styles.modalBtn, styles.modalCancelBtn]}
-                  onPress={() => {
-                    setIsAddMantraModalVisible(false);
-                    setCustomNameEn('');
-                    setCustomNameHi('');
-                    setCustomTextEn('');
-                    setCustomTextHi('');
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.modalCancelText}>
-                    {currentLanguage === 'hi' ? 'रद्द करें' : 'Cancel'}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.modalBtn, styles.modalSaveBtn]}
-                  onPress={handleSaveCustomMantra}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.modalSaveText}>
-                    {currentLanguage === 'hi' ? 'सहेजें' : 'Save'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
+          currentLanguage={currentLanguage}
+          onClose={() => setIsAddMantraModalVisible(false)}
+          onSave={handleSaveCustomMantra}
+        />
       </SafeAreaView>
     </GradientBackground>
   );
@@ -852,20 +648,6 @@ const styles = StyleSheet.create({
   hapticBtnActive: {
     backgroundColor: colors.accentOrangeBg,
     borderColor: colors.accentOrangeBorder,
-  },
-
-  streakBadge: {
-    paddingHorizontal: scale(12),
-    paddingVertical: scale(5),
-    borderRadius: scale(20),
-    backgroundColor: colors.accentBorderSubtle,
-    borderWidth: 1,
-    borderColor: colors.accentOrangeMedium,
-  },
-  streakText: {
-    fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.ring,
   },
 
   scrollContent: {
@@ -925,13 +707,6 @@ const styles = StyleSheet.create({
     height: scale(20),
     resizeMode: 'contain',
   },
-  ringDot: {
-    width: scale(12),
-    height: scale(12),
-    borderRadius: scale(6),
-    backgroundColor: colors.ring,
-    marginVertical: scale(2),
-  },
   statChipIcon: { fontSize: fs(14) },
   statChipLabel: {
     fontSize: fs(10),
@@ -949,13 +724,6 @@ const styles = StyleSheet.create({
     height: scale(42),
     backgroundColor: colors.borderLight,
   },
-  statChipSubValue: {
-    fontSize: fs(8.5),
-    fontFamily: fonts.PoppinsRegular,
-    color: colors.mutedForeground,
-    opacity: 0.8,
-    marginTop: scale(1),
-  },
 
   // Mantra card
   mantraCard: {
@@ -967,7 +735,7 @@ const styles = StyleSheet.create({
     padding: scale(12),
     gap: scale(12),
     marginTop: scale(14),
-    marginBottom: verticalScale(10),
+    marginBottom: scale(10),
     alignItems: 'center',
     borderWidth: 1,
     borderColor: colors.borderLight,
@@ -993,33 +761,6 @@ const styles = StyleSheet.create({
     lineHeight: fs(24),
   },
 
-  // Target row
-  targetRow: {
-    flexDirection: 'row',
-    gap: scale(8),
-    marginTop: scale(14),
-  },
-  targetBtn: {
-    width: scale(56),
-    height: scale(32),
-    borderRadius: scale(16),
-    backgroundColor: colors.accentLightBg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.accentOrangeBg,
-  },
-  targetBtnSelected: {
-    backgroundColor: colors.ring,
-    borderColor: colors.ring,
-  },
-  targetBtnText: {
-    fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.secondary,
-  },
-  targetBtnTextSelected: { color: colors.white },
-
   // Mala
   malaContainer: {
     width: MALA_CONTAINER_SIZE,
@@ -1028,39 +769,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: scale(30),
     position: 'relative',
-  },
-  malaRing: {
-    width: MALA_CONTAINER_SIZE,
-    height: MALA_CONTAINER_SIZE,
-    position: 'absolute',
-  },
-
-  chantSphere: {
-    width: scale(160),
-    height: scale(160),
-    borderRadius: scale(80),
-    alignItems: 'center',
-    justifyContent: 'center',
-
-    overflow: 'hidden',
-    gap: scale(2),
-  },
-  chantCountText: {
-    fontSize: fs(50),
-    fontFamily: fonts.PoppinsBold,
-    color: colors.secondary,
-    lineHeight: fs(50),
-  },
-  chantTargetText: {
-    fontSize: fs(20),
-    fontFamily: fonts.PoppinsSemiBold,
-    color: colors.ring,
-  },
-  chantLabel: {
-    fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.mutedForeground,
-    letterSpacing: 2,
   },
 
   // Bottom buttons
@@ -1074,7 +782,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: verticalScale(10),
+    paddingVertical: scale(10),
     paddingHorizontal: scale(24),
     borderRadius: scale(12),
     gap: scale(8),
@@ -1111,250 +819,6 @@ const styles = StyleSheet.create({
   addCustomSelectorText: {
     color: colors.ring,
   },
-  statsCard: {
-    width: '92%',
-    backgroundColor: colors.white,
-    borderRadius: scale(14),
-    padding: scale(16),
-    marginTop: scale(20),
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    shadowColor: colors.ring,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  statsTitle: {
-    fontSize: fs(14),
-    fontFamily: fonts.PoppinsSemiBold,
-    color: colors.secondary,
-    marginBottom: scale(12),
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: colors.borderSubtle2,
-    borderRadius: scale(8),
-    padding: scale(2),
-    marginBottom: scale(12),
-  },
-  tabButton: {
-    flex: 1,
-    paddingVertical: scale(6),
-    alignItems: 'center',
-    borderRadius: scale(6),
-  },
-  tabButtonActive: {
-    backgroundColor: colors.white,
-    shadowColor: colors.secondary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  tabButtonText: {
-    fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.mutedForeground,
-  },
-  tabButtonTextActive: {
-    color: colors.secondary,
-    fontFamily: fonts.PoppinsSemiBold,
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: scale(16),
-    gap: scale(4),
-  },
-  filterButton: {
-    flex: 1,
-    paddingVertical: scale(4),
-    alignItems: 'center',
-    borderRadius: scale(14),
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    backgroundColor: colors.white,
-  },
-  filterButtonActive: {
-    backgroundColor: colors.ring,
-    borderColor: colors.ring,
-  },
-  filterButtonText: {
-    fontSize: fs(11),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.mutedForeground,
-  },
-  filterButtonTextActive: {
-    color: colors.white,
-    fontFamily: fonts.PoppinsSemiBold,
-  },
-  statsSummaryRow: {
-    flexDirection: 'row',
-    backgroundColor: colors.accentLightBg,
-    borderRadius: scale(10),
-    paddingVertical: scale(12),
-    paddingHorizontal: scale(16),
-    marginBottom: scale(16),
-    borderWidth: 1,
-    borderColor: colors.accentBorderSubtle,
-  },
-  summaryItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  summaryValue: {
-    fontSize: fs(18),
-    fontFamily: fonts.Marcellus,
-    color: colors.ring,
-  },
-  summaryLabel: {
-    fontSize: fs(10),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.secondary,
-    marginTop: scale(2),
-  },
-  summaryDivider: {
-    width: 1,
-    backgroundColor: colors.accentBorderSubtle,
-    alignSelf: 'stretch',
-  },
-  chartContainer: {
-    height: scale(140),
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'flex-end',
-    paddingTop: scale(20),
-    paddingBottom: scale(6),
-  },
-  emptyChartContainer: {
-    flex: 1,
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyChartText: {
-    fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.mutedForeground,
-  },
-  barWrapper: {
-    alignItems: 'center',
-    flex: 1,
-    height: '100%',
-    justifyContent: 'flex-end',
-  },
-  barTrack: {
-    width: scale(12),
-    height: '75%',
-    backgroundColor: colors.borderSubtle2,
-    borderRadius: scale(6),
-    justifyContent: 'flex-end',
-    overflow: 'hidden',
-  },
-  barFill: {
-    width: '100%',
-    backgroundColor: colors.ring,
-    borderRadius: scale(6),
-  },
-  barValueText: {
-    fontSize: fs(9),
-    fontFamily: fonts.PoppinsRegular,
-    color: colors.mutedForeground,
-    marginBottom: scale(4),
-  },
-  barLabelText: {
-    fontSize: fs(10),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.secondary,
-    marginTop: scale(6),
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: scale(20),
-  },
-  customMantraModalCard: {
-    width: '100%',
-    backgroundColor: colors.white,
-    borderRadius: scale(16),
-    padding: scale(20),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 5,
-  },
-  modalTitle: {
-    fontSize: fs(16),
-    fontFamily: fonts.PoppinsSemiBold,
-    color: colors.secondary,
-    marginBottom: scale(16),
-    textAlign: 'center',
-  },
-  inputLabel: {
-    fontSize: fs(11),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.mutedForeground,
-    marginBottom: scale(4),
-    marginTop: scale(8),
-  },
-  modalInput: {
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    borderRadius: scale(8),
-    paddingHorizontal: scale(12),
-    paddingVertical: scale(6),
-    fontSize: fs(13),
-    fontFamily: fonts.PoppinsRegular,
-    color: colors.secondary,
-    backgroundColor: colors.borderSubtle2,
-    marginBottom: scale(8),
-  },
-  modalButtonsRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: scale(12),
-    marginTop: scale(20),
-  },
-  modalBtn: {
-    paddingHorizontal: scale(18),
-    paddingVertical: scale(8),
-    borderRadius: scale(8),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  modalCancelBtn: {
-    backgroundColor: colors.borderSubtle2,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-  },
-  modalSaveBtn: {
-    backgroundColor: colors.ring,
-  },
-  modalCancelText: {
-    fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
-    color: colors.secondary,
-  },
-  modalSaveText: {
-    fontSize: fs(12),
-    fontFamily: fonts.PoppinsSemiBold,
-    color: colors.white,
-  },
 });
 
 export default JapScreen;
-
-{
-  /* <View style={styles.imageContainer}>
-        <Image source={imagePath.greeting} style={styles.greetingImage} />
-
-        <GradientOverlay
-          colors={[colors.gradientStart, colors.primary]}
-          direction="bottom-to-top"
-        />
-      </View> */
-}
