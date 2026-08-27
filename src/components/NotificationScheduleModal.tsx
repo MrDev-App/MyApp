@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
-  TouchableWithoutFeedback,
-  ScrollView,
 } from 'react-native';
 import colors from '../utile/colors';
 import fonts from '../utile/fonts';
@@ -21,10 +19,8 @@ interface NotificationScheduleModalProps {
 }
 
 import {
-  MONTHS,
   HOUR_ITEMS,
   MINUTE_ITEMS,
-  ITEM_HEIGHT,
 } from '../constants/notificationData';
 
 import { ScrollPicker } from '../screens/profile/components/ScrollPicker';
@@ -44,11 +40,6 @@ export default function NotificationScheduleModal({
   // Frequency States
   const [type, setType] = useState<'daily' | 'date' | 'weekly'>('daily');
 
-  // Specific Date States
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  const [selectedDay, setSelectedDay] = useState(new Date().getDate());
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-
   // Weekly Days States (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
   const [weekdays, setWeekdays] = useState<number[]>([1, 2, 3, 4, 5]); // Default Mon-Fri
 
@@ -60,14 +51,6 @@ export default function NotificationScheduleModal({
         setMinute(initialConfig.minute);
         setIsPm(initialConfig.isPm);
         setType(initialConfig.type);
-        if (initialConfig.dateString) {
-          const parts = initialConfig.dateString.split('-');
-          if (parts.length === 3) {
-            setSelectedYear(parseInt(parts[0], 10));
-            setSelectedMonth(parseInt(parts[1], 10) - 1);
-            setSelectedDay(parseInt(parts[2], 10));
-          }
-        }
         if (initialConfig.weekdays) {
           setWeekdays(initialConfig.weekdays);
         }
@@ -83,40 +66,10 @@ export default function NotificationScheduleModal({
         setMinute(now.getMinutes());
         setIsPm(pm);
         setType('daily');
-        setSelectedMonth(now.getMonth());
-        setSelectedDay(now.getDate());
-        setSelectedYear(now.getFullYear());
         setWeekdays([1, 2, 3, 4, 5]);
       }
     }
   }, [visible, initialConfig]);
-
-  const incrementDay = () => {
-    const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
-    setSelectedDay(prev => (prev === daysInMonth ? 1 : prev + 1));
-  };
-
-  const currentMonth = new Date().getMonth();
-  const currentDay = new Date().getDate();
-
-  const isMonthDecrementDisabled = selectedMonth <= currentMonth;
-  const isDayDecrementDisabled =
-    selectedMonth === currentMonth && selectedDay <= currentDay;
-
-  const decrementDay = () => {
-    if (isDayDecrementDisabled) return;
-    const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
-    setSelectedDay(prev => (prev === 1 ? daysInMonth : prev - 1));
-  };
-
-  const incrementMonth = () => {
-    setSelectedMonth(prev => (prev === 11 ? 0 : prev + 1));
-  };
-
-  const decrementMonth = () => {
-    if (isMonthDecrementDisabled) return;
-    setSelectedMonth(prev => (prev === 0 ? 11 : prev - 1));
-  };
 
   const toggleWeekday = (day: number) => {
     if (weekdays.includes(day)) {
@@ -128,50 +81,12 @@ export default function NotificationScheduleModal({
     }
   };
 
-  // Check if selected specific date/time is in the past
-  const checkIsPast = () => {
-    if (type !== 'date') return false;
-    let triggerHour = hour;
-    if (isPm && triggerHour < 12) {
-      triggerHour += 12;
-    } else if (!isPm && triggerHour === 12) {
-      triggerHour = 0;
-    }
-    const targetDate = new Date(
-      selectedYear,
-      selectedMonth,
-      selectedDay,
-      triggerHour,
-      minute,
-      0,
-      0,
-    );
-    return targetDate.getTime() <= Date.now();
-  };
-
-  const isPast = checkIsPast();
-
   const handleSave = () => {
-    if (isPast) return;
-
-    let triggerHour = hour;
-    if (isPm && triggerHour < 12) {
-      triggerHour += 12;
-    } else if (!isPm && triggerHour === 12) {
-      triggerHour = 0;
-    }
-
-    // Format date string for specific date "YYYY-MM-DD"
-    const monthStr = String(selectedMonth + 1).padStart(2, '0');
-    const dayStr = String(selectedDay).padStart(2, '0');
-    const dateString = `${selectedYear}-${monthStr}-${dayStr}`;
-
     onSchedule({
       type,
       hour,
       minute,
       isPm,
-      dateString: type === 'date' ? dateString : undefined,
       weekdays: type === 'weekly' ? weekdays : undefined,
     });
   };
@@ -179,7 +94,7 @@ export default function NotificationScheduleModal({
   return (
     <Modal
       visible={visible}
-      // transparent
+      transparent
       animationType="fade"
       onRequestClose={onClose}
     >
@@ -188,7 +103,7 @@ export default function NotificationScheduleModal({
         <TouchableOpacity
           style={[
             StyleSheet.absoluteFill,
-            { backgroundColor: 'rgba(0,0,0,0.65)' },
+            { backgroundColor: 'rgba(0,0,0,0.1)' },
           ]}
           activeOpacity={1}
           onPress={onClose}
@@ -250,120 +165,8 @@ export default function NotificationScheduleModal({
               </View>
 
               {/* 2. Frequency Selector */}
-              <Text style={styles.sectionLabel}>Frequency</Text>
-              <View style={styles.tabsContainer}>
-                <TouchableOpacity
-                  onPress={() => setType('daily')}
-                  style={[
-                    styles.tabButton,
-                    type === 'daily' && styles.activeTabButton,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.tabText,
-                      type === 'daily' && styles.activeTabText,
-                    ]}
-                  >
-                    Daily
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => setType('date')}
-                  style={[
-                    styles.tabButton,
-                    type === 'date' && styles.activeTabButton,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.tabText,
-                      type === 'date' && styles.activeTabText,
-                    ]}
-                  >
-                    Specific Date
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => setType('weekly')}
-                  style={[
-                    styles.tabButton,
-                    type === 'weekly' && styles.activeTabButton,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.tabText,
-                      type === 'weekly' && styles.activeTabText,
-                    ]}
-                  >
-                    Weekly
-                  </Text>
-                </TouchableOpacity>
-              </View>
 
               {/* 3. Conditional Options */}
-              {type === 'date' && (
-                <View style={styles.conditionalContainer}>
-                  <Text style={styles.sectionLabel}>Select Date</Text>
-
-                  <View style={styles.dateSelectorContainer}>
-                    {/* Month */}
-                    <View style={styles.dateGroup}>
-                      <TouchableOpacity
-                        onPress={incrementMonth}
-                        style={styles.dateArrow}
-                      >
-                        <Text style={styles.dateArrowText}>▲</Text>
-                      </TouchableOpacity>
-                      <Text style={styles.dateValText}>
-                        {MONTHS[selectedMonth]}
-                      </Text>
-                      <TouchableOpacity
-                        disabled={isMonthDecrementDisabled}
-                        onPress={decrementMonth}
-                        style={styles.dateArrow}
-                      >
-                        <Text
-                          style={[
-                            styles.dateArrowText,
-                            isMonthDecrementDisabled && { color: '#444446' },
-                          ]}
-                        >
-                          ▼
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-
-                    {/* Day */}
-                    <View style={styles.dateGroup}>
-                      <TouchableOpacity
-                        onPress={incrementDay}
-                        style={styles.dateArrow}
-                      >
-                        <Text style={styles.dateArrowText}>▲</Text>
-                      </TouchableOpacity>
-                      <Text style={styles.dateValText}>
-                        {String(selectedDay).padStart(2, '0')}
-                      </Text>
-                      <TouchableOpacity
-                        disabled={isDayDecrementDisabled}
-                        onPress={decrementDay}
-                        style={styles.dateArrow}
-                      >
-                        <Text
-                          style={[
-                            styles.dateArrowText,
-                            isDayDecrementDisabled && { color: '#444446' },
-                          ]}
-                        >
-                          ▼
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-              )}
 
               {type === 'weekly' && (
                 <View style={styles.conditionalContainer}>
@@ -397,11 +200,6 @@ export default function NotificationScheduleModal({
             </View>
 
             {/* Action Buttons */}
-            {isPast && (
-              <Text style={styles.warningText}>
-                Please select a future date and time
-              </Text>
-            )}
             <View style={styles.actionsContainer}>
               <TouchableOpacity
                 onPress={onClose}
@@ -410,22 +208,10 @@ export default function NotificationScheduleModal({
                 <Text style={styles.btnCancelText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                disabled={isPast}
                 onPress={handleSave}
-                style={[
-                  styles.btn,
-                  styles.btnSave,
-                  isPast && {
-                    backgroundColor: '#3A3A3E',
-                    borderColor: '#3A3A3E',
-                  },
-                ]}
+                style={[styles.btn, styles.btnSave]}
               >
-                <Text
-                  style={[styles.btnSaveText, isPast && { color: '#8E8E93' }]}
-                >
-                  Save Reminder
-                </Text>
+                <Text style={styles.btnSaveText}>Save Reminder</Text>
               </TouchableOpacity>
             </View>
           </GradientBackground>
@@ -480,30 +266,14 @@ const styles = StyleSheet.create({
     borderRadius: scale(16),
     paddingVertical: scale(12),
     paddingHorizontal: scale(10),
-    marginBottom: scale(15),
-  },
-  controlGroup: {
-    alignItems: 'center',
-    width: scale(55),
-  },
-  arrowButton: {
-    padding: scale(4),
-  },
-  arrowText: {
-    fontSize: fs(10),
-    color: colors.ring,
-  },
-  numberText: {
-    fontSize: fs(28),
-    fontFamily: fonts.Marcellus,
-    color: colors.white,
-    marginVertical: scale(2),
+    width: '100%',
   },
   colon: {
-    fontSize: fs(28),
-    color: colors.ring,
-    marginHorizontal: scale(8),
-    paddingBottom: scale(4),
+    fontSize: fs(24),
+    fontWeight: 'bold',
+    color: colors.black,
+    marginHorizontal: scale(10),
+    alignSelf: 'center',
   },
   ampmContainer: {
     marginLeft: scale(15),
@@ -515,6 +285,7 @@ const styles = StyleSheet.create({
     paddingVertical: scale(6),
     paddingHorizontal: scale(10),
     borderRadius: scale(8),
+    marginVertical: scale(2),
     alignItems: 'center',
   },
   ampmActiveButton: {
@@ -528,65 +299,13 @@ const styles = StyleSheet.create({
   ampmActiveText: {
     color: colors.black,
   },
-  tabsContainer: {
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    borderRadius: scale(12),
-    padding: scale(3),
-    marginBottom: scale(15),
-  },
-  tabButton: {
-    flex: 1,
-    paddingVertical: scale(8),
-    borderRadius: scale(10),
-    alignItems: 'center',
-  },
-  activeTabButton: {
-    backgroundColor: colors.ring,
-  },
-  tabText: {
-    fontSize: fs(11),
-    color: colors.black,
-    fontFamily: fonts.Marcellus,
-  },
-  activeTabText: {
-    color: colors.white,
-  },
   conditionalContainer: {
     width: '100%',
-  },
-  dateSelectorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-    borderRadius: scale(16),
-    paddingVertical: scale(12),
-    marginBottom: scale(10),
-  },
-  dateGroup: {
-    alignItems: 'center',
-    width: scale(75),
-    marginHorizontal: scale(10),
-  },
-  dateArrow: {
-    padding: scale(4),
-  },
-  dateArrowText: {
-    fontSize: fs(10),
-    color: colors.ring,
-  },
-  dateValText: {
-    fontSize: fs(20),
-    fontFamily: fonts.Marcellus,
-    color: colors.white,
-    marginVertical: scale(2),
   },
   weekdaysContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
-    // backgroundColor: '#2A2A2E',
     borderRadius: scale(16),
     padding: scale(10),
     marginBottom: scale(10),
@@ -645,12 +364,5 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontFamily: fonts.Marcellus,
     fontSize: fs(14),
-  },
-  warningText: {
-    color: '#FF453A',
-    fontSize: fs(11),
-    fontFamily: fonts.Marcellus,
-    textAlign: 'center',
-    marginBottom: scale(8),
   },
 });

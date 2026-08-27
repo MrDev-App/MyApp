@@ -17,8 +17,12 @@ export const ScrollPicker = ({
   onValueChange,
 }: ScrollPickerProps) => {
   const scrollViewRef = useRef<ScrollView>(null);
+  const isScrollingRef = useRef(false);
 
   useEffect(() => {
+    if (isScrollingRef.current) {
+      return;
+    }
     const selectedIndex = items.indexOf(selectedValue);
     if (selectedIndex !== -1 && scrollViewRef.current) {
       const timer = setTimeout(() => {
@@ -40,6 +44,15 @@ export const ScrollPicker = ({
     }
   };
 
+  const handleScrollBegin = () => {
+    isScrollingRef.current = true;
+  };
+
+  const handleScrollEnd = (event: any) => {
+    isScrollingRef.current = false;
+    onScroll(event);
+  };
+
   return (
     <View style={styles.pickerContainer}>
       <View style={styles.indicatorOverlay} pointerEvents="none" />
@@ -50,8 +63,10 @@ export const ScrollPicker = ({
         snapToInterval={ITEM_HEIGHT}
         decelerationRate="fast"
         showsVerticalScrollIndicator={false}
-        onMomentumScrollEnd={onScroll}
-        onScrollEndDrag={onScroll}
+        onScrollBeginDrag={handleScrollBegin}
+        onMomentumScrollBegin={handleScrollBegin}
+        onMomentumScrollEnd={handleScrollEnd}
+        onScrollEndDrag={handleScrollEnd}
         scrollEventThrottle={16}
       >
         {items.map((item, idx) => (
@@ -100,10 +115,12 @@ const styles = StyleSheet.create({
     fontSize: fs(22),
     color: colors.black,
     fontFamily: fonts.Marcellus,
+    opacity: 0.4,
   },
   pickerItemTextActive: {
     color: colors.black,
     fontSize: fs(24),
     fontWeight: 'bold',
+    opacity: 1,
   },
 });
