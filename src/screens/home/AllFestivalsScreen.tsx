@@ -4,7 +4,6 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Dimensions,
   ImageBackground,
   ScrollView,
   Image,
@@ -18,7 +17,7 @@ import { fs, scale } from '../../utile/sizes';
 import GradientBackground from '../../components/GradientBackground';
 import { festivalData, Festival } from '../../constants/festivalData';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
-import { Back, Forward } from '../../assets';
+import { Back } from '../../assets';
 import AnimatedButton from '../../components/AnimatedButton';
 import imagePath from '../../assets';
 import FestivalModal from '../../components/FestivalModal';
@@ -49,7 +48,7 @@ LocaleConfig.locales['en'] = {
   today: 'Today',
 };
 
-const { width } = Dimensions.get('window');
+
 
 const AllFestivalsScreen = () => {
   const navigation = useNavigation<any>();
@@ -85,17 +84,11 @@ const AllFestivalsScreen = () => {
     return new Date(currentMonthDate).getMonth() + 1;
   }, [currentMonthDate]);
 
-  const selectedDateObj = React.useMemo(() => {
-    return new Date(selectedDate);
-  }, [selectedDate]);
-
-  const selectedDay = selectedDateObj.getDate();
-  const selectedMonth = selectedDateObj.getMonth() + 1;
 
   // Filter other festivals for the active month (excluding selected day's festivals)
   const otherMonthFestivals = React.useMemo(() => {
     return festivalData.filter(f => f.month === currentMonthNum);
-  }, [currentMonthNum, selectedMonth]);
+  }, [currentMonthNum]);
 
   // Compute marked dates for the calendar, showing a light primary color background on every day that has a festival
   const calendarMarkedDates = React.useMemo(() => {

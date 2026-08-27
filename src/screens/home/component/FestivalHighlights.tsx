@@ -6,13 +6,11 @@ import {
   FlatList,
   TouchableOpacity,
   ImageBackground,
-  GestureResponderEvent,
-  ScrollView,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
 import { fs, scale } from '../../../utile/sizes';
@@ -95,7 +93,7 @@ const FestivalHighlights = ({ onPress }: any) => {
             currentLanguage === 'hi' ? item.hindiName : item.englishName;
           const dateStr =
             currentLanguage === 'hi' ? item.dateStrHi : item.dateStrEn;
-          const iconPrefix = item.icon ? `${item.icon} ` : '';
+
           const countdownText =
             daysLeft === 0
               ? currentLanguage === 'hi'

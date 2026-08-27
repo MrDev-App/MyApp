@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Image } from 'react-native';
 import Video from 'react-native-video';
 import Skeleton from '../../../components/Skeleton';
-import GradientOverlay from '../../../components/GradientOverlay';
 import imagePath from '../../../assets';
 import colors from '../../../utile/colors';
 import { verticalScale } from '../../../utile/sizes';

@@ -4,8 +4,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import StackNavigation from './src/navigation/StackNavigation';
 import notifee, {
-  AndroidImportance,
-  AuthorizationStatus,
   EventType,
 } from '@notifee/react-native';
 import { initNotifications } from './src/notifee/notifications';

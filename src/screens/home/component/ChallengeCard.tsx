@@ -21,11 +21,10 @@ import OverlayModal, {
 import imagePath from '../../../assets';
 
 const ChallengeCard = () => {
-  const { i18n, t } = useTranslation();
+  const { t } = useTranslation();
   const navigation = useNavigation<any>();
   const isFocused = useIsFocused(); // Forces re-render on tab focus to sync MMKV stats
 
-  const currentLanguage = i18n.language || 'en';
 
   const started = Storage.getBoolean('CHALLENGE_STARTED', false);
   const todayChants = Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0);

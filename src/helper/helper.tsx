@@ -1,5 +1,5 @@
 // Har roz ek fixed time (hour, minute) pe schedule karne ke liye
-function getNextTriggerTime(hour: number, minute: number): Date {
+export function getNextTriggerTime(hour: number, minute: number): Date {
   const now = new Date();
   const trigger = new Date();
   trigger.setHours(hour, minute, 0, 0);

@@ -4,7 +4,6 @@ import {
   Text,
   View,
   ScrollView,
-  TouchableOpacity,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { Story } from '../../../constants/storiesData';
