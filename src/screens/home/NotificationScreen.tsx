@@ -60,8 +60,9 @@ const NotificationScreen = () => {
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
 
   useEffect(() => {
-    const list = NotificationStorage.getNotifications();
-    setNotifications(list);
+    // Automatically mark all notifications as read once user opens the notification screen
+    const updatedList = NotificationStorage.markAllAsRead();
+    setNotifications(updatedList);
   }, []);
 
   const handleMarkAllAsRead = () => {

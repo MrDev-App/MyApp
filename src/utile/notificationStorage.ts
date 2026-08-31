@@ -114,6 +114,22 @@ export const NotificationStorage = {
     return [];
   },
 
+  addNotification: (notif: AppNotification): AppNotification[] => {
+    const list = NotificationStorage.getNotifications();
+    // Prevent duplicates by ID
+    const exists = list.some(item => item.id === notif.id);
+    if (exists) {
+      const updated = list.map(item =>
+        item.id === notif.id ? { ...notif, isRead: false } : item,
+      );
+      NotificationStorage.saveNotifications(updated);
+      return updated;
+    }
+    const updated = [notif, ...list];
+    NotificationStorage.saveNotifications(updated);
+    return updated;
+  },
+
   getUnreadCount: (): number => {
     const list = NotificationStorage.getNotifications();
     return list.filter(item => !item.isRead).length;

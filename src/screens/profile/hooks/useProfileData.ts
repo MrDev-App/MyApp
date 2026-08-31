@@ -11,6 +11,7 @@ import {
   initNotifications,
   scheduleCustomReminder,
   cancelAllReminders,
+  displayImmediateNotification,
   NotificationConfig,
 } from '../../../notifee/notifications';
 import { OverlayModalHandle } from '../../../components/OverlayModal';
@@ -193,25 +194,54 @@ export const useProfileData = () => {
       setNotificationsEnabled(true);
       Storage.set('DAILY_REMINDER_ENABLED', true);
       await scheduleCustomReminder(config, currentLanguage);
+
+      // Send instant confirmation notification so user receives visual confirmation
+      const confirmTitle =
+        currentLanguage === 'hi'
+          ? 'साधना रिमाइंडर सेट हो गया 🔔'
+          : 'Sadhana Reminder Scheduled 🔔';
+      const confirmBody =
+        currentLanguage === 'hi'
+          ? 'आपका दैनिक साधना रिमाइंडर सफलतापूर्वक सक्रिय हो गया है।'
+          : 'Your daily sadhana reminder has been scheduled successfully.';
+
+      await displayImmediateNotification({
+        id: `sadhana_active_${Date.now()}`,
+        title: confirmTitle,
+        body: confirmBody,
+        actionRoute: 'Jap',
+        type: 'sadhana',
+      });
     },
     [currentLanguage],
   );
 
-  const handleToggleNotifications = useCallback(async (value: boolean) => {
-    if (value) {
-      const granted = await initNotifications();
-      if (granted) {
-        setScheduleModalVisible(true);
+  const handleToggleNotifications = useCallback(
+    async (value: boolean) => {
+      if (value) {
+        const granted = await initNotifications();
+        if (granted) {
+          setScheduleModalVisible(true);
+        } else {
+          setNotificationsEnabled(false);
+          Storage.set('DAILY_REMINDER_ENABLED', false);
+          Alert.alert(
+            currentLanguage === 'hi'
+              ? 'अनुमति आवश्यक है'
+              : 'Permission Required',
+            currentLanguage === 'hi'
+              ? 'सूचनाएं प्राप्त करने के लिए कृपया फ़ोन सेटिंग्स में जाकर नोटिफिकेशन की अनुमति दें।'
+              : 'Please enable notification permissions in your device settings to receive daily sadhana alerts.',
+          );
+        }
       } else {
         setNotificationsEnabled(false);
         Storage.set('DAILY_REMINDER_ENABLED', false);
+        await cancelAllReminders();
       }
-    } else {
-      setNotificationsEnabled(false);
-      Storage.set('DAILY_REMINDER_ENABLED', false);
-      await cancelAllReminders();
-    }
-  }, []);
+    },
+    [currentLanguage],
+  );
 
   // ─── Custom mantra handlers ───────────────────────────────────────────────
   const handleDeleteCustomMantra = useCallback(

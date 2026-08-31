@@ -6,15 +6,29 @@ import StackNavigation from './src/navigation/StackNavigation';
 import notifee, {
   EventType,
 } from '@notifee/react-native';
-import { initNotifications } from './src/notifee/notifications';
+import {
+  initNotifications,
+  handleNotificationClick,
+  recordDeliveredNotification,
+} from './src/notifee/notifications';
+import { navigationRef } from './src/navigation/navigationRef';
 
 const App = () => {
   useEffect(() => {
     initNotifications();
 
+    // Check if app was opened via notification click from killed state
+    notifee.getInitialNotification().then(initial => {
+      if (initial && initial.notification) {
+        handleNotificationClick(initial.notification);
+      }
+    });
+
     const unsubscribe = notifee.onForegroundEvent(({ type, detail }) => {
-      if (type === EventType.PRESS) {
-        console.log('Foreground tap:', detail.notification?.id);
+      if (type === EventType.PRESS && detail.notification) {
+        handleNotificationClick(detail.notification);
+      } else if (type === EventType.DELIVERED && detail.notification) {
+        recordDeliveredNotification(detail.notification);
       }
     });
 
@@ -23,7 +37,7 @@ const App = () => {
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <StatusBar
           barStyle="dark-content"
           backgroundColor="transparent"
