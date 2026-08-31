@@ -21,18 +21,26 @@ import { useExpandTrigger } from '../../../hook/useExpandTrigger';
 import OverlayModal, {
   OverlayModalHandle,
 } from '../../../components/OverlayModal';
+import { useAutoScroll } from '../../../hook/useAutoScroll';
 
 const MantrasCard = () => {
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language || 'en';
 
-  // Main Deity Modal
   const cardRef = useRef<ExpandableCardHandle>(null);
   const { registerRef, trigger } = useExpandTrigger(cardRef);
 
-  // Nested Mantra Detail Modal
   const detailCardRef = useRef<OverlayModalHandle>(null);
   const [selectedMantra, setSelectedMantra] = useState<any>(null);
+
+  // Auto-scroll ke liye
+  const flatListRef = useRef<FlatList>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [contentWidth, setContentWidth] = useState(0);
+  const isUserTouching = useRef(false);
+  const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
 
   const pairedGods = React.useMemo(() => {
     const pairs = [];
@@ -42,169 +50,86 @@ const MantrasCard = () => {
     return pairs;
   }, []);
 
+  const { syncOffset } = useAutoScroll(
+    flatListRef,
+    contentWidth,
+    containerWidth,
+    40,
+    isUserTouching,
+  );
+
+  // User ne drag chhodne ke baad, thodi der ruk ke auto-scroll resume karo
+  const scheduleResume = (offsetX: number) => {
+    syncOffset(offsetX);
+    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
+    resumeTimeoutRef.current = setTimeout(() => {
+      isUserTouching.current = false;
+    }, 1500);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{t(Translation.MANTRAS_BY_DEITIES)}</Text>
 
-      <FlatList
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        data={pairedGods}
-        keyExtractor={(_, index) => String(index)}
-        contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => (
-          <View style={styles.column}>
-            {item.map(god => {
-              const name =
-                currentLanguage === 'hi' ? god.hindiName : god.englishName;
-              return (
-                <TouchableOpacity
-                  key={god.id}
-                  style={styles.godContainer}
-                  activeOpacity={0.7}
-                  onPress={() => trigger(god.id, god)}
-                >
-                  <View
-                    ref={registerRef(god.id)}
-                    collapsable={false}
-                    style={styles.avatarContainer}
-                  >
-                    <Image source={god.image} style={styles.avatarImage} />
-                  </View>
-                  <Text
-                    style={styles.godName}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {name}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        )}
-      />
-
-      {/* Main Deity Modal showing list of mantras */}
-      <ExpandableCard
-        ref={cardRef}
-        imageMargin={scale(16)}
-        getImage={(god: any) => god.image}
-        renderContent={(god: any) => (
-          <>
-            <View style={[styles.modalHeaderRow, { paddingRight: scale(45) }]}>
-              <Text style={styles.expandedName}>
-                {currentLanguage === 'hi' ? god.hindiName : god.englishName}
-              </Text>
-            </View>
-
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              style={styles.modalScroll}
-              contentContainerStyle={styles.modalScrollContent}
-            >
-              {god.mantras && god.mantras.length > 0 ? (
-                god.mantras.map((m: any, index: number) => (
+      <View onLayout={e => setContainerWidth(e.nativeEvent.layout.width)}>
+        <FlatList
+          ref={flatListRef}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={pairedGods}
+          keyExtractor={(_, index) => String(index)}
+          contentContainerStyle={styles.listContent}
+          scrollEnabled={true}
+          onContentSizeChange={w => setContentWidth(w)}
+          onScrollBeginDrag={() => {
+            if (resumeTimeoutRef.current)
+              clearTimeout(resumeTimeoutRef.current);
+            isUserTouching.current = true; // auto-scroll pause
+          }}
+          onScrollEndDrag={e => {
+            scheduleResume(e.nativeEvent.contentOffset.x);
+          }}
+          onMomentumScrollEnd={e => {
+            scheduleResume(e.nativeEvent.contentOffset.x);
+          }}
+          renderItem={({ item }) => (
+            <View style={styles.column}>
+              {item.map((god: any) => {
+                const name =
+                  currentLanguage === 'hi' ? god.hindiName : god.englishName;
+                return (
                   <TouchableOpacity
-                    key={index}
-                    style={styles.mantraItemCard}
-                    activeOpacity={0.8}
-                    onPress={() => {
-                      setSelectedMantra({
-                        image: god.image,
-                        deityName:
-                          currentLanguage === 'hi'
-                            ? god.hindiName
-                            : god.englishName,
-                        name:
-                          currentLanguage === 'hi' && m.nameHi
-                            ? m.nameHi
-                            : m.nameEn || m.name,
-                        mantra: m.mantra,
-                      });
-                      detailCardRef.current?.open();
-                    }}
+                    key={god.id}
+                    style={styles.godContainer}
+                    activeOpacity={0.7}
+                    onPress={() => trigger(god.id, god)}
                   >
-                    <View style={styles.mantraCardHeader}>
-                      <Text style={styles.mantraName}>
-                        {currentLanguage === 'hi' && m.nameHi
-                          ? m.nameHi
-                          : m.nameEn || m.name}
-                      </Text>
+                    <View
+                      ref={registerRef(god.id)}
+                      collapsable={false}
+                      style={styles.avatarContainer}
+                    >
+                      <Image source={god.image} style={styles.avatarImage} />
                     </View>
-                    <Text style={styles.mantraTextHi}>{m.mantra}</Text>
+                    <Text
+                      style={styles.godName}
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                    >
+                      {name}
+                    </Text>
                   </TouchableOpacity>
-                ))
-              ) : (
-                <TouchableOpacity
-                  style={styles.mantraItemCard}
-                  activeOpacity={0.8}
-                  onPress={() => {
-                    setSelectedMantra({
-                      image: god.image,
-                      deityName:
-                        currentLanguage === 'hi'
-                          ? god.hindiName
-                          : god.englishName,
-                      name: t(Translation.MANTRAS_LABEL),
-                      mantra: god.mantra,
-                    });
-                    detailCardRef.current?.open();
-                  }}
-                >
-                  <View style={styles.mantraCardHeader}>
-                    <Text style={styles.mantraName}>
-                      {t(Translation.MANTRAS_LABEL)}
-                    </Text>
-                  </View>
-                  <Text style={styles.mantraTextHi}>{god.mantra}</Text>
-                </TouchableOpacity>
-              )}
-            </ScrollView>
-          </>
-        )}
-      />
-
-      {/* Nested Mantra Detail Modal */}
-      <OverlayModal
-        ref={detailCardRef}
-        closeOnBackdropPress={true}
-        onClose={() => setSelectedMantra(null)}
-      >
-        {selectedMantra && (
-          <View style={styles.modalCenterContainer}>
-            <View style={styles.modalCard}>
-              <View style={styles.modalHeaderRow}>
-                <View style={styles.modalHeaderTitleCol}>
-                  <Text style={styles.expandedName}>{selectedMantra.name}</Text>
-                  {selectedMantra.deityName && (
-                    <Text style={styles.modalSubtitle}>
-                      {selectedMantra.deityName}
-                    </Text>
-                  )}
-                </View>
-                <TouchableOpacity
-                  style={styles.modalCloseButton}
-                  onPress={() => detailCardRef.current?.close()}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.modalCloseButtonText}>✕</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.mantraDetailCard}>
-                <Text style={styles.mantraDetailHi}>
-                  {selectedMantra.mantra}
-                </Text>
-              </View>
+                );
+              })}
             </View>
-          </View>
-        )}
-      </OverlayModal>
+          )}
+        />
+      </View>
     </View>
   );
 };
 
+export default MantrasCard;
 const styles = StyleSheet.create({
   container: { width: '100%', marginVertical: scale(16) },
   title: {
@@ -385,5 +310,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-export default MantrasCard;

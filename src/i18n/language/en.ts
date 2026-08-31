@@ -100,7 +100,8 @@ export default {
   CHALLENGE_ABANDON_DESC: 'Abandon the active {{count}} Days Japa Challenge',
   CHALLENGE_ABANDON_BTN: 'Abandon',
   CHALLENGE_ABANDON_ALERT_TITLE: 'Abandon Challenge?',
-  CHALLENGE_ABANDON_ALERT_MSG: 'Are you sure you want to abandon the current Japa challenge? Your progress will be lost.',
+  CHALLENGE_ABANDON_ALERT_MSG:
+    'Are you sure you want to abandon the current Japa challenge? Your progress will be lost.',
   CANCEL_LABEL: 'Cancel',
   CHALLENGE_ABANDON_CONFIRM: 'Yes, Abandon',
   PROFILE_TITLE: 'My Profile',
@@ -118,21 +119,27 @@ export default {
   PROFILE_DAILY_SADHANA_REMINDERS: 'Daily sadhana reminders',
   DANGER_ZONE_TITLE: 'Danger Zone',
   RESET_ALL_DATA_TITLE: 'Reset All App Data',
-  RESET_ALL_DATA_DESC: 'Permanently wipe all stats, active challenges, and bookmarks',
+  RESET_ALL_DATA_DESC:
+    'Permanently wipe all stats, active challenges, and bookmarks',
   RESET_MODAL_TITLE: 'Wipe All Data Permanently?',
-  RESET_MODAL_DESC: 'This will wipe all your stats, japa counts, active challenges, and bookmarked stories. This action cannot be undone.',
-  RESET_CONFIRM_LBL1: 'I understand I will lose my entire japa history and stats.',
+  RESET_MODAL_DESC:
+    'This will wipe all your stats, japa counts, active challenges, and bookmarked stories. This action cannot be undone.',
+  RESET_CONFIRM_LBL1:
+    'I understand I will lose my entire japa history and stats.',
   RESET_CONFIRM_LBL2: 'I understand my active challenge streak will be reset.',
   RESET_CONFIRM_TYPE: 'Type "RESET" below to confirm:',
   RESET_CONFIRM_BTN: 'Confirm Reset',
   RESET_CANCEL_BTN: 'Cancel',
   PROFILE_DELETE_CUSTOM_MANTRAS: 'Delete Custom Mantras',
-  PROFILE_DELETE_CUSTOM_MANTRAS_DESC: 'Manage and remove your custom created mantras',
+  PROFILE_DELETE_CUSTOM_MANTRAS_DESC:
+    'Manage and remove your custom created mantras',
   PROFILE_DELETE_MANTRA_CONFIRM_TITLE: 'Delete Custom Mantra?',
-  PROFILE_DELETE_MANTRA_CONFIRM_MSG: 'Are you sure you want to delete the mantra "{{mantraName}}"? This will remove it from your selection list.',
+  PROFILE_DELETE_MANTRA_CONFIRM_MSG:
+    'Are you sure you want to delete the mantra "{{mantraName}}"? This will remove it from your selection list.',
   DELETE_LABEL: 'Delete',
   PROFILE_COMING_SOON: 'Coming Soon',
-  PROFILE_COMING_SOON_DESC: 'This story is coming soon. We are building a beautiful devotional experience for you!',
+  PROFILE_COMING_SOON_DESC:
+    'This story is coming soon. We are building a beautiful devotional experience for you!',
   PROFILE_OKAY: 'Okay',
   PROFILE_SADHANA_CALENDAR: 'Sadhana Calendar',
   PROFILE_MANTRA_BREAKDOWN: 'Mantra Breakdown:',
@@ -140,7 +147,8 @@ export default {
   PROFILE_SELECT_DAY_DESC: 'Select a day to view detail breakdown',
   PROFILE_NO_ACTIVITY: 'No sadhana activity recorded on this day',
   PROFILE_MANAGE_CUSTOM_MANTRAS: 'Manage Custom Mantras',
-  PROFILE_NO_CUSTOM_MANTRAS: "You haven't created any custom mantras yet. Create one inside the Jap screen!",
+  PROFILE_NO_CUSTOM_MANTRAS:
+    "You haven't created any custom mantras yet. Create one inside the Jap screen!",
   PROFILE_NO_CHANTS_RECORDED: 'No chants logged on this selected date.',
   PROFILE_MALA: 'Mala',
   PROFILE_MALAS: 'Malas',

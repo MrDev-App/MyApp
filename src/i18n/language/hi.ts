@@ -119,21 +119,27 @@ export default {
   PROFILE_DAILY_SADHANA_REMINDERS: 'डेली भजन रिमाइंडर',
   DANGER_ZONE_TITLE: 'संवेदनशील क्षेत्र (Danger Zone)',
   RESET_ALL_DATA_TITLE: 'सभी डेटा रीसेट करें',
-  RESET_ALL_DATA_DESC: 'अपने संपूर्ण आंकड़े, संकल्प प्रगति और सहेजे गए कहानियों को स्थायी रूप से हटाएं',
+  RESET_ALL_DATA_DESC:
+    'अपने संपूर्ण आंकड़े, संकल्प प्रगति और सहेजे गए कहानियों को स्थायी रूप से हटाएं',
   RESET_MODAL_TITLE: 'डेटा स्थायी रूप से हटाएं?',
-  RESET_MODAL_DESC: 'यह आपके सभी आंकड़े, जाप की गिनती, सक्रिय चुनौतियां और सहेजी गई कहानियों को हटा देगा। यह कार्रवाई अपरिवर्तनीय है।',
-  RESET_CONFIRM_LBL1: 'हाँ, मैं अपना कुल जाप इतिहास और आंकड़े खोने को तैयार हूँ।',
-  RESET_CONFIRM_LBL2: 'हाँ, मैं सक्रिय संकल्प की प्रगति को हटाने के लिए सहमत हूँ।',
+  RESET_MODAL_DESC:
+    'यह आपके सभी आंकड़े, जाप की गिनती, सक्रिय चुनौतियां और सहेजी गई कहानियों को हटा देगा। यह कार्रवाई अपरिवर्तनीय है।',
+  RESET_CONFIRM_LBL1:
+    'हाँ, मैं अपना कुल जाप इतिहास और आंकड़े खोने को तैयार हूँ।',
+  RESET_CONFIRM_LBL2:
+    'हाँ, मैं सक्रिय संकल्प की प्रगति को हटाने के लिए सहमत हूँ।',
   RESET_CONFIRM_TYPE: 'पुष्टि करने के लिए नीचे "RESET" टाइप करें:',
   RESET_CONFIRM_BTN: 'रीसेट करें',
   RESET_CANCEL_BTN: 'रद्द करें',
   PROFILE_DELETE_CUSTOM_MANTRAS: 'कस्टम मंत्र हटाएं',
   PROFILE_DELETE_CUSTOM_MANTRAS_DESC: 'अपने बनाए गए कस्टम मंत्रों को हटाएं',
   PROFILE_DELETE_MANTRA_CONFIRM_TITLE: 'कस्टम मंत्र हटाएं?',
-  PROFILE_DELETE_MANTRA_CONFIRM_MSG: 'क्या आप निश्चित रूप से "{{mantraName}}" मंत्र को हटाना चाहते हैं? यह इसे आपकी चयन सूची से हटा देगा।',
+  PROFILE_DELETE_MANTRA_CONFIRM_MSG:
+    'क्या आप निश्चित रूप से "{{mantraName}}" मंत्र को हटाना चाहते हैं? यह इसे आपकी चयन सूची से हटा देगा।',
   DELETE_LABEL: 'हटाएं',
   PROFILE_COMING_SOON: 'जल्द आ रहा है',
-  PROFILE_COMING_SOON_DESC: 'यह कहानी जल्द ही उपलब्ध होगी। हम आपके लिए सुंदर भक्ति अनुभव तैयार कर रहे हैं!',
+  PROFILE_COMING_SOON_DESC:
+    'यह कहानी जल्द ही उपलब्ध होगी। हम आपके लिए सुंदर भक्ति अनुभव तैयार कर रहे हैं!',
   PROFILE_OKAY: 'ठीक है',
   PROFILE_SADHANA_CALENDAR: 'साधना कैलेंडर',
   PROFILE_MANTRA_BREAKDOWN: 'मंत्र वार विवरण:',
@@ -141,7 +147,8 @@ export default {
   PROFILE_SELECT_DAY_DESC: 'विवरण देखने के लिए किसी दिन का चयन करें',
   PROFILE_NO_ACTIVITY: 'इस दिन कोई साधना गतिविधि दर्ज नहीं की गई',
   PROFILE_MANAGE_CUSTOM_MANTRAS: 'कस्टम मंत्र व्यवस्थित करें',
-  PROFILE_NO_CUSTOM_MANTRAS: 'आपने अभी तक कोई कस्टम मंत्र नहीं बनाया है। जाप स्क्रीन के अंदर एक बनाएं!',
+  PROFILE_NO_CUSTOM_MANTRAS:
+    'आपने अभी तक कोई कस्टम मंत्र नहीं बनाया है। जाप स्क्रीन के अंदर एक बनाएं!',
   PROFILE_NO_CHANTS_RECORDED: 'इस दिन कोई जाप दर्ज नहीं किया गया।',
   PROFILE_MALA: 'माला',
   PROFILE_MALAS: 'माला',

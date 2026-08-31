@@ -19,9 +19,15 @@ import colors from '../../../utile/colors';
 /** Trigger haptic / vibration feedback safely. */
 const triggerHaptic = (style: 'light' | 'medium' | 'error') => {
   if (Platform.OS === 'android') {
-    try { Vibration.vibrate(style === 'error' ? 200 : 30); } catch {}
+    try {
+      Vibration.vibrate(style === 'error' ? 200 : 30);
+    } catch {}
   } else {
-    const map = { light: 'impactLight', medium: 'impactMedium', error: 'notificationError' } as const;
+    const map = {
+      light: 'impactLight',
+      medium: 'impactMedium',
+      error: 'notificationError',
+    } as const;
     try {
       HapticFeedback.trigger(map[style], {
         enableVibrateFallback: true,
@@ -47,14 +53,15 @@ export const useProfileData = () => {
     Storage.getBoolean('DAILY_REMINDER_ENABLED', true),
   );
   const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
-  const [reminderConfig, setReminderConfig] = useState<NotificationConfig | null>(() => {
-    try {
-      const raw = Storage.getString('REMINDER_CONFIG', '');
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [reminderConfig, setReminderConfig] =
+    useState<NotificationConfig | null>(() => {
+      try {
+        const raw = Storage.getString('REMINDER_CONFIG', '');
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    });
 
   // ─── Statistics state ─────────────────────────────────────────────────────
   const [totalCount, setTotalCount] = useState(0);
@@ -84,7 +91,9 @@ export const useProfileData = () => {
 
   // ─── Derived values ───────────────────────────────────────────────────────
   const isResetEnabled =
-    checkedChants && checkedChallenge && resetCode.trim().toUpperCase() === 'RESET';
+    checkedChants &&
+    checkedChallenge &&
+    resetCode.trim().toUpperCase() === 'RESET';
 
   const markedDates = useMemo(() => {
     try {
@@ -117,11 +126,15 @@ export const useProfileData = () => {
     (id: string) => {
       const defaultMantra = MANTRAS_LIST.find(m => m.id === id);
       if (defaultMantra) {
-        return currentLanguage === 'hi' ? defaultMantra.nameHi : defaultMantra.nameEn;
+        return currentLanguage === 'hi'
+          ? defaultMantra.nameHi
+          : defaultMantra.nameEn;
       }
       const customMantra = customMantras.find(m => m.id === id);
       if (customMantra) {
-        return currentLanguage === 'hi' ? customMantra.nameHi : customMantra.nameEn;
+        return currentLanguage === 'hi'
+          ? customMantra.nameHi
+          : customMantra.nameEn;
       }
       return id;
     },
@@ -130,7 +143,9 @@ export const useProfileData = () => {
 
   // ─── Load data on focus ───────────────────────────────────────────────────
   useEffect(() => {
-    if (!isFocused) { return; }
+    if (!isFocused) {
+      return;
+    }
 
     Storage.checkAndResetTodayStats();
     setTotalCount(Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_COUNT, 0));
@@ -140,13 +155,17 @@ export const useProfileData = () => {
     setChallengeTotalDays(Storage.getNumber('CHALLENGE_TOTAL_DAYS', 21));
 
     try {
-      setJapaHistory(JSON.parse(Storage.getString(STORAGE_KEYS.JAP_HISTORY, '{}')));
+      setJapaHistory(
+        JSON.parse(Storage.getString(STORAGE_KEYS.JAP_HISTORY, '{}')),
+      );
     } catch {
       setJapaHistory({});
     }
 
     try {
-      setCustomMantras(JSON.parse(Storage.getString(STORAGE_KEYS.CUSTOM_MANTRAS, '[]')));
+      setCustomMantras(
+        JSON.parse(Storage.getString(STORAGE_KEYS.CUSTOM_MANTRAS, '[]')),
+      );
     } catch {
       setCustomMantras([]);
     }
@@ -212,20 +231,56 @@ export const useProfileData = () => {
               setCustomMantras(updated);
               Storage.set(STORAGE_KEYS.CUSTOM_MANTRAS, JSON.stringify(updated));
 
-              const customTotalCount = Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`, 0);
-              const customTotalMala = Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`, 0);
-              const customTodayCount = Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`, 0);
-              const customTodayMala = Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_MALA}_${mantraId}`, 0);
+              const customTotalCount = Storage.getNumber(
+                `${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`,
+                0,
+              );
+              const customTotalMala = Storage.getNumber(
+                `${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`,
+                0,
+              );
+              const customTodayCount = Storage.getNumber(
+                `${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`,
+                0,
+              );
+              const customTodayMala = Storage.getNumber(
+                `${STORAGE_KEYS.JAP_TODAY_MALA}_${mantraId}`,
+                0,
+              );
 
-              const globalTotalCount = Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_COUNT, 0);
-              const globalTotalMala = Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_MALA, 0);
-              const globalTodayCount = Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0);
-              const globalTodayMala = Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA, 0);
+              const globalTotalCount = Storage.getNumber(
+                STORAGE_KEYS.JAP_TOTAL_COUNT,
+                0,
+              );
+              const globalTotalMala = Storage.getNumber(
+                STORAGE_KEYS.JAP_TOTAL_MALA,
+                0,
+              );
+              const globalTodayCount = Storage.getNumber(
+                STORAGE_KEYS.JAP_TODAY_COUNT,
+                0,
+              );
+              const globalTodayMala = Storage.getNumber(
+                STORAGE_KEYS.JAP_TODAY_MALA,
+                0,
+              );
 
-              Storage.set(STORAGE_KEYS.JAP_TOTAL_COUNT, Math.max(0, globalTotalCount - customTotalCount));
-              Storage.set(STORAGE_KEYS.JAP_TOTAL_MALA, Math.max(0, globalTotalMala - customTotalMala));
-              Storage.set(STORAGE_KEYS.JAP_TODAY_COUNT, Math.max(0, globalTodayCount - customTodayCount));
-              Storage.set(STORAGE_KEYS.JAP_TODAY_MALA, Math.max(0, globalTodayMala - customTodayMala));
+              Storage.set(
+                STORAGE_KEYS.JAP_TOTAL_COUNT,
+                Math.max(0, globalTotalCount - customTotalCount),
+              );
+              Storage.set(
+                STORAGE_KEYS.JAP_TOTAL_MALA,
+                Math.max(0, globalTotalMala - customTotalMala),
+              );
+              Storage.set(
+                STORAGE_KEYS.JAP_TODAY_COUNT,
+                Math.max(0, globalTodayCount - customTodayCount),
+              );
+              Storage.set(
+                STORAGE_KEYS.JAP_TODAY_MALA,
+                Math.max(0, globalTodayMala - customTodayMala),
+              );
 
               setTotalCount(prev => Math.max(0, prev - customTotalCount));
               setTotalMala(prev => Math.max(0, prev - customTotalMala));
@@ -239,30 +294,48 @@ export const useProfileData = () => {
               Storage.delete(`JAP_TODAY_COUNT_${mantraId}`);
 
               try {
-                const rawHistory = Storage.getString(STORAGE_KEYS.JAP_HISTORY, '{}');
+                const rawHistory = Storage.getString(
+                  STORAGE_KEYS.JAP_HISTORY,
+                  '{}',
+                );
                 const history = JSON.parse(rawHistory);
                 let historyChanged = false;
                 Object.keys(history).forEach(dateKey => {
                   const dayRecord = history[dateKey];
                   if (dayRecord?.mantras?.[mantraId]) {
                     const record = dayRecord.mantras[mantraId];
-                    dayRecord.totalCount = Math.max(0, dayRecord.totalCount - record.count);
-                    dayRecord.totalMala = Math.max(0, dayRecord.totalMala - record.mala);
+                    dayRecord.totalCount = Math.max(
+                      0,
+                      dayRecord.totalCount - record.count,
+                    );
+                    dayRecord.totalMala = Math.max(
+                      0,
+                      dayRecord.totalMala - record.mala,
+                    );
                     delete dayRecord.mantras[mantraId];
-                    if (dayRecord.totalCount <= 0 || Object.keys(dayRecord.mantras).length === 0) {
+                    if (
+                      dayRecord.totalCount <= 0 ||
+                      Object.keys(dayRecord.mantras).length === 0
+                    ) {
                       delete history[dateKey];
                     }
                     historyChanged = true;
                   }
                 });
                 if (historyChanged) {
-                  Storage.set(STORAGE_KEYS.JAP_HISTORY, JSON.stringify(history));
+                  Storage.set(
+                    STORAGE_KEYS.JAP_HISTORY,
+                    JSON.stringify(history),
+                  );
                   setJapaHistory(history);
                 } else {
                   setJapaHistory({ ...history });
                 }
               } catch (e) {
-                console.error('Failed to clean history for custom mantra delete', e);
+                console.error(
+                  'Failed to clean history for custom mantra delete',
+                  e,
+                );
               }
             },
           },

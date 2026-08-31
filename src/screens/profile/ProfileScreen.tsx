@@ -26,6 +26,7 @@ import ResetModal from './components/ResetModal';
 import SadhanaCalendarCard from './components/SadhanaCalendarCard';
 import SelectedDayBreakdownCard from './components/SelectedDayBreakdownCard';
 import ManageCustomMantrasModal from './components/ManageCustomMantrasModal';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 const ProfileScreen = () => {
   const navigation = useNavigation<any>();
@@ -69,6 +70,8 @@ const ProfileScreen = () => {
     handleExecuteReset,
   } = useProfileData();
 
+  const [showJapHistory, setShowJapHistory] = React.useState(false);
+
   return (
     <GradientBackground>
       <SafeAreaView style={profileStyles.safeArea} edges={['top', 'bottom']}>
@@ -79,11 +82,18 @@ const ProfileScreen = () => {
           {/* ── User Profile Card ─────────────────────────────────── */}
           <View style={profileStyles.profileCard}>
             <View style={profileStyles.avatarBorder}>
-              <Image source={imagePath.Krishna} style={profileStyles.avatarImage} />
+              <Image
+                source={imagePath.Krishna}
+                style={profileStyles.avatarImage}
+              />
             </View>
             <View style={{ flex: 1, marginTop: scale(10) }}>
-              <Text style={profileStyles.userName}>{t(Translation.PROFILE_DEVOTEE)}</Text>
-              <Text style={profileStyles.userJoined}>{t(Translation.PROFILE_JOINED_SINCE)}</Text>
+              <Text style={profileStyles.userName}>
+                {t(Translation.PROFILE_DEVOTEE)}
+              </Text>
+              <Text style={profileStyles.userJoined}>
+                {t(Translation.PROFILE_JOINED_SINCE)}
+              </Text>
             </View>
           </View>
 
@@ -92,24 +102,39 @@ const ProfileScreen = () => {
             totalCount={totalCount}
             totalMala={totalMala}
             todayCount={todayCount}
+            showHistory={showJapHistory}
+            onHistoryPress={() => setShowJapHistory(prev => !prev)}
           />
 
-          {/* ── Sadhana Calendar ──────────────────────────────────── */}
-          <SadhanaCalendarCard
-            selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
-            markedDates={markedDates}
-            currentLanguage={currentLanguage}
-          />
+          {/* ── Sadhana Calendar (revealed by History button) ────────── */}
+          {showJapHistory && (
+            <Animated.View
+              style={{
+                width: '100%',
+              }}
+              entering={FadeInDown.duration(400).springify()}
+            >
+              <SadhanaCalendarCard
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+                markedDates={markedDates}
+                currentLanguage={currentLanguage}
+              />
 
-          {/* ── Selected Day Breakdown ────────────────────────────── */}
-          {selectedDate && (
-            <SelectedDayBreakdownCard
-              selectedDate={selectedDate}
-              selectedDayRecord={selectedDayRecord}
-              getMantraName={getMantraName}
-              currentLanguage={currentLanguage}
-            />
+              {/* ── Selected Day Breakdown ────────────────────────────── */}
+              {selectedDate && (
+                <Animated.View
+                  entering={FadeInDown.duration(350).delay(60).springify()}
+                >
+                  <SelectedDayBreakdownCard
+                    selectedDate={selectedDate}
+                    selectedDayRecord={selectedDayRecord}
+                    getMantraName={getMantraName}
+                    currentLanguage={currentLanguage}
+                  />
+                </Animated.View>
+              )}
+            </Animated.View>
           )}
 
           {/* ── Favourite Stories ─────────────────────────────────── */}
@@ -117,12 +142,16 @@ const ProfileScreen = () => {
             stories={favoriteStories}
             currentLanguage={currentLanguage}
             onRemove={handleRemoveFavorite}
-            onPress={storyId => navigation.navigate('ReadingScreen', { storyId })}
+            onPress={storyId =>
+              navigation.navigate('ReadingScreen', { storyId })
+            }
           />
 
           {/* ── Settings Card ─────────────────────────────────────── */}
           <View style={profileStyles.sectionCard}>
-            <Text style={profileStyles.sectionTitle}>{t(Translation.PROFILE_SETTINGS)}</Text>
+            <Text style={profileStyles.sectionTitle}>
+              {t(Translation.PROFILE_SETTINGS)}
+            </Text>
 
             {/* Language toggle */}
             <View style={profileStyles.settingRow}>
@@ -146,7 +175,8 @@ const ProfileScreen = () => {
                   <Text
                     style={[
                       profileStyles.langButtonText,
-                      currentLanguage === 'en' && profileStyles.langButtonTextActive,
+                      currentLanguage === 'en' &&
+                        profileStyles.langButtonTextActive,
                     ]}
                   >
                     EN
@@ -163,7 +193,8 @@ const ProfileScreen = () => {
                   <Text
                     style={[
                       profileStyles.langButtonText,
-                      currentLanguage === 'hi' && profileStyles.langButtonTextActive,
+                      currentLanguage === 'hi' &&
+                        profileStyles.langButtonTextActive,
                     ]}
                   >
                     हिन्दी
@@ -178,7 +209,9 @@ const ProfileScreen = () => {
             <TouchableOpacity
               activeOpacity={notificationsEnabled ? 0.7 : 1}
               onPress={() => {
-                if (notificationsEnabled) { setScheduleModalVisible(true); }
+                if (notificationsEnabled) {
+                  setScheduleModalVisible(true);
+                }
               }}
               style={profileStyles.settingRow}
             >
@@ -191,8 +224,13 @@ const ProfileScreen = () => {
                 </Text>
               </View>
               <Switch
-                trackColor={{ false: colors.switchTrackFalse, true: colors.ring }}
-                thumbColor={notificationsEnabled ? colors.white : colors.switchThumbFalse}
+                trackColor={{
+                  false: colors.switchTrackFalse,
+                  true: colors.ring,
+                }}
+                thumbColor={
+                  notificationsEnabled ? colors.white : colors.switchThumbFalse
+                }
                 onValueChange={handleToggleNotifications}
                 value={notificationsEnabled}
               />
@@ -227,7 +265,9 @@ const ProfileScreen = () => {
                       {t(Translation.CHALLENGE_GIVE_UP)}
                     </Text>
                     <Text style={profileStyles.settingSubLabel}>
-                      {t(Translation.CHALLENGE_ABANDON_DESC, { count: challengeTotalDays })}
+                      {t(Translation.CHALLENGE_ABANDON_DESC, {
+                        count: challengeTotalDays,
+                      })}
                     </Text>
                   </View>
                   <TouchableOpacity
@@ -245,8 +285,12 @@ const ProfileScreen = () => {
           </View>
 
           {/* ── Danger Zone Card ──────────────────────────────────── */}
-          <View style={[profileStyles.sectionCard, profileStyles.dangerZoneCard]}>
-            <Text style={[profileStyles.sectionTitle, { color: colors.danger }]}>
+          <View
+            style={[profileStyles.sectionCard, profileStyles.dangerZoneCard]}
+          >
+            <Text
+              style={[profileStyles.sectionTitle, { color: colors.danger }]}
+            >
               {t(Translation.DANGER_ZONE_TITLE)}
             </Text>
             <View style={profileStyles.settingRow}>
@@ -285,7 +329,9 @@ const ProfileScreen = () => {
         <View style={profileStyles.modalCenterContainer}>
           <View style={profileStyles.modalCard}>
             <Text style={profileStyles.modalIcon}>✨</Text>
-            <Text style={profileStyles.modalTitle}>{t(Translation.PROFILE_COMING_SOON)}</Text>
+            <Text style={profileStyles.modalTitle}>
+              {t(Translation.PROFILE_COMING_SOON)}
+            </Text>
             <Text style={profileStyles.modalMessage}>
               {t(Translation.PROFILE_COMING_SOON_DESC)}
             </Text>
@@ -294,7 +340,9 @@ const ProfileScreen = () => {
               onPress={() => overlayRef.current?.close()}
               activeOpacity={0.8}
             >
-              <Text style={profileStyles.modalButtonText}>{t(Translation.PROFILE_OKAY)}</Text>
+              <Text style={profileStyles.modalButtonText}>
+                {t(Translation.PROFILE_OKAY)}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

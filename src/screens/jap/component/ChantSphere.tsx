@@ -13,31 +13,33 @@ type ChantSphereProps = {
   chantLabel: string;
 };
 
-const ChantSphere = React.memo(({
-  onPress,
-  count,
-  target,
-  animatedSphereStyle,
-  chantLabel,
-}: ChantSphereProps) => {
-  return (
-    <Pressable
-      onPress={onPress}
-      hitSlop={{
-        top: scale(25),
-        bottom: scale(25),
-        left: scale(25),
-        right: scale(25),
-      }}
-    >
-      <Animated.View style={[styles.chantSphere, animatedSphereStyle]}>
-        <Text style={styles.chantCountText}>{count}</Text>
-        <Text style={styles.chantTargetText}>/ {target}</Text>
-        <Text style={styles.chantLabel}>{chantLabel}</Text>
-      </Animated.View>
-    </Pressable>
-  );
-});
+const ChantSphere = React.memo(
+  ({
+    onPress,
+    count,
+    target,
+    animatedSphereStyle,
+    chantLabel,
+  }: ChantSphereProps) => {
+    return (
+      <Pressable
+        onPress={onPress}
+        hitSlop={{
+          top: scale(25),
+          bottom: scale(25),
+          left: scale(25),
+          right: scale(25),
+        }}
+      >
+        <Animated.View style={[styles.chantSphere, animatedSphereStyle]}>
+          <Text style={styles.chantCountText}>{count}</Text>
+          <Text style={styles.chantTargetText}>/ {target}</Text>
+          <Text style={styles.chantLabel}>{chantLabel}</Text>
+        </Animated.View>
+      </Pressable>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   chantSphere: {
