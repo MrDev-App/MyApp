@@ -42,11 +42,8 @@ import { useIsFocused } from '@react-navigation/native';
 const TriggerHaptic = () => {
   if (Platform.OS === 'android') {
     try {
-      console.log('[Haptic] Triggering vibration on Android...');
       Vibration.vibrate([0, 40, 0, 0]);
-    } catch (error) {
-      console.log('[Haptic] Android vibration failed:', error);
-    }
+    } catch {}
   } else {
     // iOS: Use native Taptic engine
     const options = {
@@ -54,13 +51,8 @@ const TriggerHaptic = () => {
       ignoreAndroidSystemSettings: true,
     };
     try {
-      console.log('[Haptic] Triggering impactHeavy haptic feedback on iOS...');
       HapticFeedback.trigger('impactHeavy', options);
-    } catch (error) {
-      console.log(
-        '[Haptic] Failed to trigger haptics, falling back to Vibration:',
-        error,
-      );
+    } catch {
       Vibration.vibrate(30);
     }
   }

@@ -145,6 +145,10 @@ const ReadingScreen = () => {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           bounces={false}
+          initialNumToRender={3}
+          maxToRenderPerBatch={3}
+          windowSize={5}
+          removeClippedSubviews={true}
           keyExtractor={(_, index) => `comic_page_${index}`}
           getItemLayout={(_, index) => ({
             length: containerWidth,

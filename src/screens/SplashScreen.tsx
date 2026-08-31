@@ -16,6 +16,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/type';
 import { useTranslation } from 'react-i18next';
 import { Translation } from '../i18n/language';
+import { Storage } from '../utile/storage';
 
 const SplashScreen = () => {
   const { t } = useTranslation();
@@ -91,7 +92,15 @@ const SplashScreen = () => {
     );
 
     const timer = setTimeout(() => {
-      navigation.replace('Onboarding');
+      const isOnboardingCompleted = Storage.getBoolean(
+        'ONBOARDING_COMPLETED',
+        false,
+      );
+      if (isOnboardingCompleted) {
+        navigation.replace('BottomTabs', { screen: 'Home' });
+      } else {
+        navigation.replace('Onboarding');
+      }
     }, 2800);
 
     return () => clearTimeout(timer);

@@ -9,8 +9,12 @@ import {
   Modal,
   ScrollView,
   useWindowDimensions,
+  Platform,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Back } from '../../assets';
@@ -94,6 +98,10 @@ const TempleScreen = () => {
             renderItem={renderItem}
             keyExtractor={item => item.id}
             numColumns={2}
+            initialNumToRender={6}
+            maxToRenderPerBatch={6}
+            windowSize={5}
+            removeClippedSubviews={Platform.OS === 'android'}
             columnWrapperStyle={styles.columnWrapper}
             contentContainerStyle={styles.flatListContent}
             showsVerticalScrollIndicator={false}

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import colors from '../../../utile/colors';
@@ -99,6 +100,10 @@ const MantrasCard = () => {
           keyExtractor={(_, index) => String(index)}
           contentContainerStyle={styles.listContent}
           scrollEnabled={true}
+          initialNumToRender={4}
+          maxToRenderPerBatch={4}
+          windowSize={3}
+          removeClippedSubviews={Platform.OS === 'android'}
           onContentSizeChange={w => setContentWidth(w)}
           onScrollBeginDrag={() => {
             if (resumeTimeoutRef.current)

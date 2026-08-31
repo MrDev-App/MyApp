@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   ImageBackground,
+  Platform,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
@@ -86,6 +87,10 @@ const FestivalHighlights = ({ onPress }: any) => {
         showsHorizontalScrollIndicator={false}
         data={filteredFestivals}
         keyExtractor={item => item.id}
+        initialNumToRender={4}
+        maxToRenderPerBatch={4}
+        windowSize={3}
+        removeClippedSubviews={Platform.OS === 'android'}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => {
           const daysLeft = calculateDaysRemaining(item.month, item.day);

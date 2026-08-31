@@ -12,6 +12,7 @@ import {
   recordDeliveredNotification,
 } from './src/notifee/notifications';
 import { navigationRef } from './src/navigation/navigationRef';
+import ErrorBoundary from './src/components/ErrorBoundary';
 
 const App = () => {
   useEffect(() => {
@@ -36,16 +37,18 @@ const App = () => {
   }, []);
 
   return (
-    <SafeAreaProvider>
-      <NavigationContainer ref={navigationRef}>
-        <StatusBar
-          barStyle="dark-content"
-          backgroundColor="transparent"
-          translucent
-        />
-        <StackNavigation />
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <NavigationContainer ref={navigationRef}>
+          <StatusBar
+            barStyle="dark-content"
+            backgroundColor="transparent"
+            translucent
+          />
+          <StackNavigation />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 };
 

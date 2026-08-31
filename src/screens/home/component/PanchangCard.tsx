@@ -115,4 +115,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PanchangCard;
+export default React.memo(PanchangCard);

@@ -30,6 +30,7 @@ import imagePath from '../assets';
 
 import { useTranslation } from 'react-i18next';
 import { Translation } from '../i18n/language';
+import { Storage } from '../utile/storage';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 const AnimatedTouchableOpacity =
@@ -105,6 +106,7 @@ const OnboardingScreen = () => {
   });
 
   const handleGetStarted = () => {
+    Storage.set('ONBOARDING_COMPLETED', true);
     navigation.replace('BottomTabs', { screen: 'Home' });
   };
 

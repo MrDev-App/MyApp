@@ -159,4 +159,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default JapCard;
+export default React.memo(JapCard);

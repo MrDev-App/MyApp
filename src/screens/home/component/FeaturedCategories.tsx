@@ -153,7 +153,7 @@ const FeaturedCategories = () => {
   );
 };
 
-export default FeaturedCategories;
+export default React.memo(FeaturedCategories);
 
 const styles = StyleSheet.create({
   container: {
