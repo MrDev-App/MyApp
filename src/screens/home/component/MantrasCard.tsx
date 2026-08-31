@@ -125,6 +125,123 @@ const MantrasCard = () => {
           )}
         />
       </View>
+
+      {/* Main Deity Modal showing list of mantras */}
+      <ExpandableCard
+        ref={cardRef}
+        imageMargin={scale(16)}
+        getImage={(god: any) => god.image}
+        renderContent={(god: any) => (
+          <>
+            <View style={[styles.modalHeaderRow, { paddingRight: scale(45) }]}>
+              <Text style={styles.expandedName}>
+                {currentLanguage === 'hi' ? god.hindiName : god.englishName}
+              </Text>
+            </View>
+
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={styles.modalScroll}
+              contentContainerStyle={styles.modalScrollContent}
+            >
+              {god.mantras && god.mantras.length > 0 ? (
+                god.mantras.map((m: any, index: number) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.mantraItemCard}
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      setSelectedMantra({
+                        image: god.image,
+                        deityName:
+                          currentLanguage === 'hi'
+                            ? god.hindiName
+                            : god.englishName,
+                        name:
+                          currentLanguage === 'hi' && m.nameHi
+                            ? m.nameHi
+                            : m.nameEn || m.name,
+                        mantra: m.mantra,
+                      });
+                      detailCardRef.current?.open();
+                    }}
+                  >
+                    <View style={styles.mantraCardHeader}>
+                      <Text style={styles.mantraName} numberOfLines={1}>
+                        {currentLanguage === 'hi' && m.nameHi
+                          ? m.nameHi
+                          : m.nameEn || m.name}
+                      </Text>
+                    </View>
+                    <Text style={styles.mantraTextHi}>{m.mantra}</Text>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <TouchableOpacity
+                  style={styles.mantraItemCard}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    setSelectedMantra({
+                      image: god.image,
+                      deityName:
+                        currentLanguage === 'hi'
+                          ? god.hindiName
+                          : god.englishName,
+                      name: t(Translation.MANTRAS_LABEL),
+                      mantra: god.mantra,
+                    });
+                    detailCardRef.current?.open();
+                  }}
+                >
+                  <View style={styles.mantraCardHeader}>
+                    <Text style={styles.mantraName} numberOfLines={1}>
+                      {t(Translation.MANTRAS_LABEL)}
+                    </Text>
+                  </View>
+                  <Text style={styles.mantraTextHi}>{god.mantra}</Text>
+                </TouchableOpacity>
+              )}
+            </ScrollView>
+          </>
+        )}
+      />
+
+      {/* Nested Mantra Detail Modal */}
+      <OverlayModal
+        ref={detailCardRef}
+        closeOnBackdropPress={true}
+        onClose={() => setSelectedMantra(null)}
+      >
+        {selectedMantra && (
+          <View style={styles.modalCenterContainer}>
+            <View style={styles.modalCard}>
+              <View style={styles.modalHeaderRow}>
+                <View style={styles.modalHeaderTitleCol}>
+                  <Text style={styles.expandedName} numberOfLines={1}>{selectedMantra.name}</Text>
+                  {selectedMantra.deityName && (
+                    <Text style={styles.modalSubtitle} numberOfLines={1}>
+                      {selectedMantra.deityName}
+                    </Text>
+                  )}
+                </View>
+                <TouchableOpacity
+                  style={styles.modalCloseButton}
+                  onPress={() => detailCardRef.current?.close()}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.modalCloseButtonText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.mantraDetailCard}>
+                <Text style={styles.mantraDetailHi}>
+                  {selectedMantra.mantra}
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
+      </OverlayModal>
     </View>
   );
 };

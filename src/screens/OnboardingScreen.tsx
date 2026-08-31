@@ -4,9 +4,9 @@ import {
   View,
   FlatList,
   Image,
-  Dimensions,
   TouchableOpacity,
   Text,
+  useWindowDimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -15,7 +15,7 @@ import Images from '../assets';
 import colors from '../utile/colors';
 import fonts from '../utile/fonts';
 import { fs, moderateScale, verticalScale, scale } from '../utile/sizes';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GradientBackground from '../components/GradientBackground';
 import Animated, {
   useSharedValue,
@@ -31,8 +31,6 @@ import imagePath from '../assets';
 import { useTranslation } from 'react-i18next';
 import { Translation } from '../i18n/language';
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -44,6 +42,8 @@ const slideKeys = [
 ];
 
 const OnboardingScreen = () => {
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -140,7 +140,9 @@ const OnboardingScreen = () => {
         viewabilityConfig={viewabilityConfig}
         renderItem={({ item }) => {
           return (
-            <GradientBackground style={styles.slide}>
+            <GradientBackground
+              style={[styles.slide, { width: screenWidth, height: screenHeight }]}
+            >
               <View style={styles.imageWrapper}>
                 <Image source={item as any} style={styles.centerImage} />
               </View>
@@ -151,14 +153,24 @@ const OnboardingScreen = () => {
       />
 
       {/* Animated Tagline Header */}
-      <View style={styles.headerContainer}>
+      <View
+        style={[
+          styles.headerContainer,
+          { bottom: insets.bottom + verticalScale(110) },
+        ]}
+      >
         <Animated.Text style={[styles.headerSubtitle, animatedSubtitleStyle]}>
           {t(displayTextKey)}
         </Animated.Text>
       </View>
 
       {/* Floating Bottom UI */}
-      <SafeAreaView style={styles.overlayContainer} edges={['top', 'bottom']}>
+      <View
+        style={[
+          styles.overlayContainer,
+          { bottom: insets.bottom + verticalScale(24) },
+        ]}
+      >
         <View style={styles.bottomRow}>
           {/* Pagination Indicators */}
           <View style={styles.indicatorContainer}>
@@ -181,7 +193,7 @@ const OnboardingScreen = () => {
             </Text>
           </AnimatedTouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     </View>
   );
 };
@@ -194,8 +206,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   slide: {
-    width: screenWidth,
-    height: screenHeight,
+    flex: 1,
     backgroundColor: colors.white,
   },
   imageWrapper: {

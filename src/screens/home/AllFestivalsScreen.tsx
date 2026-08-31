@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import colors from '../../utile/colors';
 import fonts from '../../utile/fonts';
 import { fs, scale } from '../../utile/sizes';
@@ -48,9 +48,8 @@ LocaleConfig.locales['en'] = {
   today: 'Today',
 };
 
-
-
 const AllFestivalsScreen = () => {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const { i18n } = useTranslation();
   const currentLanguage = (i18n.language || 'en').substring(0, 2);
@@ -187,7 +186,10 @@ const AllFestivalsScreen = () => {
 
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: insets.bottom + scale(24) },
+          ]}
         >
           {/* Calendar Calendar view */}
           <Calendar

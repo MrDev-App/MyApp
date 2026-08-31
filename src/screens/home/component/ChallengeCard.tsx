@@ -6,13 +6,16 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Translation } from '../../../i18n/language';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
-import { fs, scale } from '../../../utile/sizes';
+import { fs, scale, verticalScale } from '../../../utile/sizes';
 import AnimatedButton from '../../../components/AnimatedButton';
 import { Storage, STORAGE_KEYS } from '../../../utile/storage';
 import OverlayModal, {
@@ -230,61 +233,72 @@ const ChallengeCard = () => {
 
       {/* Edit Target Modal */}
       <OverlayModal ref={targetModalRef} closeOnBackdropPress={true}>
-        <View style={styles.modalCenterContainer}>
-          <View style={styles.modalCard}>
-            {/* Close button top right */}
-            <TouchableOpacity
-              style={styles.modalCloseBtn}
-              onPress={() => targetModalRef.current?.close()}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.modalCloseBtnText}>✕</Text>
-            </TouchableOpacity>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <View style={styles.modalCenterContainer}>
+            <View style={[styles.modalCard, { maxHeight: verticalScale(480) }]}>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                bounces={false}
+              >
+                {/* Close button top right */}
+                <TouchableOpacity
+                  style={styles.modalCloseBtn}
+                  onPress={() => targetModalRef.current?.close()}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.modalCloseBtnText}>✕</Text>
+                </TouchableOpacity>
 
-            <Text style={styles.modalTitle}>
-              {t(Translation.CHALLENGE_EDIT_TITLE)}
-            </Text>
+                <Text style={styles.modalTitle}>
+                  {t(Translation.CHALLENGE_EDIT_TITLE)}
+                </Text>
 
-            {/* Input 1: Daily Target Chants */}
-            <Text style={styles.inputLabel}>
-              {t(Translation.CHALLENGE_EDIT_TARGET_LABEL)}
-            </Text>
-            <TextInput
-              style={styles.textInput}
-              keyboardType="number-pad"
-              value={tempGoal}
-              onChangeText={setTempGoal}
-              maxLength={10}
-              placeholder="108"
-              placeholderTextColor={colors.mutedForeground}
-            />
+                {/* Input 1: Daily Target Chants */}
+                <Text style={styles.inputLabel}>
+                  {t(Translation.CHALLENGE_EDIT_TARGET_LABEL)}
+                </Text>
+                <TextInput
+                  style={styles.textInput}
+                  keyboardType="number-pad"
+                  value={tempGoal}
+                  onChangeText={setTempGoal}
+                  maxLength={10}
+                  placeholder="108"
+                  placeholderTextColor={colors.mutedForeground}
+                />
 
-            {/* Input 2: Challenge Duration Days */}
-            <Text style={[styles.inputLabel, { marginTop: scale(12) }]}>
-              {t(Translation.CHALLENGE_EDIT_DURATION_LABEL)}
-            </Text>
-            <TextInput
-              style={styles.textInput}
-              keyboardType="number-pad"
-              value={tempDays}
-              onChangeText={setTempDays}
-              maxLength={4}
-              placeholder="21"
-              placeholderTextColor={colors.mutedForeground}
-            />
+                {/* Input 2: Challenge Duration Days */}
+                <Text style={[styles.inputLabel, { marginTop: scale(12) }]}>
+                  {t(Translation.CHALLENGE_EDIT_DURATION_LABEL)}
+                </Text>
+                <TextInput
+                  style={styles.textInput}
+                  keyboardType="number-pad"
+                  value={tempDays}
+                  onChangeText={setTempDays}
+                  maxLength={4}
+                  placeholder="21"
+                  placeholderTextColor={colors.mutedForeground}
+                />
 
-            {/* Save Settings Button */}
-            <TouchableOpacity
-              style={styles.setGoalBtn}
-              onPress={handleSaveGoal}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.setGoalBtnText}>
-                {t(Translation.CHALLENGE_EDIT_SAVE_BTN)}
-              </Text>
-            </TouchableOpacity>
+                {/* Save Settings Button */}
+                <TouchableOpacity
+                  style={styles.setGoalBtn}
+                  onPress={handleSaveGoal}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.setGoalBtnText}>
+                    {t(Translation.CHALLENGE_EDIT_SAVE_BTN)}
+                  </Text>
+                </TouchableOpacity>
+              </ScrollView>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </OverlayModal>
     </View>
   );
@@ -459,9 +473,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(183, 168, 151, 0.25)',
     shadowColor: colors.secondary,
-    shadowOffset: { width: 0, height: 10 },
+    shadowOffset: { width: 0, height: scale(10) },
     shadowOpacity: 0.15,
-    shadowRadius: 20,
+    shadowRadius: scale(20),
     elevation: 6,
   },
   modalTitle: {

@@ -7,7 +7,7 @@ import {
   Image,
   Switch,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Translation } from '../../i18n/language';
 import GradientBackground from '../../components/GradientBackground';
@@ -70,6 +70,7 @@ const ProfileScreen = () => {
     handleExecuteReset,
   } = useProfileData();
 
+  const insets = useSafeAreaInsets();
   const [showJapHistory, setShowJapHistory] = React.useState(false);
 
   return (
@@ -77,7 +78,10 @@ const ProfileScreen = () => {
       <SafeAreaView style={profileStyles.safeArea} edges={['top', 'bottom']}>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={profileStyles.scrollContent}
+          contentContainerStyle={[
+            profileStyles.scrollContent,
+            { paddingBottom: insets.bottom + scale(80) },
+          ]}
         >
           {/* ── User Profile Card ─────────────────────────────────── */}
           <View style={profileStyles.profileCard}>
@@ -87,7 +91,7 @@ const ProfileScreen = () => {
                 style={profileStyles.avatarImage}
               />
             </View>
-            <View style={{ flex: 1, marginTop: scale(10) }}>
+            <View style={{ flex: 1, marginTop: scale(10), flexShrink: 1 }}>
               <Text style={profileStyles.userName}>
                 {t(Translation.PROFILE_DEVOTEE)}
               </Text>

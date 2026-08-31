@@ -8,6 +8,7 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import colors from '../utile/colors';
 import fonts from '../utile/fonts';
@@ -26,6 +27,7 @@ const FestivalModal: React.FC<FestivalModalProps> = ({
   festival,
   onClose,
 }) => {
+  const insets = useSafeAreaInsets();
   const { i18n } = useTranslation();
   const currentLanguage = i18n.language || 'en';
 
@@ -79,7 +81,12 @@ const FestivalModal: React.FC<FestivalModalProps> = ({
                 source={festival.image || imagePath.greeting}
                 style={styles.modalImage}
               />
-              <View style={styles.modalContent}>
+              <View
+                style={[
+                  styles.modalContent,
+                  { paddingBottom: insets.bottom + scale(16) },
+                ]}
+              >
                 <Text style={styles.modalFestivalName}>
                   {currentLanguage === 'hi'
                     ? festival.hindiName

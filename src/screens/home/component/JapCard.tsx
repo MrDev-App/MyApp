@@ -101,9 +101,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(183, 168, 151, 0.2)',
     shadowColor: colors.ring,
-    shadowOffset: { width: 0, height: 6 },
+    shadowOffset: { width: 0, height: scale(6) },
     shadowOpacity: 0.04,
-    shadowRadius: 12,
+    shadowRadius: scale(12),
     elevation: 3,
   },
   statsRow: {
@@ -142,9 +142,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: colors.ring,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: scale(4) },
     shadowOpacity: 0.2,
-    shadowRadius: 6,
+    shadowRadius: scale(6),
     elevation: 3,
   },
   malaIcon: {

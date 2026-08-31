@@ -102,9 +102,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(251, 148, 55, 0.2)',
     shadowColor: colors.ring,
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: { width: 0, height: scale(8) },
     shadowOpacity: 0.15,
-    shadowRadius: 16,
+    shadowRadius: scale(16),
     elevation: 8,
   },
   iconContainer: {
@@ -169,9 +169,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: colors.ring,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: scale(4) },
     shadowOpacity: 0.2,
-    shadowRadius: 6,
+    shadowRadius: scale(6),
     elevation: 3,
   },
   confirmBtnText: {

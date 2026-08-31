@@ -24,7 +24,7 @@ import colors from '../../utile/colors';
 import fonts from '../../utile/fonts';
 import { fs, scale } from '../../utile/sizes';
 import GradientBackground from '../../components/GradientBackground';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MANTRAS_LIST, MantraSelectorItem } from '../../constants/japData';
 import { Translation } from '../../i18n/language';
 import imagePath from '../../assets';
@@ -69,6 +69,7 @@ const TriggerHaptic = () => {
 const TOTAL_BEADS = 108;
 
 const JapScreen = () => {
+  const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
   const currentLanguage = (i18n.language || 'en') as 'en' | 'hi';
 
@@ -453,7 +454,10 @@ const JapScreen = () => {
 
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: insets.bottom + scale(80) },
+          ]}
         >
           <View style={styles.selectorSection}>
             <FlatList

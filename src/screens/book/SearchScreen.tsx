@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.PoppinsRegular,
     color: colors.neutralDisabled,
     marginTop: scale(2),
-    lineHeight: scale(14),
+    lineHeight: fs(16),
   },
   searchCardFooter: {
     flexDirection: 'row',

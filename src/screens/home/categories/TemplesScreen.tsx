@@ -50,9 +50,9 @@ const styles = StyleSheet.create({
     padding: scale(12),
     marginBottom: scale(16),
     shadowColor: '#39261b',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: scale(4) },
     shadowOpacity: 0.05,
-    shadowRadius: 6,
+    shadowRadius: scale(6),
     elevation: 2,
   },
   templeImage: {

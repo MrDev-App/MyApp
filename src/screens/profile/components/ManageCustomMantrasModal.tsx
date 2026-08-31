@@ -6,14 +6,13 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
-  Dimensions,
 } from 'react-native';
 import OverlayModal, {
   OverlayModalHandle,
 } from '../../../components/OverlayModal';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
-import { fs, scale } from '../../../utile/sizes';
+import { fs, scale, verticalScale } from '../../../utile/sizes';
 import imagePath from '../../../assets';
 import { useTranslation } from 'react-i18next';
 import { Translation } from '../../../i18n/language';
@@ -48,8 +47,7 @@ const ManageCustomMantrasModal: React.FC<ManageCustomMantrasModalProps> = ({
           style={[
             styles.modalCard,
             {
-              width: Dimensions.get('window').width * 0.9,
-              maxHeight: scale(400),
+              maxHeight: verticalScale(420),
               paddingBottom: scale(20),
             },
           ]}
@@ -122,15 +120,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: scale(20),
   },
   modalCard: {
+    width: '100%',
     backgroundColor: colors.white,
     borderRadius: scale(16),
     padding: scale(20),
     shadowColor: colors.secondary,
-    shadowOffset: { width: 0, height: 10 },
+    shadowOffset: { width: 0, height: scale(10) },
     shadowOpacity: 0.1,
-    shadowRadius: 20,
+    shadowRadius: scale(20),
     elevation: 5,
   },
   modalCloseBtn: {

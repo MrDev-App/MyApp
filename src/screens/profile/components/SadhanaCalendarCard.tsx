@@ -19,7 +19,7 @@ const SadhanaCalendarCard: React.FC<SadhanaCalendarCardProps> = ({
   selectedDate,
   onSelectDate,
   markedDates,
-  currentLanguage,
+  currentLanguage: _currentLanguage,
 }) => {
   const { t } = useTranslation();
 
@@ -75,9 +75,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderLight,
     shadowColor: colors.ring,
-    shadowOffset: { width: 0, height: 6 },
+    shadowOffset: { width: 0, height: scale(6) },
     shadowOpacity: 0.04,
-    shadowRadius: 12,
+    shadowRadius: scale(12),
     elevation: 3,
     alignSelf: 'center',
   },

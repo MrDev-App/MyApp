@@ -1,10 +1,11 @@
 import React from 'react';
-import { Text, View, TouchableOpacity, TextInput } from 'react-native';
+import { Text, View, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Translation } from '../../../i18n/language';
 import OverlayModal, { OverlayModalHandle } from '../../../components/OverlayModal';
 import colors from '../../../utile/colors';
 import profileStyles from '../styles/profileStyles';
+import { verticalScale } from '../../../utile/sizes';
 
 interface ResetModalProps {
   modalRef: React.RefObject<OverlayModalHandle | null>;
@@ -35,8 +36,17 @@ const ResetModal: React.FC<ResetModalProps> = ({
 
   return (
     <OverlayModal ref={modalRef} closeOnBackdropPress={true}>
-      <View style={profileStyles.modalCenterContainer}>
-        <View style={profileStyles.modalCard}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={profileStyles.modalCenterContainer}>
+          <View style={[profileStyles.modalCard, { maxHeight: verticalScale(520) }]}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              bounces={false}
+            >
           <TouchableOpacity
             style={profileStyles.modalCloseBtn}
             onPress={onClose}
@@ -115,8 +125,10 @@ const ResetModal: React.FC<ResetModalProps> = ({
               </Text>
             </TouchableOpacity>
           </View>
+            </ScrollView>
+          </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </OverlayModal>
   );
 };

@@ -85,9 +85,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(183, 168, 151, 0.2)',
     shadowColor: colors.ring,
-    shadowOffset: { width: 0, height: 6 },
+    shadowOffset: { width: 0, height: scale(6) },
     shadowOpacity: 0.04,
-    shadowRadius: 12,
+    shadowRadius: scale(12),
     elevation: 3,
   },
   row: {

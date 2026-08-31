@@ -65,9 +65,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#39261b',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: scale(2) },
     shadowOpacity: 0.04,
-    shadowRadius: 4,
+    shadowRadius: scale(4),
     elevation: 1,
   },
   aartiGridImageContainer: {

@@ -9,7 +9,7 @@ import {
   Vibration,
   StatusBar,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 
@@ -48,6 +48,7 @@ const triggerHaptic = (type: string = 'impactLight') => {
 };
 
 const BookScreen = () => {
+  const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
   const currentLang = (i18n.language === 'hi' ? 'hi' : 'en') as 'en' | 'hi';
   const navigation = useNavigation<any>();
@@ -142,7 +143,10 @@ const BookScreen = () => {
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingBottom: insets.bottom + scale(80) },
+            ]}
           >
             {/* Comics Shelf List */}
             <ComicShelf

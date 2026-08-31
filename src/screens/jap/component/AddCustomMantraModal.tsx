@@ -11,7 +11,9 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Alert,
+  KeyboardAvoidingView,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -40,60 +42,49 @@ const AddCustomMantraModal = ({
   onClose,
   onSave,
 }: AddCustomMantraModalProps) => {
+  const insets = useSafeAreaInsets();
   const [nameEn, setNameEn] = useState('');
   const [nameHi, setNameHi] = useState('');
   const [textEn, setTextEn] = useState('');
   const [textHi, setTextHi] = useState('');
 
-  const keyboardHeight = useSharedValue(0);
+  const scaleValue = useSharedValue(0.9);
+  const opacityValue = useSharedValue(0);
 
   useEffect(() => {
-    if (!visible) {
-      keyboardHeight.value = 0;
-      return;
+    if (visible) {
+      scaleValue.value = withTiming(1, {
+        duration: 250,
+        easing: Easing.out(Easing.cubic),
+      });
+      opacityValue.value = withTiming(1, {
+        duration: 250,
+        easing: Easing.out(Easing.cubic),
+      });
+    } else {
+      scaleValue.value = 0.9;
+      opacityValue.value = 0;
     }
-
-    const showSubscription = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      e => {
-        keyboardHeight.value = withTiming(e.endCoordinates.height, {
-          duration: e.duration || 250,
-          easing: Easing.out(Easing.cubic),
-        });
-      },
-    );
-    const hideSubscription = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      e => {
-        keyboardHeight.value = withTiming(0, {
-          duration: e.duration || 250,
-          easing: Easing.out(Easing.cubic),
-        });
-      },
-    );
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, [visible, keyboardHeight]);
+  }, [visible, scaleValue, opacityValue]);
 
   const animatedOverlayStyle = useAnimatedStyle(() => {
     return {
-      paddingBottom: keyboardHeight.value,
+      opacity: opacityValue.value,
     };
   });
 
   const handleSave = () => {
-    if (!nameEn.trim() || !nameHi.trim() || !textEn.trim() || !textHi.trim()) {
+    // Basic validation
+    if (!nameEn.trim() && !nameHi.trim()) {
       Alert.alert(
         currentLanguage === 'hi' ? 'त्रुटि' : 'Error',
         currentLanguage === 'hi'
-          ? 'कृपया सभी फ़ील्ड भरें।'
-          : 'Please fill all fields.',
+          ? 'कृपया कम से कम एक भाषा में नाम दर्ज करें।'
+          : 'Please enter at least one name.',
       );
       return;
     }
+
     onSave({
       nameEn: nameEn.trim(),
       nameHi: nameHi.trim(),
@@ -122,101 +113,111 @@ const AddCustomMantraModal = ({
       animationType="fade"
       onRequestClose={handleCancel}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <Animated.View style={[styles.modalOverlay, animatedOverlayStyle]}>
-          <TouchableWithoutFeedback>
-            <View style={styles.customMantraModalCard}>
-              <Text style={styles.modalTitle}>
-                {currentLanguage === 'hi'
-                  ? 'नया कस्टम मंत्र जोड़ें'
-                  : 'Add Custom Mantra'}
-              </Text>
-
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="handled"
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <Animated.View style={[styles.modalOverlay, animatedOverlayStyle]}>
+            <TouchableWithoutFeedback>
+              <View
+                style={[
+                  styles.customMantraModalCard,
+                  { marginBottom: insets.bottom + scale(16) },
+                ]}
               >
-                <Text style={styles.inputLabel}>
+                <Text style={styles.modalTitle}>
                   {currentLanguage === 'hi'
-                    ? 'मंत्र का नाम (English):'
-                    : 'Mantra Name (English):'}
+                    ? 'नया कस्टम मंत्र जोड़ें'
+                    : 'Add Custom Mantra'}
                 </Text>
-                <TextInput
-                  style={styles.modalInput}
-                  value={nameEn}
-                  onChangeText={setNameEn}
-                  placeholder="e.g. Ram Mantra"
-                  placeholderTextColor={colors.neutralDisabled}
-                />
 
-                <Text style={styles.inputLabel}>
-                  {currentLanguage === 'hi'
-                    ? 'मंत्र का नाम (हिन्दी):'
-                    : 'Mantra Name (Hindi):'}
-                </Text>
-                <TextInput
-                  style={styles.modalInput}
-                  value={nameHi}
-                  onChangeText={setNameHi}
-                  placeholder="उदा. राम मंत्र"
-                  placeholderTextColor={colors.neutralDisabled}
-                />
-
-                <Text style={styles.inputLabel}>
-                  {currentLanguage === 'hi'
-                    ? 'जाप का पाठ (English):'
-                    : 'Chanting Text (English):'}
-                </Text>
-                <TextInput
-                  style={[styles.modalInput, styles.multilineInput]}
-                  value={textEn}
-                  onChangeText={setTextEn}
-                  placeholder="e.g. Om Ram Ramaya Namah"
-                  multiline
-                  placeholderTextColor={colors.neutralDisabled}
-                />
-
-                <Text style={styles.inputLabel}>
-                  {currentLanguage === 'hi'
-                    ? 'जाप का पाठ (हिन्दी):'
-                    : 'Chanting Text (Hindi):'}
-                </Text>
-                <TextInput
-                  style={[styles.modalInput, styles.multilineInput]}
-                  value={textHi}
-                  onChangeText={setTextHi}
-                  placeholder="उदा. ॐ राम रामाय नमः"
-                  multiline
-                  placeholderTextColor={colors.neutralDisabled}
-                />
-              </ScrollView>
-
-              <View style={styles.modalButtonsRow}>
-                <TouchableOpacity
-                  style={[styles.modalBtn, styles.modalCancelBtn]}
-                  onPress={handleCancel}
-                  activeOpacity={0.8}
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  keyboardShouldPersistTaps="handled"
+                  style={styles.scrollView}
+                  contentContainerStyle={styles.scrollContent}
                 >
-                  <Text style={styles.modalCancelText}>
-                    {currentLanguage === 'hi' ? 'रद्द करें' : 'Cancel'}
+                  <Text style={styles.inputLabel}>
+                    {currentLanguage === 'hi'
+                      ? 'मंत्र का नाम (English):'
+                      : 'Mantra Name (English):'}
                   </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.modalBtn, styles.modalSaveBtn]}
-                  onPress={handleSave}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.modalSaveText}>
-                    {currentLanguage === 'hi' ? 'सहेजें' : 'Save'}
+                  <TextInput
+                    style={styles.modalInput}
+                    value={nameEn}
+                    onChangeText={setNameEn}
+                    placeholder="e.g. Ram Mantra"
+                    placeholderTextColor={colors.neutralDisabled}
+                  />
+
+                  <Text style={styles.inputLabel}>
+                    {currentLanguage === 'hi'
+                      ? 'मंत्र का नाम (हिन्दी):'
+                      : 'Mantra Name (Hindi):'}
                   </Text>
-                </TouchableOpacity>
+                  <TextInput
+                    style={styles.modalInput}
+                    value={nameHi}
+                    onChangeText={setNameHi}
+                    placeholder="उदा. राम मंत्र"
+                    placeholderTextColor={colors.neutralDisabled}
+                  />
+
+                  <Text style={styles.inputLabel}>
+                    {currentLanguage === 'hi'
+                      ? 'मंत्र का पाठ (English):'
+                      : 'Mantra Text (English):'}
+                  </Text>
+                  <TextInput
+                    style={[styles.modalInput, styles.multilineInput]}
+                    value={textEn}
+                    onChangeText={setTextEn}
+                    placeholder="e.g. Om Ram Ramaya Namaha"
+                    multiline
+                    placeholderTextColor={colors.neutralDisabled}
+                  />
+
+                  <Text style={styles.inputLabel}>
+                    {currentLanguage === 'hi'
+                      ? 'मंत्र का पाठ (हिन्दी):'
+                      : 'Mantra Text (Hindi):'}
+                  </Text>
+                  <TextInput
+                    style={[styles.modalInput, styles.multilineInput]}
+                    value={textHi}
+                    onChangeText={setTextHi}
+                    placeholder="उदा. ॐ राम रामाय नमः"
+                    multiline
+                    placeholderTextColor={colors.neutralDisabled}
+                  />
+                </ScrollView>
+
+                <View style={styles.modalButtonsRow}>
+                  <TouchableOpacity
+                    style={[styles.modalBtn, styles.modalCancelBtn]}
+                    onPress={handleCancel}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.modalCancelText}>
+                      {currentLanguage === 'hi' ? 'रद्द करें' : 'Cancel'}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalBtn, styles.modalSaveBtn]}
+                    onPress={handleSave}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.modalSaveText}>
+                      {currentLanguage === 'hi' ? 'सहेजें' : 'Save'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </TouchableWithoutFeedback>
-        </Animated.View>
-      </TouchableWithoutFeedback>
+            </TouchableWithoutFeedback>
+          </Animated.View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
@@ -237,9 +238,9 @@ const styles = StyleSheet.create({
     borderRadius: scale(16),
     padding: scale(20),
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
+    shadowOffset: { width: 0, height: scale(-4) },
     shadowOpacity: 0.1,
-    shadowRadius: 10,
+    shadowRadius: scale(10),
     elevation: 5,
     marginBottom: scale(16),
   },

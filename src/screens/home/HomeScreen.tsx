@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import GradientBackground from '../../components/GradientBackground';
 import Globalstyles from '../../utile/GlobalStyle';
 import { scale } from '../../utile/sizes';
@@ -19,6 +19,7 @@ import GradientOverlay from '../../components/GradientOverlay';
 import colors from '../../utile/colors';
 
 export const HomeScreen = () => {
+  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const overlayRef = useRef<OverlayModalHandle>(null);
   const buttonRef = useRef<View>(null);
@@ -83,7 +84,10 @@ export const HomeScreen = () => {
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: insets.bottom + scale(80) },
+          ]}
         >
           {/* Greeting Banner */}
           <HomeGreetingHeader loading={loading} />
@@ -108,7 +112,7 @@ export const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingBottom: scale(50),
+    paddingBottom: scale(16),
   },
   topGradient: {
     position: 'absolute',

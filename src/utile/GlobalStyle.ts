@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { scale } from './sizes';
 
 const Globalstyles = StyleSheet.create({
   containerFull: {
@@ -6,7 +7,7 @@ const Globalstyles = StyleSheet.create({
   },
   containerMargin20: {
     flex: 1,
-    marginHorizontal: 20,
+    marginHorizontal: scale(20),
   },
   container: {
     flex: 1,

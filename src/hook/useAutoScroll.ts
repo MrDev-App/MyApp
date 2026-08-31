@@ -55,7 +55,7 @@ export function useAutoScroll(
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [contentWidth, containerWidth, speed]);
+  }, [contentWidth, containerWidth, speed, isPaused, listRef]);
 
   return {
     syncOffset: (newOffset: number) => {

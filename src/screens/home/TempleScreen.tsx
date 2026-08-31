@@ -10,7 +10,7 @@ import {
   ScrollView,
   useWindowDimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Back } from '../../assets';
@@ -19,6 +19,7 @@ import fonts from '../../utile/fonts';
 import { fs, scale } from '../../utile/sizes';
 
 const TempleScreen = () => {
+  const insets = useSafeAreaInsets();
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
   const { i18n } = useTranslation();
@@ -120,7 +121,12 @@ const TempleScreen = () => {
                   source={selectedTemple.image}
                   style={styles.modalImage}
                 />
-                <View style={styles.modalContent}>
+                <View
+                  style={[
+                    styles.modalContent,
+                    { paddingBottom: insets.bottom + scale(16) },
+                  ]}
+                >
                   <Text style={styles.modalTempleName}>
                     {currentLanguage === 'hi'
                       ? selectedTemple.nameHi
