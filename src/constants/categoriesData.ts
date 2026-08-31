@@ -280,42 +280,7 @@ export const categoriesData: Category[] = [
           'जब देवताओं और असुरों ने अमरत्व प्राप्त करने की इच्छा की, तो उन्होंने मंदराचल पर्वत को मथानी और नागराज वासुकि को नेती बनाकर क्षीरसागर का मंथन किया।\n\nमंथन से माँ लक्ष्मी, कामधेनु गाय, और कल्पवृक्ष सहित चौदह दिव्य रत्न निकले। इसी मंथन से हलाहल नामक भयंकर विष भी प्रकट हुआ, जिससे समस्त सृष्टि में हाहाकार मच गया।\n\nसृष्टि की रक्षा के लिए भगवान शिव ने उस विष को अपने कंठ में धारण कर लिया, जिससे उनका कंठ नीला पड़ गया और वे "नीलकंठ" कहलाए। अंत में भगवान धन्वंतरि अमृत कलश लेकर प्रकट हुए, जिससे धर्म और सत्य की विजय हुई।',
         image: imagePath.Bholenath,
       },
-      {
-        id: 'bhakt_prahlad',
-        nameEn: 'Story of Bhakt Prahlad',
-        nameHi: 'भक्त प्रह्लाद की कथा',
-        subtitleEn: 'Unwavering Devotion & Narasimha Avatar',
-        subtitleHi: 'अडिग भक्ति और नरसिंह अवतार',
-        textEn:
-          'Prahlad, the young prince born to the demon king Hiranyakashipu, was an ardent devotee of Lord Vishnu. Enraged by his son’s devotion, Hiranyakashipu subjected Prahlad to numerous torments, yet every attempt to harm him failed through divine grace.\n\nWhen Hiranyakashipu challenged Prahlad to show where his Lord resided and struck a pillar in anger, Lord Vishnu emerged in the fierce half-man, half-lion form of Narasimha Avatar at twilight, destroying the demon and protecting His beloved devotee.\n\nThis sacred tale stands as eternal testimony that pure faith and devotion conquer all arrogance and darkness.',
-        textHi:
-          'दैत्यराज हिरण्यकश्यप का पुत्र प्रह्लाद भगवान विष्णु का अनन्य भक्त था। अपने ही पुत्र की विष्णु भक्ति से क्रोधित होकर हिरण्यकश्यप ने प्रह्लाद को अनेक यातनाएं दीं, किंतु प्रभु कृपा से प्रह्लाद का बाल भी बांका न हुआ।\n\nजब अभिमानी हिरण्यकश्यप ने पूछा कि "तेरा भगवान कहाँ है?" और खंभे पर प्रहार किया, तो भगवान विष्णु ने संध्या के समय खंभे से "नृसिंह अवतार" (आधा सिंह, आधा मनुष्य) धारण कर प्रकट होकर हिरण्यकश्यप का वध किया और प्रह्लाद की रक्षा की।\n\nयह कथा सिखाती है कि सच्ची भक्ति और विश्वास के आगे अहंकार कभी टिक नहीं सकता।',
-        image: imagePath.Vishnu,
-      },
-      {
-        id: 'bhakt_prahlad',
-        nameEn: 'Story of Bhakt Prahlad',
-        nameHi: 'भक्त प्रह्लाद की कथा',
-        subtitleEn: 'Unwavering Devotion & Narasimha Avatar',
-        subtitleHi: 'अडिग भक्ति और नरसिंह अवतार',
-        textEn:
-          'Prahlad, the young prince born to the demon king Hiranyakashipu, was an ardent devotee of Lord Vishnu. Enraged by his son’s devotion, Hiranyakashipu subjected Prahlad to numerous torments, yet every attempt to harm him failed through divine grace.\n\nWhen Hiranyakashipu challenged Prahlad to show where his Lord resided and struck a pillar in anger, Lord Vishnu emerged in the fierce half-man, half-lion form of Narasimha Avatar at twilight, destroying the demon and protecting His beloved devotee.\n\nThis sacred tale stands as eternal testimony that pure faith and devotion conquer all arrogance and darkness.',
-        textHi:
-          'दैत्यराज हिरण्यकश्यप का पुत्र प्रह्लाद भगवान विष्णु का अनन्य भक्त था। अपने ही पुत्र की विष्णु भक्ति से क्रोधित होकर हिरण्यकश्यप ने प्रह्लाद को अनेक यातनाएं दीं, किंतु प्रभु कृपा से प्रह्लाद का बाल भी बांका न हुआ।\n\nजब अभिमानी हिरण्यकश्यप ने पूछा कि "तेरा भगवान कहाँ है?" और खंभे पर प्रहार किया, तो भगवान विष्णु ने संध्या के समय खंभे से "नृसिंह अवतार" (आधा सिंह, आधा मनुष्य) धारण कर प्रकट होकर हिरण्यकश्यप का वध किया और प्रह्लाद की रक्षा की।\n\nयह कथा सिखाती है कि सच्ची भक्ति और विश्वास के आगे अहंकार कभी टिक नहीं सकता।',
-        image: imagePath.Vishnu,
-      },
-      {
-        id: 'bhakt_prahlad',
-        nameEn: 'Story of Bhakt Prahlad',
-        nameHi: 'भक्त प्रह्लाद की कथा',
-        subtitleEn: 'Unwavering Devotion & Narasimha Avatar',
-        subtitleHi: 'अडिग भक्ति और नरसिंह अवतार',
-        textEn:
-          'Prahlad, the young prince born to the demon king Hiranyakashipu, was an ardent devotee of Lord Vishnu. Enraged by his son’s devotion, Hiranyakashipu subjected Prahlad to numerous torments, yet every attempt to harm him failed through divine grace.\n\nWhen Hiranyakashipu challenged Prahlad to show where his Lord resided and struck a pillar in anger, Lord Vishnu emerged in the fierce half-man, half-lion form of Narasimha Avatar at twilight, destroying the demon and protecting His beloved devotee.\n\nThis sacred tale stands as eternal testimony that pure faith and devotion conquer all arrogance and darkness.',
-        textHi:
-          'दैत्यराज हिरण्यकश्यप का पुत्र प्रह्लाद भगवान विष्णु का अनन्य भक्त था। अपने ही पुत्र की विष्णु भक्ति से क्रोधित होकर हिरण्यकश्यप ने प्रह्लाद को अनेक यातनाएं दीं, किंतु प्रभु कृपा से प्रह्लाद का बाल भी बांका न हुआ।\n\nजब अभिमानी हिरण्यकश्यप ने पूछा कि "तेरा भगवान कहाँ है?" और खंभे पर प्रहार किया, तो भगवान विष्णु ने संध्या के समय खंभे से "नृसिंह अवतार" (आधा सिंह, आधा मनुष्य) धारण कर प्रकट होकर हिरण्यकश्यप का वध किया और प्रह्लाद की रक्षा की।\n\nयह कथा सिखाती है कि सच्ची भक्ति और विश्वास के आगे अहंकार कभी टिक नहीं सकता।',
-        image: imagePath.Vishnu,
-      },
+
       {
         id: 'bhakt_prahlad',
         nameEn: 'Story of Bhakt Prahlad',
