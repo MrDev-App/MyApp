@@ -11,7 +11,6 @@ import {
   initNotifications,
   scheduleCustomReminder,
   cancelAllReminders,
-  displayImmediateNotification,
   NotificationConfig,
 } from '../../../notifee/notifications';
 import { OverlayModalHandle } from '../../../components/OverlayModal';
@@ -194,24 +193,6 @@ export const useProfileData = () => {
       setNotificationsEnabled(true);
       Storage.set('DAILY_REMINDER_ENABLED', true);
       await scheduleCustomReminder(config, currentLanguage);
-
-      // Send instant confirmation notification so user receives visual confirmation
-      const confirmTitle =
-        currentLanguage === 'hi'
-          ? 'साधना रिमाइंडर सेट हो गया 🔔'
-          : 'Sadhana Reminder Scheduled 🔔';
-      const confirmBody =
-        currentLanguage === 'hi'
-          ? 'आपका दैनिक साधना रिमाइंडर सफलतापूर्वक सक्रिय हो गया है।'
-          : 'Your daily sadhana reminder has been scheduled successfully.';
-
-      await displayImmediateNotification({
-        id: `sadhana_active_${Date.now()}`,
-        title: confirmTitle,
-        body: confirmBody,
-        actionRoute: 'Jap',
-        type: 'sadhana',
-      });
     },
     [currentLanguage],
   );

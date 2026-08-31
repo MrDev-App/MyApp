@@ -209,7 +209,7 @@ export async function scheduleCustomReminder(
   if (config.type === 'daily') {
     const reminderDate = new Date();
     reminderDate.setHours(triggerHour, triggerMinute, 0, 0);
-    if (reminderDate.getTime() < Date.now()) {
+    if (reminderDate.getTime() <= Date.now()) {
       reminderDate.setDate(reminderDate.getDate() + 1);
     }
 
