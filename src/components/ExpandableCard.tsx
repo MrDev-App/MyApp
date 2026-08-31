@@ -42,6 +42,8 @@ type Props<T> = {
   bottomOffset?: number;
   horizontalPadding?: number;
   imageMargin?: number;
+  onOpen?: () => void;
+  onClose?: () => void;
 };
 
 function ExpandableCardInner<T>(
@@ -54,6 +56,8 @@ function ExpandableCardInner<T>(
     bottomOffset,
     horizontalPadding = scale(10),
     imageMargin = 0,
+    onOpen,
+    onClose,
   }: Props<T>,
   ref: React.Ref<ExpandableCardHandle>,
 ) {
@@ -85,6 +89,9 @@ function ExpandableCardInner<T>(
   const containerWidth = useSharedValue(windowWidth);
 
   const handleClose = () => {
+    if (onClose) {
+      onClose();
+    }
     progress.value = withTiming(
       0,
       {
@@ -109,6 +116,9 @@ function ExpandableCardInner<T>(
       setOrigin(measuredOrigin);
       setData(itemData);
       setVisible(true);
+      if (onOpen) {
+        onOpen();
+      }
       progress.value = withTiming(1, {
         duration: 550,
         easing: Easing.bezier(0.25, 1, 0.5, 1),

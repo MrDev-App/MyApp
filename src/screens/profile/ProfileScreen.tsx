@@ -7,7 +7,10 @@ import {
   Image,
   Switch,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Translation } from '../../i18n/language';
 import GradientBackground from '../../components/GradientBackground';

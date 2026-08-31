@@ -1,12 +1,15 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Platform, Vibration } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import HapticFeedback from 'react-native-haptic-feedback';
 import Skeleton from '../../../components/Skeleton';
 import { Translation } from '../../../i18n/language';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
 import { fs, scale, verticalScale } from '../../../utile/sizes';
 import { Bell } from '../../../assets';
+import { NotificationStorage } from '../../../utile/notificationStorage';
 
 interface HomeGreetingHeaderProps {
   loading: boolean;
@@ -16,6 +19,33 @@ export const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
   loading,
 }) => {
   const { t } = useTranslation();
+  const navigation = useNavigation<any>();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      const count = NotificationStorage.getUnreadCount();
+      setUnreadCount(count);
+    }, []),
+  );
+
+  const handlePressBell = () => {
+    if (Platform.OS === 'android') {
+      try {
+        Vibration.vibrate(30);
+      } catch {}
+    } else {
+      try {
+        HapticFeedback.trigger('selection', {
+          enableVibrateFallback: true,
+          ignoreAndroidSystemSettings: true,
+        });
+      } catch {
+        Vibration.vibrate(30);
+      }
+    }
+    navigation.navigate('Notification');
+  };
 
   return (
     <View style={styles.mainView}>
@@ -38,12 +68,20 @@ export const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
                 {t(Translation.RADHE_RADHE)}
               </Text>
             </View>
-            <View style={styles.bellIconView}>
+            <TouchableOpacity
+              style={styles.bellIconView}
+              onPress={handlePressBell}
+              activeOpacity={0.7}
+            >
               <Bell width={scale(18)} height={scale(18)} />
-              <View style={styles.badgeView}>
-                <Text style={styles.badgeText}>2</Text>
-              </View>
-            </View>
+              {unreadCount > 0 && (
+                <View style={styles.badgeView}>
+                  <Text style={styles.badgeText}>
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
           </>
         )}
       </View>

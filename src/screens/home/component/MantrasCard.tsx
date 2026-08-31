@@ -38,6 +38,10 @@ const MantrasCard = () => {
   const [containerWidth, setContainerWidth] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
   const isUserTouching = useRef(false);
+  const isDeityModalOpen = useRef(false);
+  const isDetailModalOpen = useRef(false);
+  const isPaused = useRef(false);
+
   const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
@@ -55,16 +59,31 @@ const MantrasCard = () => {
     contentWidth,
     containerWidth,
     40,
-    isUserTouching,
+    isPaused,
   );
 
-  // User ne drag chhodne ke baad, thodi der ruk ke auto-scroll resume karo
-  const scheduleResume = (offsetX: number) => {
-    syncOffset(offsetX);
+  // User ne drag chhodne ke baad ya modal band hone ke baad auto-scroll resume karo
+  const scheduleResume = (offsetX?: number) => {
+    if (offsetX !== undefined) {
+      syncOffset(offsetX);
+    }
     if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
     resumeTimeoutRef.current = setTimeout(() => {
-      isUserTouching.current = false;
-    }, 1500);
+      if (
+        !isDeityModalOpen.current &&
+        !isDetailModalOpen.current &&
+        !isUserTouching.current
+      ) {
+        isPaused.current = false;
+      }
+    }, 1200);
+  };
+
+  const handleDeityPress = (godId: string, god: any) => {
+    isDeityModalOpen.current = true;
+    isPaused.current = true;
+    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
+    trigger(godId, god);
   };
 
   return (
@@ -84,12 +103,15 @@ const MantrasCard = () => {
           onScrollBeginDrag={() => {
             if (resumeTimeoutRef.current)
               clearTimeout(resumeTimeoutRef.current);
-            isUserTouching.current = true; // auto-scroll pause
+            isUserTouching.current = true;
+            isPaused.current = true;
           }}
           onScrollEndDrag={e => {
+            isUserTouching.current = false;
             scheduleResume(e.nativeEvent.contentOffset.x);
           }}
           onMomentumScrollEnd={e => {
+            isUserTouching.current = false;
             scheduleResume(e.nativeEvent.contentOffset.x);
           }}
           renderItem={({ item }) => (
@@ -102,7 +124,7 @@ const MantrasCard = () => {
                     key={god.id}
                     style={styles.godContainer}
                     activeOpacity={0.7}
-                    onPress={() => trigger(god.id, god)}
+                    onPress={() => handleDeityPress(god.id, god)}
                   >
                     <View
                       ref={registerRef(god.id)}
@@ -131,6 +153,17 @@ const MantrasCard = () => {
         ref={cardRef}
         imageMargin={scale(16)}
         getImage={(god: any) => god.image}
+        onOpen={() => {
+          isDeityModalOpen.current = true;
+          isPaused.current = true;
+          if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
+        }}
+        onClose={() => {
+          isDeityModalOpen.current = false;
+          if (!isDetailModalOpen.current) {
+            scheduleResume();
+          }
+        }}
         renderContent={(god: any) => (
           <>
             <View style={[styles.modalHeaderRow, { paddingRight: scale(45) }]}>
@@ -151,6 +184,10 @@ const MantrasCard = () => {
                     style={styles.mantraItemCard}
                     activeOpacity={0.8}
                     onPress={() => {
+                      isDetailModalOpen.current = true;
+                      isPaused.current = true;
+                      if (resumeTimeoutRef.current)
+                        clearTimeout(resumeTimeoutRef.current);
                       setSelectedMantra({
                         image: god.image,
                         deityName:
@@ -181,6 +218,10 @@ const MantrasCard = () => {
                   style={styles.mantraItemCard}
                   activeOpacity={0.8}
                   onPress={() => {
+                    isDetailModalOpen.current = true;
+                    isPaused.current = true;
+                    if (resumeTimeoutRef.current)
+                      clearTimeout(resumeTimeoutRef.current);
                     setSelectedMantra({
                       image: god.image,
                       deityName:
@@ -210,14 +251,22 @@ const MantrasCard = () => {
       <OverlayModal
         ref={detailCardRef}
         closeOnBackdropPress={true}
-        onClose={() => setSelectedMantra(null)}
+        onClose={() => {
+          setSelectedMantra(null);
+          isDetailModalOpen.current = false;
+          if (!isDeityModalOpen.current) {
+            scheduleResume();
+          }
+        }}
       >
         {selectedMantra && (
           <View style={styles.modalCenterContainer}>
             <View style={styles.modalCard}>
               <View style={styles.modalHeaderRow}>
                 <View style={styles.modalHeaderTitleCol}>
-                  <Text style={styles.expandedName} numberOfLines={1}>{selectedMantra.name}</Text>
+                  <Text style={styles.expandedName} numberOfLines={1}>
+                    {selectedMantra.name}
+                  </Text>
                   {selectedMantra.deityName && (
                     <Text style={styles.modalSubtitle} numberOfLines={1}>
                       {selectedMantra.deityName}

@@ -9,6 +9,7 @@ export type RootStackParamList = {
   Jap: undefined;
   SearchScreen: undefined;
   TempleScreen: { items: any[] };
+  Notification: undefined;
 };
 
 export type BottomTabParamList = {
