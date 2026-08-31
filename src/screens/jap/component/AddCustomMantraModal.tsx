@@ -13,7 +13,6 @@ import {
   Alert,
   KeyboardAvoidingView,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -42,7 +41,6 @@ const AddCustomMantraModal = ({
   onClose,
   onSave,
 }: AddCustomMantraModalProps) => {
-  const insets = useSafeAreaInsets();
   const [nameEn, setNameEn] = useState('');
   const [nameHi, setNameHi] = useState('');
   const [textEn, setTextEn] = useState('');
@@ -114,18 +112,13 @@ const AddCustomMantraModal = ({
       onRequestClose={handleCancel}
     >
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <Animated.View style={[styles.modalOverlay, animatedOverlayStyle]}>
             <TouchableWithoutFeedback>
-              <View
-                style={[
-                  styles.customMantraModalCard,
-                  { marginBottom: insets.bottom + scale(16) },
-                ]}
-              >
+              <View style={styles.customMantraModalCard}>
                 <Text style={styles.modalTitle}>
                   {currentLanguage === 'hi'
                     ? 'नया कस्टम मंत्र जोड़ें'
@@ -135,6 +128,7 @@ const AddCustomMantraModal = ({
                 <ScrollView
                   showsVerticalScrollIndicator={false}
                   keyboardShouldPersistTaps="handled"
+                  bounces={false}
                   style={styles.scrollView}
                   contentContainerStyle={styles.scrollContent}
                 >
@@ -223,36 +217,40 @@ const AddCustomMantraModal = ({
 };
 
 const styles = StyleSheet.create({
+  keyboardAvoidingView: {
+    flex: 1,
+  },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: scale(16),
+    paddingVertical: scale(24),
   },
   customMantraModalCard: {
     width: '100%',
-    maxHeight: '85%',
-    flexShrink: 1,
+    maxWidth: scale(380),
+    maxHeight: '90%',
     backgroundColor: colors.white,
     borderRadius: scale(16),
     padding: scale(20),
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: scale(-4) },
-    shadowOpacity: 0.1,
-    shadowRadius: scale(10),
+    shadowOffset: { width: 0, height: scale(4) },
+    shadowOpacity: 0.12,
+    shadowRadius: scale(12),
     elevation: 5,
-    marginBottom: scale(16),
   },
   modalTitle: {
     fontSize: fs(16),
     fontFamily: fonts.PoppinsSemiBold,
     color: colors.secondary,
-    marginBottom: scale(16),
+    marginBottom: scale(12),
     textAlign: 'center',
   },
   scrollView: {
     width: '100%',
+    flexShrink: 1,
   },
   scrollContent: {
     paddingBottom: scale(10),
@@ -262,29 +260,29 @@ const styles = StyleSheet.create({
     fontFamily: fonts.PoppinsMedium,
     color: colors.mutedForeground,
     marginBottom: scale(4),
-    marginTop: scale(8),
+    marginTop: scale(6),
   },
   modalInput: {
     borderWidth: 1,
     borderColor: colors.borderLight,
     borderRadius: scale(8),
     paddingHorizontal: scale(12),
-    paddingVertical: scale(6),
+    paddingVertical: scale(8),
     fontSize: fs(13),
     fontFamily: fonts.PoppinsRegular,
     color: colors.secondary,
     backgroundColor: colors.borderSubtle2,
-    marginBottom: scale(8),
+    marginBottom: scale(4),
   },
   multilineInput: {
-    minHeight: scale(50),
+    minHeight: scale(54),
     textAlignVertical: 'top',
   },
   modalButtonsRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: scale(12),
-    marginTop: scale(20),
+    marginTop: scale(16),
   },
   modalBtn: {
     paddingHorizontal: scale(18),

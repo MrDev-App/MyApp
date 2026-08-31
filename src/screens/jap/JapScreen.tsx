@@ -24,7 +24,10 @@ import colors from '../../utile/colors';
 import fonts from '../../utile/fonts';
 import { fs, scale } from '../../utile/sizes';
 import GradientBackground from '../../components/GradientBackground';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { MANTRAS_LIST, MantraSelectorItem } from '../../constants/japData';
 import { Translation } from '../../i18n/language';
 import imagePath from '../../assets';
@@ -45,7 +48,6 @@ const TriggerHaptic = () => {
       Vibration.vibrate([0, 40, 0, 0]);
     } catch {}
   } else {
-    // iOS: Use native Taptic engine
     const options = {
       enableVibrateFallback: true,
       ignoreAndroidSystemSettings: true,
@@ -80,7 +82,6 @@ const JapScreen = () => {
 
   // Custom Mantras State
   const [customMantras, setCustomMantras] = useState<CustomMantra[]>([]);
-  const [isAddMantraModalVisible, setIsAddMantraModalVisible] = useState(false);
 
   // Load custom mantras
   useEffect(() => {
@@ -90,8 +91,6 @@ const JapScreen = () => {
         const parsed: CustomMantra[] = JSON.parse(raw);
         setCustomMantras(parsed);
 
-        // Safety: If the currently selected or displayed mantra was a custom one and it was deleted,
-        // fallback to the first standard mantra so the app doesn't crash or display empty data.
         const allMantras = [...MANTRAS_LIST, ...parsed];
         const selectedStillExists = allMantras.some(
           m => m.id === selectedMantra.id,
@@ -100,7 +99,6 @@ const JapScreen = () => {
           setSelectedMantra(MANTRAS_LIST[0]);
           setDisplayedMantra(MANTRAS_LIST[0]);
 
-          // Reset counts displayed on top sphere to the new selected mantra's counts
           const firstMantraId = MANTRAS_LIST[0].id;
           setTotalCount(
             Storage.getNumber(
@@ -128,7 +126,6 @@ const JapScreen = () => {
     isHapticOnRef.current = isHapticOn;
   }, [isHapticOn]);
 
-  // Persistent States (Mantra-specific for display on this screen)
   const [totalCount, setTotalCount] = useState(() => {
     const mantraId = MANTRAS_LIST[0].id;
     return (
@@ -209,7 +206,6 @@ const JapScreen = () => {
     transform: [{ scale: sphereScale.value }],
   }));
 
-  // Mantra text swap animation
   useEffect(() => {
     if (selectedMantra.id === displayedMantra.id) return;
     const FADE_OUT_MS = 160;
@@ -238,7 +234,6 @@ const JapScreen = () => {
     }, FADE_OUT_MS);
 
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMantra]);
 
   const handleChantPress = useCallback(() => {
@@ -260,7 +255,6 @@ const JapScreen = () => {
 
     const mantraId = selectedMantra.id;
 
-    // 1. Log chant in MMKV (increments total, today, and writes to JAP_HISTORY logs)
     logChant(mantraId, 1);
 
     // 2. Sync React states
@@ -387,11 +381,7 @@ const JapScreen = () => {
       setCustomMantras(updated);
       Storage.set('CUSTOM_MANTRAS', JSON.stringify(updated));
 
-      // Select the new mantra
       setSelectedMantra(newMantra);
-
-      // Close modal
-      setIsAddMantraModalVisible(false);
     },
     [customMantras],
   );
@@ -482,19 +472,6 @@ const JapScreen = () => {
                   </TouchableOpacity>
                 );
               }}
-              ListFooterComponent={
-                <TouchableOpacity
-                  style={[styles.selectorItem, styles.addCustomSelectorItem]}
-                  onPress={() => setIsAddMantraModalVisible(true)}
-                  activeOpacity={0.8}
-                >
-                  <Text
-                    style={[styles.selectorText, styles.addCustomSelectorText]}
-                  >
-                    + {currentLanguage === 'hi' ? 'कस्टम मंत्र' : 'Add Custom'}
-                  </Text>
-                </TouchableOpacity>
-              }
             />
           </View>
 
@@ -591,14 +568,6 @@ const JapScreen = () => {
           currentLanguage={currentLanguage}
           onCancel={handleCancelSwitch}
           onConfirm={handleConfirmSwitch}
-        />
-
-        {/* ── Add Custom Mantra Modal ── */}
-        <AddCustomMantraModal
-          visible={isAddMantraModalVisible}
-          currentLanguage={currentLanguage}
-          onClose={() => setIsAddMantraModalVisible(false)}
-          onSave={handleSaveCustomMantra}
         />
       </SafeAreaView>
     </GradientBackground>
