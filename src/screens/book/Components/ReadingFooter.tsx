@@ -7,28 +7,15 @@ import {
   Platform,
   Vibration,
 } from 'react-native';
-import HapticFeedback from 'react-native-haptic-feedback';
-
 import { Back, Forward } from '../../../assets';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
 import { fs, scale } from '../../../utile/sizes';
 
-const triggerHaptic = (type: string = 'selection') => {
-  if (Platform.OS === 'android') {
-    try {
-      Vibration.vibrate(30);
-    } catch {}
-  } else {
-    try {
-      HapticFeedback.trigger(type as any, {
-        enableVibrateFallback: true,
-        ignoreAndroidSystemSettings: true,
-      });
-    } catch {
-      Vibration.vibrate(30);
-    }
-  }
+const triggerHaptic = (_type?: string) => {
+  try {
+    Vibration.vibrate(30);
+  } catch {}
 };
 
 interface ReadingFooterProps {

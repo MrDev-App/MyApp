@@ -14,7 +14,7 @@ import colors from '../utile/colors';
 import fonts from '../utile/fonts';
 import { fs, scale } from '../utile/sizes';
 import imagePath, { Tag, Location, Pin, FoldedHands } from '../assets';
-import { Festival } from '../constants/festivalData';
+import { Festival } from '../utile/festivalDataCache';
 
 interface FestivalModalProps {
   visible: boolean;

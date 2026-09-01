@@ -1,15 +1,15 @@
-import React, { useRef } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
 import { fs, scale } from '../../../utile/sizes';
 import {
-  categoriesData,
+  getCategoriesData,
   Category,
   CategoryItem,
-} from '../../../constants/categoriesData';
+} from '../../../utile/categoriesDataCache';
 import ExpandableCard, {
   ExpandableCardHandle,
 } from '../../../components/ExpandableCard';
@@ -28,6 +28,32 @@ const FeaturedCategories = () => {
   const currentLanguage = i18n.language || 'en';
   const navigation = useNavigation<any>();
 
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategoriesData();
+        if (isMounted) {
+          setCategories(data);
+        }
+      } catch (error) {
+        console.error('Error fetching categories in FeaturedCategories:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchCategories();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Main Category Modal
   const cardRef = useRef<ExpandableCardHandle>(null);
   const { registerRef, trigger } = useExpandTrigger<Category>(cardRef);
@@ -41,42 +67,48 @@ const FeaturedCategories = () => {
     <View style={styles.container}>
       <Text style={styles.title}>{t(Translation.FEATURED_CATEGORIES)}</Text>
 
-      <View style={styles.gridContainer}>
-        {categoriesData.map(category => {
-          const categoryTitle =
-            currentLanguage === 'hi' ? category.titleHi : category.titleEn;
-          return (
-            <AnimatedButton
-              key={category.id}
-              style={styles.card}
-              onPress={() => {
-                if (category.id === 'stories') {
-                  navigation.navigate('Book');
-                } else if (category.id === 'temples') {
-                  navigation.navigate('TempleScreen', {
-                    items: category.items,
-                  });
-                } else {
-                  trigger(category.id, category);
-                }
-              }}
-            >
-              <View
-                ref={registerRef(category.id)}
-                collapsable={false}
-                style={styles.iconContainer}
+      {loading ? (
+        <View style={{ height: scale(100), justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="small" color={colors.ring} />
+        </View>
+      ) : (
+        <View style={styles.gridContainer}>
+          {categories.map(category => {
+            const categoryTitle =
+              currentLanguage === 'hi' ? category.titleHi : category.titleEn;
+            return (
+              <AnimatedButton
+                key={category.id}
+                style={styles.card}
+                onPress={() => {
+                  if (category.id === 'stories') {
+                    navigation.navigate('Book');
+                  } else if (category.id === 'temples') {
+                    navigation.navigate('TempleScreen', {
+                      items: category.items,
+                    });
+                  } else {
+                    trigger(category.id, category);
+                  }
+                }}
               >
-                <Image
-                  source={category.icon}
-                  style={{ height: scale(60), width: scale(60) }}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={styles.cardTitle}>{categoryTitle}</Text>
-            </AnimatedButton>
-          );
-        })}
-      </View>
+                <View
+                  ref={registerRef(category.id)}
+                  collapsable={false}
+                  style={styles.iconContainer}
+                >
+                  <Image
+                    source={category.icon}
+                    style={{ height: scale(60), width: scale(60) }}
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text style={styles.cardTitle}>{categoryTitle}</Text>
+              </AnimatedButton>
+            );
+          })}
+        </View>
+      )}
 
       {/* Main Category Modal */}
       <ExpandableCard<Category>

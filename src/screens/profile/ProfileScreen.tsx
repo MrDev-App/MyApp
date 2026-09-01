@@ -88,12 +88,16 @@ const ProfileScreen = () => {
         >
           {/* ── User Profile Card ─────────────────────────────────── */}
           <View style={profileStyles.profileCard}>
-            <View style={profileStyles.avatarBorder}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('SeedScreen')}
+              style={profileStyles.avatarBorder}
+            >
               <Image
                 source={imagePath.Krishna}
                 style={profileStyles.avatarImage}
               />
-            </View>
+            </TouchableOpacity>
             <View style={{ flex: 1, marginTop: scale(10), flexShrink: 1 }}>
               <Text style={profileStyles.userName}>
                 {t(Translation.PROFILE_DEVOTEE)}

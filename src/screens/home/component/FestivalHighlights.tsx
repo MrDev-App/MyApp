@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ImageBackground,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
@@ -17,7 +18,7 @@ import fonts from '../../../utile/fonts';
 import { fs, scale } from '../../../utile/sizes';
 import { Translation } from '../../../i18n/language';
 import { RootStackParamList } from '../../../navigation/type';
-import { festivalData, Festival } from '../../../constants/festivalData';
+import { getFestivalData, Festival } from '../../../utile/festivalDataCache';
 import imagePath from '../../../assets';
 import AnimatedButton from '../../../components/AnimatedButton';
 import FestivalModal from '../../../components/FestivalModal';
@@ -28,9 +29,34 @@ const FestivalHighlights = ({ onPress }: any) => {
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language || 'en';
 
+  const [festivals, setFestivals] = useState<Festival[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedFestival, setSelectedFestival] = useState<Festival | null>(
     null,
   );
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadData = async () => {
+      try {
+        const data = await getFestivalData();
+        if (isMounted) {
+          setFestivals(data);
+        }
+      } catch (error) {
+        console.error('Error fetching festivals in FestivalHighlights:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const today = new Date();
   const todayStart = new Date(
@@ -39,21 +65,23 @@ const FestivalHighlights = ({ onPress }: any) => {
     today.getDate(),
   );
 
-  const filteredFestivals = festivalData
-    .filter(item => {
-      const festivalDateThisYear = new Date(
-        today.getFullYear(),
-        item.month - 1,
-        item.day,
-      );
-      return festivalDateThisYear.getTime() >= todayStart.getTime();
-    })
-    .sort((a, b) => {
-      if (a.month !== b.month) {
-        return a.month - b.month;
-      }
-      return a.day - b.day;
-    });
+  const filteredFestivals = useMemo(() => {
+    return festivals
+      .filter(item => {
+        const festivalDateThisYear = new Date(
+          today.getFullYear(),
+          item.month - 1,
+          item.day,
+        );
+        return festivalDateThisYear.getTime() >= todayStart.getTime();
+      })
+      .sort((a, b) => {
+        if (a.month !== b.month) {
+          return a.month - b.month;
+        }
+        return a.day - b.day;
+      });
+  }, [festivals]);
 
   const calculateDaysRemaining = (month: number, day: number) => {
     const currentYear = today.getFullYear();
@@ -82,61 +110,73 @@ const FestivalHighlights = ({ onPress }: any) => {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        data={filteredFestivals}
-        keyExtractor={item => item.id}
-        initialNumToRender={4}
-        maxToRenderPerBatch={4}
-        windowSize={3}
-        removeClippedSubviews={Platform.OS === 'android'}
-        contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => {
-          const daysLeft = calculateDaysRemaining(item.month, item.day);
-          const name =
-            currentLanguage === 'hi' ? item.hindiName : item.englishName;
-          const dateStr =
-            currentLanguage === 'hi' ? item.dateStrHi : item.dateStrEn;
+      {loading ? (
+        <View
+          style={{
+            height: scale(100),
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <ActivityIndicator size="small" color={colors.ring} />
+        </View>
+      ) : (
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={filteredFestivals}
+          keyExtractor={item => item.id}
+          initialNumToRender={4}
+          maxToRenderPerBatch={4}
+          windowSize={3}
+          removeClippedSubviews={Platform.OS === 'android'}
+          contentContainerStyle={styles.listContent}
+          renderItem={({ item }) => {
+            const daysLeft = calculateDaysRemaining(item.month, item.day);
+            const name =
+              currentLanguage === 'hi' ? item.hindiName : item.englishName;
+            const dateStr =
+              currentLanguage === 'hi' ? item.dateStrHi : item.dateStrEn;
 
-          const countdownText =
-            daysLeft === 0
-              ? currentLanguage === 'hi'
-                ? 'आज'
-                : 'Today'
-              : currentLanguage === 'hi'
-              ? `${daysLeft} दिनों में`
-              : `in ${daysLeft} days`;
+            const countdownText =
+              daysLeft === 0
+                ? currentLanguage === 'hi'
+                  ? 'आज'
+                  : 'Today'
+                : currentLanguage === 'hi'
+                ? `${daysLeft} दिनों में`
+                : `in ${daysLeft} days`;
 
-          const bgImage = item.image || imagePath.greeting;
+            const bgImage = item.image || imagePath.greeting;
 
-          return (
-            <AnimatedButton
-              style={styles.cardContainer}
-              onPress={() => {
-                setSelectedFestival(item);
-                if (onPress) onPress(item);
-              }}
-            >
-              <ImageBackground
-                source={bgImage}
-                style={styles.card}
-                imageStyle={styles.cardImageStyle}
-                fadeDuration={0}
+            return (
+              <AnimatedButton
+                style={styles.cardContainer}
+                onPress={() => {
+                  setSelectedFestival(item);
+                  if (onPress) onPress(item);
+                }}
               >
-                <View style={styles.cardOverlay}>
-                  <Text style={styles.name}>{name}</Text>
+                <ImageBackground
+                  source={bgImage}
+                  style={styles.card}
+                  imageStyle={styles.cardImageStyle}
+                  fadeDuration={0}
+                >
+                  <View style={styles.cardOverlay}>
+                    <Text style={styles.name}>{name}</Text>
 
-                  <View style={{}}>
-                    <Text style={styles.date}>{dateStr}</Text>
-                    <Text style={styles.countdown}>{countdownText}</Text>
+                    <View style={{}}>
+                      <Text style={styles.date}>{dateStr}</Text>
+                      <Text style={styles.countdown}>{countdownText}</Text>
+                    </View>
                   </View>
-                </View>
-              </ImageBackground>
-            </AnimatedButton>
-          );
-        }}
-      />
+                </ImageBackground>
+              </AnimatedButton>
+            );
+          }}
+        />
+      )}
 
       <FestivalModal
         visible={selectedFestival !== null}

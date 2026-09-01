@@ -13,8 +13,6 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 
-import HapticFeedback from 'react-native-haptic-feedback';
-
 import colors from '../../utile/colors';
 import fonts from '../../utile/fonts';
 import { fs, scale, screenWidth } from '../../utile/sizes';
@@ -27,23 +25,11 @@ import BookSkeleton from './Components/BookSkeleton';
 import { SearchIcon } from '../../utile/customSVG';
 
 // Haptic feedback trigger function matching the app pattern
-const triggerHaptic = (type: string = 'impactLight') => {
-  if (Platform.OS === 'android') {
-    try {
-      Vibration.vibrate(40);
-    } catch (e) {
-      console.log('[Haptic] Failed', e);
-    }
-  } else {
-    try {
-      HapticFeedback.trigger(type as any, {
-        enableVibrateFallback: true,
-        ignoreAndroidSystemSettings: true,
-      });
-    } catch (e) {
-      console.log('[Haptic] Failed', e);
-      Vibration.vibrate(30);
-    }
+const triggerHaptic = (_type?: string) => {
+  try {
+    Vibration.vibrate(30);
+  } catch (e) {
+    console.log('[Haptic] Failed', e);
   }
 };
 

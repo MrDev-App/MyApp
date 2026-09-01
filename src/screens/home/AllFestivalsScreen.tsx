@@ -15,7 +15,7 @@ import colors from '../../utile/colors';
 import fonts from '../../utile/fonts';
 import { fs, scale } from '../../utile/sizes';
 import GradientBackground from '../../components/GradientBackground';
-import { festivalData, Festival } from '../../constants/festivalData';
+import { getFestivalData, Festival } from '../../utile/festivalDataCache';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { Back } from '../../assets';
 import AnimatedButton from '../../components/AnimatedButton';
@@ -57,6 +57,32 @@ const AllFestivalsScreen = () => {
   // Synchronously update the calendar locale configuration during the render phase
   LocaleConfig.defaultLocale = currentLanguage;
 
+  const [festivals, setFestivals] = React.useState<Festival[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    const fetchFestivals = async () => {
+      try {
+        const data = await getFestivalData();
+        if (isMounted) {
+          setFestivals(data);
+        }
+      } catch (error) {
+        console.error('Error fetching festivals in AllFestivalsScreen:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchFestivals();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const getTodayString = () => {
     const d = new Date();
     const year = d.getFullYear();
@@ -83,11 +109,10 @@ const AllFestivalsScreen = () => {
     return new Date(currentMonthDate).getMonth() + 1;
   }, [currentMonthDate]);
 
-
   // Filter other festivals for the active month (excluding selected day's festivals)
   const otherMonthFestivals = React.useMemo(() => {
-    return festivalData.filter(f => f.month === currentMonthNum);
-  }, [currentMonthNum]);
+    return festivals.filter(f => f.month === currentMonthNum);
+  }, [festivals, currentMonthNum]);
 
   // Compute marked dates for the calendar, showing a light primary color background on every day that has a festival
   const calendarMarkedDates = React.useMemo(() => {
@@ -97,7 +122,7 @@ const AllFestivalsScreen = () => {
     const currentYear = new Date(currentMonthDate).getFullYear();
 
     // 2. Mark all festivals of the year with a light primary color background
-    festivalData.forEach(fest => {
+    festivals.forEach(fest => {
       const mm = String(fest.month).padStart(2, '0');
       const dd = String(fest.day).padStart(2, '0');
       const dateString = `${currentYear}-${mm}-${dd}`;
@@ -118,7 +143,7 @@ const AllFestivalsScreen = () => {
     };
 
     return marks;
-  }, [selectedDate, currentMonthDate]);
+  }, [festivals, selectedDate, currentMonthDate]);
 
   const renderFestivalCard = (item: Festival) => {
     const name = currentLanguage === 'hi' ? item.hindiName : item.englishName;

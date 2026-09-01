@@ -1,8 +1,14 @@
 import React, { useState, useCallback } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Platform, Vibration } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Platform,
+  Vibration,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import HapticFeedback from 'react-native-haptic-feedback';
 import Skeleton from '../../../components/Skeleton';
 import { Translation } from '../../../i18n/language';
 import colors from '../../../utile/colors';
@@ -30,20 +36,9 @@ export const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
   );
 
   const handlePressBell = () => {
-    if (Platform.OS === 'android') {
-      try {
-        Vibration.vibrate(30);
-      } catch {}
-    } else {
-      try {
-        HapticFeedback.trigger('selection', {
-          enableVibrateFallback: true,
-          ignoreAndroidSystemSettings: true,
-        });
-      } catch {
-        Vibration.vibrate(30);
-      }
-    }
+    try {
+      Vibration.vibrate(30);
+    } catch {}
     navigation.navigate('Notification');
   };
 

@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import HapticFeedback from 'react-native-haptic-feedback';
 
 import colors from '../../../utile/colors';
 import fonts from '../../../utile/fonts';
@@ -24,21 +23,10 @@ import { Storage } from '../../../utile/storage';
 import { MahaBharatStories } from '../../../constants/storiesData';
 import AnimatedButton from '../../../components/AnimatedButton';
 
-const triggerHaptic = (type: string = 'impactLight') => {
-  if (Platform.OS === 'android') {
-    try {
-      Vibration.vibrate(40);
-    } catch {}
-  } else {
-    try {
-      HapticFeedback.trigger(type as any, {
-        enableVibrateFallback: true,
-        ignoreAndroidSystemSettings: true,
-      });
-    } catch {
-      Vibration.vibrate(30);
-    }
-  }
+const triggerHaptic = (_type?: string) => {
+  try {
+    Vibration.vibrate(30);
+  } catch {}
 };
 
 interface ReadingHeaderProps {

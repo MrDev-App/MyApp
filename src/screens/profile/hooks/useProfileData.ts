@@ -3,10 +3,12 @@ import { Platform, Vibration, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Translation } from '../../../i18n/language';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
-import HapticFeedback from 'react-native-haptic-feedback';
 import { Storage, STORAGE_KEYS } from '../../../utile/storage';
 import { MahaBharatStories, Story } from '../../../constants/storiesData';
-import { MANTRAS_LIST } from '../../../constants/japData';
+import {
+  getJapMantrasData,
+  MantraSelectorItem,
+} from '../../../utile/japDataCache';
 import {
   initNotifications,
   scheduleCustomReminder,
@@ -18,23 +20,9 @@ import colors from '../../../utile/colors';
 
 /** Trigger haptic / vibration feedback safely. */
 const triggerHaptic = (style: 'light' | 'medium' | 'error') => {
-  if (Platform.OS === 'android') {
-    try {
-      Vibration.vibrate(style === 'error' ? 200 : 30);
-    } catch {}
-  } else {
-    const map = {
-      light: 'impactLight',
-      medium: 'impactMedium',
-      error: 'notificationError',
-    } as const;
-    try {
-      HapticFeedback.trigger(map[style], {
-        enableVibrateFallback: true,
-        ignoreAndroidSystemSettings: true,
-      });
-    } catch {}
-  }
+  try {
+    Vibration.vibrate(style === 'error' ? 200 : 30);
+  } catch {}
 };
 
 export const useProfileData = () => {
@@ -74,6 +62,7 @@ export const useProfileData = () => {
   const [selectedDate, setSelectedDate] = useState<string>(
     () => new Date().toISOString().split('T')[0],
   );
+  const [defaultMantras, setDefaultMantras] = useState<MantraSelectorItem[]>([]);
   const [customMantras, setCustomMantras] = useState<any[]>([]);
   const [japaHistory, setJapaHistory] = useState<any>(() => {
     try {
@@ -124,7 +113,7 @@ export const useProfileData = () => {
 
   const getMantraName = useCallback(
     (id: string) => {
-      const defaultMantra = MANTRAS_LIST.find(m => m.id === id);
+      const defaultMantra = defaultMantras.find(m => m.id === id);
       if (defaultMantra) {
         return currentLanguage === 'hi'
           ? defaultMantra.nameHi
@@ -138,7 +127,7 @@ export const useProfileData = () => {
       }
       return id;
     },
-    [customMantras, currentLanguage],
+    [defaultMantras, customMantras, currentLanguage],
   );
 
   // ─── Load data on focus ───────────────────────────────────────────────────
@@ -146,6 +135,13 @@ export const useProfileData = () => {
     if (!isFocused) {
       return;
     }
+
+    let isMounted = true;
+    getJapMantrasData().then(data => {
+      if (isMounted) {
+        setDefaultMantras(data);
+      }
+    });
 
     Storage.checkAndResetTodayStats();
     setTotalCount(Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_COUNT, 0));
@@ -182,6 +178,10 @@ export const useProfileData = () => {
     } catch {
       setFavoriteStories([]);
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [isFocused]);
 
   // ─── Notification handlers ─────────────────────────────────────────────────
