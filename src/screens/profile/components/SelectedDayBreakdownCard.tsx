@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: scale(6) },
     shadowOpacity: 0.04,
     shadowRadius: scale(12),
-    elevation: 3,
+    elevation: 0,
     alignSelf: 'center',
   },
   titleRow: {

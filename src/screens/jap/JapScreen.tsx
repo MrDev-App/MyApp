@@ -33,7 +33,7 @@ import { Translation } from '../../i18n/language';
 import imagePath from '../../assets';
 
 import SwitchMantraModal from './component/SwitchMantraModal';
-import AddCustomMantraModal from './component/AddCustomMantraModal';
+
 import MalaRing from './component/MalaRing';
 import ChantSphere from './component/ChantSphere';
 
@@ -161,7 +161,6 @@ const JapScreen = () => {
     handleDateCheck();
   }, [handleDateCheck]);
 
-  // Load mantra-specific stats when selectedMantra changes
   useEffect(() => {
     handleDateCheck();
     const mantraId = selectedMantra.id;
@@ -355,36 +354,6 @@ const JapScreen = () => {
     setIsSwitchModalVisible(false);
     setPendingMantra(null);
   };
-
-  const handleSaveCustomMantra = useCallback(
-    ({
-      nameEn,
-      nameHi,
-      textEn,
-      textHi,
-    }: {
-      nameEn: string;
-      nameHi: string;
-      textEn: string;
-      textHi: string;
-    }) => {
-      const newMantra: CustomMantra = {
-        id: `custom_${Date.now()}`,
-        nameEn,
-        nameHi,
-        textEn,
-        textHi,
-        isCustom: true,
-      };
-
-      const updated = [...customMantras, newMantra];
-      setCustomMantras(updated);
-      Storage.set('CUSTOM_MANTRAS', JSON.stringify(updated));
-
-      setSelectedMantra(newMantra);
-    },
-    [customMantras],
-  );
 
   const currentBeadIndex =
     Math.round((count / target) * TOTAL_BEADS) % TOTAL_BEADS;
