@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import {
   StyleSheet,
   View,
-  Image,
   FlatList,
   NativeSyntheticEvent,
   NativeScrollEvent,
@@ -32,7 +31,6 @@ const ReadingScreen = () => {
   const currentLang = (i18n.language === 'hi' ? 'hi' : 'en') as 'en' | 'hi';
   const { width: windowWidth } = useWindowDimensions();
 
-  // Dark / Light Mode state with MMKV persistence (default dark for immersive comic reading)
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     const saved = Storage.getString(STORAGE_KEYS.READER_THEME);
     return saved !== 'light';
@@ -53,7 +51,6 @@ const ReadingScreen = () => {
   const story =
     MahaBharatStories.find(s => s.id === storyId) || MahaBharatStories[0];
 
-  // All pages array: [Cover image, ...comic pages]
   const pages: any[] = story ? [story.image, ...(story.imagePages || [])] : [];
   const totalComicPages =
     story?.imagePages?.length || Math.max(pages.length - 1, 1);
@@ -62,7 +59,6 @@ const ReadingScreen = () => {
   const [containerWidth, setContainerWidth] = useState(windowWidth);
   const flatListRef = useRef<FlatList>(null);
 
-  // Page change handler - triggers haptic feedback without saving progress
   const handlePageChange = (index: number) => {
     if (index === currentPageIndex || index < 0 || index >= pages.length) {
       return;
@@ -115,10 +111,8 @@ const ReadingScreen = () => {
         animated={true}
       />
 
-      {/* Header: Back | Book Title | Theme Toggle | Bookmark */}
       <ReadingHeader isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
 
-      {/* 1080x1920 Proportional Comic Page Viewer */}
       <View
         style={styles.contentArea}
         onLayout={e => {
@@ -133,6 +127,7 @@ const ReadingScreen = () => {
           data={pages}
           horizontal
           pagingEnabled
+          scrollEnabled={!isZoomed}
           showsHorizontalScrollIndicator={false}
           bounces={false}
           initialNumToRender={3}
@@ -165,7 +160,6 @@ const ReadingScreen = () => {
         />
       </View>
 
-      {/* Footer: Back Page | Page Number Pill | Forward Page */}
       <ReadingFooter
         currentPage={currentPageIndex}
         totalPages={totalComicPages}
