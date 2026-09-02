@@ -144,24 +144,6 @@ const BookScreen = () => {
               onPressBook={openStoryReader}
               currentLang={currentLang}
             />
-            <ComicShelf
-              title={labels.storiesFromMahabharat}
-              data={MahaBharatStories}
-              onPressBook={openStoryReader}
-              currentLang={currentLang}
-            />
-            <ComicShelf
-              title={labels.storiesFromMahabharat}
-              data={MahaBharatStories}
-              onPressBook={openStoryReader}
-              currentLang={currentLang}
-            />
-            <ComicShelf
-              title={labels.storiesFromMahabharat}
-              data={MahaBharatStories}
-              onPressBook={openStoryReader}
-              currentLang={currentLang}
-            />
           </ScrollView>
         )}
       </SafeAreaView>

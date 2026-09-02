@@ -18,6 +18,7 @@ import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 import ReadingHeader from './components/ReadingHeader';
 import ReadingFooter from './components/ReadingFooter';
+import ZoomableComicPage from './components/ZoomableImage';
 
 const triggerHaptic = (_type?: string) => {
   try {
@@ -36,6 +37,8 @@ const ReadingScreen = () => {
     const saved = Storage.getString(STORAGE_KEYS.READER_THEME);
     return saved !== 'light';
   });
+
+  const [isZoomed, setIsZoomed] = useState(false);
 
   const toggleTheme = () => {
     triggerHaptic('impactLight');
@@ -150,10 +153,12 @@ const ReadingScreen = () => {
                 { width: containerWidth > 0 ? containerWidth : windowWidth },
               ]}
             >
-              <Image
+              <ZoomableComicPage
                 source={item}
-                style={styles.comicPageImage}
-                resizeMode="contain"
+                width={containerWidth > 0 ? containerWidth : windowWidth}
+                height="100%"
+                isZoomed={isZoomed}
+                onZoomStateChange={setIsZoomed}
               />
             </View>
           )}

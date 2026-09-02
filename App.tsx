@@ -11,6 +11,7 @@ import {
 } from '@services/notificationService';
 import { navigationRef } from '@navigation/navigationRef';
 import ErrorBoundary from '@components/ErrorBoundary';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const App = () => {
   useEffect(() => {
@@ -33,20 +34,21 @@ const App = () => {
     return () => unsubscribe();
   }, []);
 
-
   return (
-    <ErrorBoundary>
-      <SafeAreaProvider>
-        <NavigationContainer ref={navigationRef}>
-          <StatusBar
-            barStyle="dark-content"
-            backgroundColor="transparent"
-            translucent
-          />
-          <StackNavigation />
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </ErrorBoundary>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ErrorBoundary>
+        <SafeAreaProvider>
+          <NavigationContainer ref={navigationRef}>
+            <StatusBar
+              barStyle="dark-content"
+              backgroundColor="transparent"
+              translucent
+            />
+            <StackNavigation />
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </ErrorBoundary>
+    </GestureHandlerRootView>
   );
 };
 
