@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import GradientBackground from '../../components/GradientBackground';
@@ -28,32 +28,32 @@ export const HomeScreen = () => {
   const imageLoadedRef = useRef(false);
   const videoErrorRef = useRef(false);
 
-  const handleVideoLoad = () => {
+  const handleVideoLoad = useCallback(() => {
     // Video loaded successfully, we can safely hide the shimmer
     setLoading(false);
-  };
+  }, []);
 
-  const handleImageLoad = () => {
+  const handleImageLoad = useCallback(() => {
     imageLoadedRef.current = true;
     // If video has already failed, switch to loaded view instantly
     if (videoErrorRef.current) {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleVideoError = () => {
+  const handleVideoError = useCallback(() => {
     videoErrorRef.current = true;
     // If fallback image has already loaded, switch to loaded view
     if (imageLoadedRef.current) {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleOpen = () => {
+  const handleOpen = useCallback(() => {
     buttonRef.current?.measureInWindow((x, y, width, height) => {
       overlayRef.current?.open({ x: x + width / 2, y: y + height / 2 });
     });
-  };
+  }, []);
 
   return (
     <GradientBackground style={Globalstyles.containerFull}>

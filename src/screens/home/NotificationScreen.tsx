@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
-  ScrollView,
+  FlatList,
   Platform,
   Vibration,
   StatusBar,
+  ScrollView,
 } from 'react-native';
 import {
   SafeAreaView,
@@ -161,6 +162,82 @@ const NotificationScreen = () => {
     }
   };
 
+  const notifKeyExtractor = useCallback((item: AppNotification) => item.id, []);
+
+  const renderNotificationItem = useCallback(
+    ({ item, index }: { item: AppNotification; index: number }) => {
+      const title = currentLanguage === 'hi' ? item.titleHi : item.titleEn;
+      const message =
+        currentLanguage === 'hi' ? item.messageHi : item.messageEn;
+      const icon = getTypeIcon(item.type);
+      const badgeBg = getTypeBadgeBg(item.type);
+      // Cap animation delay at 10 items to prevent stagger overload
+      const animDelay = Math.min(index, 10) * 45;
+
+      return (
+        <Animated.View
+          entering={FadeInDown.delay(animDelay).springify()}
+          layout={Layout.springify()}
+        >
+          <TouchableOpacity
+            style={[styles.card, !item.isRead && styles.cardUnread]}
+            onPress={() => handleNotificationPress(item)}
+            activeOpacity={0.8}
+          >
+            {/* Icon Badge */}
+            <View style={[styles.iconBadge, { backgroundColor: badgeBg }]}>
+              <Text style={styles.typeIconText}>{icon}</Text>
+            </View>
+
+            {/* Content */}
+            <View style={styles.cardContent}>
+              <View style={styles.cardHeaderRow}>
+                <Text
+                  style={[
+                    styles.cardTitle,
+                    !item.isRead && styles.cardTitleUnread,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {title}
+                </Text>
+                <Text style={styles.timeText}>
+                  {formatTimestamp(item.timestamp)}
+                </Text>
+              </View>
+
+              <Text style={styles.cardMessage} numberOfLines={3}>
+                {message}
+              </Text>
+
+              {/* Action Pill / Indicator */}
+              {item.actionRoute && (
+                <View style={styles.actionRow}>
+                  <Text style={styles.actionLinkText}>
+                    {currentLanguage === 'hi' ? 'देखें' : 'View'} →
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            {/* Unread Indicator & Delete Button */}
+            <View style={styles.cardRightActions}>
+              {!item.isRead && <View style={styles.unreadDot} />}
+              <TouchableOpacity
+                style={styles.deleteBtn}
+                onPress={() => handleDeleteNotification(item.id)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Text style={styles.deleteBtnText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
+      );
+    },
+    [currentLanguage],
+  );
+
   const renderFilterPill = (key: FilterType, label: string, icon: string) => {
     const isActive = selectedFilter === key;
     return (
@@ -271,14 +348,20 @@ const NotificationScreen = () => {
         )}
 
         {/* ── Notifications List ─────────────────────────────── */}
-        <ScrollView
+        <FlatList
+          data={filteredNotifications}
+          keyExtractor={notifKeyExtractor}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollContent,
             { paddingBottom: insets.bottom + scale(30) },
           ]}
-        >
-          {filteredNotifications.length === 0 ? (
+          initialNumToRender={10}
+          maxToRenderPerBatch={8}
+          windowSize={5}
+          removeClippedSubviews={Platform.OS === 'android'}
+          renderItem={renderNotificationItem}
+          ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <View style={styles.emptyIconCircle}>
                 <Text style={styles.emptyIconText}>🪔</Text>
@@ -290,81 +373,8 @@ const NotificationScreen = () => {
                 {t(Translation.NOTIFICATIONS_EMPTY_DESC)}
               </Text>
             </View>
-          ) : (
-            filteredNotifications.map((item, index) => {
-              const title =
-                currentLanguage === 'hi' ? item.titleHi : item.titleEn;
-              const message =
-                currentLanguage === 'hi' ? item.messageHi : item.messageEn;
-              const icon = getTypeIcon(item.type);
-              const badgeBg = getTypeBadgeBg(item.type);
-
-              return (
-                <Animated.View
-                  key={item.id}
-                  entering={FadeInDown.delay(index * 45).springify()}
-                  layout={Layout.springify()}
-                >
-                  <TouchableOpacity
-                    style={[styles.card, !item.isRead && styles.cardUnread]}
-                    onPress={() => handleNotificationPress(item)}
-                    activeOpacity={0.8}
-                  >
-                    {/* Icon Badge */}
-                    <View
-                      style={[styles.iconBadge, { backgroundColor: badgeBg }]}
-                    >
-                      <Text style={styles.typeIconText}>{icon}</Text>
-                    </View>
-
-                    {/* Content */}
-                    <View style={styles.cardContent}>
-                      <View style={styles.cardHeaderRow}>
-                        <Text
-                          style={[
-                            styles.cardTitle,
-                            !item.isRead && styles.cardTitleUnread,
-                          ]}
-                          numberOfLines={1}
-                        >
-                          {title}
-                        </Text>
-                        <Text style={styles.timeText}>
-                          {formatTimestamp(item.timestamp)}
-                        </Text>
-                      </View>
-
-                      <Text style={styles.cardMessage} numberOfLines={3}>
-                        {message}
-                      </Text>
-
-                      {/* Action Pill / Indicator */}
-                      {item.actionRoute && (
-                        <View style={styles.actionRow}>
-                          <Text style={styles.actionLinkText}>
-                            {currentLanguage === 'hi' ? 'देखें' : 'View'} →
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-
-                    {/* Unread Indicator & Delete Button */}
-                    <View style={styles.cardRightActions}>
-                      {!item.isRead && <View style={styles.unreadDot} />}
-                      <TouchableOpacity
-                        style={styles.deleteBtn}
-                        onPress={() => handleDeleteNotification(item.id)}
-                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      >
-                        <Text style={styles.deleteBtnText}>✕</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </TouchableOpacity>
-                </Animated.View>
-              );
-            })
-          )}
-        </ScrollView>
+          }
+        />
       </SafeAreaView>
     </GradientBackground>
   );

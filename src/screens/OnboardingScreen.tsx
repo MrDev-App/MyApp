@@ -143,7 +143,10 @@ const OnboardingScreen = () => {
         renderItem={({ item }) => {
           return (
             <GradientBackground
-              style={[styles.slide, { width: screenWidth, height: screenHeight }]}
+              style={[
+                styles.slide,
+                { width: screenWidth, height: screenHeight },
+              ]}
             >
               <View style={styles.imageWrapper}>
                 <Image source={item as any} style={styles.centerImage} />
@@ -174,7 +177,6 @@ const OnboardingScreen = () => {
         ]}
       >
         <View style={styles.bottomRow}>
-          {/* Pagination Indicators */}
           <View style={styles.indicatorContainer}>
             {imagePath.OnBoarding.map((_, index) => (
               <View key={index} style={styles.inactiveDot} />
@@ -182,7 +184,6 @@ const OnboardingScreen = () => {
             <Animated.View style={[styles.activeDot, animatedActiveDotStyle]} />
           </View>
 
-          {/* Action Button */}
           <AnimatedTouchableOpacity
             style={[styles.actionButton, animatedButtonStyle]}
             onPress={handleGetStarted}

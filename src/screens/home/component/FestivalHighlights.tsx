@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -58,12 +58,11 @@ const FestivalHighlights = ({ onPress }: any) => {
     };
   }, []);
 
-  const today = new Date();
-  const todayStart = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate(),
-  );
+  const { today, todayStart } = useMemo(() => {
+    const t = new Date();
+    const ts = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+    return { today: t, todayStart: ts };
+  }, []);
 
   const filteredFestivals = useMemo(() => {
     return festivals
@@ -81,21 +80,24 @@ const FestivalHighlights = ({ onPress }: any) => {
         }
         return a.day - b.day;
       });
-  }, [festivals]);
+  }, [festivals, today, todayStart]);
 
-  const calculateDaysRemaining = (month: number, day: number) => {
-    const currentYear = today.getFullYear();
-    let festivalDate = new Date(currentYear, month - 1, day);
+  const calculateDaysRemaining = useCallback(
+    (month: number, day: number) => {
+      const currentYear = today.getFullYear();
+      let festivalDate = new Date(currentYear, month - 1, day);
 
-    // If the festival has passed this year, roll it over to next year
-    if (festivalDate.getTime() < today.getTime()) {
-      festivalDate = new Date(currentYear + 1, month - 1, day);
-    }
+      // If the festival has passed this year, roll it over to next year
+      if (festivalDate.getTime() < today.getTime()) {
+        festivalDate = new Date(currentYear + 1, month - 1, day);
+      }
 
-    const diffTime = festivalDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
+      const diffTime = festivalDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    },
+    [today],
+  );
 
   return (
     <View style={styles.container}>
@@ -265,4 +267,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FestivalHighlights;
+export default React.memo(FestivalHighlights);
