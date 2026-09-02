@@ -58,6 +58,22 @@ const localImageMap: Record<string, any> = {
   durgamata: imagePath.Durga,
   durgamaa: imagePath.Durga,
 
+  ganga: imagePath.Gangama,
+  gangama: imagePath.Gangama,
+  gangamaa: imagePath.Gangama,
+  gangamata: imagePath.Gangama,
+  gangaji: imagePath.Gangama,
+
+  vishwakarma: imagePath.Vishwakarma,
+  viswakarma: imagePath.Vishwakarma,
+  vishwakarmaji: imagePath.Vishwakarma,
+
+  kali: imagePath.Kalima,
+  kalima: imagePath.Kalima,
+  kalimaa: imagePath.Kalima,
+  kalimata: imagePath.Kalima,
+  maakali: imagePath.Kalima,
+
   laxmi: imagePath.Laxmi,
   lakshmi: imagePath.Laxmi,
   laxmimata: imagePath.Laxmi,
@@ -186,6 +202,43 @@ export const resolveGodImage = (god: any): any => {
     hinName.includes('गणपति')
   ) {
     return imagePath.Ganesha;
+  }
+
+  // Kali / Kalima
+  if (
+    cleanId.includes('kali') ||
+    cleanId.includes('kalika') ||
+    engName.includes('kali') ||
+    engName.includes('kalika') ||
+    hinName.includes('काली') ||
+    hinName.includes('कालिका')
+  ) {
+    return imagePath.Kalima;
+  }
+
+  // Ganga
+  if (
+    cleanId.includes('ganga') ||
+    cleanId.includes('gange') ||
+    engName.includes('ganga') ||
+    engName.includes('gange') ||
+    hinName.includes('गंगा') ||
+    hinName.includes('गंगे')
+  ) {
+    return imagePath.Gangama;
+  }
+
+  // Vishwakarma
+  if (
+    cleanId.includes('vishwakarma') ||
+    cleanId.includes('viswakarma') ||
+    cleanId.includes('vishvakarma') ||
+    engName.includes('vishwakarma') ||
+    engName.includes('viswakarma') ||
+    engName.includes('vishvakarma') ||
+    hinName.includes('विश्वकर्मा')
+  ) {
+    return imagePath.Vishwakarma;
   }
 
   // Durga

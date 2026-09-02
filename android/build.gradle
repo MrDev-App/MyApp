@@ -20,3 +20,14 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+allprojects {
+    ext {
+        REACT_NATIVE_NODE_MODULES_DIR = "${rootDir}/../node_modules/react-native".toString()
+        compileSdkVersion = 36
+        targetSdkVersion = 36
+        minSdkVersion = 24
+        buildToolsVersion = "36.0.0"
+    }
+}
+

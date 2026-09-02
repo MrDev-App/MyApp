@@ -5,6 +5,7 @@ import {
   getDocs,
 } from '@react-native-firebase/firestore';
 import imagePath from '../assets';
+import { categoriesData } from '../constants/categoriesData';
 
 export interface CategoryItem {
   id: string;
@@ -82,16 +83,26 @@ const categoryItemImageMap: Record<string, any> = {
   saraswatimata_aarti: imagePath.Saraswati,
   santoshi_aarti: imagePath.Laxmi,
   santoshimaa_aarti: imagePath.Laxmi,
+  ganga_aarti: imagePath.Gangama,
+  gangamaa_aarti: imagePath.Gangama,
+  gangaji_aarti: imagePath.Gangama,
+  bankey_bihari_aarti: imagePath.Krishna,
+  kuber_aarti: imagePath.Kubera,
+  kubera_aarti: imagePath.Kubera,
+  vishwakarma_aarti: imagePath.Vishwakarma,
+  vishwakarmaji_aarti: imagePath.Vishwakarma,
+  viswakarma_aarti: imagePath.Vishwakarma,
+  kali_aarti: imagePath.Kalima,
+  kalima_aarti: imagePath.Kalima,
+  kalimaa_aarti: imagePath.Kalima,
+  kalimata_aarti: imagePath.Kalima,
+  maakali_aarti: imagePath.Kalima,
   gayatri_aarti: imagePath.Saraswati,
   gayatrimaa_aarti: imagePath.Saraswati,
   krishna_aarti: imagePath.Krishna,
   krishnaji_aarti: imagePath.Krishna,
-  kuber_aarti: imagePath.Kubera,
-  kubera_aarti: imagePath.Kubera,
   brahma_aarti: imagePath.Brahma,
   brahmaji_aarti: imagePath.Brahma,
-  kali_aarti: imagePath.Durga,
-  kalimaa_aarti: imagePath.Durga,
   surya_aarti: imagePath.Surya,
   shani_aarti: imagePath.ShaniDev,
 
@@ -195,17 +206,51 @@ export const resolveCategoryItemImage = (item: any): any => {
     return imagePath.Hanuman;
   }
 
-  // Durga / Kali / Vaishno Devi / Ambe
+  // Kali / Kalima
+  if (
+    cleanId.includes('kali') ||
+    cleanId.includes('kalika') ||
+    engName.includes('kali') ||
+    engName.includes('kalika') ||
+    hinName.includes('काली') ||
+    hinName.includes('कालिका')
+  ) {
+    return imagePath.Kalima;
+  }
+
+  // Ganga
+  if (
+    cleanId.includes('ganga') ||
+    cleanId.includes('gange') ||
+    engName.includes('ganga') ||
+    engName.includes('gange') ||
+    hinName.includes('गंगा') ||
+    hinName.includes('गंगे')
+  ) {
+    return imagePath.Gangama;
+  }
+
+  // Vishwakarma
+  if (
+    cleanId.includes('vishwakarma') ||
+    cleanId.includes('viswakarma') ||
+    cleanId.includes('vishvakarma') ||
+    engName.includes('vishwakarma') ||
+    engName.includes('viswakarma') ||
+    engName.includes('vishvakarma') ||
+    hinName.includes('विश्वकर्मा')
+  ) {
+    return imagePath.Vishwakarma;
+  }
+
+  // Durga / Vaishno Devi / Ambe
   if (
     cleanId.includes('durga') ||
-    cleanId.includes('kali') ||
     cleanId.includes('vaishno') ||
     cleanId.includes('ambe') ||
     engName.includes('durga') ||
-    engName.includes('kali') ||
     engName.includes('vaishno') ||
     hinName.includes('दुर्गा') ||
-    hinName.includes('काली') ||
     hinName.includes('वैष्णो') ||
     hinName.includes('अम्बे')
   ) {
@@ -451,12 +496,13 @@ export const getCategoriesData = async (): Promise<Category[]> => {
     // 3. Save as plain JSON string in MMKV
     if (rawList.length > 0) {
       storage.set(CATEGORIES_DATA_CACHE_KEY, JSON.stringify(rawList));
+      return rawList.map(mapCategoryWithImage);
     }
 
-    return rawList.map(mapCategoryWithImage);
+    return categoriesData;
   } catch (error) {
     console.error('Error fetching categories from Firestore:', error);
-    return [];
+    return categoriesData;
   }
 };
 
