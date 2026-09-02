@@ -6,11 +6,11 @@ import {
   ScrollView,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { Story } from '../../../constants/storiesData';
-import { fs, scale } from '../../../utile/sizes';
-import fonts from '../../../utile/fonts';
-import colors from '../../../utile/colors';
-import AnimatedButton from '../../../components/AnimatedButton';
+import { Story } from '@constants/storiesData';
+import { fs, scale } from '@theme/sizes';
+import fonts from '@theme/fonts';
+import colors from '@theme/colors';
+import AnimatedButton from '@components/AnimatedButton';
 
 interface ComicShelfProps {
   title: string;
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(14),
     overflow: 'hidden',
     borderWidth: 1.5,
-    borderColor: colors.borderMedium,
+    borderColor: colors.borderSubtle,
     backgroundColor: colors.white,
     position: 'relative',
     shadowColor: colors.secondary,
@@ -106,34 +106,6 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
   },
-  comicBookmarkBadge: {
-    position: 'absolute',
-    top: scale(6),
-    right: scale(6),
-    backgroundColor: colors.overlayStrong,
-    borderRadius: scale(20),
-    width: scale(22),
-    height: scale(22),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  comicBookmarkBadgeText: {
-    fontSize: fs(11),
-  },
-  comicProgressOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: colors.overlayDarkMedium,
-    paddingVertical: scale(2),
-    alignItems: 'center',
-  },
-  comicProgressOverlayText: {
-    color: colors.white,
-    fontSize: fs(9),
-    fontFamily: fonts.PoppinsMedium,
-  },
   comicCardTitle: {
     fontSize: fs(12),
     fontFamily: fonts.PoppinsSemiBold,
@@ -146,4 +118,5 @@ const styles = StyleSheet.create({
     color: colors.neutralDisabled,
   },
 });
+
 export default ComicShelf;

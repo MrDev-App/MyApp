@@ -6,8 +6,8 @@ import {
   LayoutAnimation,
   Image,
 } from 'react-native';
-import { fs, scale, verticalScale } from '../utile/sizes';
-import colors from '../utile/colors';
+import { fs, scale, verticalScale } from '@theme/sizes';
+import colors from '@theme/colors';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
@@ -18,7 +18,7 @@ import Animated, {
   withSequence,
   Easing,
 } from 'react-native-reanimated';
-import imagePath from '../assets';
+import imagePath from '@assets/index';
 
 const bubbleWidth = scale(64);
 const bubbleHeight = scale(36);

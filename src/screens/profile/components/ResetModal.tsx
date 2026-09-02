@@ -1,11 +1,11 @@
 import React from 'react';
 import { Text, View, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Translation } from '../../../i18n/language';
-import OverlayModal, { OverlayModalHandle } from '../../../components/OverlayModal';
-import colors from '../../../utile/colors';
+import { Translation } from '@i18n/language';
+import OverlayModal, { OverlayModalHandle } from '@components/OverlayModal';
+import colors from '@theme/colors';
 import profileStyles from '../styles/profileStyles';
-import { verticalScale } from '../../../utile/sizes';
+import { verticalScale } from '@theme/sizes';
 
 interface ResetModalProps {
   modalRef: React.RefObject<OverlayModalHandle | null>;

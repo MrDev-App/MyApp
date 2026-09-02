@@ -8,12 +8,12 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useIsFocused } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/home/HomeScreen';
-import JapScreen from '../screens/jap/JapScreen';
-import BookScreen from '../screens/book/BookScreen';
-import ProfileScreen from '../screens/profile/ProfileScreen';
+import HomeScreen from '@screens/home/HomeScreen';
+import JapScreen from '@screens/jap/JapScreen';
+import BookScreen from '@screens/book/BookScreen';
+import ProfileScreen from '@screens/profile/ProfileScreen';
 
-import { BottomTabParamList } from './type';
+import { BottomTabParamList } from '@navigation/types';
 import { CustomTabBar } from './BottomTabs';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');

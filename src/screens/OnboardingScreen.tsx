@@ -10,13 +10,12 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/type';
-import Images from '../assets';
-import colors from '../utile/colors';
-import fonts from '../utile/fonts';
-import { fs, moderateScale, verticalScale, scale } from '../utile/sizes';
+import { RootStackParamList } from '@navigation/types';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, moderateScale, verticalScale, scale } from '@theme/sizes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import GradientBackground from '../components/GradientBackground';
+import GradientBackground from '@components/GradientBackground';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -26,11 +25,12 @@ import Animated, {
   interpolateColor,
 } from 'react-native-reanimated';
 import { runOnJS } from 'react-native-worklets';
-import imagePath from '../assets';
+import imagePath from '@assets/index';
 
 import { useTranslation } from 'react-i18next';
-import { Translation } from '../i18n/language';
-import { Storage } from '../utile/storage';
+import { Translation } from '@i18n/language';
+import { Storage } from '@services/storageService';
+import { STORAGE_KEYS } from '@constants/storageKeys';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 const AnimatedTouchableOpacity =
@@ -82,7 +82,7 @@ const OnboardingScreen = () => {
   });
 
   const animatedButtonStyle = useAnimatedStyle(() => {
-    const lastIndex = Images.OnBoarding.length - 1;
+    const lastIndex = imagePath.OnBoarding.length - 1;
     const startRange = screenWidth * (lastIndex - 1);
     const endRange = screenWidth * lastIndex;
 
@@ -106,7 +106,7 @@ const OnboardingScreen = () => {
   });
 
   const handleGetStarted = () => {
-    Storage.set('ONBOARDING_COMPLETED', true);
+    Storage.set(STORAGE_KEYS.ONBOARDING_COMPLETED, true);
     navigation.replace('BottomTabs', { screen: 'Home' });
   };
 
@@ -135,7 +135,7 @@ const OnboardingScreen = () => {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        data={Images.OnBoarding}
+        data={imagePath.OnBoarding}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         onViewableItemsChanged={onViewableItemsChanged}
@@ -190,7 +190,7 @@ const OnboardingScreen = () => {
             activeOpacity={0.8}
           >
             <Text style={styles.actionButtonText}>
-              {activeIndex === Images.OnBoarding.length - 1
+              {activeIndex === imagePath.OnBoarding.length - 1
                 ? t(Translation.GET_STARTED_LABEL)
                 : t(Translation.SKIP_LABEL)}
             </Text>

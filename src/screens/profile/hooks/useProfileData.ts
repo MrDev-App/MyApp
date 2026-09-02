@@ -1,22 +1,22 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Platform, Vibration, Alert } from 'react-native';
+import { Vibration, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Translation } from '../../../i18n/language';
+import { Translation } from '@i18n/language';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
-import { Storage, STORAGE_KEYS } from '../../../utile/storage';
-import { MahaBharatStories, Story } from '../../../constants/storiesData';
+import { Storage, STORAGE_KEYS } from '@services/storageService';
+import { MahaBharatStories, Story } from '@constants/storiesData';
 import {
   getJapMantrasData,
   MantraSelectorItem,
-} from '../../../utile/japDataCache';
+} from '@services/japService';
 import {
   initNotifications,
   scheduleCustomReminder,
   cancelAllReminders,
   NotificationConfig,
-} from '../../../notifee/notifications';
-import { OverlayModalHandle } from '../../../components/OverlayModal';
-import colors from '../../../utile/colors';
+} from '@services/notificationService';
+import { OverlayModalHandle } from '@components/OverlayModal';
+import colors from '@theme/colors';
 
 /** Trigger haptic / vibration feedback safely. */
 const triggerHaptic = (style: 'light' | 'medium' | 'error') => {

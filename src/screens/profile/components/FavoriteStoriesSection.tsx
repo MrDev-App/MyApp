@@ -1,8 +1,8 @@
 import React from 'react';
 import { Text, View, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Translation } from '../../../i18n/language';
-import { Story } from '../../../constants/storiesData';
+import { Translation } from '@i18n/language';
+import { Story } from '@constants/storiesData';
 import profileStyles from '../styles/profileStyles';
 
 interface FavoriteStoriesSectionProps {

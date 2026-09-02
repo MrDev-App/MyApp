@@ -1,16 +1,16 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { RootStackParamList } from './type';
-import SplashScreen from '../screens/SplashScreen';
-import OnboardingScreen from '../screens/OnboardingScreen';
+import { RootStackParamList } from '@navigation/types';
+import SplashScreen from '@screens/SplashScreen';
+import OnboardingScreen from '@screens/OnboardingScreen';
 import BottomNavigation from './BottomNavigation';
-import AllFestivalsScreen from '../screens/home/AllFestivalsScreen';
-import '../i18n';
-import ReadingScreen from '../screens/book/ReadingScreen';
-import SearchScreen from '../screens/book/SearchScreen';
-import TempleScreen from '../screens/home/TempleScreen';
-import NotificationScreen from '../screens/home/NotificationScreen';
-import SeedScreen from '../screens/SeedScreen';
+import AllFestivalsScreen from '@screens/home/AllFestivalsScreen';
+import '@i18n/index';
+import ReadingScreen from '@screens/book/ReadingScreen';
+import SearchScreen from '@screens/book/SearchScreen';
+import TempleScreen from '@screens/home/TempleScreen';
+import NotificationScreen from '@screens/home/NotificationScreen';
+import SeedScreen from '@screens/SeedScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

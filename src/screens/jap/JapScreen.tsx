@@ -20,10 +20,10 @@ import Animated, {
   Easing,
   withSequence,
 } from 'react-native-reanimated';
-import colors from '../../utile/colors';
-import fonts from '../../utile/fonts';
-import { fs, scale } from '../../utile/sizes';
-import GradientBackground from '../../components/GradientBackground';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
+import GradientBackground from '@components/GradientBackground';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -32,20 +32,20 @@ import {
   getJapMantrasData,
   MantraSelectorItem,
   DEFAULT_MANTRA,
-} from '../../utile/japDataCache';
-import { Translation } from '../../i18n/language';
-import imagePath from '../../assets';
+  logChant,
+  CustomMantra,
+} from '@services/japService';
+import { Translation } from '@i18n/language';
+import imagePath from '@assets/index';
 
-import SwitchMantraModal from './component/SwitchMantraModal';
+import SwitchMantraModal from './components/SwitchMantraModal';
+import MalaRing from './components/MalaRing';
+import ChantSphere from './components/ChantSphere';
 
-import MalaRing from './component/MalaRing';
-import ChantSphere from './component/ChantSphere';
-
-import { Storage, STORAGE_KEYS } from '../../utile/storage';
-import { logChant, CustomMantra } from '../../utile/japaStats';
+import { Storage, STORAGE_KEYS } from '@services/storageService';
 import { useIsFocused } from '@react-navigation/native';
 
-const TriggerHaptic = () => {
+const triggerHaptic = () => {
   try {
     if (Platform.OS === 'android') {
       Vibration.vibrate([0, 40, 0, 0]);
@@ -244,7 +244,7 @@ const JapScreen = () => {
     }, FADE_OUT_MS);
 
     return () => clearTimeout(timer);
-  }, [selectedMantra]);
+  }, [selectedMantra, displayedMantra.id, textOpacity, textTranslateY]);
 
   const handleChantPress = useCallback(() => {
     handleDateCheck();
@@ -303,7 +303,7 @@ const JapScreen = () => {
     );
 
     if (isHapticOnRef.current) {
-      TriggerHaptic();
+      triggerHaptic();
     }
 
     rippleScale.value = 1;
@@ -386,7 +386,7 @@ const JapScreen = () => {
                 setIsHapticOn(next);
                 isHapticOnRef.current = next;
                 if (next) {
-                  TriggerHaptic();
+                  triggerHaptic();
                 }
               }}
               activeOpacity={0.7}

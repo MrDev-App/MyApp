@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import colors from '../utile/colors';
-import fonts from '../utile/fonts';
-import { fs, scale } from '../utile/sizes';
-import { NotificationConfig } from '../notifee/notifications';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
+import { NotificationConfig } from '@services/notificationService';
+import { HOUR_ITEMS, MINUTE_ITEMS } from '@constants/notificationData';
+import { ScrollPicker } from '@screens/profile/components/ScrollPicker';
+import GradientBackground from './GradientBackground';
 
 interface NotificationScheduleModalProps {
   visible: boolean;
@@ -11,11 +14,6 @@ interface NotificationScheduleModalProps {
   onSchedule: (config: NotificationConfig) => void;
   initialConfig?: NotificationConfig | null;
 }
-
-import { HOUR_ITEMS, MINUTE_ITEMS } from '../constants/notificationData';
-
-import { ScrollPicker } from '../screens/profile/components/ScrollPicker';
-import GradientBackground from './GradientBackground';
 
 export default function NotificationScheduleModal({
   visible,

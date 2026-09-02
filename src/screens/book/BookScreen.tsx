@@ -9,20 +9,23 @@ import {
   Vibration,
   StatusBar,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 
-import colors from '../../utile/colors';
-import fonts from '../../utile/fonts';
-import { fs, scale, screenWidth } from '../../utile/sizes';
-import { MahaBharatStories, Story } from '../../constants/storiesData';
-import GradientBackground from '../../components/GradientBackground';
+import fonts from '@theme/fonts';
+import { fs, scale, screenWidth } from '@theme/sizes';
+import { MahaBharatStories, Story } from '@constants/storiesData';
+import GradientBackground from '@components/GradientBackground';
 
-import { Translation } from '../../i18n/language';
-import ComicShelf from './Components/ComicShelf';
-import BookSkeleton from './Components/BookSkeleton';
-import { SearchIcon } from '../../utile/customSVG';
+import { Translation } from '@i18n/language';
+import ComicShelf from './components/ComicShelf';
+import BookSkeleton from './components/BookSkeleton';
+import { SearchIcon } from '@components/icons/SvgIcons';
+import colors from '@theme/colors';
 
 // Haptic feedback trigger function matching the app pattern
 const triggerHaptic = (_type?: string) => {

@@ -15,7 +15,7 @@ import {
   getDocs,
   Timestamp,
 } from '@react-native-firebase/firestore';
-import { ekadashi2026Data } from '../constants/ekadashiData';
+import { ekadashi2026Data } from '@constants/ekadashiData';
 
 export default function SeedScreen() {
   const [status, setStatus] = useState<string[]>([]);
@@ -250,7 +250,7 @@ export default function SeedScreen() {
             const {
               getEkadashiMonthsData,
               clearEkadashiDataCache,
-            } = require('../utile/ekadashiDataCache');
+            } = require('@services/ekadashiService');
             clearEkadashiDataCache();
             const data = await getEkadashiMonthsData();
             log(

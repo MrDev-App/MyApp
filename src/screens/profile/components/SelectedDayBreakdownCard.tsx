@@ -1,11 +1,11 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import colors from '../../../utile/colors';
-import fonts from '../../../utile/fonts';
-import { fs, scale } from '../../../utile/sizes';
-import { SearchIcon } from '../../../utile/customSVG';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
+import { SearchIcon } from '@components/icons/SvgIcons';
 import { useTranslation } from 'react-i18next';
-import { Translation } from '../../../i18n/language';
+import { Translation } from '@i18n/language';
 
 interface SelectedDayBreakdownCardProps {
   selectedDate: string;

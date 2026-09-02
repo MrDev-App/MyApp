@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
-import colors from '../../../utile/colors';
-import fonts from '../../../utile/fonts';
-import { fs, scale } from '../../../utile/sizes';
-import { ITEM_HEIGHT } from '../../../constants/notificationData';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
+import { ITEM_HEIGHT } from '@constants/notificationData';
 
 interface ScrollPickerProps {
   items: string[];

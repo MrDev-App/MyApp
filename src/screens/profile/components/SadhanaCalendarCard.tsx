@@ -1,12 +1,12 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import colors from '../../../utile/colors';
-import fonts from '../../../utile/fonts';
-import { fs, scale } from '../../../utile/sizes';
-import imagePath from '../../../assets';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
+import imagePath from '@assets/index';
 import { useTranslation } from 'react-i18next';
-import { Translation } from '../../../i18n/language';
+import { Translation } from '@i18n/language';
 
 interface SadhanaCalendarCardProps {
   selectedDate: string;

@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
-import colors from '../../../utile/colors';
-import fonts from '../../../utile/fonts';
-import { fs, scale, verticalScale } from '../../../utile/sizes';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale, verticalScale } from '@theme/sizes';
 
 /** Shared styles used across ProfileScreen and its sub-components. */
 const profileStyles = StyleSheet.create({

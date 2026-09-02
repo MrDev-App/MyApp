@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import colors from '../../../utile/colors';
-import fonts from '../../../utile/fonts';
-import { fs, scale } from '../../../utile/sizes';
-import AnimatedButton from '../../../components/AnimatedButton';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
+import AnimatedButton from '@components/AnimatedButton';
 
 interface AartiScreenProps {
   items: any[];

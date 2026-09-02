@@ -21,7 +21,7 @@ type AnimatedBtnProps = {
   disabled?: boolean;
   pressDepth?: number;
   scaleDown?: number;
-  elnableHaptics?: boolean;
+  enableHaptics?: boolean;
   hitSlop?: Insets;
 };
 const AnimatedButton = ({

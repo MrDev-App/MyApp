@@ -7,9 +7,9 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
-import colors from '../utile/colors';
-import fonts from '../utile/fonts';
-import { fs, scale } from '../utile/sizes';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
 import GradientBackground from './GradientBackground';
 
 interface Props {

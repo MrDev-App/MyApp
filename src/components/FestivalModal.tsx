@@ -10,11 +10,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import colors from '../utile/colors';
-import fonts from '../utile/fonts';
-import { fs, scale } from '../utile/sizes';
-import imagePath, { Tag, Location, Pin, FoldedHands } from '../assets';
-import { Festival } from '../utile/festivalDataCache';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
+import imagePath, { Tag, Location, Pin, FoldedHands } from '@assets/index';
+import { Festival } from '@services/festivalService';
 
 interface FestivalModalProps {
   visible: boolean;

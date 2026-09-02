@@ -2,15 +2,15 @@ import { StatusBar } from 'react-native';
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import StackNavigation from './src/navigation/StackNavigation';
+import StackNavigation from '@navigation/StackNavigation';
 import notifee, { EventType } from '@notifee/react-native';
 import {
   initNotifications,
   handleNotificationClick,
   recordDeliveredNotification,
-} from './src/notifee/notifications';
-import { navigationRef } from './src/navigation/navigationRef';
-import ErrorBoundary from './src/components/ErrorBoundary';
+} from '@services/notificationService';
+import { navigationRef } from '@navigation/navigationRef';
+import ErrorBoundary from '@components/ErrorBoundary';
 
 const App = () => {
   useEffect(() => {

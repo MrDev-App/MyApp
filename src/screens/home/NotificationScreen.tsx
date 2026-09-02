@@ -17,16 +17,16 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import Animated, { FadeInDown, Layout } from 'react-native-reanimated';
-import colors from '../../utile/colors';
-import fonts from '../../utile/fonts';
-import { fs, scale } from '../../utile/sizes';
-import { Back } from '../../assets';
-import GradientBackground from '../../components/GradientBackground';
-import { Translation } from '../../i18n/language';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
+import { Back } from '@assets/index';
+import GradientBackground from '@components/GradientBackground';
+import { Translation } from '@i18n/language';
 import {
   NotificationStorage,
   AppNotification,
-} from '../../utile/notificationStorage';
+} from '@services/notificationService';
 
 const triggerHaptic = (_type?: string) => {
   try {
@@ -65,31 +65,34 @@ const NotificationScreen = () => {
     setNotifications(updated);
   };
 
-  const handleNotificationPress = (item: AppNotification) => {
-    triggerHaptic('impactLight');
-    // Mark as read
-    const updated = NotificationStorage.markAsRead(item.id);
-    setNotifications(updated);
+  const handleNotificationPress = useCallback(
+    (item: AppNotification) => {
+      triggerHaptic('impactLight');
+      // Mark as read
+      const updated = NotificationStorage.markAsRead(item.id);
+      setNotifications(updated);
 
-    // Deep-link navigation if actionRoute is defined
-    if (item.actionRoute) {
-      if (item.actionRoute === 'Jap') {
-        navigation.navigate('BottomTabs', { screen: 'Jap' });
-      } else if (item.actionRoute === 'Book') {
-        navigation.navigate('BottomTabs', { screen: 'Book' });
-      } else if (item.actionRoute === 'AllFestivals') {
-        navigation.navigate('AllFestivals');
-      } else if (item.actionRoute === 'BottomTabs') {
-        navigation.navigate('BottomTabs', { screen: 'Home' });
+      // Deep-link navigation if actionRoute is defined
+      if (item.actionRoute) {
+        if (item.actionRoute === 'Jap') {
+          navigation.navigate('BottomTabs', { screen: 'Jap' });
+        } else if (item.actionRoute === 'Book') {
+          navigation.navigate('BottomTabs', { screen: 'Book' });
+        } else if (item.actionRoute === 'AllFestivals') {
+          navigation.navigate('AllFestivals');
+        } else if (item.actionRoute === 'BottomTabs') {
+          navigation.navigate('BottomTabs', { screen: 'Home' });
+        }
       }
-    }
-  };
+    },
+    [navigation],
+  );
 
-  const handleDeleteNotification = (id: string) => {
+  const handleDeleteNotification = useCallback((id: string) => {
     triggerHaptic('selection');
     const updated = NotificationStorage.deleteNotification(id);
     setNotifications(updated);
-  };
+  }, []);
 
   const filteredNotifications = useMemo(() => {
     if (selectedFilter === 'all') return notifications;
@@ -105,32 +108,35 @@ const NotificationScreen = () => {
     return notifications.filter(n => !n.isRead).length;
   }, [notifications]);
 
-  const formatTimestamp = (timestamp: number) => {
-    const now = Date.now();
-    const diffMin = Math.floor((now - timestamp) / (1000 * 60));
-    const diffHours = Math.floor(diffMin / 60);
-    const diffDays = Math.floor(diffHours / 24);
+  const formatTimestamp = useCallback(
+    (timestamp: number) => {
+      const now = Date.now();
+      const diffMin = Math.floor((now - timestamp) / (1000 * 60));
+      const diffHours = Math.floor(diffMin / 60);
+      const diffDays = Math.floor(diffHours / 24);
 
-    if (diffMin < 1) {
-      return currentLanguage === 'hi' ? 'अभी' : 'Just now';
-    }
-    if (diffMin < 60) {
+      if (diffMin < 1) {
+        return currentLanguage === 'hi' ? 'अभी' : 'Just now';
+      }
+      if (diffMin < 60) {
+        return currentLanguage === 'hi'
+          ? `${diffMin} मि. पहले`
+          : `${diffMin}m ago`;
+      }
+      if (diffHours < 24) {
+        return currentLanguage === 'hi'
+          ? `${diffHours} घंटे पहले`
+          : `${diffHours}h ago`;
+      }
+      if (diffDays === 1) {
+        return currentLanguage === 'hi' ? 'कल' : 'Yesterday';
+      }
       return currentLanguage === 'hi'
-        ? `${diffMin} मि. पहले`
-        : `${diffMin}m ago`;
-    }
-    if (diffHours < 24) {
-      return currentLanguage === 'hi'
-        ? `${diffHours} घंटे पहले`
-        : `${diffHours}h ago`;
-    }
-    if (diffDays === 1) {
-      return currentLanguage === 'hi' ? 'कल' : 'Yesterday';
-    }
-    return currentLanguage === 'hi'
-      ? `${diffDays} दिन पहले`
-      : `${diffDays}d ago`;
-  };
+        ? `${diffDays} दिन पहले`
+        : `${diffDays}d ago`;
+    },
+    [currentLanguage],
+  );
 
   const getTypeIcon = (type: AppNotification['type']) => {
     switch (type) {
@@ -235,7 +241,7 @@ const NotificationScreen = () => {
         </Animated.View>
       );
     },
-    [currentLanguage],
+    [currentLanguage, formatTimestamp, handleNotificationPress, handleDeleteNotification],
   );
 
   const renderFilterPill = (key: FilterType, label: string, icon: string) => {

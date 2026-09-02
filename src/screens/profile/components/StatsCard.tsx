@@ -1,12 +1,12 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Translation } from '../../../i18n/language';
+import { Translation } from '@i18n/language';
 import profileStyles from '../styles/profileStyles';
-import colors from '../../../utile/colors';
-import fonts from '../../../utile/fonts';
-import { fs, scale } from '../../../utile/sizes';
-import AnimatedButton from '../../../components/AnimatedButton';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
+import AnimatedButton from '@components/AnimatedButton';
 
 interface StatsCardProps {
   totalCount: number;

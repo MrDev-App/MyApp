@@ -11,7 +11,7 @@ import {
   Keyboard,
   Image,
 } from 'react-native';
-import imagePath from '../../assets';
+import imagePath from '@assets/index';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -20,14 +20,15 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import Animated from 'react-native-reanimated';
 
-import colors from '../../utile/colors';
-import fonts from '../../utile/fonts';
-import { fs, scale } from '../../utile/sizes';
-import { Storage } from '../../utile/storage';
-import { MahaBharatStories } from '../../constants/storiesData';
-import GradientBackground from '../../components/GradientBackground';
-import { Translation } from '../../i18n/language';
-import { SearchIcon, HeartIcon, BackIcon as Back } from '../../utile/customSVG';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
+import { Storage } from '@services/storageService';
+import { STORAGE_KEYS } from '@constants/storageKeys';
+import { MahaBharatStories } from '@constants/storiesData';
+import GradientBackground from '@components/GradientBackground';
+import { Translation } from '@i18n/language';
+import { SearchIcon, HeartIcon, BackIcon as Back } from '@components/icons/SvgIcons';
 
 // Localization
 
@@ -76,13 +77,13 @@ const SearchScreen = () => {
   // Load storage maps
   useEffect(() => {
     try {
-      const savedBookmarksStr = Storage.getString('STORY_BOOKMARKS', '[]');
+      const savedBookmarksStr = Storage.getString(STORAGE_KEYS.STORY_BOOKMARKS, '[]');
       const savedBookmarks = JSON.parse(savedBookmarksStr);
       if (Array.isArray(savedBookmarks)) {
         setBookmarks(savedBookmarks);
       }
 
-      const savedProgressStr = Storage.getString('STORY_PROGRESS', '{}');
+      const savedProgressStr = Storage.getString(STORAGE_KEYS.STORY_PROGRESS, '{}');
       const savedProgress = JSON.parse(savedProgressStr);
       if (savedProgress && typeof savedProgress === 'object') {
         setProgressMap(savedProgress);

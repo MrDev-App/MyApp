@@ -17,10 +17,10 @@ import {
 } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { Back } from '../../assets';
-import colors from '../../utile/colors';
-import fonts from '../../utile/fonts';
-import { fs, scale } from '../../utile/sizes';
+import { Back } from '@assets/index';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
 
 const TempleScreen = () => {
   const insets = useSafeAreaInsets();

@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React, { useEffect } from 'react';
 
-import colors from '../utile/colors';
+import colors from '@theme/colors';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,14 +9,15 @@ import Animated, {
   withDelay,
   Easing,
 } from 'react-native-reanimated';
-import { fs, verticalScale, scale } from '../utile/sizes';
-import fonts from '../utile/fonts';
+import { fs, verticalScale, scale } from '@theme/sizes';
+import fonts from '@theme/fonts';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/type';
+import { RootStackParamList } from '@navigation/types';
 import { useTranslation } from 'react-i18next';
-import { Translation } from '../i18n/language';
-import { Storage } from '../utile/storage';
+import { Translation } from '@i18n/language';
+import { Storage } from '@services/storageService';
+import { STORAGE_KEYS } from '@constants/storageKeys';
 
 const SplashScreen = () => {
   const { t } = useTranslation();
@@ -93,7 +94,7 @@ const SplashScreen = () => {
 
     const timer = setTimeout(() => {
       const isOnboardingCompleted = Storage.getBoolean(
-        'ONBOARDING_COMPLETED',
+        STORAGE_KEYS.ONBOARDING_COMPLETED,
         false,
       );
       if (isOnboardingCompleted) {

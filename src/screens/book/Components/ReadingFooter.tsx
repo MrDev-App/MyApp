@@ -4,13 +4,12 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Platform,
   Vibration,
 } from 'react-native';
-import { Back, Forward } from '../../../assets';
-import colors from '../../../utile/colors';
-import fonts from '../../../utile/fonts';
-import { fs, scale } from '../../../utile/sizes';
+import { Back, Forward } from '@assets/index';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
 
 const triggerHaptic = (_type?: string) => {
   try {
@@ -50,7 +49,7 @@ const ReadingFooter = ({
     <View
       style={[
         styles.footerRow,
-        { borderTopColor: isDarkMode ? '#2C2A29' : colors.borderMedium },
+        { borderTopColor: isDarkMode ? '#2C2A29' : colors.borderSubtle },
       ]}
     >
       {/* Back / Prev button */}
@@ -83,7 +82,7 @@ const ReadingFooter = ({
         style={[
           styles.pageNumberPill,
           {
-            borderColor: isDarkMode ? '#333' : colors.borderMedium,
+            borderColor: isDarkMode ? '#333' : colors.borderSubtle,
             backgroundColor: isDarkMode
               ? 'rgba(255,255,255,0.05)'
               : 'transparent',
@@ -138,7 +137,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(20),
     paddingVertical: scale(10),
     borderTopWidth: 1,
-    borderTopColor: colors.borderMedium,
+    borderTopColor: colors.borderSubtle,
     width: '100%',
   },
   navButton: {
@@ -158,7 +157,6 @@ const styles = StyleSheet.create({
   },
   navButtonDisabled: {
     borderColor: colors.neutralDisabled,
-    // backgroundColor: 'transparent',
     shadowOpacity: 0,
     elevation: 0,
   },
@@ -169,7 +167,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(14),
     borderRadius: scale(20),
     borderWidth: 1,
-    borderColor: colors.borderMedium,
+    borderColor: colors.borderSubtle,
     alignItems: 'center',
     justifyContent: 'center',
   },

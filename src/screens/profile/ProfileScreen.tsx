@@ -12,14 +12,14 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Translation } from '../../i18n/language';
-import GradientBackground from '../../components/GradientBackground';
-import OverlayModal from '../../components/OverlayModal';
-import NotificationScheduleModal from '../../components/NotificationScheduleModal';
-import imagePath from '../../assets';
-import colors from '../../utile/colors';
-import { ChevronRight } from '../../utile/customSVG';
-import { scale } from '../../utile/sizes';
+import { Translation } from '@i18n/language';
+import GradientBackground from '@components/GradientBackground';
+import OverlayModal from '@components/OverlayModal';
+import NotificationScheduleModal from '@components/NotificationScheduleModal';
+import imagePath from '@assets/index';
+import colors from '@theme/colors';
+import { ChevronRight } from '@components/icons/SvgIcons';
+import { scale } from '@theme/sizes';
 
 import { useProfileData } from './hooks/useProfileData';
 import profileStyles from './styles/profileStyles';

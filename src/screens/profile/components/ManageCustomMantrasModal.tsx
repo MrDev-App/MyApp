@@ -9,13 +9,13 @@ import {
 } from 'react-native';
 import OverlayModal, {
   OverlayModalHandle,
-} from '../../../components/OverlayModal';
-import colors from '../../../utile/colors';
-import fonts from '../../../utile/fonts';
-import { fs, scale, verticalScale } from '../../../utile/sizes';
-import imagePath from '../../../assets';
+} from '@components/OverlayModal';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale, verticalScale } from '@theme/sizes';
+import imagePath from '@assets/index';
 import { useTranslation } from 'react-i18next';
-import { Translation } from '../../../i18n/language';
+import { Translation } from '@i18n/language';
 
 interface CustomMantra {
   id: string;

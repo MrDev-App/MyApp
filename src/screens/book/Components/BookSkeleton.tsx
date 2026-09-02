@@ -1,107 +1,73 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withSequence,
-  withTiming,
-} from 'react-native-reanimated';
-import colors from '../../../utile/colors';
-import { scale } from '../../../utile/sizes';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import Skeleton from '@components/Skeleton';
+import { scale } from '@theme/sizes';
 
-export const BookSkeleton = () => {
-  const opacity = useSharedValue(0.4);
+const BookSkeleton: React.FC = () => {
+  return (
+    <View style={styles.container}>
+      {/* Featured Banner Skeleton */}
+      <View style={styles.featuredSkeleton}>
+        <Skeleton width="100%" height={scale(200)} borderRadius={scale(16)} />
+      </View>
 
-  useEffect(() => {
-    opacity.value = withRepeat(
-      withSequence(
-        withTiming(0.3, { duration: 800 }),
-        withTiming(1, { duration: 800 }),
-      ),
-      -1,
-      true,
-    );
-  }, [opacity]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
-
-  const renderShelfPlaceholder = (key: string) => (
-    <View key={key} style={styles.shelfContainer}>
-      <Animated.View style={[styles.titlePlaceholder, animatedStyle]} />
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContainer}
-        scrollEnabled={false}
-      >
+      {/* Row 1 Section */}
+      <View style={styles.sectionHeader}>
+        <Skeleton width={140} height={18} borderRadius={4} />
+      </View>
+      <View style={styles.horizontalRow}>
         {[1, 2, 3].map(item => (
-          <View key={item} style={styles.cardContainer}>
-            <Animated.View style={[styles.imagePlaceholder, animatedStyle]} />
-            <Animated.View style={[styles.textPlaceholderShort, animatedStyle]} />
-            <Animated.View style={[styles.textPlaceholderTiny, animatedStyle]} />
+          <View key={item} style={styles.comicCardSkeleton}>
+            <Skeleton
+              width={scale(130)}
+              height={scale(180)}
+              borderRadius={scale(14)}
+            />
+            <Skeleton width={110} height={14} borderRadius={3} />
+            <Skeleton width={70} height={10} borderRadius={3} />
           </View>
         ))}
-      </ScrollView>
-    </View>
-  );
+      </View>
 
-  return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.container}
-      scrollEnabled={false}
-    >
-      {[1, 2, 3, 4].map(shelf => renderShelfPlaceholder(String(shelf)))}
-    </ScrollView>
+      {/* Row 2 Section */}
+      <View style={styles.sectionHeader}>
+        <Skeleton width={160} height={18} borderRadius={4} />
+      </View>
+      <View style={styles.horizontalRow}>
+        {[1, 2, 3].map(item => (
+          <View key={item} style={styles.comicCardSkeleton}>
+            <Skeleton
+              width={scale(130)}
+              height={scale(180)}
+              borderRadius={scale(14)}
+            />
+            <Skeleton width={110} height={14} borderRadius={3} />
+            <Skeleton width={70} height={10} borderRadius={3} />
+          </View>
+        ))}
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingBottom: scale(110),
+    gap: scale(16),
   },
-  shelfContainer: {
-    width: '100%',
-    marginTop: scale(15),
-  },
-  titlePlaceholder: {
-    width: scale(160),
-    height: scale(20),
-    borderRadius: scale(6),
-    backgroundColor: colors.borderMedium,
-    marginHorizontal: scale(20),
-    marginBottom: scale(10),
-  },
-  scrollContainer: {
+  featuredSkeleton: {
     paddingHorizontal: scale(20),
-    paddingBottom: scale(10),
   },
-  cardContainer: {
-    width: scale(130),
-    marginRight: scale(16),
+  sectionHeader: {
+    paddingHorizontal: scale(20),
+    paddingTop: scale(4),
   },
-  imagePlaceholder: {
-    width: '100%',
-    height: scale(180),
-    borderRadius: scale(14),
-    backgroundColor: colors.borderMedium,
-    marginBottom: scale(8),
+  horizontalRow: {
+    flexDirection: 'row',
+    paddingHorizontal: scale(20),
+    gap: scale(16),
   },
-  textPlaceholderShort: {
-    width: '80%',
-    height: scale(12),
-    borderRadius: scale(4),
-    backgroundColor: colors.borderMedium,
-    marginBottom: scale(6),
-  },
-  textPlaceholderTiny: {
-    width: '50%',
-    height: scale(10),
-    borderRadius: scale(4),
-    backgroundColor: colors.borderMedium,
+  comicCardSkeleton: {
+    gap: scale(6),
   },
 });
 

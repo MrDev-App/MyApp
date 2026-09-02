@@ -5,7 +5,7 @@ import { name as appName } from './app.json';
 import {
   handleNotificationClick,
   recordDeliveredNotification,
-} from './src/notifee/notifications';
+} from './src/services/notificationService';
 
 notifee.onBackgroundEvent(async ({ type, detail }) => {
   if (type === EventType.PRESS && detail.notification) {

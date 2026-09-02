@@ -14,7 +14,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
-import colors from '../utile/colors';
+import colors from '@theme/colors';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 

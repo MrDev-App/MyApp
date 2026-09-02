@@ -4,24 +4,24 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Platform,
   Vibration,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
-import colors from '../../../utile/colors';
-import fonts from '../../../utile/fonts';
-import { fs, scale } from '../../../utile/sizes';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
 import {
   HeartIcon,
   SunIcon,
   MoonIcon,
   BackIcon as Back,
-} from '../../../utile/customSVG';
-import { Storage } from '../../../utile/storage';
-import { MahaBharatStories } from '../../../constants/storiesData';
-import AnimatedButton from '../../../components/AnimatedButton';
+} from '@components/icons/SvgIcons';
+import { Storage } from '@services/storageService';
+import { STORAGE_KEYS } from '@constants/storageKeys';
+import { MahaBharatStories } from '@constants/storiesData';
+import AnimatedButton from '@components/AnimatedButton';
 
 const triggerHaptic = (_type?: string) => {
   try {
@@ -48,13 +48,12 @@ const ReadingHeader = ({
 
   const [isFav, setIsFav] = useState(false);
 
-  // Load saved bookmark status on mount
   useEffect(() => {
     if (!storyId) {
       return;
     }
     try {
-      const raw = Storage.getString('STORY_BOOKMARKS', '[]');
+      const raw = Storage.getString(STORAGE_KEYS.STORY_BOOKMARKS, '[]');
       const list = JSON.parse(raw);
       if (Array.isArray(list)) {
         setIsFav(list.includes(storyId));
@@ -62,14 +61,13 @@ const ReadingHeader = ({
     } catch {}
   }, [storyId]);
 
-  // Toggle bookmark in MMKV storage
   const toggleBookmark = () => {
     if (!storyId) {
       return;
     }
     triggerHaptic('impactMedium');
     try {
-      const raw = Storage.getString('STORY_BOOKMARKS', '[]');
+      const raw = Storage.getString(STORAGE_KEYS.STORY_BOOKMARKS, '[]');
       let list: string[] = JSON.parse(raw);
       if (!Array.isArray(list)) {
         list = [];
@@ -82,7 +80,7 @@ const ReadingHeader = ({
         list.push(storyId);
         setIsFav(true);
       }
-      Storage.set('STORY_BOOKMARKS', JSON.stringify(list));
+      Storage.set(STORAGE_KEYS.STORY_BOOKMARKS, JSON.stringify(list));
     } catch {}
   };
 
@@ -94,23 +92,17 @@ const ReadingHeader = ({
 
   return (
     <View style={styles.headerRow}>
-      {/* ← Back button with ring border */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
-      >
+      <View style={styles.leftRow}>
         <TouchableOpacity
           style={styles.ringButton}
           onPress={() => {
             if (storyId) {
               try {
-                const rawProgress = Storage.getString('STORY_PROGRESS', '{}');
+                const rawProgress = Storage.getString(STORAGE_KEYS.STORY_PROGRESS, '{}');
                 const progressMap = JSON.parse(rawProgress) || {};
                 if (progressMap[storyId] !== undefined) {
                   delete progressMap[storyId];
-                  Storage.set('STORY_PROGRESS', JSON.stringify(progressMap));
+                  Storage.set(STORAGE_KEYS.STORY_PROGRESS, JSON.stringify(progressMap));
                 }
               } catch {}
             }
@@ -133,7 +125,7 @@ const ReadingHeader = ({
           </Text>
         </View>
       </View>
-      {/* Action Buttons: Theme toggle & Heart bookmark */}
+
       <View style={styles.actionRow}>
         {onToggleTheme && (
           <AnimatedButton
@@ -148,11 +140,7 @@ const ReadingHeader = ({
           </AnimatedButton>
         )}
 
-        <View
-          style={styles.ringButton}
-
-          // activeOpacity={0.8}
-        >
+        <View style={styles.ringButton}>
           <AnimatedButton
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             onPress={toggleBookmark}
@@ -182,6 +170,10 @@ const styles = StyleSheet.create({
     paddingVertical: scale(10),
     width: '100%',
   },
+  leftRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   ringButton: {
     width: scale(32),
     height: scale(32),
@@ -193,7 +185,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   titleContainer: {
-    // flex: 1,
     marginHorizontal: scale(8),
     alignItems: 'center',
     justifyContent: 'center',
@@ -210,8 +201,5 @@ const styles = StyleSheet.create({
   },
   themeToggleBtn: {
     marginRight: scale(8),
-  },
-  actionIcon: {
-    fontSize: fs(14),
   },
 });

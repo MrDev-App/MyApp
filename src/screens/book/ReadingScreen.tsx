@@ -8,16 +8,16 @@ import {
   NativeScrollEvent,
   useWindowDimensions,
   StatusBar,
-  Platform,
   Vibration,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import ReadingHeader from './Components/ReadingHeader';
-import ReadingFooter from './Components/ReadingFooter';
-import { MahaBharatStories } from '../../constants/storiesData';
-import { Storage } from '../../utile/storage';
+import { MahaBharatStories } from '@constants/storiesData';
+import { Storage } from '@services/storageService';
+import { STORAGE_KEYS } from '@constants/storageKeys';
+import ReadingHeader from './components/ReadingHeader';
+import ReadingFooter from './components/ReadingFooter';
 
 const triggerHaptic = (_type?: string) => {
   try {
@@ -33,7 +33,7 @@ const ReadingScreen = () => {
 
   // Dark / Light Mode state with MMKV persistence (default dark for immersive comic reading)
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    const saved = Storage.getString('READER_THEME');
+    const saved = Storage.getString(STORAGE_KEYS.READER_THEME);
     return saved !== 'light';
   });
 
@@ -41,7 +41,7 @@ const ReadingScreen = () => {
     triggerHaptic('impactLight');
     setIsDarkMode(prev => {
       const next = !prev;
-      Storage.set('READER_THEME', next ? 'dark' : 'light');
+      Storage.set(STORAGE_KEYS.READER_THEME, next ? 'dark' : 'light');
       return next;
     });
   };

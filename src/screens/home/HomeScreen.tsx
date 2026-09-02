@@ -1,22 +1,22 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import GradientBackground from '../../components/GradientBackground';
-import Globalstyles from '../../utile/GlobalStyle';
-import { scale } from '../../utile/sizes';
-import { OverlayModalHandle } from '../../components/OverlayModal';
+import GradientBackground from '@components/GradientBackground';
+import globalStyles from '@theme/globalStyles';
+import { scale } from '@theme/sizes';
+import colors from '@theme/colors';
+import { OverlayModalHandle } from '@components/OverlayModal';
 
 // Sub-components
-import HomeHeaderMedia from './component/HomeHeaderMedia';
-import HomeGreetingHeader from './component/HomeGreetingHeader';
-import HomeSkeleton from './component/HomeSkeleton';
-import JapCard from './component/JapCard';
-import MantrasCard from './component/MantrasCard';
-import ChallengeCard from './component/ChallengeCard';
-import FeaturedCategories from './component/FeaturedCategories';
-import FestivalHighlights from './component/FestivalHighlights';
-import GradientOverlay from '../../components/GradientOverlay';
-import colors from '../../utile/colors';
+import HomeHeaderMedia from './components/HomeHeaderMedia';
+import HomeGreetingHeader from './components/HomeGreetingHeader';
+import HomeSkeleton from './components/HomeSkeleton';
+import JapCard from './components/JapCard';
+import MantrasCard from './components/MantrasCard';
+import ChallengeCard from './components/ChallengeCard';
+import FeaturedCategories from './components/FeaturedCategories';
+import FestivalHighlights from './components/FestivalHighlights';
+import GradientOverlay from '@components/GradientOverlay';
 
 export const HomeScreen = () => {
   const insets = useSafeAreaInsets();
@@ -29,13 +29,11 @@ export const HomeScreen = () => {
   const videoErrorRef = useRef(false);
 
   const handleVideoLoad = useCallback(() => {
-    // Video loaded successfully, we can safely hide the shimmer
     setLoading(false);
   }, []);
 
   const handleImageLoad = useCallback(() => {
     imageLoadedRef.current = true;
-    // If video has already failed, switch to loaded view instantly
     if (videoErrorRef.current) {
       setLoading(false);
     }
@@ -43,7 +41,6 @@ export const HomeScreen = () => {
 
   const handleVideoError = useCallback(() => {
     videoErrorRef.current = true;
-    // If fallback image has already loaded, switch to loaded view
     if (imageLoadedRef.current) {
       setLoading(false);
     }
@@ -56,7 +53,7 @@ export const HomeScreen = () => {
   }, []);
 
   return (
-    <GradientBackground style={Globalstyles.containerFull}>
+    <GradientBackground style={globalStyles.containerFull}>
       {/* Background Header Image, Video, and Shimmer Overlay */}
       <HomeHeaderMedia
         loading={loading}
@@ -71,7 +68,6 @@ export const HomeScreen = () => {
           colors.gradientStart,
           colors.primary,
           colors.primary,
-
           'transparent',
         ]}
         direction="bottom-to-top"
@@ -79,7 +75,7 @@ export const HomeScreen = () => {
       />
 
       <SafeAreaView
-        style={Globalstyles.containerMargin20}
+        style={globalStyles.containerMargin20}
         edges={['top', 'bottom']}
       >
         <ScrollView

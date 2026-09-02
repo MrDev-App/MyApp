@@ -18,8 +18,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { runOnJS } from 'react-native-worklets';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { scale, fs } from '../utile/sizes';
-import colors from '../utile/colors';
+import { scale, fs } from '@theme/sizes';
+import colors from '@theme/colors';
 
 export type ExpandOrigin = {
   x: number;

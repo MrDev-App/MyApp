@@ -11,16 +11,16 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import colors from '../../utile/colors';
-import fonts from '../../utile/fonts';
-import { fs, scale } from '../../utile/sizes';
-import GradientBackground from '../../components/GradientBackground';
-import { getFestivalData, Festival } from '../../utile/festivalDataCache';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
+import GradientBackground from '@components/GradientBackground';
+import { getFestivalData, Festival } from '@services/festivalService';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
-import { Back } from '../../assets';
-import AnimatedButton from '../../components/AnimatedButton';
-import imagePath from '../../assets';
-import FestivalModal from '../../components/FestivalModal';
+import { Back } from '@assets/index';
+import AnimatedButton from '@components/AnimatedButton';
+import imagePath from '@assets/index';
+import FestivalModal from '@components/FestivalModal';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import {
   getMonthName,
@@ -30,7 +30,7 @@ import {
   monthsEn,
   weekdaysEn,
   dayNamesEn,
-} from '../../constants/calendarData';
+} from '@constants/calendarData';
 
 LocaleConfig.locales['hi'] = {
   monthNames: monthsHi,
@@ -58,7 +58,7 @@ const AllFestivalsScreen = () => {
   LocaleConfig.defaultLocale = currentLanguage;
 
   const [festivals, setFestivals] = React.useState<Festival[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const [_loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     let isMounted = true;
