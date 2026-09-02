@@ -25,7 +25,7 @@ interface HomeGreetingHeaderProps {
   loading: boolean;
 }
 
-const shortMonths = [
+const SHORT_MONTHS = [
   'Jan',
   'Feb',
   'Mar',
@@ -38,9 +38,30 @@ const shortMonths = [
   'Oct',
   'Nov',
   'Dec',
-];
+] as const;
 
-export const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
+/** Check if a date string (YYYY-MM-DD) is today */
+const isToday = (dateStr?: string): boolean => {
+  if (!dateStr) return false;
+  const todayStr = new Date().toISOString().split('T')[0];
+  return dateStr === todayStr;
+};
+
+/** Parse a date string (YYYY-MM-DD) into { day, month } for display */
+const getFormattedDate = (dateStr?: string, dayNum?: number) => {
+  if (dateStr) {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return {
+        day: parseInt(parts[2], 10),
+        month: SHORT_MONTHS[parseInt(parts[1], 10) - 1] || '',
+      };
+    }
+  }
+  return { day: dayNum || '', month: '' };
+};
+
+const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
   loading: parentLoading,
 }) => {
   const { t } = useTranslation();
@@ -48,40 +69,30 @@ export const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
   const [unreadCount, setUnreadCount] = useState(0);
 
   const [ekadashis, setEkadashis] = useState<EkadashiItem[]>([]);
-  const [monthName, setMonthName] = useState<string>('');
   const [vratsLoading, setVratsLoading] = useState(true);
 
   useFocusEffect(
     useCallback(() => {
-      const count = NotificationStorage.getUnreadCount();
-      setUnreadCount(count);
+      setUnreadCount(NotificationStorage.getUnreadCount());
     }, []),
   );
 
   useEffect(() => {
     let isMounted = true;
+
     const fetchCurrentMonthVrats = async () => {
       try {
-        const now = new Date();
-        const currentMonthNumber = now.getMonth() + 1;
-
-        // Try getting Ekadashis for current month
+        const currentMonthNumber = new Date().getMonth() + 1;
         const monthsData = await getEkadashiMonthsData();
+
         let targetMonth = monthsData.find(m => m.month === currentMonthNumber);
 
         // Fallback to first available month if current month is not found
-        if (
-          !targetMonth ||
-          !targetMonth.ekadashis ||
-          targetMonth.ekadashis.length === 0
-        ) {
+        if (!targetMonth?.ekadashis?.length) {
           targetMonth = monthsData[0];
         }
 
         if (isMounted && targetMonth) {
-          setMonthName(
-            targetMonth.monthName || shortMonths[currentMonthNumber - 1],
-          );
           setEkadashis(targetMonth.ekadashis || []);
         }
       } catch (error) {
@@ -102,31 +113,14 @@ export const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
     };
   }, []);
 
-  const handlePressBell = () => {
+  const handlePressBell = useCallback(() => {
     try {
       Vibration.vibrate(30);
     } catch {}
     navigation.navigate('Notification');
-  };
+  }, [navigation]);
 
-  const isToday = (dateStr?: string) => {
-    if (!dateStr) return false;
-    const todayStr = new Date().toISOString().split('T')[0];
-    return dateStr === todayStr;
-  };
-
-  const getFormattedDate = (dateStr?: string, dayNum?: number) => {
-    if (!dateStr) return { day: dayNum || '', month: monthName.slice(0, 3) };
-    const parts = dateStr.split('-');
-    if (parts.length === 3) {
-      const mIdx = parseInt(parts[1], 10) - 1;
-      return {
-        day: parseInt(parts[2], 10),
-        month: shortMonths[mIdx] || monthName.slice(0, 3),
-      };
-    }
-    return { day: dayNum || '', month: monthName.slice(0, 3) };
-  };
+  const isLoading = vratsLoading || parentLoading;
 
   return (
     <View style={styles.mainView}>
@@ -142,7 +136,7 @@ export const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
           </>
         ) : (
           <>
-            <View style={styles.textContainer}>
+            <View>
               <Text style={styles.greetingTime}>
                 {t(Translation.SHUBH_PRABHAT)}
               </Text>
@@ -168,13 +162,15 @@ export const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
 
       {/* Section Title */}
       <View style={styles.vratsHeaderRow}>
-        <View style={styles.titleWithDot}>
+        {isLoading ? (
+          <Skeleton width={200} height={16} borderRadius={4} />
+        ) : (
           <Text style={styles.sectionTitle}>This Month's Ekadash Vrats</Text>
-        </View>
+        )}
       </View>
 
-      {/* Ekadashi Vrats Cards (Vertical Stack with FadeInUp Animation, No Bounce) */}
-      {vratsLoading || parentLoading ? (
+      {/* Ekadashi Vrats Cards */}
+      {isLoading ? (
         <View style={styles.vratsVerticalContainer}>
           <Skeleton width="100%" height={scale(62)} borderRadius={scale(14)} />
           <Skeleton width="100%" height={scale(62)} borderRadius={scale(14)} />
@@ -245,9 +241,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  textContainer: {
-    flexDirection: 'column',
-  },
   greetingSkeletonContainer: {
     gap: scale(6),
   },
@@ -293,10 +286,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: scale(12),
   },
-  titleWithDot: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   sectionTitle: {
     color: colors.black,
     fontSize: fs(15),
@@ -304,7 +293,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
   vratsVerticalContainer: {
-    flexDirection: 'column',
     gap: scale(10),
   },
   vratCard: {
@@ -334,7 +322,6 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-
   infoBlock: {
     flex: 1,
     justifyContent: 'center',
