@@ -233,6 +233,40 @@ const ProfileScreen = () => {
                 <Text style={profileStyles.settingSubLabel}>
                   {t(Translation.PROFILE_DAILY_SADHANA_REMINDERS)}
                 </Text>
+                {notificationsEnabled && (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      marginTop: scale(3),
+                      gap: scale(4),
+                    }}
+                  >
+                    <Image
+                      source={imagePath.clock}
+                      style={{
+                        width: scale(13),
+                        height: scale(13),
+                        resizeMode: 'contain',
+                      }}
+                    />
+                    <Text
+                      style={[
+                        profileStyles.settingSubLabel,
+                        { color: colors.ring },
+                      ]}
+                    >
+                      {reminderConfig
+                        ? `${String(reminderConfig.hour).padStart(
+                            2,
+                            '0',
+                          )}:${String(reminderConfig.minute).padStart(2, '0')} ${
+                            reminderConfig.isPm ? 'PM' : 'AM'
+                          }`
+                        : '06:00 AM'}
+                    </Text>
+                  </View>
+                )}
               </View>
               <Switch
                 trackColor={{

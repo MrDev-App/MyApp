@@ -135,6 +135,7 @@ const imagePath = {
   lamp: require('./png/lamp.webp'),
   shlok: require('./png/shlok.webp'),
   temples: require('./png/temples.webp'),
+  clock: require('./png/clock.webp'),
 };
 
 export { Back, Forward, Bell, Pin, FoldedHands, Location, Tag };
