@@ -94,4 +94,26 @@ export const MahaBharatStories: Story[] = [
     keywords:
       'eklavya, eklavya story, drona, dronacharya, archery, archer, thumb, gurudakshina, guru, dakshina, devotion, nishada, arjuna, mahabharat, एकलव्य, द्रोणाचार्य, धनुर्विद्या, धनुर्धर, अंगूठा, गुरुदक्षिणा, गुरु, निष्ठा, निषाद, अर्जुन, महाभारत',
   },
+  {
+    id: 'MahaBharatStory4',
+    titleEn: "Karna's Supreme Gift: Kavach & Kundal",
+    titleHi: 'कर्ण का महादान : कवच और कुंडल',
+    subtitleEn: 'The Immortal Sacrifice of Danveer Karna',
+    subtitleHi: 'दानवीर कर्ण का अमर त्याग',
+    descriptionEn:
+      'The legendary tale of Danveer Karna who willingly sacrificed his divine, flesh-attached armor and earrings to Indra without hesitation.',
+    descriptionHi:
+      'दानवीर कर्ण की अमर गाथा, जिन्होंने देवराज इंद्र के याचना करने पर बिना किसी संकोच के अपने अभेद्य कवच और कुंडल दान कर दिए।',
+    categoryEn: 'MahaBharat',
+    categoryHi: 'महाभारत',
+    image: imagePath.KGCoverPage,
+    imagePages: imagePath.KarnGiftPages,
+    readingTimeMin: 4,
+    sourceEn: 'MahaBharat',
+    sourceHi: 'महाभारत',
+    difficultyEn: 'All Ages',
+    difficultyHi: 'सभी के लिए',
+    keywords:
+      "karna, karn, karn's gift, karns gift, indra, surya, kavach, kundal, danveer, gift, sacrifice, charity, suryaputra, arjuna, pandava, mahabharat, दानवीर, कर्ण, इंद्र, सूर्य, कवच, कुंडल, दान, त्याग, सूर्यपुत्र, अर्जुन, महाभारत",
+  },
 ];
