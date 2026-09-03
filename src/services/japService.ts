@@ -75,10 +75,6 @@ export const clearJapMantrasCache = (): void => {
   storage.remove(JAP_MANTRAS_CACHE_KEY);
 };
 
-// ─────────────────────────────────────────────────────────────
-// Jap Stats & History
-// ─────────────────────────────────────────────────────────────
-
 export interface MantraRecord {
   count: number;
   mala: number;
@@ -120,10 +116,16 @@ export const logChant = (mantraId: string, increment = 1) => {
   const globalTotalMala = Math.floor((currentGlobalTotal + increment) / 108);
   Storage.set(STORAGE_KEYS.JAP_TOTAL_MALA, globalTotalMala);
 
-  const currentMantraToday = Storage.getNumber(`JAP_TODAY_COUNT_${mantraId}`, 0);
+  const currentMantraToday = Storage.getNumber(
+    `JAP_TODAY_COUNT_${mantraId}`,
+    0,
+  );
   Storage.set(`JAP_TODAY_COUNT_${mantraId}`, currentMantraToday + increment);
 
-  const currentMantraTotal = Storage.getNumber(`JAP_TOTAL_COUNT_${mantraId}`, 0);
+  const currentMantraTotal = Storage.getNumber(
+    `JAP_TOTAL_COUNT_${mantraId}`,
+    0,
+  );
   Storage.set(`JAP_TOTAL_COUNT_${mantraId}`, currentMantraTotal + increment);
 
   const mantraTodayMala = Math.floor((currentMantraToday + increment) / 108);
@@ -141,7 +143,9 @@ export const logChant = (mantraId: string, increment = 1) => {
     }
 
     history[isoDateStr].totalCount += increment;
-    history[isoDateStr].totalMala = Math.floor(history[isoDateStr].totalCount / 108);
+    history[isoDateStr].totalMala = Math.floor(
+      history[isoDateStr].totalCount / 108,
+    );
 
     if (!history[isoDateStr].mantras[mantraId]) {
       history[isoDateStr].mantras[mantraId] = { count: 0, mala: 0 };
@@ -241,7 +245,9 @@ export const getMonthWiseStats = (mantraId?: string) => {
     for (let i = 5; i >= 0; i--) {
       const date = new Date();
       date.setMonth(date.getMonth() - i);
-      const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const yearMonth = `${date.getFullYear()}-${String(
+        date.getMonth() + 1,
+      ).padStart(2, '0')}`;
 
       let count = 0;
       let mala = 0;

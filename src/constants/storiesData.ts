@@ -72,4 +72,26 @@ export const MahaBharatStories: Story[] = [
     keywords:
       'abhimanyu, chakravyuh, arjuna, subhadra, mahabharat, kurukshetra, warrior, pandava, kaurava, arjun, veer, drona, loop, formation, अभिमन्यु, चक्रव्यूह, अर्जुन, सुभद्रा, महाभारत, कुरुक्षेत्र, योद्धा, पाण्डव, कौरव, द्रोणाचार्य',
   },
+  {
+    id: 'MahaBharatStory3',
+    titleEn: 'Eklavya: The Devoted Archer',
+    titleHi: 'एकलव्य: निष्ठावान धनुर्धर',
+    subtitleEn: 'The Ultimate Devotion & Guru Dakshina',
+    subtitleHi: 'अद्वितीय गुरुभक्ति और गुरु दक्षिणा',
+    descriptionEn:
+      'The inspiring story of Eklavya, whose supreme dedication, practice, and devotion to Guru Dronacharya made him a legendary archer.',
+    descriptionHi:
+      'एकलव्य की प्रेरणादायी गाथा, जिनकी गुरु द्रोणाचार्य के प्रति अटूट निष्ठा और अनवरत अभ्यास ने उन्हें अद्वितीय धनुर्धर बनाया।',
+    categoryEn: 'MahaBharat',
+    categoryHi: 'महाभारत',
+    image: imagePath.EklavyaCoverPage,
+    imagePages: imagePath.EklavyaPages,
+    readingTimeMin: 5,
+    sourceEn: 'MahaBharat',
+    sourceHi: 'महाभारत',
+    difficultyEn: 'All Ages',
+    difficultyHi: 'सभी के लिए',
+    keywords:
+      'eklavya, eklavya story, drona, dronacharya, archery, archer, thumb, gurudakshina, guru, dakshina, devotion, nishada, arjuna, mahabharat, एकलव्य, द्रोणाचार्य, धनुर्विद्या, धनुर्धर, अंगूठा, गुरुदक्षिणा, गुरु, निष्ठा, निषाद, अर्जुन, महाभारत',
+  },
 ];
