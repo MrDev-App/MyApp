@@ -74,7 +74,7 @@ export const MahaBharatStories: Story[] = [
   },
   {
     id: 'MahaBharatStory3',
-    titleEn: 'Eklavya: The Devoted Archer',
+    titleEn: 'Eklavya:The Archer',
     titleHi: 'एकलव्य: निष्ठावान धनुर्धर',
     subtitleEn: 'The Ultimate Devotion & Guru Dakshina',
     subtitleHi: 'अद्वितीय गुरुभक्ति और गुरु दक्षिणा',
@@ -96,8 +96,8 @@ export const MahaBharatStories: Story[] = [
   },
   {
     id: 'MahaBharatStory4',
-    titleEn: "Karna's Supreme Gift: Kavach & Kundal",
-    titleHi: 'कर्ण का महादान : कवच और कुंडल',
+    titleEn: "Karna's Kavach & Kundal",
+    titleHi: 'कर्ण का कवच और कुंडल',
     subtitleEn: 'The Immortal Sacrifice of Danveer Karna',
     subtitleHi: 'दानवीर कर्ण का अमर त्याग',
     descriptionEn:
