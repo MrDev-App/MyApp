@@ -132,20 +132,10 @@ const FestivalHighlights = ({ onPress }: any) => {
           removeClippedSubviews={Platform.OS === 'android'}
           contentContainerStyle={styles.listContent}
           renderItem={({ item }) => {
-            const daysLeft = calculateDaysRemaining(item.month, item.day);
             const name =
               currentLanguage === 'hi' ? item.hindiName : item.englishName;
             const dateStr =
               currentLanguage === 'hi' ? item.dateStrHi : item.dateStrEn;
-
-            const countdownText =
-              daysLeft === 0
-                ? currentLanguage === 'hi'
-                  ? 'आज'
-                  : 'Today'
-                : currentLanguage === 'hi'
-                ? `${daysLeft} दिनों में`
-                : `in ${daysLeft} days`;
 
             const bgImage = item.image || imagePath.greeting;
 
@@ -165,11 +155,7 @@ const FestivalHighlights = ({ onPress }: any) => {
                 >
                   <View style={styles.cardOverlay}>
                     <Text style={styles.name}>{name}</Text>
-
-                    <View>
-                      <Text style={styles.date}>{dateStr}</Text>
-                      <Text style={styles.countdown}>{countdownText}</Text>
-                    </View>
+                    <Text style={styles.date}>{dateStr}</Text>
                   </View>
                 </ImageBackground>
               </AnimatedButton>
@@ -240,7 +226,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(12),
     paddingVertical: scale(12),
     height: '100%',
-    justifyContent: 'space-between',
+
     minHeight: scale(105),
   },
   name: {

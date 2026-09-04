@@ -21,9 +21,7 @@ import ExpandableCard, {
   ExpandableCardHandle,
 } from '@components/ExpandableCard';
 import { useExpandTrigger } from '@hooks/useExpandTrigger';
-import OverlayModal, {
-  OverlayModalHandle,
-} from '@components/OverlayModal';
+import OverlayModal, { OverlayModalHandle } from '@components/OverlayModal';
 import { useAutoScroll } from '@hooks/useAutoScroll';
 
 const MantrasCard = () => {
@@ -86,7 +84,7 @@ const MantrasCard = () => {
     flatListRef,
     contentWidth,
     containerWidth,
-    40,
+    60,
     isPaused,
   );
 

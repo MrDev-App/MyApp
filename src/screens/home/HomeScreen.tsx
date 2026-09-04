@@ -1,6 +1,9 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import GradientBackground from '@components/GradientBackground';
 import globalStyles from '@theme/globalStyles';
 import { scale } from '@theme/sizes';
@@ -24,7 +27,6 @@ export const HomeScreen = () => {
   const overlayRef = useRef<OverlayModalHandle>(null);
   const buttonRef = useRef<View>(null);
 
-  // Media load tracking refs to prevent race conditions
   const imageLoadedRef = useRef(false);
   const videoErrorRef = useRef(false);
 

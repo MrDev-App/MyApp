@@ -7,7 +7,6 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
@@ -25,15 +24,14 @@ import { Translation } from '@i18n/language';
 import {
   AartiScreen,
   ShlokScreen,
-  StoriesScreen,
-  TemplesScreen,
 } from '../categories';
 import AnimatedButton from '@components/AnimatedButton';
+
+const ALLOWED_CATEGORY_IDS = new Set(['aarti', 'aartis', 'shlok', 'shlokas']);
 
 const FeaturedCategories = () => {
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language || 'en';
-  const navigation = useNavigation<any>();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +42,10 @@ const FeaturedCategories = () => {
       try {
         const data = await getCategoriesData();
         if (isMounted) {
-          setCategories(data);
+          const filtered = data.filter(cat =>
+            ALLOWED_CATEGORY_IDS.has(cat.id.toLowerCase()),
+          );
+          setCategories(filtered);
         }
       } catch (error) {
         console.error('Error fetching categories in FeaturedCategories:', error);
@@ -88,15 +89,7 @@ const FeaturedCategories = () => {
                 key={category.id}
                 style={styles.card}
                 onPress={() => {
-                  if (category.id === 'stories') {
-                    navigation.navigate('Book');
-                  } else if (category.id === 'temples') {
-                    navigation.navigate('TempleScreen', {
-                      items: category.items,
-                    });
-                  } else {
-                    trigger(category.id, category);
-                  }
+                  trigger(category.id, category);
                 }}
               >
                 <View
@@ -151,12 +144,6 @@ const FeaturedCategories = () => {
                 )}
                 {category.id === 'shlok' && (
                   <ShlokScreen items={category.items} />
-                )}
-                {category.id === 'stories' && (
-                  <StoriesScreen items={category.items} />
-                )}
-                {category.id === 'temples' && (
-                  <TemplesScreen items={category.items} />
                 )}
               </ScrollView>
             </>
@@ -218,6 +205,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(14),
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: scale(14),
     marginBottom: scale(14),
     shadowColor: '#39261b',
     shadowOffset: { width: 0, height: 6 },
