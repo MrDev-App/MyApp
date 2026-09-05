@@ -1,4 +1,4 @@
-package com.myapp
+package com.guruvani
 
 import android.graphics.Color
 import android.os.Build
@@ -42,4 +42,3 @@ class MainActivity : ReactActivity() {
   override fun createReactActivityDelegate(): ReactActivityDelegate =
       DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 }
-

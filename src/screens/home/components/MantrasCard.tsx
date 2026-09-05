@@ -115,73 +115,67 @@ const MantrasCard = () => {
     <View style={styles.container}>
       <Text style={styles.title}>{t(Translation.MANTRAS_BY_DEITIES)}</Text>
 
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color={colors.ring} />
-        </View>
-      ) : (
-        <View onLayout={e => setContainerWidth(e.nativeEvent.layout.width)}>
-          <FlatList
-            ref={flatListRef}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={pairedGods}
-            keyExtractor={(_, index) => String(index)}
-            contentContainerStyle={styles.listContent}
-            scrollEnabled={true}
-            initialNumToRender={4}
-            maxToRenderPerBatch={4}
-            windowSize={3}
-            removeClippedSubviews={Platform.OS === 'android'}
-            onContentSizeChange={w => setContentWidth(w)}
-            onScrollBeginDrag={() => {
-              if (resumeTimeoutRef.current)
-                clearTimeout(resumeTimeoutRef.current);
-              isUserTouching.current = true;
-              isPaused.current = true;
-            }}
-            onScrollEndDrag={e => {
-              isUserTouching.current = false;
-              scheduleResume(e.nativeEvent.contentOffset.x);
-            }}
-            onMomentumScrollEnd={e => {
-              isUserTouching.current = false;
-              scheduleResume(e.nativeEvent.contentOffset.x);
-            }}
-            renderItem={({ item }) => (
-              <View style={styles.column}>
-                {item.map((god: any) => {
-                  const name =
-                    currentLanguage === 'hi' ? god.hindiName : god.englishName;
-                  return (
-                    <TouchableOpacity
-                      key={god.id}
-                      style={styles.godContainer}
-                      activeOpacity={0.7}
-                      onPress={() => handleDeityPress(god.id, god)}
+      <View onLayout={e => setContainerWidth(e.nativeEvent.layout.width)}>
+        <FlatList
+          ref={flatListRef}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={pairedGods}
+          keyExtractor={(_, index) => String(index)}
+          contentContainerStyle={styles.listContent}
+          scrollEnabled={true}
+          initialNumToRender={4}
+          maxToRenderPerBatch={4}
+          windowSize={3}
+          removeClippedSubviews={Platform.OS === 'android'}
+          onContentSizeChange={w => setContentWidth(w)}
+          onScrollBeginDrag={() => {
+            if (resumeTimeoutRef.current)
+              clearTimeout(resumeTimeoutRef.current);
+            isUserTouching.current = true;
+            isPaused.current = true;
+          }}
+          onScrollEndDrag={e => {
+            isUserTouching.current = false;
+            scheduleResume(e.nativeEvent.contentOffset.x);
+          }}
+          onMomentumScrollEnd={e => {
+            isUserTouching.current = false;
+            scheduleResume(e.nativeEvent.contentOffset.x);
+          }}
+          renderItem={({ item }) => (
+            <View style={styles.column}>
+              {item.map((god: any) => {
+                const name =
+                  currentLanguage === 'hi' ? god.hindiName : god.englishName;
+                return (
+                  <TouchableOpacity
+                    key={god.id}
+                    style={styles.godContainer}
+                    activeOpacity={0.7}
+                    onPress={() => handleDeityPress(god.id, god)}
+                  >
+                    <View
+                      ref={registerRef(god.id)}
+                      collapsable={false}
+                      style={styles.avatarContainer}
                     >
-                      <View
-                        ref={registerRef(god.id)}
-                        collapsable={false}
-                        style={styles.avatarContainer}
-                      >
-                        <Image source={god.image} style={styles.avatarImage} />
-                      </View>
-                      <Text
-                        style={styles.godName}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {name}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            )}
-          />
-        </View>
-      )}
+                      <Image source={god.image} style={styles.avatarImage} />
+                    </View>
+                    <Text
+                      style={styles.godName}
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                    >
+                      {name}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
+        />
+      </View>
 
       {/* Main Deity Modal showing list of mantras */}
       <ExpandableCard<God>

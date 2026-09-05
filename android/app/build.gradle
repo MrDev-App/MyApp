@@ -78,9 +78,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.myapp"
+    namespace "com.guruvani"
     defaultConfig {
-        applicationId "com.myapp"
+        applicationId "com.guruvani"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -92,7 +92,7 @@ android {
             storeFile file('debug.keystore')
             storePassword 'android'
             keyAlias 'androiddebugkey'
-            keyPassword 'android'
+            keyPassword 'android' 
         }
     }
     buildTypes {

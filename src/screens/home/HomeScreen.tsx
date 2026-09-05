@@ -20,6 +20,7 @@ import ChallengeCard from './components/ChallengeCard';
 import FeaturedCategories from './components/FeaturedCategories';
 import FestivalHighlights from './components/FestivalHighlights';
 import GradientOverlay from '@components/GradientOverlay';
+import BannerAdComponent from '@admob/Banneradcomponent';
 
 export const HomeScreen = () => {
   const insets = useSafeAreaInsets();
@@ -98,6 +99,9 @@ export const HomeScreen = () => {
               <JapCard />
               <MantrasCard />
               <ChallengeCard />
+
+              <BannerAdComponent unitId="ca-app-pub-7403088686757883/4289481752" />
+
               <FeaturedCategories />
               <FestivalHighlights onPress={handleOpen} />
             </>

@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:753813827516:android:fc256131050070979605b9",
+        "mobilesdk_app_id": "1:753813827516:android:e311b9db48bcff699605b9",
         "android_client_info": {
-          "package_name": "com.myapp"
+          "package_name": "com.guruvani"
         }
       },
       "oauth_client": [],

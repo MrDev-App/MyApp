@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
-  Vibration,
   StatusBar,
 } from 'react-native';
 import {
@@ -26,15 +25,14 @@ import ComicShelf from './components/ComicShelf';
 import BookSkeleton from './components/BookSkeleton';
 import { SearchIcon } from '@components/icons/SvgIcons';
 import colors from '@theme/colors';
+import { useRewardedAd } from '@admob/Userewardedad';
+import {
+  isBookUnlockedToday,
+  markBookUnlockedToday,
+} from '@admob/Bookunlockservice';
 
-// Haptic feedback trigger function matching the app pattern
-const triggerHaptic = (_type?: string) => {
-  try {
-    Vibration.vibrate(30);
-  } catch (e) {
-    console.log('[Haptic] Failed', e);
-  }
-};
+import { triggerHaptic } from '@helper/helper';
+import UnlockAdModal from '@admob/Unlockadmodal';
 
 const BookScreen = () => {
   const insets = useSafeAreaInsets();
@@ -44,12 +42,43 @@ const BookScreen = () => {
 
   const [loading, setLoading] = useState(true);
 
+  const [pendingStory, setPendingStory] = useState<Story | null>(null);
+  const { isLoaded: isRewardedLoaded, show: showRewardedAd } = useRewardedAd(
+    'ca-app-pub-7403088686757883/3663931262', // your real Rewarded ad unit id
+  );
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
     }, 1800);
     return () => clearTimeout(timer);
   }, []);
+
+  const openStoryReader = (story: Story) => {
+    if (isBookUnlockedToday(story.id)) {
+      triggerHaptic();
+      navigation.navigate('ReadingScreen', { storyId: story.id });
+      return;
+    }
+    // Not unlocked today — ask for consent before showing the ad
+    setPendingStory(story);
+  };
+
+  const handleCancelUnlock = () => setPendingStory(null);
+
+  const handleWatchAd = () => {
+    if (!pendingStory) return;
+    const storyToUnlock = pendingStory;
+
+    showRewardedAd(() => {
+      // This only runs if the user watched the FULL video (EARNED_REWARD)
+      markBookUnlockedToday(storyToUnlock.id);
+      triggerHaptic();
+      navigation.navigate('ReadingScreen', { storyId: storyToUnlock.id });
+    });
+
+    setPendingStory(null); // close the popup — the ad SDK takes over the screen next
+  };
 
   const labels = {
     screenTitle: t(Translation.BOOK_SCREEN_TITLE),
@@ -83,12 +112,6 @@ const BookScreen = () => {
     storiesFromRamayan: t(Translation.BOOK_STORIES_FROM_RAMAYAN),
   };
 
-  // Helper: Open Reader
-  const openStoryReader = (story: Story) => {
-    triggerHaptic('impactHeavy');
-    navigation.navigate('ReadingScreen', { storyId: story.id });
-  };
-
   return (
     <GradientBackground style={styles.containerFull}>
       <StatusBar barStyle="dark-content" />
@@ -107,7 +130,7 @@ const BookScreen = () => {
         <TouchableOpacity
           style={styles.searchContainer}
           onPress={() => {
-            triggerHaptic('impactLight');
+            triggerHaptic();
             navigation.navigate('SearchScreen');
           }}
           activeOpacity={0.9}
@@ -147,6 +170,20 @@ const BookScreen = () => {
           </ScrollView>
         )}
       </SafeAreaView>
+
+      <UnlockAdModal
+        visible={!!pendingStory}
+        bookTitle={
+          pendingStory
+            ? currentLang === 'hi'
+              ? pendingStory.titleHi
+              : pendingStory.titleEn
+            : ''
+        }
+        isAdLoading={!isRewardedLoaded}
+        onCancel={handleCancelUnlock}
+        onWatchAd={handleWatchAd}
+      />
     </GradientBackground>
   );
 };

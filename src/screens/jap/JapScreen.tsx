@@ -44,16 +44,8 @@ import ChantSphere from './components/ChantSphere';
 
 import { Storage, STORAGE_KEYS } from '@services/storageService';
 import { useIsFocused } from '@react-navigation/native';
-
-const triggerHaptic = () => {
-  try {
-    if (Platform.OS === 'android') {
-      Vibration.vibrate([0, 40, 0, 0]);
-    } else {
-      Vibration.vibrate(30);
-    }
-  } catch {}
-};
+import { triggerHaptic } from '@helper/helper';
+import BannerAdComponent from '@admob/Banneradcomponent';
 
 const TOTAL_BEADS = 108;
 
@@ -533,6 +525,8 @@ const JapScreen = () => {
               </Text>
             </TouchableOpacity>
           </View>
+
+          <BannerAdComponent unitId="ca-app-pub-7403088686757883/4289481752" />
         </ScrollView>
 
         {/* ── Switch Mantra Confirmation Modal ── */}
