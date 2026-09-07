@@ -295,7 +295,7 @@ const JapScreen = () => {
     );
 
     if (isHapticOnRef.current) {
-      triggerHaptic();
+      triggerHaptic('week');
     }
 
     rippleScale.value = 1;
@@ -378,7 +378,7 @@ const JapScreen = () => {
                 setIsHapticOn(next);
                 isHapticOnRef.current = next;
                 if (next) {
-                  triggerHaptic();
+                  triggerHaptic('week');
                 }
               }}
               activeOpacity={0.7}

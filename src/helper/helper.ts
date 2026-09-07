@@ -1,9 +1,20 @@
 import { Platform, Vibration } from 'react-native';
 
-export const triggerHaptic = () => {
+export type HapticType = 'week' | 'medium' | 'strong';
+
+const HAPTIC_PATTERNS: Record<HapticType, number[]> = {
+  week: [0, 40, 0, 0],
+  medium: [0, 80, 0, 0],
+  strong: [0, 150, 0, 0],
+};
+
+const isAndroid = Platform.OS === 'android';
+
+export const triggerHaptic = (id: HapticType = 'week') => {
   try {
-    if (Platform.OS === 'android') {
-      Vibration.vibrate([0, 40, 0, 0]);
+    if (isAndroid) {
+      const vibration = HAPTIC_PATTERNS[id] || HAPTIC_PATTERNS.week;
+      Vibration.vibrate(vibration);
     } else {
       Vibration.vibrate(30);
     }
