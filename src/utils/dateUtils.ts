@@ -1,11 +1,3 @@
-/**
- * Date and time helper functions
- */
-
-/**
- * Calculates the next trigger time for a given daily schedule (hour, minute).
- * If the time has already passed today, schedules for tomorrow.
- */
 export function getNextTriggerTime(hour: number, minute: number): Date {
   const now = new Date();
   const trigger = new Date();

@@ -3,13 +3,14 @@ import { Vibration, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Translation } from '@i18n/language';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
-import { Storage, STORAGE_KEYS, getUserJoinedDate } from '@services/storageService';
+import {
+  Storage,
+  STORAGE_KEYS,
+  getUserJoinedDate,
+} from '@services/storageService';
 import { pickImage } from '@services/imagePickerService';
 import { MahaBharatStories, Story } from '@constants/storiesData';
-import {
-  getJapMantrasData,
-  MantraSelectorItem,
-} from '@services/japService';
+import { getJapMantrasData, MantraSelectorItem } from '@services/japService';
 import {
   initNotifications,
   scheduleCustomReminder,
@@ -18,6 +19,7 @@ import {
 } from '@services/notificationService';
 import { OverlayModalHandle } from '@components/OverlayModal';
 import colors from '@theme/colors';
+import { suppressNextAppOpenAd } from '@admob/useAppOpenAd';
 
 /** Trigger haptic / vibration feedback safely. */
 const triggerHaptic = (style: 'light' | 'medium' | 'error') => {
@@ -66,6 +68,7 @@ export const useProfileData = () => {
 
   const handlePickProfileImage = useCallback(async () => {
     triggerHaptic('light');
+    suppressNextAppOpenAd();
     const uri = await pickImage();
     if (uri) {
       setProfileImageUri(uri);
@@ -90,7 +93,9 @@ export const useProfileData = () => {
   const [selectedDate, setSelectedDate] = useState<string>(
     () => new Date().toISOString().split('T')[0],
   );
-  const [defaultMantras, setDefaultMantras] = useState<MantraSelectorItem[]>([]);
+  const [defaultMantras, setDefaultMantras] = useState<MantraSelectorItem[]>(
+    [],
+  );
   const [customMantras, setCustomMantras] = useState<any[]>([]);
   const [japaHistory, setJapaHistory] = useState<any>(() => {
     try {

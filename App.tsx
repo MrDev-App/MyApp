@@ -1,4 +1,4 @@
-import { AppStateStatus, StatusBar, AppState } from 'react-native';
+import { StatusBar } from 'react-native';
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -14,61 +14,11 @@ import { navigationRef } from '@navigation/navigationRef';
 import ErrorBoundary from '@components/ErrorBoundary';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { getUserJoinedDate } from '@services/storageService';
-
-import {
-  AppOpenAd,
-  AdEventType,
-  TestIds,
-} from 'react-native-google-mobile-ads';
-
-const appOpenAdUnitId = __DEV__
-  ? TestIds.APP_OPEN
-  : 'ca-app-pub-7403088686757883/2765782561';
+import { useAppOpenAd } from '@admob/useAppOpenAd';
 
 const App = () => {
-  const appOpenAd = AppOpenAd.createForAdRequest(appOpenAdUnitId, {
-    requestNonPersonalizedAdsOnly: true,
-  });
-
-  useEffect(() => {
-    let isAdLoaded = false;
-
-    const loadAd = () => appOpenAd.load();
-
-    const unsubscribeLoaded = appOpenAd.addAdEventListener(
-      AdEventType.LOADED,
-      () => {
-        isAdLoaded = true;
-      },
-    );
-
-    const unsubscribeClosed = appOpenAd.addAdEventListener(
-      AdEventType.CLOSED,
-      () => {
-        isAdLoaded = false;
-        loadAd();
-      },
-    );
-
-    loadAd();
-
-    const handleAppStateChange = (nextState: AppStateStatus) => {
-      if (nextState === 'active' && isAdLoaded) {
-        appOpenAd.show();
-      }
-    };
-
-    const appStateSubscription = AppState.addEventListener(
-      'change',
-      handleAppStateChange,
-    );
-
-    return () => {
-      unsubscribeLoaded();
-      unsubscribeClosed();
-      appStateSubscription.remove();
-    };
-  }, []);
+  // Handles foreground ads with cooldown and auto-suppression during image picker
+  useAppOpenAd(true);
 
   useEffect(() => {
     mobileAds()

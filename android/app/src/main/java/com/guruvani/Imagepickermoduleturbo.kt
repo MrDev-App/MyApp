@@ -6,6 +6,8 @@ import com.facebook.fbreact.specs.NativeImagePickerModuleSpec
 import com.facebook.react.bridge.ActivityEventListener
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
+import java.io.File
+import java.io.FileOutputStream
 
 class ImagePickerModule(reactContext: ReactApplicationContext) :
         NativeImagePickerModuleSpec(reactContext), ActivityEventListener {
@@ -36,15 +38,36 @@ class ImagePickerModule(reactContext: ReactApplicationContext) :
     }
 
     override fun onActivityResult(
-        activity: Activity,
-        requestCode: Int,
-        resultCode: Int,
-        data: Intent?
+            activity: Activity,
+            requestCode: Int,
+            resultCode: Int,
+            data: Intent?
     ) {
         if (requestCode != PICK_IMAGE_REQUEST_CODE) return
 
         if (resultCode == Activity.RESULT_OK && data?.data != null) {
-            pickerPromise?.resolve(data.data.toString())
+            val sourceUri = data.data!!
+            try {
+                // Delete previous avatar file to save disk space
+                reactApplicationContext.filesDir
+                        .listFiles { file -> file.name.startsWith("profile_avatar_") }
+                        ?.forEach { it.delete() }
+
+                // Copy selected image into app's private filesDir for permanent persistence
+                val destFile =
+                        File(
+                                reactApplicationContext.filesDir,
+                                "profile_avatar_${System.currentTimeMillis()}.jpg"
+                        )
+                val inputStream = reactApplicationContext.contentResolver.openInputStream(sourceUri)
+                val outputStream = FileOutputStream(destFile)
+
+                inputStream?.use { input -> outputStream.use { output -> input.copyTo(output) } }
+
+                pickerPromise?.resolve("file://${destFile.absolutePath}")
+            } catch (e: Exception) {
+                pickerPromise?.resolve(sourceUri.toString())
+            }
         } else {
             pickerPromise?.reject("CANCELLED", "User cancelled image selection")
         }
