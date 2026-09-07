@@ -13,6 +13,7 @@ import {
 import { navigationRef } from '@navigation/navigationRef';
 import ErrorBoundary from '@components/ErrorBoundary';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { getUserJoinedDate } from '@services/storageService';
 
 import {
   AppOpenAd,
@@ -80,6 +81,7 @@ const App = () => {
       });
 
     initNotifications();
+    getUserJoinedDate();
 
     notifee.getInitialNotification().then(initial => {
       if (initial && initial.notification) {

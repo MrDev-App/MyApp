@@ -62,7 +62,22 @@ export const Storage = {
   clearAll: (): void => {
     mmkvStorage.clearAll();
   },
+
+  /**
+   * Get or initialize the user joined date in MMKV.
+   * On first launch, saves the current ISO date and preserves it.
+   */
+  getUserJoinedDate: (): string => {
+    let joinedDate = mmkvStorage.getString(STORAGE_KEYS.USER_JOINED_DATE);
+    if (!joinedDate) {
+      joinedDate = new Date().toISOString();
+      mmkvStorage.set(STORAGE_KEYS.USER_JOINED_DATE, joinedDate);
+    }
+    return joinedDate;
+  },
 };
+
+export const getUserJoinedDate = (): string => Storage.getUserJoinedDate();
 
 export default Storage;
 export { STORAGE_KEYS };

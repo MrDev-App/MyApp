@@ -106,7 +106,7 @@ export default {
   CHALLENGE_ABANDON_CONFIRM: 'Yes, Abandon',
   PROFILE_TITLE: 'My Profile',
   PROFILE_DEVOTEE: 'Devotee',
-  PROFILE_JOINED_SINCE: 'Devotee since Aug 2026',
+  PROFILE_JOINED_SINCE: 'Devotee since {{date}}',
   PROFILE_TOTAL_STATS: 'Total Statistics',
   PROFILE_TOTAL_CHANTS: 'Total Chants',
   PROFILE_MALAS_DONE: 'Malas Done',

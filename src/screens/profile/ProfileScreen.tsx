@@ -18,7 +18,7 @@ import OverlayModal from '@components/OverlayModal';
 import NotificationScheduleModal from '@components/NotificationScheduleModal';
 import imagePath from '@assets/index';
 import colors from '@theme/colors';
-import { ChevronRight } from '@components/icons/SvgIcons';
+import { ChevronRight, CameraIcon } from '@components/icons/SvgIcons';
 import { scale } from '@theme/sizes';
 
 import { useProfileData } from './hooks/useProfileData';
@@ -51,6 +51,9 @@ const ProfileScreen = () => {
     todayCount,
     challengeStarted,
     challengeTotalDays,
+    userJoinedDate,
+    profileImageUri,
+    handlePickProfileImage,
     selectedDate,
     setSelectedDate,
     customMantras,
@@ -90,20 +93,29 @@ const ProfileScreen = () => {
           <View style={profileStyles.profileCard}>
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => navigation.navigate('SeedScreen')}
-              style={profileStyles.avatarBorder}
+              onPress={handlePickProfileImage}
+              style={profileStyles.avatarContainer}
             >
-              <Image
-                source={imagePath.Krishna}
-                style={profileStyles.avatarImage}
-              />
+              <View style={profileStyles.avatarBorder}>
+                <Image
+                  source={
+                    profileImageUri
+                      ? { uri: profileImageUri }
+                      : imagePath.Krishna
+                  }
+                  style={profileStyles.avatarImage}
+                />
+              </View>
+              <View style={profileStyles.cameraBadge}>
+                <CameraIcon size={scale(11)} color={colors.white} />
+              </View>
             </TouchableOpacity>
             <View style={{ flex: 1, marginTop: scale(10), flexShrink: 1 }}>
               <Text style={profileStyles.userName}>
                 {t(Translation.PROFILE_DEVOTEE)}
               </Text>
               <Text style={profileStyles.userJoined}>
-                {t(Translation.PROFILE_JOINED_SINCE)}
+                {t(Translation.PROFILE_JOINED_SINCE, { date: userJoinedDate })}
               </Text>
             </View>
           </View>
@@ -260,9 +272,10 @@ const ProfileScreen = () => {
                         ? `${String(reminderConfig.hour).padStart(
                             2,
                             '0',
-                          )}:${String(reminderConfig.minute).padStart(2, '0')} ${
-                            reminderConfig.isPm ? 'PM' : 'AM'
-                          }`
+                          )}:${String(reminderConfig.minute).padStart(
+                            2,
+                            '0',
+                          )} ${reminderConfig.isPm ? 'PM' : 'AM'}`
                         : '06:00 AM'}
                     </Text>
                   </View>

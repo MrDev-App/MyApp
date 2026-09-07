@@ -3,7 +3,8 @@ import { Vibration, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Translation } from '@i18n/language';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
-import { Storage, STORAGE_KEYS } from '@services/storageService';
+import { Storage, STORAGE_KEYS, getUserJoinedDate } from '@services/storageService';
+import { pickImage } from '@services/imagePickerService';
 import { MahaBharatStories, Story } from '@constants/storiesData';
 import {
   getJapMantrasData,
@@ -57,6 +58,33 @@ export const useProfileData = () => {
   const [todayCount, setTodayCount] = useState(0);
   const [challengeStarted, setChallengeStarted] = useState(false);
   const [challengeTotalDays, setChallengeTotalDays] = useState(21);
+
+  // ─── Profile image ────────────────────────────────────────────────────────
+  const [profileImageUri, setProfileImageUri] = useState<string | null>(() => {
+    return Storage.getString(STORAGE_KEYS.PROFILE_IMAGE_URI, '') || null;
+  });
+
+  const handlePickProfileImage = useCallback(async () => {
+    triggerHaptic('light');
+    const uri = await pickImage();
+    if (uri) {
+      setProfileImageUri(uri);
+      Storage.set(STORAGE_KEYS.PROFILE_IMAGE_URI, uri);
+    }
+  }, []);
+
+  // ─── Joined date ──────────────────────────────────────────────────────────
+  const userJoinedDate = useMemo(() => {
+    const rawDate = getUserJoinedDate();
+    const date = new Date(rawDate);
+    return date.toLocaleDateString(
+      currentLanguage === 'hi' ? 'hi-IN' : 'en-US',
+      {
+        month: 'short',
+        year: 'numeric',
+      },
+    );
+  }, [currentLanguage]);
 
   // ─── Calendar / history state ─────────────────────────────────────────────
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -444,6 +472,9 @@ export const useProfileData = () => {
     todayCount,
     challengeStarted,
     challengeTotalDays,
+    userJoinedDate,
+    profileImageUri,
+    handlePickProfileImage,
     // calendar
     selectedDate,
     setSelectedDate,

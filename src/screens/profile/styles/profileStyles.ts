@@ -10,6 +10,10 @@ const profileStyles = StyleSheet.create({
   scrollContent: { paddingBottom: scale(16), alignItems: 'center' },
 
   profileCard: { flexDirection: 'row', width: '90%', gap: scale(10) },
+  avatarContainer: {
+    position: 'relative',
+    marginBottom: scale(14),
+  },
   avatarBorder: {
     width: scale(60),
     height: scale(60),
@@ -19,10 +23,22 @@ const profileStyles = StyleSheet.create({
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: scale(14),
     backgroundColor: colors.profileEditBgSubtle,
   },
-  avatarImage: { width: '90%', height: '90%', borderRadius: scale(40), resizeMode: 'cover' },
+  avatarImage: { width: '100%', height: '100%', borderRadius: scale(40), resizeMode: 'cover' },
+  cameraBadge: {
+    position: 'absolute',
+    bottom: -scale(2),
+    right: -scale(2),
+    backgroundColor: colors.ring,
+    width: scale(22),
+    height: scale(22),
+    borderRadius: scale(11),
+    borderWidth: scale(2),
+    borderColor: colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   userName: {
     fontSize: fs(18),
     fontFamily: fonts.PoppinsMedium,

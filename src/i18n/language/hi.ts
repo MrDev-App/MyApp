@@ -106,7 +106,7 @@ export default {
   CHALLENGE_ABANDON_CONFIRM: 'हाँ, छोड़ें',
   PROFILE_TITLE: 'मेरी प्रोफाइल',
   PROFILE_DEVOTEE: 'साधक',
-  PROFILE_JOINED_SINCE: 'अगस्त २०२६ से जुड़े',
+  PROFILE_JOINED_SINCE: '{{date}} से जुड़े',
   PROFILE_TOTAL_STATS: 'टोटल जाप',
   PROFILE_TOTAL_CHANTS: 'टोटल जाप',
   PROFILE_MALAS_DONE: 'माला पूर्ण',
