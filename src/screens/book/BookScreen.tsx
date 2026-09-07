@@ -44,7 +44,7 @@ const BookScreen = () => {
 
   const [pendingStory, setPendingStory] = useState<Story | null>(null);
   const { isLoaded: isRewardedLoaded, show: showRewardedAd } = useRewardedAd(
-    'ca-app-pub-7403088686757883/3663931262', // your real Rewarded ad unit id
+    'ca-app-pub-7403088686757883/3663931262',
   );
 
   useEffect(() => {

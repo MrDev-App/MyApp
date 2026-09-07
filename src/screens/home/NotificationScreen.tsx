@@ -68,11 +68,10 @@ const NotificationScreen = () => {
   const handleNotificationPress = useCallback(
     (item: AppNotification) => {
       triggerHaptic('impactLight');
-      // Mark as read
+
       const updated = NotificationStorage.markAsRead(item.id);
       setNotifications(updated);
 
-      // Deep-link navigation if actionRoute is defined
       if (item.actionRoute) {
         if (item.actionRoute === 'Jap') {
           navigation.navigate('BottomTabs', { screen: 'Jap' });
@@ -177,7 +176,7 @@ const NotificationScreen = () => {
         currentLanguage === 'hi' ? item.messageHi : item.messageEn;
       const icon = getTypeIcon(item.type);
       const badgeBg = getTypeBadgeBg(item.type);
-      // Cap animation delay at 10 items to prevent stagger overload
+
       const animDelay = Math.min(index, 10) * 45;
 
       return (
@@ -216,7 +215,6 @@ const NotificationScreen = () => {
                 {message}
               </Text>
 
-              {/* Action Pill / Indicator */}
               {item.actionRoute && (
                 <View style={styles.actionRow}>
                   <Text style={styles.actionLinkText}>
@@ -226,7 +224,6 @@ const NotificationScreen = () => {
               )}
             </View>
 
-            {/* Unread Indicator & Delete Button */}
             <View style={styles.cardRightActions}>
               {!item.isRead && <View style={styles.unreadDot} />}
               <TouchableOpacity
@@ -241,7 +238,12 @@ const NotificationScreen = () => {
         </Animated.View>
       );
     },
-    [currentLanguage, formatTimestamp, handleNotificationPress, handleDeleteNotification],
+    [
+      currentLanguage,
+      formatTimestamp,
+      handleNotificationPress,
+      handleDeleteNotification,
+    ],
   );
 
   const renderFilterPill = (key: FilterType, label: string, icon: string) => {
@@ -268,7 +270,6 @@ const NotificationScreen = () => {
     <GradientBackground>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        {/* ── Header Row ─────────────────────────────────────── */}
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}

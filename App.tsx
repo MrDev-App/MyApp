@@ -45,11 +45,11 @@ const App = () => {
       AdEventType.CLOSED,
       () => {
         isAdLoaded = false;
-        loadAd(); // reload immediately so next foreground has an ad ready
+        loadAd();
       },
     );
 
-    loadAd(); // initial load on cold start (don't show yet, just preload)
+    loadAd();
 
     const handleAppStateChange = (nextState: AppStateStatus) => {
       if (nextState === 'active' && isAdLoaded) {
