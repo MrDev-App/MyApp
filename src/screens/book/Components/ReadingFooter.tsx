@@ -6,10 +6,12 @@ import {
   TouchableOpacity,
   Vibration,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Back, Forward } from '@assets/index';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
+import { Translation } from '@i18n/language';
 
 const triggerHaptic = (_type?: string) => {
   try {
@@ -31,25 +33,25 @@ const ReadingFooter = ({
   totalPages,
   onPrev,
   onNext,
-  currentLang = 'en',
   isDarkMode = true,
 }: ReadingFooterProps) => {
+  const { t } = useTranslation();
   const isFirst = currentPage === 0;
   const isLast = currentPage >= totalPages;
 
   const pageLabel = isFirst
-    ? currentLang === 'hi'
-      ? 'कवर पेज'
-      : 'Cover Page'
-    : currentLang === 'hi'
-    ? `पृष्ठ ${currentPage} / ${totalPages}`
-    : `Page ${currentPage} / ${totalPages}`;
+    ? t(Translation.BOOK_COVER_PAGE)
+    : t(Translation.BOOK_PAGE_NUMBER, { currentPage, totalPages });
 
   return (
     <View
       style={[
         styles.footerRow,
-        { borderTopColor: isDarkMode ? '#2C2A29' : colors.borderSubtle },
+        {
+          borderTopColor: isDarkMode
+            ? colors.readerDarkBorder
+            : colors.borderSubtle,
+        },
       ]}
     >
       {/* Back / Prev button */}
@@ -69,7 +71,7 @@ const ReadingFooter = ({
             stroke={
               isFirst
                 ? isDarkMode
-                  ? '#555'
+                  ? colors.readerDarkDisabled
                   : colors.neutralDisabled
                 : colors.ring
             }
@@ -82,9 +84,11 @@ const ReadingFooter = ({
         style={[
           styles.pageNumberPill,
           {
-            borderColor: isDarkMode ? '#333' : colors.borderSubtle,
+            borderColor: isDarkMode
+              ? colors.readerDarkPillBorder
+              : colors.borderSubtle,
             backgroundColor: isDarkMode
-              ? 'rgba(255,255,255,0.05)'
+              ? colors.readerDarkPillBg
               : 'transparent',
           },
         ]}
@@ -92,7 +96,7 @@ const ReadingFooter = ({
         <Text
           style={[
             styles.pageNumberText,
-            { color: isDarkMode ? '#F5EFE6' : colors.secondary },
+            { color: isDarkMode ? colors.readerDarkText : colors.secondary },
           ]}
         >
           {pageLabel}
@@ -116,7 +120,7 @@ const ReadingFooter = ({
             stroke={
               isLast
                 ? isDarkMode
-                  ? '#555'
+                  ? colors.readerDarkDisabled
                   : colors.neutralDisabled
                 : colors.ring
             }

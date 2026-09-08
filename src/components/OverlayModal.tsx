@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { Modal, View, StyleSheet, TouchableOpacity } from 'react-native';
+import colors from '@theme/colors';
 
 export type OverlayOrigin = { x: number; y: number };
 
@@ -19,7 +20,7 @@ const OverlayModal = forwardRef<OverlayModalHandle, Props>(
   (
     {
       children,
-      backgroundColor = 'rgba(0, 0, 0, 0.55)',
+      backgroundColor = colors.cardOverlayDark,
       closeOnBackdropPress = false,
       onClose,
     },

@@ -8,8 +8,6 @@ import {
   FlatList,
   LayoutAnimation,
   Image,
-  Vibration,
-  Platform,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, {

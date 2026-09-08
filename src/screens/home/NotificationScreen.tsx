@@ -155,13 +155,13 @@ const NotificationScreen = () => {
   const getTypeBadgeBg = (type: AppNotification['type']) => {
     switch (type) {
       case 'sadhana':
-        return 'rgba(251, 148, 55, 0.14)';
+        return colors.accentOrangeBg;
       case 'festival':
-        return 'rgba(230, 81, 0, 0.12)';
+        return colors.notificationTagOrange;
       case 'milestone':
-        return 'rgba(255, 179, 0, 0.14)';
+        return colors.notificationTagAmber;
       case 'wisdom':
-        return 'rgba(141, 110, 99, 0.14)';
+        return colors.notificationTagBrown;
       default:
         return colors.borderSubtle2;
     }
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
     paddingVertical: scale(10),
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(183, 168, 151, 0.15)',
+    borderBottomColor: colors.borderSubtle,
   },
   backButton: {
     width: scale(32),
@@ -517,8 +517,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   cardUnread: {
-    backgroundColor: '#FFFAF3',
-    borderColor: 'rgba(251, 148, 55, 0.35)',
+    backgroundColor: colors.notificationUnreadBg,
+    borderColor: colors.accentBorderMedium,
   },
   iconBadge: {
     width: scale(38),
@@ -598,12 +598,12 @@ const styles = StyleSheet.create({
     width: scale(72),
     height: scale(72),
     borderRadius: scale(36),
-    backgroundColor: 'rgba(251, 148, 55, 0.12)',
+    backgroundColor: colors.accentOrangeSubtle,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: scale(16),
     borderWidth: 1,
-    borderColor: 'rgba(251, 148, 55, 0.25)',
+    borderColor: colors.accentOrangeMedium,
   },
   emptyIconText: {
     fontSize: fs(30),

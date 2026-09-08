@@ -47,13 +47,13 @@ const styles = StyleSheet.create({
     borderRadius: scale(16),
     overflow: 'hidden',
     marginBottom: scale(16),
-    shadowColor: '#39261b',
+    shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: scale(4) },
     shadowOpacity: 0.06,
     shadowRadius: scale(8),
     elevation: 3,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.8)',
+    borderColor: colors.borderWhiteSubtle,
   },
   storyCoverImage: {
     width: '100%',
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   },
   storyDivider: {
     height: 1,
-    backgroundColor: 'rgba(251, 148, 55, 0.15)',
+    backgroundColor: colors.accentOrangeBg,
     marginVertical: scale(10),
   },
   storyText: {

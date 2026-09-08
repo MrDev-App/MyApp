@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     marginBottom: scale(14),
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#39261b',
+    shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: scale(2) },
     shadowOpacity: 0.04,
     shadowRadius: scale(4),

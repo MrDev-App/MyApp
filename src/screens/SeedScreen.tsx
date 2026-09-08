@@ -16,6 +16,7 @@ import {
   Timestamp,
 } from '@react-native-firebase/firestore';
 import { ekadashi2026Data } from '@constants/ekadashiData';
+import colors from '@theme/colors';
 
 export default function SeedScreen() {
   const [status, setStatus] = useState<string[]>([]);
@@ -135,12 +136,12 @@ export default function SeedScreen() {
         🌱 Firestore Seed Tool
       </Text>
 
-      {/* Button: Seed Jap Mantras */}
+      {/* Button: Seed JapMantras */}
       <TouchableOpacity
         onPress={seedJapMantras}
         disabled={loading}
         style={{
-          backgroundColor: loading ? '#ccc' : '#E91E63',
+          backgroundColor: loading ? colors.switchTrackFalse : colors.chart5,
           padding: 14,
           borderRadius: 10,
           alignItems: 'center',
@@ -148,9 +149,9 @@ export default function SeedScreen() {
         }}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.white} />
         ) : (
-          <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+          <Text style={{ color: colors.white, fontWeight: 'bold' }}>
             Seed Jap Mantras Collection
           </Text>
         )}
@@ -161,7 +162,7 @@ export default function SeedScreen() {
         onPress={seedGods}
         disabled={loading}
         style={{
-          backgroundColor: loading ? '#ccc' : '#9C27B0',
+          backgroundColor: loading ? colors.switchTrackFalse : colors.chart4,
           padding: 14,
           borderRadius: 10,
           alignItems: 'center',
@@ -169,9 +170,9 @@ export default function SeedScreen() {
         }}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.white} />
         ) : (
-          <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+          <Text style={{ color: colors.white, fontWeight: 'bold' }}>
             Seed GodMantras Collection
           </Text>
         )}
@@ -182,7 +183,7 @@ export default function SeedScreen() {
         onPress={seedCategories}
         disabled={loading}
         style={{
-          backgroundColor: loading ? '#ccc' : '#4CAF50',
+          backgroundColor: loading ? colors.switchTrackFalse : colors.success,
           padding: 14,
           borderRadius: 10,
           alignItems: 'center',
@@ -190,9 +191,9 @@ export default function SeedScreen() {
         }}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.white} />
         ) : (
-          <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+          <Text style={{ color: colors.white, fontWeight: 'bold' }}>
             Seed Categories Collection
           </Text>
         )}
@@ -203,7 +204,7 @@ export default function SeedScreen() {
         onPress={seedFestivals}
         disabled={loading}
         style={{
-          backgroundColor: loading ? '#ccc' : '#FB9437',
+          backgroundColor: loading ? colors.switchTrackFalse : colors.ring,
           padding: 14,
           borderRadius: 10,
           alignItems: 'center',
@@ -211,9 +212,9 @@ export default function SeedScreen() {
         }}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.white} />
         ) : (
-          <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+          <Text style={{ color: colors.white, fontWeight: 'bold' }}>
             Seed Festivals (2026)
           </Text>
         )}
@@ -224,7 +225,7 @@ export default function SeedScreen() {
         onPress={seedEkadashi}
         disabled={loading}
         style={{
-          backgroundColor: loading ? '#ccc' : '#009688',
+          backgroundColor: loading ? colors.switchTrackFalse : colors.chart2,
           padding: 14,
           borderRadius: 10,
           alignItems: 'center',
@@ -232,9 +233,9 @@ export default function SeedScreen() {
         }}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.white} />
         ) : (
-          <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+          <Text style={{ color: colors.white, fontWeight: 'bold' }}>
             Seed Ekadashi (2026)
           </Text>
         )}
@@ -271,7 +272,7 @@ export default function SeedScreen() {
         }}
         disabled={loading}
         style={{
-          backgroundColor: loading ? '#ccc' : '#673AB7',
+          backgroundColor: loading ? colors.switchTrackFalse : colors.chart4,
           padding: 14,
           borderRadius: 10,
           alignItems: 'center',
@@ -279,9 +280,9 @@ export default function SeedScreen() {
         }}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.white} />
         ) : (
-          <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+          <Text style={{ color: colors.white, fontWeight: 'bold' }}>
             🔍 Fetch & Console Log Ekadashi Data
           </Text>
         )}
@@ -292,7 +293,7 @@ export default function SeedScreen() {
         onPress={seedAll}
         disabled={loading}
         style={{
-          backgroundColor: loading ? '#ccc' : '#2196F3',
+          backgroundColor: loading ? colors.switchTrackFalse : colors.chart1,
           padding: 14,
           borderRadius: 10,
           alignItems: 'center',
@@ -300,9 +301,9 @@ export default function SeedScreen() {
         }}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.white} />
         ) : (
-          <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+          <Text style={{ color: colors.white, fontWeight: 'bold' }}>
             Seed All (Jap + Gods + Categories + Festivals + Ekadashi)
           </Text>
         )}

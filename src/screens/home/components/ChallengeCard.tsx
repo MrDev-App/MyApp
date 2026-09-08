@@ -22,6 +22,7 @@ import { STORAGE_KEYS } from '@constants/storageKeys';
 import OverlayModal, {
   OverlayModalHandle,
 } from '@components/OverlayModal';
+import { CloseIcon } from '@components/icons/SvgIcons';
 import imagePath from '@assets/index';
 
 const ChallengeCard = () => {
@@ -238,7 +239,7 @@ const ChallengeCard = () => {
                   onPress={() => targetModalRef.current?.close()}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.modalCloseBtnText}>✕</Text>
+                  <CloseIcon size={scale(16)} color={colors.mutedForeground} />
                 </TouchableOpacity>
 
                 <Text style={styles.modalTitle}>
@@ -307,12 +308,12 @@ const styles = StyleSheet.create({
     color: colors.secondary,
   },
   streakBadge: {
-    backgroundColor: 'rgba(251, 148, 55, 0.12)',
+    backgroundColor: colors.accentOrangeSubtle,
     paddingHorizontal: scale(10),
     paddingVertical: scale(4),
     borderRadius: scale(12),
     borderWidth: 1,
-    borderColor: 'rgba(251, 148, 55, 0.25)',
+    borderColor: colors.accentOrangeMedium,
   },
   streakText: {
     fontSize: fs(10.5),
@@ -324,7 +325,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(14),
     padding: scale(14),
     borderWidth: 1,
-    borderColor: 'rgba(183, 168, 151, 0.22)',
+    borderColor: colors.borderLight2,
     shadowColor: colors.ring,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.05,
@@ -340,12 +341,12 @@ const styles = StyleSheet.create({
     width: scale(44),
     height: scale(44),
     borderRadius: scale(22),
-    backgroundColor: 'rgba(251, 148, 55, 0.08)',
+    backgroundColor: colors.accentOrangeLight,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: scale(12),
     borderWidth: 1,
-    borderColor: 'rgba(251, 148, 55, 0.15)',
+    borderColor: colors.accentOrangeBg,
   },
   malaIcon: {
     width: scale(24),
@@ -388,7 +389,7 @@ const styles = StyleSheet.create({
   progressBarBg: {
     width: '100%',
     height: scale(8),
-    backgroundColor: '#F3EFE9',
+    backgroundColor: colors.progressTrackBg,
     borderRadius: scale(4),
     overflow: 'hidden',
   },
@@ -402,13 +403,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(183, 168, 151, 0.12)',
+    borderTopColor: colors.borderSubtle2,
     paddingTop: scale(8),
   },
   statusText: {
     fontSize: fs(11),
     fontFamily: fonts.PoppinsMedium,
-    color: '#2e7d32',
+    color: colors.success,
   },
   statusTextInactive: {
     color: colors.mutedForeground,
@@ -445,7 +446,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    backgroundColor: colors.overlayModalBackdrop,
   },
   modalCard: {
     width: '85%',
@@ -453,7 +454,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(16),
     padding: scale(20),
     borderWidth: 1,
-    borderColor: 'rgba(183, 168, 151, 0.25)',
+    borderColor: colors.borderMedium,
     shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: scale(10) },
     shadowOpacity: 0.15,
@@ -477,13 +478,13 @@ const styles = StyleSheet.create({
     width: '100%',
     height: scale(40),
     borderWidth: 1,
-    borderColor: 'rgba(183, 168, 151, 0.3)',
+    borderColor: colors.borderStrong,
     borderRadius: scale(8),
     paddingHorizontal: scale(12),
     fontSize: fs(13),
     fontFamily: fonts.PoppinsRegular,
     color: colors.secondary,
-    backgroundColor: '#FAFAF9',
+    backgroundColor: colors.inputBgLight,
   },
   setGoalBtn: {
     backgroundColor: colors.ring,
@@ -508,11 +509,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
-  },
-  modalCloseBtnText: {
-    fontSize: fs(16),
-    color: colors.mutedForeground,
-    fontWeight: 'bold',
   },
   activeWarningText: {
     fontSize: fs(10),

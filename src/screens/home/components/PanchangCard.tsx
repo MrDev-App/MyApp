@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(14),
     paddingVertical: scale(10),
     borderWidth: 1,
-    borderColor: 'rgba(183, 168, 151, 0.2)',
+    borderColor: colors.borderLight,
     shadowColor: colors.ring,
     shadowOffset: { width: 0, height: scale(6) },
     shadowOpacity: 0.04,

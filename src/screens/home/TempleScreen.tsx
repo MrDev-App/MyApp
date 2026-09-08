@@ -181,7 +181,7 @@ export default TempleScreen;
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FDFBF7',
+    backgroundColor: colors.readerLightBg,
   },
   header: {
     flexDirection: 'row',
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
     paddingVertical: scale(12),
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
+    borderBottomColor: colors.borderLightTransparent,
   },
   ringButton: {
     width: scale(32),
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: scale(16),
     overflow: 'hidden',
-    shadowColor: '#39261b',
+    shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 6,
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: colors.overlayModalBackdrop,
     justifyContent: 'flex-end',
   },
   modalDismissArea: {

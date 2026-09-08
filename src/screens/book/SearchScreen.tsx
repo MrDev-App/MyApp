@@ -233,10 +233,16 @@ const SearchScreen = () => {
                         : story.descriptionEn}
                     </Text>
                     <View style={styles.searchCardFooter}>
-                      <Text style={styles.searchCardSource}>
-                        📜{' '}
-                        {currentLang === 'hi' ? story.sourceHi : story.sourceEn}
-                      </Text>
+                      <View style={styles.sourceContainer}>
+                        <Image
+                          source={imagePath.shlok}
+                          style={styles.shlokIcon}
+                          resizeMode="contain"
+                        />
+                        <Text style={styles.searchCardSource}>
+                          {currentLang === 'hi' ? story.sourceHi : story.sourceEn}
+                        </Text>
+                      </View>
                       {progress > 0 && (
                         <Text style={styles.searchCardProgress}>
                           {labels.recentProgress.replace(
@@ -462,6 +468,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: scale(6),
+  },
+  sourceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  shlokIcon: {
+    width: scale(13),
+    height: scale(13),
+    marginRight: scale(5),
   },
   searchCardSource: {
     fontSize: fs(10),

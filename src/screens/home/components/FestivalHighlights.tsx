@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -82,22 +82,6 @@ const FestivalHighlights = ({ onPress }: any) => {
       });
   }, [festivals, today, todayStart]);
 
-  const calculateDaysRemaining = useCallback(
-    (month: number, day: number) => {
-      const currentYear = today.getFullYear();
-      let festivalDate = new Date(currentYear, month - 1, day);
-
-      if (festivalDate.getTime() < today.getTime()) {
-        festivalDate = new Date(currentYear + 1, month - 1, day);
-      }
-
-      const diffTime = festivalDate.getTime() - today.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return diffDays;
-    },
-    [today],
-  );
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -111,13 +95,7 @@ const FestivalHighlights = ({ onPress }: any) => {
       </View>
 
       {loading ? (
-        <View
-          style={{
-            height: scale(100),
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
+        <View style={styles.loaderContainer}>
           <ActivityIndicator size="small" color={colors.ring} />
         </View>
       ) : (
@@ -200,12 +178,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(4),
     paddingBottom: scale(10),
   },
+  loaderContainer: {
+    height: scale(100),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   cardContainer: {
     marginRight: scale(12),
     width: scale(124),
     borderRadius: scale(15),
     borderWidth: 1,
-    borderColor: 'rgba(183, 168, 151, 0.15)',
+    borderColor: colors.borderSubtle,
     shadowColor: colors.ring,
     shadowOffset: { width: 0, height: scale(4) },
     shadowOpacity: 0.08,
@@ -222,11 +205,10 @@ const styles = StyleSheet.create({
     borderRadius: scale(14),
   },
   cardOverlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    backgroundColor: colors.cardOverlayDark,
     paddingHorizontal: scale(12),
     paddingVertical: scale(12),
     height: '100%',
-
     minHeight: scale(105),
   },
   name: {
@@ -237,17 +219,17 @@ const styles = StyleSheet.create({
   date: {
     fontSize: fs(9.5),
     fontFamily: fonts.PoppinsRegular,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: colors.textWhiteMuted,
   },
   countdown: {
     fontSize: fs(9.5),
     fontFamily: fonts.PoppinsMedium,
-    color: '#FFE0B2',
+    color: colors.accentPeach,
   },
   icon: {
     fontSize: fs(16),
     fontFamily: fonts.PoppinsMedium,
-    color: '#FFE0B2',
+    color: colors.accentPeach,
   },
 });
 

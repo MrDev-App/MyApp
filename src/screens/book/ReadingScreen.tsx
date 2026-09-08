@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { MahaBharatStories } from '@constants/storiesData';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
+import colors from '@theme/colors';
 import ReadingHeader from './components/ReadingHeader';
 import ReadingFooter from './components/ReadingFooter';
 import ZoomableComicPage from './components/ZoomableImage';
@@ -98,7 +99,7 @@ const ReadingScreen = () => {
     }
   };
 
-  const bgColor = isDarkMode ? '#121214' : '#FDFBF7';
+  const bgColor = isDarkMode ? colors.readerDarkBg : colors.readerLightBg;
 
   return (
     <SafeAreaView

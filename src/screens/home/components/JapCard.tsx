@@ -79,7 +79,7 @@ const JapCard = () => {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    marginVertical: scale(16),
+    marginVertical: scale(12),
   },
   header: {
     flexDirection: 'row',
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
     paddingVertical: scale(16),
     borderWidth: 1,
-    borderColor: 'rgba(183, 168, 151, 0.2)',
+    borderColor: colors.borderLight,
     shadowColor: colors.ring,
     shadowOffset: { width: 0, height: scale(6) },
     shadowOpacity: 0.04,
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   divider: {
     width: 1,
     height: scale(36),
-    backgroundColor: 'rgba(183, 168, 151, 0.25)',
+    backgroundColor: colors.borderMedium,
   },
   label: {
     fontSize: fs(8.5),

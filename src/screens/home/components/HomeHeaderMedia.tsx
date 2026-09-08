@@ -67,16 +67,15 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
     return unsubscribe;
   }, [navigation]);
 
-  // Direct short delay (100ms) to ensure Android Activity is attached before ExoPlayer initializes
+  // Initial delay (100ms) to ensure Android Activity is attached before ExoPlayer initializes
   useEffect(() => {
-    let timer: ReturnType<typeof setTimeout> | null = null;
+    if (isReady || videoError) return;
 
-    if (isFocused && isAppActive && !videoError) {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    if (isAppActive) {
       timer = setTimeout(() => {
         setIsReady(true);
       }, 100);
-    } else {
-      setIsReady(false);
     }
 
     return () => {
@@ -84,7 +83,7 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
         clearTimeout(timer);
       }
     };
-  }, [isFocused, isAppActive, videoError]);
+  }, [isAppActive, isReady, videoError]);
 
   const handleVideoError = (e: any) => {
     const errorMsg =
@@ -119,8 +118,8 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
     onVideoError();
   };
 
-  // Only render Video when screen is focused, app is active, and no fatal error
-  const shouldRenderVideo = isFocused && isAppActive && isReady && !videoError;
+  // Keep Video mounted once initialized; pause/resume smoothly without reloading
+  const shouldRenderVideo = isReady && !videoError;
 
   return (
     <View style={styles.imageContainer}>
@@ -139,12 +138,14 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
           resizeMode="cover"
           repeat={true}
           muted={true}
-          paused={false}
+          paused={!isFocused || !isAppActive}
           playInBackground={false}
           playWhenInactive={false}
           disableFocus={true}
           mixWithOthers="mix"
           ignoreSilentSwitch="ignore"
+          shutterColor="transparent"
+          preventsDisplaySleepDuringVideoPlayback={false}
           selectedAudioTrack={{ type: 'disabled' as any }}
           onLoad={() => {
             retryCountRef.current = 0;
@@ -159,7 +160,7 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
           width="100%"
           height={verticalScale(310)}
           baseColor={colors.foreground}
-          highlightColor="rgba(255, 255, 255, 0.45)"
+          highlightColor={colors.skeletonHighlight}
           style={styles.absoluteSkeleton}
         />
       )}

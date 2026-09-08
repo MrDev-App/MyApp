@@ -198,7 +198,7 @@ export default FestivalModal;
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: colors.overlayModalBackdrop,
     justifyContent: 'flex-end',
   },
   modalDismissArea: {
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     marginBottom: scale(16),
   },
   metaBadge: {
-    backgroundColor: 'rgba(183, 168, 151, 0.15)',
+    backgroundColor: colors.borderSubtle,
     paddingHorizontal: scale(10),
     paddingVertical: scale(4),
     borderRadius: scale(12),

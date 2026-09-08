@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import appColors from '@theme/colors';
 
 export type OverlayDirection =
   | 'top'
@@ -94,7 +95,7 @@ const getCoordinates = (
 };
 
 const GradientOverlay: React.FC<GradientOverlayProps> = ({
-  colors = ['rgba(0,0,0,0.4)', 'rgba(0,0,0,0)'],
+  colors = [appColors.overlayModalBackdrop, 'transparent'],
   direction = 'top-to-bottom',
   start,
   end,

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import Skeleton from '@components/Skeleton';
 import { scale } from '@theme/sizes';
+import colors from '@theme/colors';
 
 const HomeSkeleton: React.FC = () => {
   return (
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
     gap: scale(16),
   },
   cardSkeleton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
     borderRadius: scale(14),
     padding: scale(14),
     gap: scale(12),

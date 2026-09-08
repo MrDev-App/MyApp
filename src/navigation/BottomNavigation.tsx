@@ -52,14 +52,36 @@ const TabScreenWrapper = ({ children }: { children: React.ReactNode }) => {
     };
   });
 
-  return (
-    <Animated.View style={animatedStyle}>
-      {children}
-    </Animated.View>
-  );
+  return <Animated.View style={animatedStyle}>{children}</Animated.View>;
 };
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
+
+const HomeTab = () => (
+  <TabScreenWrapper>
+    <HomeScreen />
+  </TabScreenWrapper>
+);
+
+const JapTab = () => (
+  <TabScreenWrapper>
+    <JapScreen />
+  </TabScreenWrapper>
+);
+
+const BookTab = () => (
+  <TabScreenWrapper>
+    <BookScreen />
+  </TabScreenWrapper>
+);
+
+const ProfileTab = () => (
+  <TabScreenWrapper>
+    <ProfileScreen />
+  </TabScreenWrapper>
+);
+
+const renderTabBar = (props: any) => <CustomTabBar {...props} />;
 
 const BottomNavigation = () => {
   return (
@@ -68,37 +90,12 @@ const BottomNavigation = () => {
         headerShown: false,
         animation: 'none',
       }}
-      // eslint-disable-next-line react/no-unstable-nested-components
-      tabBar={props => <CustomTabBar {...props} />}
+      tabBar={renderTabBar}
     >
-      <Tab.Screen name="Home">
-        {() => (
-          <TabScreenWrapper>
-            <HomeScreen />
-          </TabScreenWrapper>
-        )}
-      </Tab.Screen>
-      <Tab.Screen name="Jap">
-        {() => (
-          <TabScreenWrapper>
-            <JapScreen />
-          </TabScreenWrapper>
-        )}
-      </Tab.Screen>
-      <Tab.Screen name="Book">
-        {() => (
-          <TabScreenWrapper>
-            <BookScreen />
-          </TabScreenWrapper>
-        )}
-      </Tab.Screen>
-      <Tab.Screen name="Profile">
-        {() => (
-          <TabScreenWrapper>
-            <ProfileScreen />
-          </TabScreenWrapper>
-        )}
-      </Tab.Screen>
+      <Tab.Screen name="Home" component={HomeTab} />
+      <Tab.Screen name="Jap" component={JapTab} />
+      <Tab.Screen name="Book" component={BookTab} />
+      <Tab.Screen name="Profile" component={ProfileTab} />
     </Tab.Navigator>
   );
 };

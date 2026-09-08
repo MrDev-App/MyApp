@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
   },
   cardTintOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    backgroundColor: colors.overlayModalBackdrop,
     padding: scale(12),
     justifyContent: 'space-between',
   },
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.PoppinsBold,
   },
   cardFestivalTithi: {
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: colors.textWhiteMuted,
     fontSize: fs(11),
     fontFamily: fonts.PoppinsRegular,
   },

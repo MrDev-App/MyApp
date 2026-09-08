@@ -22,6 +22,7 @@ export const colors = {
   input: 'rgba(255, 255, 255, 0.16)',
   ring: '#fb9437',
   danger: '#d32f2f',
+  success: '#2e7d32',
 
   // Charts
   chart1: '#1447e6',
@@ -47,8 +48,20 @@ export const colors = {
 
   // Mala Bead & Sadhana Stats
   goldBead: '#D4A017',
+  goldBeadActive: '#FFD700',
   goldBeadBorder: '#B8860B',
+  goldBeadGlow: '#FFA500',
   beadShadow: '#0e0e0dff',
+  goldHighlightBg: 'rgba(255, 215, 0, 0.15)',
+
+  // Notifications & Tags
+  notificationUnreadBg: '#FFFAF3',
+  notificationTagOrange: 'rgba(230, 81, 0, 0.12)',
+  notificationTagAmber: 'rgba(255, 179, 0, 0.14)',
+  notificationTagBrown: 'rgba(141, 110, 99, 0.14)',
+  borderLightTransparent: 'rgba(0, 0, 0, 0.05)',
+  overlayWhite50: 'rgba(255, 255, 255, 0.5)',
+  textWhite70: 'rgba(255, 255, 255, 0.7)',
 
   // Warn Alert & Danger
   alertRed: '#EB5757',
@@ -59,17 +72,24 @@ export const colors = {
   borderVerySubtle: 'rgba(183, 168, 151, 0.1)',
   borderSubtle2: 'rgba(183, 168, 151, 0.12)',
   borderLight: 'rgba(183, 168, 151, 0.2)',
+  borderLight2: 'rgba(183, 168, 151, 0.22)',
   borderStronger: 'rgba(183, 168, 151, 0.4)',
 
   // Devotional Accent Highlights
   accentOrangeBg: 'rgba(251, 148, 55, 0.15)',
   accentOrangeBorder: 'rgba(251, 148, 55, 0.3)',
   accentOrangeMedium: 'rgba(251, 148, 55, 0.25)',
+  accentOrangeLight: 'rgba(251, 148, 55, 0.08)',
+  accentOrangeSubtle: 'rgba(251, 148, 55, 0.12)',
   accentLightBg: 'rgba(252, 224, 180, 0.15)',
   accentLightBgStrong: 'rgba(252, 224, 180, 0.3)',
   accentLightBgMedium: 'rgba(252, 224, 180, 0.18)',
+  accentLightBgSubtle: 'rgba(252, 224, 180, 0.1)',
   accentBorderVerySubtle: 'rgba(251, 148, 55, 0.08)',
   accentBorderMedium: 'rgba(251, 148, 55, 0.35)',
+  progressTrackBg: '#F3EFE9',
+  inputBgLight: '#FAFAF9',
+  overlayModalBackdrop: 'rgba(0, 0, 0, 0.4)',
 
   // Opacity Overlays
   overlayLight: 'rgba(255, 255, 255, 0.7)',
@@ -77,6 +97,10 @@ export const colors = {
   overlayStrong: 'rgba(255, 255, 255, 0.9)',
   overlaySemiTransparent: 'rgba(255, 255, 255, 0.6)',
   borderWhiteSubtle: 'rgba(255, 255, 255, 0.8)',
+  cardWhiteMedium: 'rgba(255, 255, 255, 0.8)',
+  textWhiteMuted: 'rgba(255, 255, 255, 0.8)',
+  cardOverlayDark: 'rgba(0, 0, 0, 0.55)',
+  accentPeach: '#FFE0B2',
   rust: '#b34700',
   charcoal: '#6e5e50',
   warmTaupe: '#8d7a66',
@@ -96,6 +120,13 @@ export const colors = {
   shlokaQuoteClassic: 'rgba(200, 90, 23, 0.15)',
   shlokaBgParchment: 'rgba(200, 90, 23, 0.08)',
   shlokaQuoteParchment: 'rgba(183, 168, 151, 0.4)',
+  readerDarkBorder: '#2C2A29',
+  readerDarkDisabled: '#555555',
+  readerDarkPillBorder: '#333333',
+  readerDarkPillBg: 'rgba(255, 255, 255, 0.05)',
+  readerDarkText: '#F5EFE6',
+  readerDarkBg: '#121214',
+  readerLightBg: '#FDFBF7',
 
   // Native Switch Controllers & Buttons
   switchTrackFalse: '#d1d1d1',

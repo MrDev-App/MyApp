@@ -8,7 +8,6 @@ import {
   Image,
   ScrollView,
   Platform,
-  ActivityIndicator,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import colors from '@theme/colors';
@@ -29,7 +28,6 @@ const MantrasCard = () => {
   const currentLanguage = i18n.language || 'en';
 
   const [gods, setGods] = useState<God[]>([]);
-  const [loading, setLoading] = useState(true);
 
   const cardRef = useRef<ExpandableCardHandle>(null);
   const { registerRef, trigger } = useExpandTrigger<God>(cardRef);
@@ -59,10 +57,6 @@ const MantrasCard = () => {
         }
       } catch (error) {
         console.error('Error fetching godData:', error);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
       }
     };
 
@@ -380,7 +374,7 @@ const styles = StyleSheet.create({
     width: scale(36),
     height: scale(36),
     borderRadius: scale(18),
-    backgroundColor: 'rgba(251, 148, 55, 0.1)',
+    backgroundColor: colors.shlokaBgMidnight,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: scale(12),
@@ -413,7 +407,7 @@ const styles = StyleSheet.create({
     padding: scale(14),
     marginBottom: scale(12),
     borderWidth: 1,
-    borderColor: 'rgba(251, 148, 55, 0.15)',
+    borderColor: colors.accentOrangeBg,
   },
   mantraCardHeader: {
     flexDirection: 'row',
@@ -445,7 +439,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(20),
     padding: scale(20),
     borderWidth: 1,
-    borderColor: 'rgba(251, 148, 55, 0.12)',
+    borderColor: colors.accentBorderSubtle,
     alignItems: 'center',
   },
   mantraDetailHi: {
@@ -468,7 +462,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    backgroundColor: colors.overlayModalBackdrop,
   },
   modalCard: {
     width: '90%',
@@ -477,7 +471,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(20),
     padding: scale(20),
     borderWidth: 1,
-    borderColor: 'rgba(183, 168, 151, 0.25)',
+    borderColor: colors.borderMedium,
     shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.15,
@@ -488,7 +482,7 @@ const styles = StyleSheet.create({
     width: scale(32),
     height: scale(32),
     borderRadius: scale(16),
-    backgroundColor: 'rgba(251, 148, 55, 0.1)',
+    backgroundColor: colors.shlokaBgMidnight,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -496,10 +490,5 @@ const styles = StyleSheet.create({
     color: colors.ring,
     fontSize: fs(16),
     fontWeight: 'bold',
-  },
-  loadingContainer: {
-    height: scale(100),
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });

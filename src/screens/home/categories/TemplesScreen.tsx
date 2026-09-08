@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(16),
     padding: scale(12),
     marginBottom: scale(16),
-    shadowColor: '#39261b',
+    shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: scale(4) },
     shadowOpacity: 0.05,
     shadowRadius: scale(6),

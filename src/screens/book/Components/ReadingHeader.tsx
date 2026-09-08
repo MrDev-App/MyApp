@@ -23,6 +23,9 @@ import { STORAGE_KEYS } from '@constants/storageKeys';
 import { MahaBharatStories } from '@constants/storiesData';
 import AnimatedButton from '@components/AnimatedButton';
 
+import { RootNavigationProp } from '@navigation/types';
+import { Translation } from '@i18n/language';
+
 const triggerHaptic = (_type?: string) => {
   try {
     Vibration.vibrate(30);
@@ -38,9 +41,9 @@ const ReadingHeader = ({
   isDarkMode = true,
   onToggleTheme,
 }: ReadingHeaderProps) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<RootNavigationProp>();
   const route = useRoute<any>();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const currentLang = (i18n.language === 'hi' ? 'hi' : 'en') as 'en' | 'hi';
 
   const { storyId } = route.params || {};
@@ -88,7 +91,7 @@ const ReadingHeader = ({
     ? currentLang === 'hi'
       ? story.titleHi
       : story.titleEn
-    : '';
+    : t(Translation.BOOK_SCREEN_TITLE);
 
   return (
     <View style={styles.headerRow}>
@@ -117,7 +120,7 @@ const ReadingHeader = ({
           <Text
             style={[
               styles.headerTitle,
-              { color: isDarkMode ? '#F5EFE6' : colors.secondary },
+              { color: isDarkMode ? colors.readerDarkText : colors.secondary },
             ]}
             numberOfLines={1}
           >

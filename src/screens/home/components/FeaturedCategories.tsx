@@ -21,10 +21,7 @@ import ExpandableCard, {
 } from '@components/ExpandableCard';
 import { useExpandTrigger } from '@hooks/useExpandTrigger';
 import { Translation } from '@i18n/language';
-import {
-  AartiScreen,
-  ShlokScreen,
-} from '../categories';
+import { AartiScreen, ShlokScreen } from '../categories';
 import AnimatedButton from '@components/AnimatedButton';
 
 const ALLOWED_CATEGORY_IDS = new Set(['aarti', 'aartis', 'shlok', 'shlokas']);
@@ -48,7 +45,10 @@ const FeaturedCategories = () => {
           setCategories(filtered);
         }
       } catch (error) {
-        console.error('Error fetching categories in FeaturedCategories:', error);
+        console.error(
+          'Error fetching categories in FeaturedCategories:',
+          error,
+        );
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -76,7 +76,13 @@ const FeaturedCategories = () => {
       <Text style={styles.title}>{t(Translation.FEATURED_CATEGORIES)}</Text>
 
       {loading ? (
-        <View style={{ height: scale(100), justifyContent: 'center', alignItems: 'center' }}>
+        <View
+          style={{
+            height: scale(100),
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
           <ActivityIndicator size="small" color={colors.ring} />
         </View>
       ) : (
@@ -207,7 +213,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: scale(14),
     marginBottom: scale(14),
-    shadowColor: '#39261b',
+    shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.08,
     shadowRadius: 10,
@@ -255,7 +261,7 @@ const styles = StyleSheet.create({
   },
   scrollListContent: {
     padding: scale(16),
-    borderColor: 'rgba(183, 168, 151, 0.3)',
+    borderColor: colors.borderStrong,
     borderRadius: scale(8),
   },
   aartiFixedCard: {

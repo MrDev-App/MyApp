@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
   },
   vratCardActive: {
     borderColor: colors.ring,
-    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    backgroundColor: colors.goldHighlightBg,
   },
   dateBlock: {
     alignItems: 'center',
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(6),
     paddingVertical: scale(1.5),
     borderRadius: scale(6),
-    backgroundColor: 'rgba(255, 255, 255, .50)',
+    backgroundColor: colors.overlayWhite50,
   },
   pakshaText: {
     color: colors.black,
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyText: {
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: colors.textWhite70,
     fontSize: fs(12),
     fontFamily: fonts.PoppinsRegular,
   },

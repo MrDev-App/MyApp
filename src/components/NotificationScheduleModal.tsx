@@ -69,7 +69,7 @@ export default function NotificationScheduleModal({
         <TouchableOpacity
           style={[
             StyleSheet.absoluteFill,
-            { backgroundColor: 'rgba(0,0,0,0.1)' },
+            { backgroundColor: colors.overlayDarkSubtle },
           ]}
           activeOpacity={1}
           onPress={onClose}
@@ -156,7 +156,7 @@ export default function NotificationScheduleModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: colors.overlayDarkSubtle,
     justifyContent: 'center',
     alignItems: 'center',
     padding: scale(20),
