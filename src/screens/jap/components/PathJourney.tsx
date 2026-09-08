@@ -15,7 +15,12 @@ import Animated, {
   withSpring,
   Easing,
 } from 'react-native-reanimated';
-import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
+import Svg, {
+  Path,
+  Defs,
+  LinearGradient as SvgGradient,
+  Stop,
+} from 'react-native-svg';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
@@ -24,10 +29,8 @@ import { triggerHaptic } from '@helper/helper';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const NODE_SIZE = scale(68);
-const ROW_HEIGHT = scale(120);
+const ROW_HEIGHT = scale(126);
 
-// Serpentine X-coordinates pattern (percentages of usable width)
-// e.g. center -> right -> center -> left -> center...
 const X_OFFSETS = [0.5, 0.76, 0.5, 0.24, 0.5, 0.76, 0.5, 0.24, 0.5, 0.5];
 
 interface PathJourneyProps {
@@ -69,16 +72,28 @@ const JourneyNode: React.FC<NodeProps> = ({
     if (isCurrent) {
       pulseScale.value = withRepeat(
         withSequence(
-          withTiming(1.3, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
-          withTiming(1.0, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
+          withTiming(1.3, {
+            duration: 1200,
+            easing: Easing.inOut(Easing.ease),
+          }),
+          withTiming(1.0, {
+            duration: 1200,
+            easing: Easing.inOut(Easing.ease),
+          }),
         ),
         -1,
         false,
       );
       pulseOpacity.value = withRepeat(
         withSequence(
-          withTiming(0.2, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
-          withTiming(0.7, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
+          withTiming(0.2, {
+            duration: 1200,
+            easing: Easing.inOut(Easing.ease),
+          }),
+          withTiming(0.7, {
+            duration: 1200,
+            easing: Easing.inOut(Easing.ease),
+          }),
         ),
         -1,
         false,
@@ -128,7 +143,10 @@ const JourneyNode: React.FC<NodeProps> = ({
         <Animated.View
           style={[
             styles.pulseHalo,
-            { backgroundColor: colors.goldAura, borderColor: colors.pathActiveLine },
+            {
+              backgroundColor: colors.goldAura,
+              borderColor: colors.pathActiveLine,
+            },
             animatedHaloStyle,
           ]}
         />
@@ -170,8 +188,15 @@ const JourneyNode: React.FC<NodeProps> = ({
         </TouchableOpacity>
       </Animated.View>
 
-      {/* Level Label */}
-      <View style={styles.nodeLabelContainer}>
+      {/* Level Label Pill */}
+      <View
+        style={[
+          styles.nodeLabelContainer,
+          isCurrent && styles.nodeLabelContainerCurrent,
+          isCompleted && styles.nodeLabelContainerCompleted,
+          isLocked && styles.nodeLabelContainerLocked,
+        ]}
+      >
         <Text
           style={[
             styles.nodeName,
@@ -182,12 +207,20 @@ const JourneyNode: React.FC<NodeProps> = ({
         >
           {name}
         </Text>
-        <Text style={styles.nodeMalas}>
+        <Text
+          style={[
+            styles.nodeMalas,
+            isCurrent && styles.nodeMalasCurrent,
+            isLocked && styles.nodeMalasLocked,
+          ]}
+        >
           {level.requiredMalas === 0
             ? currentLanguage === 'hi'
               ? 'शुरुआत'
               : 'Start'
-            : `${level.requiredMalas} ${currentLanguage === 'hi' ? 'माला' : 'Malas'}`}
+            : `${level.requiredMalas} ${
+                currentLanguage === 'hi' ? 'माला' : 'Malas'
+              }`}
         </Text>
       </View>
     </View>
@@ -204,17 +237,19 @@ export const PathJourney: React.FC<PathJourneyProps> = ({
   const paddingX = scale(32);
   const usableWidth = contentWidth - paddingX * 2;
 
-  // Calculate coordinates for all nodes
+  // Calculate coordinates for all nodes (Level 1 at bottom, Level 10 at top)
+  const totalLevels = levels.length;
   const nodePositions = levels.map((lvl, index) => {
+    const rowIndex = totalLevels - 1 - index;
     const ratio = X_OFFSETS[index % X_OFFSETS.length];
     const cx = paddingX + usableWidth * ratio;
-    const cy = scale(40) + index * ROW_HEIGHT + ROW_HEIGHT / 2;
+    const cy = scale(40) + rowIndex * ROW_HEIGHT + ROW_HEIGHT / 2;
     return { level: lvl, cx, cy, index };
   });
 
-  const totalHeight = nodePositions[nodePositions.length - 1].cy + scale(80);
+  const totalHeight = scale(40) + totalLevels * ROW_HEIGHT + scale(60);
 
-  // Generate SVG path connecting points sequentially
+  // Generate SVG path connecting points sequentially from bottom to top
   let pathD = '';
   if (nodePositions.length > 0) {
     pathD = `M ${nodePositions[0].cx} ${nodePositions[0].cy}`;
@@ -229,9 +264,13 @@ export const PathJourney: React.FC<PathJourneyProps> = ({
   return (
     <View style={[styles.container, { height: totalHeight }]}>
       {/* SVG Connecting Curves */}
-      <Svg width={contentWidth} height={totalHeight} style={StyleSheet.absoluteFill}>
+      <Svg
+        width={contentWidth}
+        height={totalHeight}
+        style={StyleSheet.absoluteFill}
+      >
         <Defs>
-          <SvgGradient id="pathGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <SvgGradient id="pathGradient" x1="0%" y1="100%" x2="0%" y2="0%">
             <Stop offset="0%" stopColor={colors.goldBeadActive} />
             <Stop offset="50%" stopColor={colors.pathActiveLine} />
             <Stop offset="100%" stopColor={colors.secondary} />
@@ -386,31 +425,68 @@ const styles = StyleSheet.create({
   },
   nodeLabelContainer: {
     position: 'absolute',
-    top: NODE_SIZE + scale(4),
-    width: scale(110),
+    top: NODE_SIZE + scale(3),
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: scale(8),
+    paddingVertical: scale(3),
+    borderRadius: scale(10),
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    minWidth: scale(80),
+    maxWidth: scale(120),
+    elevation: 4,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    zIndex: 10,
+  },
+  nodeLabelContainerCurrent: {
+    borderColor: colors.pathActiveLine,
+    backgroundColor: colors.white,
+    borderWidth: 1.5,
+    elevation: 6,
+    shadowColor: colors.pathActiveLine,
+    shadowOpacity: 0.3,
+  },
+  nodeLabelContainerCompleted: {
+    borderColor: colors.goldBeadActive,
+    backgroundColor: colors.white,
+  },
+  nodeLabelContainerLocked: {
+    borderColor: colors.borderSubtle,
+    backgroundColor: colors.inputBgLight,
   },
   nodeName: {
-    fontSize: fs(12),
+    fontSize: fs(11),
     fontFamily: fonts.PoppinsBold,
     color: colors.primary,
     textAlign: 'center',
   },
   nodeNameCurrent: {
-    color: colors.goldBeadGlow,
+    color: colors.pathActiveLine,
     fontFamily: fonts.PoppinsBold,
-    fontSize: fs(13),
+    fontSize: fs(12),
   },
   nodeNameLocked: {
     color: colors.warmTaupe,
     fontFamily: fonts.PoppinsMedium,
   },
   nodeMalas: {
-    fontSize: fs(10),
+    fontSize: fs(9),
     fontFamily: fonts.PoppinsRegular,
     color: colors.charcoal,
     textAlign: 'center',
     marginTop: scale(1),
+  },
+  nodeMalasCurrent: {
+    color: colors.secondary,
+    fontFamily: fonts.PoppinsMedium,
+  },
+  nodeMalasLocked: {
+    color: colors.charcoal,
   },
 });
 

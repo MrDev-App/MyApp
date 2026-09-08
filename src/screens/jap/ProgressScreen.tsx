@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -7,10 +7,7 @@ import {
   ScrollView,
   Modal,
 } from 'react-native';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import GradientBackground from '@components/GradientBackground';
@@ -29,6 +26,9 @@ export const ProgressScreen = () => {
   const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
   const currentLanguage = (i18n.language || 'en') as 'en' | 'hi';
+
+  const scrollViewRef = useRef<ScrollView>(null);
+  const hasScrolledRef = useRef(false);
 
   const [totalMala, setTotalMala] = useState(0);
 
@@ -57,11 +57,18 @@ export const ProgressScreen = () => {
       </TouchableOpacity>
 
       <ScrollView
+        ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
           { paddingBottom: insets.bottom + scale(60) },
         ]}
+        onContentSizeChange={(_w, h) => {
+          if (!hasScrolledRef.current && h > 0) {
+            hasScrolledRef.current = true;
+            scrollViewRef.current?.scrollToEnd({ animated: false });
+          }
+        }}
       >
         {/* ── Candy Crush Style Serpentine Journey Path ── */}
         <PathJourney
@@ -107,7 +114,7 @@ export const ProgressScreen = () => {
                     onPress={() => setSelectedLevelModal(null)}
                     activeOpacity={0.7}
                   >
-                    <CloseIcon size={scale(18)} color={colors.primary} />
+                    <CloseIcon size={scale(18)} color={colors.ring} />
                   </TouchableOpacity>
                 </View>
 
@@ -304,7 +311,7 @@ const styles = StyleSheet.create({
   modalLevelTitle: {
     fontSize: fs(18),
     fontFamily: fonts.PoppinsBold,
-    color: colors.primary,
+    color: colors.ring,
     textAlign: 'center',
   },
   modalLevelSubtitle: {
@@ -338,7 +345,7 @@ const styles = StyleSheet.create({
   reqValue: {
     fontSize: fs(12),
     fontFamily: fonts.PoppinsBold,
-    color: colors.primary,
+    color: colors.ring,
   },
   statusCompleted: {
     color: colors.levelCompletedBg,
@@ -361,13 +368,13 @@ const styles = StyleSheet.create({
   blessingTitle: {
     fontSize: fs(12),
     fontFamily: fonts.PoppinsBold,
-    color: colors.secondary,
+    color: colors.ring,
     marginBottom: scale(4),
   },
   blessingText: {
     fontSize: fs(12),
     fontFamily: fonts.PoppinsRegular,
-    color: colors.primary,
+    color: colors.ring,
     lineHeight: fs(18),
     fontStyle: 'italic',
   },
