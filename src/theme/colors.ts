@@ -153,6 +153,13 @@ export const colors = {
   skeletonHighlight: 'rgba(255, 255, 255, 0.6)',
   backgroundLight: '#f5ecd6',
   neutralDark: '#2e1c0c',
+  pathActiveLine: '#FB9437',
+  pathInactiveLine: 'rgba(183, 168, 151, 0.25)',
+  pathGlow: 'rgba(251, 148, 55, 0.4)',
+  levelCompletedBg: '#2E7D32',
+  levelLockedBg: '#3C2C20',
+  levelLockedBorder: 'rgba(183, 168, 151, 0.2)',
+  goldAura: 'rgba(255, 215, 0, 0.35)',
 };
 
 export type ColorsType = typeof colors;

@@ -11,6 +11,7 @@ import SearchScreen from '@screens/book/SearchScreen';
 import TempleScreen from '@screens/home/TempleScreen';
 import NotificationScreen from '@screens/home/NotificationScreen';
 import SeedScreen from '@screens/SeedScreen';
+import ProgressScreen from '@screens/jap/ProgressScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -51,6 +52,11 @@ const StackNavigation = () => {
       <Stack.Screen
         name="SeedScreen"
         component={SeedScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="ProgressScreen"
+        component={ProgressScreen}
         options={{ animation: 'slide_from_right' }}
       />
     </Stack.Navigator>

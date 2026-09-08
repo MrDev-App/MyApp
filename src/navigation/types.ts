@@ -17,6 +17,7 @@ export type RootStackParamList = {
   Notifications?: undefined;
   SeedScreen: undefined;
   Seed?: undefined;
+  ProgressScreen: undefined;
 };
 
 export type BottomTabParamList = {

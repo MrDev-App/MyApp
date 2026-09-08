@@ -41,13 +41,15 @@ import MalaRing from './components/MalaRing';
 import ChantSphere from './components/ChantSphere';
 
 import { Storage, STORAGE_KEYS } from '@services/storageService';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { RootNavigationProp } from '@navigation/types';
 import { triggerHaptic } from '@helper/helper';
 import BannerAdComponent from '@admob/Banneradcomponent';
 
 const TOTAL_BEADS = 108;
 
 const JapScreen = () => {
+  const navigation = useNavigation<RootNavigationProp>();
   const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
   const currentLanguage = (i18n.language || 'en') as 'en' | 'hi';
@@ -369,6 +371,17 @@ const JapScreen = () => {
           <Text style={styles.headerTitle}>{t(Translation.JAP_CHANTING)}</Text>
           <View style={styles.headerRight}>
             <TouchableOpacity
+              style={styles.progressBtn}
+              onPress={() => navigation.navigate('ProgressScreen')}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.progressBtnIcon}>🏆</Text>
+              <Text style={styles.progressBtnText}>
+                {t(Translation.PROGRESS_BUTTON)}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
               style={[styles.hapticBtn, isHapticOn && styles.hapticBtnActive]}
               onPress={() => {
                 const next = !isHapticOn;
@@ -571,6 +584,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(8),
+  },
+  progressBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(5),
+    borderRadius: scale(16),
+    backgroundColor: colors.accentOrangeSubtle,
+    borderWidth: 1,
+    borderColor: colors.accentOrangeBorder,
+    gap: scale(4),
+  },
+  progressBtnIcon: {
+    fontSize: fs(13),
+  },
+  progressBtnText: {
+    fontSize: fs(11),
+    fontFamily: fonts.PoppinsBold,
+    color: colors.secondary,
   },
   hapticBtn: {
     width: scale(32),
