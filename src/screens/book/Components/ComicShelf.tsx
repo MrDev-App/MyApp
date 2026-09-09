@@ -50,6 +50,17 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
                   style={styles.comicImage}
                   sharedTransitionTag={`story_image_${story.id}`}
                 />
+                <View style={styles.typeBadge}>
+                  <Text style={styles.typeBadgeText}>
+                    {story.type === 'text'
+                      ? currentLang === 'hi'
+                        ? '📖 पुस्तक'
+                        : '📖 Book'
+                      : currentLang === 'hi'
+                      ? '🎨 चित्रकथा'
+                      : '🎨 Comic'}
+                  </Text>
+                </View>
               </View>
               <Text style={styles.comicCardTitle} numberOfLines={1}>
                 {currentLang === 'hi' ? story.titleHi : story.titleEn}
@@ -116,6 +127,20 @@ const styles = StyleSheet.create({
     fontSize: fs(10),
     fontFamily: fonts.PoppinsRegular,
     color: colors.neutralDisabled,
+  },
+  typeBadge: {
+    position: 'absolute',
+    bottom: scale(6),
+    left: scale(6),
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    paddingHorizontal: scale(6),
+    paddingVertical: scale(2),
+    borderRadius: scale(6),
+  },
+  typeBadgeText: {
+    color: colors.white,
+    fontSize: fs(9),
+    fontFamily: fonts.PoppinsSemiBold,
   },
 });
 

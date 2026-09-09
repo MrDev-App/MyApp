@@ -7,6 +7,7 @@ import BottomNavigation from './BottomNavigation';
 import AllFestivalsScreen from '@screens/home/AllFestivalsScreen';
 import '@i18n/index';
 import ReadingScreen from '@screens/book/ReadingScreen';
+import TextReadingScreen from '@screens/book/TextReadingScreen';
 import SearchScreen from '@screens/book/SearchScreen';
 import TempleScreen from '@screens/home/TempleScreen';
 import NotificationScreen from '@screens/home/NotificationScreen';
@@ -32,6 +33,11 @@ const StackNavigation = () => {
       <Stack.Screen
         name="ReadingScreen"
         component={ReadingScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="TextReadingScreen"
+        component={TextReadingScreen}
         options={{ animation: 'slide_from_right' }}
       />
       <Stack.Screen

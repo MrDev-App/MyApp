@@ -8,6 +8,7 @@ export type RootStackParamList = {
   AllFestivals: undefined;
   ReadingScreen: { storyId?: string };
   Reading?: { storyId?: string };
+  TextReadingScreen: { storyId: string };
   Jap: undefined;
   SearchScreen: undefined;
   Search?: undefined;

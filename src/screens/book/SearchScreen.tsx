@@ -25,7 +25,7 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
-import { MahaBharatStories } from '@constants/storiesData';
+import { AllBooks } from '@constants/storiesData';
 import GradientBackground from '@components/GradientBackground';
 import { Translation } from '@i18n/language';
 import { SearchIcon, HeartIcon, BackIcon as Back } from '@components/icons/SvgIcons';
@@ -100,7 +100,7 @@ const SearchScreen = () => {
   }, []);
 
   // Filter logic
-  const filteredStories = MahaBharatStories.filter(story => {
+  const filteredStories = AllBooks.filter(story => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return false;
 
@@ -199,7 +199,11 @@ const SearchScreen = () => {
                   style={styles.searchCard}
                   onPress={() => {
                     triggerHaptic('impactHeavy');
-                    navigation.navigate('ReadingScreen', { storyId: story.id });
+                    if (story.type === 'text') {
+                      navigation.navigate('TextReadingScreen', { storyId: story.id });
+                    } else {
+                      navigation.navigate('ReadingScreen', { storyId: story.id });
+                    }
                   }}
                   activeOpacity={0.8}
                 >

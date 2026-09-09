@@ -16,7 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { MahaBharatStories, Story } from '@constants/storiesData';
+import { MahaBharatStories, TextBooks, Story } from '@constants/storiesData';
 import GradientBackground from '@components/GradientBackground';
 
 import { Translation } from '@i18n/language';
@@ -57,7 +57,11 @@ const BookScreen = () => {
   const openStoryReader = (story: Story) => {
     if (isBookUnlockedToday(story.id)) {
       triggerHaptic();
-      navigation.navigate('ReadingScreen', { storyId: story.id });
+      if (story.type === 'text') {
+        navigation.navigate('TextReadingScreen', { storyId: story.id });
+      } else {
+        navigation.navigate('ReadingScreen', { storyId: story.id });
+      }
       return;
     }
     // Not unlocked today — ask for consent before showing the ad
@@ -74,7 +78,11 @@ const BookScreen = () => {
       // This only runs if the user watched the FULL video (EARNED_REWARD)
       markBookUnlockedToday(storyToUnlock.id);
       triggerHaptic();
-      navigation.navigate('ReadingScreen', { storyId: storyToUnlock.id });
+      if (storyToUnlock.type === 'text') {
+        navigation.navigate('TextReadingScreen', { storyId: storyToUnlock.id });
+      } else {
+        navigation.navigate('ReadingScreen', { storyId: storyToUnlock.id });
+      }
     });
 
     setPendingStory(null); // close the popup — the ad SDK takes over the screen next
@@ -160,9 +168,25 @@ const BookScreen = () => {
               { paddingBottom: insets.bottom + scale(80) },
             ]}
           >
-            {/* Comics Shelf List */}
+            {/* Sacred Scriptures (Text Books) */}
             <ComicShelf
-              title={labels.storiesFromMahabharat}
+              title={
+                currentLang === 'hi'
+                  ? 'पवित्र धर्मग्रंथ एवं गाथाएं'
+                  : 'Sacred Scriptures & Books'
+              }
+              data={TextBooks}
+              onPressBook={openStoryReader}
+              currentLang={currentLang}
+            />
+
+            {/* Illustrated Comics Shelf List */}
+            <ComicShelf
+              title={
+                currentLang === 'hi'
+                  ? 'सचित्र चित्रकथाएं (Comics)'
+                  : 'Illustrated Comics'
+              }
               data={MahaBharatStories}
               onPressBook={openStoryReader}
               currentLang={currentLang}
@@ -656,4 +680,3 @@ const styles = StyleSheet.create({
     fontSize: fs(12),
   },
 });
-
