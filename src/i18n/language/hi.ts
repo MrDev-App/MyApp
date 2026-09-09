@@ -39,8 +39,8 @@ export default {
   DAYS_COUNT_LABEL: '{{count}} दिन',
   GET_STARTED_LABEL: 'शुरू करें',
   SKIP_LABEL: 'छोड़ें',
-  APP_NAME_HI: 'गुरुवाणी',
-  APP_NAME: 'GuruVani',
+  APP_NAME_EN: 'GuruVani',
+  APP_NAME: 'गुरुवाणी',
   JAP_TODAY_JAP: 'आज जाप',
   JAP_TODAY_MALA: 'आज माला',
   JAP_TOTAL_MALA: 'कुल माला',
@@ -165,7 +165,8 @@ export default {
   NOTIFICATIONS_CLEAR_ALL: 'सभी हटाएं',
   NOTIFICATIONS_MARK_READ: 'सभी पढ़ा हुआ मार्क करें',
   NOTIFICATIONS_EMPTY_TITLE: 'कोई सूचना नहीं है',
-  NOTIFICATIONS_EMPTY_DESC: 'आपके पास दैनिक साधना और पर्व से संबंधित सभी सूचनाएं अपडेट हैं।',
+  NOTIFICATIONS_EMPTY_DESC:
+    'आपके पास दैनिक साधना और पर्व से संबंधित सभी सूचनाएं अपडेट हैं।',
   NOTIFICATIONS_FILTER_ALL: 'सभी',
   NOTIFICATIONS_FILTER_SADHANA: 'साधना',
   NOTIFICATIONS_FILTER_FESTIVALS: 'त्योहार',
@@ -185,4 +186,6 @@ export default {
   MILESTONE_BLESSING: 'आशीर्वाद एवं प्रेरणा',
   LEVEL_NUM: 'स्तर',
   PROGRESS_BUTTON: 'प्रगति',
+  TODAY: 'आज',
+  EKADASHI_VRAT: 'एकादशी व्रत',
 };

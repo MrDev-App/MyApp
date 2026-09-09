@@ -25,8 +25,14 @@ export const getEkadashiMonthsData = async (): Promise<EkadashiMonth[]> => {
     const cachedData = storage.getString(STORAGE_KEYS.EKADASHI_DATA_CACHE);
     if (cachedData) {
       const parsed: EkadashiMonth[] = JSON.parse(cachedData);
-      const sorted = parsed.sort((a, b) => a.month - b.month);
-      return sorted;
+      const hasHindiSupport = parsed.some(m =>
+        m.ekadashis?.some(e => !!e.nameHi),
+      );
+      if (hasHindiSupport) {
+        const sorted = parsed.sort((a, b) => a.month - b.month);
+        return sorted;
+      }
+      storage.remove(STORAGE_KEYS.EKADASHI_DATA_CACHE);
     }
 
     const db = getFirestore();
@@ -45,6 +51,7 @@ export const getEkadashiMonthsData = async (): Promise<EkadashiMonth[]> => {
           monthsList.push({
             month: data.month,
             monthName: data.monthName || `Month ${data.month}`,
+            monthNameHi: data.monthNameHi,
             ekadashis: data.ekadashis,
           });
         }

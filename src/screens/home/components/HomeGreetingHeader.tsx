@@ -16,29 +16,11 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Bell } from '@assets/index';
 import { NotificationStorage } from '@services/notificationService';
-import {
-  getEkadashiMonthsData,
-  EkadashiItem,
-} from '@services/ekadashiService';
+import { getEkadashiMonthsData, EkadashiItem } from '@services/ekadashiService';
 
 interface HomeGreetingHeaderProps {
   loading: boolean;
 }
-
-const SHORT_MONTHS = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-] as const;
 
 const isToday = (dateStr?: string): boolean => {
   if (!dateStr) return false;
@@ -46,23 +28,11 @@ const isToday = (dateStr?: string): boolean => {
   return dateStr === todayStr;
 };
 
-const getFormattedDate = (dateStr?: string, dayNum?: number) => {
-  if (dateStr) {
-    const parts = dateStr.split('-');
-    if (parts.length === 3) {
-      return {
-        day: parseInt(parts[2], 10),
-        month: SHORT_MONTHS[parseInt(parts[1], 10) - 1] || '',
-      };
-    }
-  }
-  return { day: dayNum || '', month: '' };
-};
-
 const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
   loading: parentLoading,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isHi = (i18n.language || 'en').startsWith('hi');
   const navigation = useNavigation<any>();
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -93,7 +63,10 @@ const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
           setEkadashis(targetMonth.ekadashis || []);
         }
       } catch (error) {
-        console.error('Error loading month vrats in HomeGreetingHeader:', error);
+        console.error(
+          'Error loading month vrats in HomeGreetingHeader:',
+          error,
+        );
       } finally {
         if (isMounted) {
           setVratsLoading(false);
@@ -133,7 +106,14 @@ const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
               <Text style={styles.greetingTime}>
                 {t(Translation.SHUBH_PRABHAT)}
               </Text>
-              <Text style={styles.greetingText}>Radhe Radhe</Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('SeedScreen')}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.greetingText}>
+                  {t(Translation.RADHE_RADHE)}
+                </Text>
+              </TouchableOpacity>
             </View>
             <TouchableOpacity
               style={styles.bellIconView}
@@ -157,7 +137,9 @@ const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
         {isLoading ? (
           <Skeleton width={200} height={16} borderRadius={4} />
         ) : (
-          <Text style={styles.sectionTitle}>This Month's Ekadash Vrats</Text>
+          <Text style={styles.sectionTitle}>
+            {t(Translation.EKADASHI_VRAT)}
+          </Text>
         )}
       </View>
 
@@ -166,56 +148,66 @@ const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
           <Skeleton width="100%" height={scale(62)} borderRadius={scale(14)} />
           <Skeleton width="100%" height={scale(62)} borderRadius={scale(14)} />
         </View>
-      ) : ekadashis.length > 0 ? (
-        <View style={styles.vratsVerticalContainer}>
-          {ekadashis.map((item, index) => {
-            const { day, month } = getFormattedDate(item.date, item.day);
-            const activeToday = isToday(item.date);
+      ) : (
+        ekadashis.length > 0 && (
+          <View style={styles.vratsVerticalContainer}>
+            {ekadashis.map((item, index) => {
+              const activeToday = isToday(item.date);
+              const displayName = isHi ? item.nameHi : item.name;
+              const displayPaksha = isHi ? item.pakshaHi : item.paksha;
+              const displayDayOfWeek = isHi ? item.dayOfWeekHi : item.dayOfWeek;
+              const displayMonth = isHi
+                ? item.shortMonthHi || item.shortMonth
+                : item.shortMonth;
 
-            return (
-              <Animated.View
-                key={item.id || item.date || index}
-                entering={FadeInUp.delay(index * 100).duration(400)}
-                style={[styles.vratCard, activeToday && styles.vratCardActive]}
-              >
-                <View style={styles.dateBlock}>
-                  <Text style={styles.dateDayText}>{day}</Text>
-                  <Text style={styles.dateMonthText}>{month}</Text>
-                </View>
-
-                <View style={styles.infoBlock}>
-                  <View style={styles.topInfoRow}>
-                    <Text
-                      style={styles.vratName}
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                    >
-                      {item.name}
-                    </Text>
-                    {activeToday && (
-                      <View style={styles.todayBadge}>
-                        <Text style={styles.todayBadgeText}>TODAY</Text>
-                      </View>
-                    )}
+              return (
+                <Animated.View
+                  key={item.id || item.date || index}
+                  entering={FadeInUp.delay(index * 100).duration(400)}
+                  style={[
+                    styles.vratCard,
+                    activeToday && styles.vratCardActive,
+                  ]}
+                >
+                  <View style={styles.dateBlock}>
+                    <Text style={styles.dateDayText}>{item.day}</Text>
+                    <Text style={styles.dateMonthText}>{displayMonth}</Text>
                   </View>
 
-                  <View style={styles.detailsRow}>
-                    <View style={styles.pakshaPill}>
-                      <Text style={styles.pakshaText} numberOfLines={1}>
-                        {item.paksha}
+                  <View style={styles.infoBlock}>
+                    <View style={styles.topInfoRow}>
+                      <Text
+                        style={styles.vratName}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {displayName}
+                      </Text>
+                      {activeToday && (
+                        <View style={styles.todayBadge}>
+                          <Text style={styles.todayBadgeText}>
+                            {t(Translation.TODAY)}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+
+                    <View style={styles.detailsRow}>
+                      <View style={styles.pakshaPill}>
+                        <Text style={styles.pakshaText} numberOfLines={1}>
+                          {displayPaksha}
+                        </Text>
+                      </View>
+                      <Text style={styles.dayOfWeekText}>
+                        • {displayDayOfWeek}
                       </Text>
                     </View>
-                    <Text style={styles.dayOfWeekText}>• {item.dayOfWeek}</Text>
                   </View>
-                </View>
-              </Animated.View>
-            );
-          })}
-        </View>
-      ) : (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No special vrats this month</Text>
-        </View>
+                </Animated.View>
+              );
+            })}
+          </View>
+        )
       )}
     </View>
   );
@@ -234,13 +226,13 @@ const styles = StyleSheet.create({
     gap: scale(6),
   },
   greetingTime: {
-    fontSize: fs(10),
+    fontSize: fs(11),
     fontFamily: fonts.PoppinsBold,
     color: colors.white,
     letterSpacing: 4,
   },
   greetingText: {
-    fontSize: fs(26),
+    fontSize: fs(24),
     fontFamily: fonts.PoppinsBold,
     color: colors.primary2,
     letterSpacing: 1,
@@ -277,8 +269,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: colors.black,
-    fontSize: fs(15),
-    fontFamily: fonts.PoppinsRegular,
+    fontSize: fs(12),
+    fontFamily: fonts.PoppinsSemiBold,
     letterSpacing: 0.3,
   },
   vratsVerticalContainer: {
@@ -358,7 +350,7 @@ const styles = StyleSheet.create({
   dayOfWeekText: {
     color: colors.black,
     fontSize: fs(9.5),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.PoppinsSemiBold,
   },
   emptyContainer: {
     paddingVertical: scale(12),

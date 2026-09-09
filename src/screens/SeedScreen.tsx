@@ -16,6 +16,7 @@ import {
   Timestamp,
 } from '@react-native-firebase/firestore';
 import { ekadashi2026Data } from '@constants/ekadashiData';
+import { clearEkadashiDataCache } from '@services/ekadashiService';
 import colors from '@theme/colors';
 
 export default function SeedScreen() {
@@ -57,13 +58,19 @@ export default function SeedScreen() {
         const monthDocData = {
           month: monthData.month,
           monthName: monthData.monthName,
+          monthNameHi: monthData.monthNameHi,
           year: ekadashi2026Data.year,
           ekadashis: monthData.ekadashis.map(e => ({
             date: e.date,
             day: e.day,
             dayOfWeek: e.dayOfWeek,
+            dayOfWeekHi: e.dayOfWeekHi,
             paksha: e.paksha,
+            pakshaHi: e.pakshaHi,
             name: e.name,
+            nameHi: e.nameHi,
+            shortMonth: e.shortMonth,
+            shortMonthHi: e.shortMonthHi,
           })),
           updatedAt: Timestamp.now(),
         };
@@ -71,8 +78,9 @@ export default function SeedScreen() {
       }
 
       await batch.commit();
+      clearEkadashiDataCache();
       log(
-        `✅ Successfully saved exactly 12 monthly documents (month_1 to month_12) in '${ekadashi2026Data.collection}'!`,
+        `✅ Successfully saved exactly 12 monthly documents (with English & Hindi support) in '${ekadashi2026Data.collection}'!`,
       );
     } catch (error: any) {
       log(`❌ Error seeding Ekadashi: ${error?.message || error}`);
