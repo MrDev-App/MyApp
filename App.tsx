@@ -15,20 +15,23 @@ import ErrorBoundary from '@components/ErrorBoundary';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { getUserJoinedDate } from '@services/storageService';
 import { useAppOpenAd } from '@admob/useAppOpenAd';
+import { isAdMobEnabled } from '@admob/adConfig';
 
 const App = () => {
   // Handles foreground ads with cooldown and auto-suppression during image picker
-  useAppOpenAd(true);
+  useAppOpenAd(isAdMobEnabled());
 
   useEffect(() => {
-    mobileAds()
-      .initialize()
-      .then(adapterStatuses => {
-        console.log('Mobile Ads SDK initialized:', adapterStatuses);
-      })
-      .catch(err => {
-        console.warn('Mobile Ads initialization error:', err);
-      });
+    if (isAdMobEnabled()) {
+      mobileAds()
+        .initialize()
+        .then(adapterStatuses => {
+          console.log('Mobile Ads SDK initialized:', adapterStatuses);
+        })
+        .catch(err => {
+          console.warn('Mobile Ads initialization error:', err);
+        });
+    }
 
     initNotifications();
     getUserJoinedDate();

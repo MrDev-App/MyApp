@@ -6,6 +6,8 @@ import {
   TestIds,
 } from 'react-native-google-mobile-ads';
 
+import { isAdMobEnabled } from './adConfig';
+
 const AD_UNIT_ID = __DEV__
   ? TestIds.APP_OPEN
   : 'ca-app-pub-7403088686757883/2765782561';
@@ -41,7 +43,7 @@ export const useAppOpenAd = (enabled: boolean = true) => {
   const lastShownTimeRef = useRef<number>(0);
 
   const loadAd = () => {
-    if (isAdShowing) return;
+    if (isAdShowing || !isAdMobEnabled()) return;
 
     try {
       const ad = AppOpenAd.createForAdRequest(AD_UNIT_ID, {
@@ -80,7 +82,7 @@ export const useAppOpenAd = (enabled: boolean = true) => {
   };
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || !isAdMobEnabled()) return;
 
     const cleanupListeners = loadAd();
 

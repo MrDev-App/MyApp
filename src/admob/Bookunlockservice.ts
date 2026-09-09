@@ -1,4 +1,5 @@
 import { Storage } from '@services/storageService';
+import { isAdMobEnabled } from './adConfig';
 
 const UNLOCK_KEY_PREFIX = 'book_unlock_';
 
@@ -11,6 +12,10 @@ const getTodayDateString = (): string => {
 };
 
 export const isBookUnlockedToday = (storyId: string): boolean => {
+  // If AdMob is disabled in release, all books are unlocked automatically
+  if (!isAdMobEnabled()) {
+    return true;
+  }
   const unlockedDate = Storage.getString(`${UNLOCK_KEY_PREFIX}${storyId}`);
   return unlockedDate === getTodayDateString();
 };

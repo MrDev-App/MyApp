@@ -5,6 +5,7 @@ import {
   BannerAdSize,
   TestIds,
 } from 'react-native-google-mobile-ads';
+import { isAdMobEnabled } from './adConfig';
 
 interface BannerAdComponentProps {
   unitId: string;
@@ -24,6 +25,10 @@ export default function BannerAdComponent({
   onAdFailedToLoad,
 }: BannerAdComponentProps) {
   const [adLoaded, setAdLoaded] = useState(false);
+
+  if (!isAdMobEnabled()) {
+    return null;
+  }
 
   // In development, resolve appropriate test ad ID based on requested size
   const isTest = useTestAd !== undefined ? useTestAd : __DEV__;

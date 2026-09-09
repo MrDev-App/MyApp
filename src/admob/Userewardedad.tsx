@@ -5,6 +5,7 @@ import {
   AdEventType,
   TestIds,
 } from 'react-native-google-mobile-ads';
+import { isAdMobEnabled } from './adConfig';
 
 interface UseRewardedAdResult {
   isLoaded: boolean;
@@ -13,20 +14,29 @@ interface UseRewardedAdResult {
 }
 
 export function useRewardedAd(unitId: string): UseRewardedAdResult {
+  const adEnabled = isAdMobEnabled();
   const resolvedUnitId = __DEV__ ? TestIds.REWARDED : unitId;
 
   // useRef so the ad instance is created once and persists across re-renders
-  const rewardedAdRef = useRef(
-    RewardedAd.createForAdRequest(resolvedUnitId, {
-      requestNonPersonalizedAdsOnly: true,
-    }),
+  const rewardedAdRef = useRef<RewardedAd | null>(
+    adEnabled
+      ? RewardedAd.createForAdRequest(resolvedUnitId, {
+          requestNonPersonalizedAdsOnly: true,
+        })
+      : null,
   );
 
   const [isLoaded, setIsLoaded] = useState(false);
   const onRewardCallbackRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
+    if (!adEnabled) {
+      setIsLoaded(true);
+      return;
+    }
+
     const rewardedAd = rewardedAdRef.current;
+    if (!rewardedAd) return;
 
     const unsubscribeLoaded = rewardedAd.addAdEventListener(
       RewardedAdEventType.LOADED,
@@ -57,20 +67,25 @@ export function useRewardedAd(unitId: string): UseRewardedAdResult {
       unsubscribeEarned();
       unsubscribeClosed();
     };
-  }, []);
+  }, [adEnabled]);
 
   const show = useCallback(
     (onReward: () => void) => {
+      if (!adEnabled) {
+        onReward(); // Instantly grant reward without ad
+        return;
+      }
+
       const rewardedAd = rewardedAdRef.current;
-      if (!isLoaded) {
+      if (!isLoaded || !rewardedAd) {
         console.warn('Rewarded ad not loaded yet — try again in a moment.');
         return;
       }
       onRewardCallbackRef.current = onReward;
       rewardedAd.show();
     },
-    [isLoaded],
+    [isLoaded, adEnabled],
   );
 
-  return { isLoaded, show };
+  return { isLoaded: adEnabled ? isLoaded : true, show };
 }
