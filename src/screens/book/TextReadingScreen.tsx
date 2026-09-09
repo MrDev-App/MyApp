@@ -12,7 +12,10 @@ import {
   Vibration,
   Image,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -29,6 +32,7 @@ import {
   BackIcon as Back,
 } from '@components/icons/SvgIcons';
 import AnimatedButton from '@components/AnimatedButton';
+import FlipBookCover from './components/FlipBookCover';
 
 type ReaderTheme = 'sepia' | 'dark' | 'light';
 
@@ -117,7 +121,10 @@ export const TextReadingScreen = () => {
   useEffect(() => {
     if (!story?.id) return;
     try {
-      const rawBookmarks = Storage.getString(STORAGE_KEYS.STORY_BOOKMARKS, '[]');
+      const rawBookmarks = Storage.getString(
+        STORAGE_KEYS.STORY_BOOKMARKS,
+        '[]',
+      );
       const bookmarks = JSON.parse(rawBookmarks);
       if (Array.isArray(bookmarks)) {
         setIsBookmarked(bookmarks.includes(story.id));
@@ -319,7 +326,9 @@ export const TextReadingScreen = () => {
       </View>
 
       {/* Subtle Progress Bar */}
-      <View style={[styles.progressTrack, { backgroundColor: theme.surfaceSubtle }]}>
+      <View
+        style={[styles.progressTrack, { backgroundColor: theme.surfaceSubtle }]}
+      >
         <View
           style={[
             styles.progressBar,
@@ -331,137 +340,7 @@ export const TextReadingScreen = () => {
         />
       </View>
 
-      {/* Main Reading Scroll Content */}
-      <ScrollView
-        ref={scrollViewRef}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
-          styles.scrollBody,
-          { paddingBottom: insets.bottom + scale(60) },
-        ]}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-      >
-        {/* Hero Card with Cover & Meta */}
-        <View style={[styles.heroCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-          {story.image && (
-            <Image source={story.image} style={styles.coverThumbnail} />
-          )}
-
-          <View style={styles.heroDetails}>
-            <View style={[styles.categoryPill, { backgroundColor: theme.tagBg }]}>
-              <Text style={[styles.categoryText, { color: theme.tagText }]}>
-                {category}
-              </Text>
-            </View>
-
-            <Text style={[styles.bookTitle, { color: theme.text }]}>
-              {title}
-            </Text>
-
-            {subtitle ? (
-              <Text style={[styles.bookSubtitle, { color: theme.textSecondary }]}>
-                {subtitle}
-              </Text>
-            ) : null}
-
-            <View style={styles.metaRow}>
-              <Text style={[styles.metaItem, { color: theme.textSecondary }]}>
-                ⏱ {story.readingTimeMin} {currentLang === 'hi' ? 'मिनट' : 'Min'}
-              </Text>
-              <Text style={[styles.metaItem, { color: theme.textSecondary }]}>
-                • {source}
-              </Text>
-              <Text style={[styles.metaItem, { color: theme.textSecondary }]}>
-                • {difficulty}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Sacred Sanskrit Shloka Box (if available) */}
-        {story.shloka ? (
-          <View
-            style={[
-              styles.shlokaBox,
-              {
-                backgroundColor: theme.surface,
-                borderColor: theme.accent,
-              },
-            ]}
-          >
-            <View style={styles.shlokaHeaderRow}>
-              <Text style={[styles.shlokaTag, { color: theme.accent }]}>
-                ✦ {currentLang === 'hi' ? 'दिव्य श्लोक' : 'SACRED SHLOKA'} ✦
-              </Text>
-            </View>
-
-            <Text style={[styles.shlokaText, { color: theme.text }]}>
-              {story.shloka}
-            </Text>
-
-            {shlokaTranslation ? (
-              <View style={[styles.shlokaMeaningBox, { borderTopColor: theme.border }]}>
-                <Text style={[styles.meaningTitle, { color: theme.accent }]}>
-                  {currentLang === 'hi' ? 'भावार्थ:' : 'Meaning:'}
-                </Text>
-                <Text style={[styles.meaningText, { color: theme.textSecondary }]}>
-                  {shlokaTranslation}
-                </Text>
-              </View>
-            ) : null}
-          </View>
-        ) : null}
-
-        {/* Narrative Paragraphs */}
-        <View style={styles.textContainer}>
-          {paragraphs.map((paragraph, index) => (
-            <Text
-              key={`p_${index}`}
-              style={[
-                styles.paragraph,
-                {
-                  color: theme.text,
-                  fontSize: fs(fontSize),
-                  lineHeight: fs(fontSize * 1.65),
-                },
-              ]}
-            >
-              {paragraph}
-            </Text>
-          ))}
-        </View>
-
-        {/* Moral of the Story / Wisdom Card */}
-        {moral ? (
-          <View
-            style={[
-              styles.moralCard,
-              {
-                backgroundColor: theme.surface,
-                borderColor: theme.accent,
-              },
-            ]}
-          >
-            <Text style={[styles.moralHeader, { color: theme.accent }]}>
-              💡 {currentLang === 'hi' ? 'सच्ची सीख एवं प्रेरणा' : 'Moral Wisdom'}
-            </Text>
-            <Text style={[styles.moralContent, { color: theme.text }]}>
-              "{moral}"
-            </Text>
-          </View>
-        ) : null}
-
-        {/* Share Wisdom Action Button */}
-        <AnimatedButton
-          style={[styles.shareBtn, { backgroundColor: theme.accent }]}
-          onPress={handleShareWisdom}
-        >
-          <Text style={styles.shareBtnText}>
-            ✨ {currentLang === 'hi' ? 'दिव्य सुविचार साझा करें' : 'Share Divine Wisdom'}
-          </Text>
-        </AnimatedButton>
-      </ScrollView>
+      <FlipBookCover story={story} currentLang={currentLang} theme={theme} />
     </SafeAreaView>
   );
 };
