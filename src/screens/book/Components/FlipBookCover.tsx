@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,6 +7,9 @@ import {
   Platform,
   Vibration,
   Dimensions,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -15,18 +18,20 @@ import Animated, {
   withSpring,
   interpolate,
   Extrapolation,
+  SharedValue,
 } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { Story } from '@constants/storiesData';
+import { Story, StoryPage } from '@constants/storiesData';
 import { runOnJS } from 'react-native-worklets';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const BOOK_WIDTH = Math.min(SCREEN_WIDTH - scale(30), scale(370));
-const BOOK_HEIGHT = scale(600);
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const BOOK_WIDTH = Math.min(SCREEN_WIDTH - scale(28), scale(380));
+// Golden-ratio page height that fits comfortably on all devices
+const BOOK_HEIGHT = Math.min(scale(560), SCREEN_HEIGHT - scale(150));
 
 const GOLD_ACCENT = colors.goldBead;
 const GOLD_BORDER = colors.goldBeadBorder;
@@ -41,17 +46,108 @@ const triggerHaptic = () => {
         ignoreAndroidSystemSettings: false,
       });
     } catch {
-      Vibration.vibrate(12);
+      Vibration.vibrate(15);
     }
   } else {
-    Vibration.vibrate(10);
+    Vibration.vibrate(12);
   }
 };
 
 const SPRING_CONFIG = {
-  damping: 18,
-  stiffness: 120,
-  mass: 0.9,
+  damping: 22,
+  stiffness: 150,
+  mass: 0.8,
+};
+
+// Hindi numeral converter
+const toHindiNumeral = (num: number): string => {
+  const hindiDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+  return num
+    .toString()
+    .split('')
+    .map(d => hindiDigits[parseInt(d, 10)] ?? d)
+    .join('');
+};
+
+interface BookSheetProps {
+  index: number;
+  totalSheets: number;
+  progress: SharedValue<number>;
+  frontContent: React.ReactNode;
+  backContent: React.ReactNode;
+}
+
+// Dedicated Stacked Book Sheet Component - Zero Reset, Zero Flicker
+const BookSheet: React.FC<BookSheetProps> = ({
+  index,
+  totalSheets,
+  progress,
+  frontContent,
+  backContent,
+}) => {
+  const leafAnimatedStyle = useAnimatedStyle(() => {
+    const rotateY = interpolate(
+      progress.value,
+      [0, 1],
+      [0, -180],
+      Extrapolation.CLAMP,
+    );
+
+    // Dynamic zIndex:
+    // When on right stack (> -90deg): Sheet 0 on top of Sheet 1, Sheet 1 on top of Sheet 2...
+    // When turned to left stack (<= -90deg): Sheet 1 on top of Sheet 0, Sheet 2 on top of Sheet 1...
+    const zIndex =
+      rotateY > -90 ? (totalSheets - index) * 10 : (index + 1) * 10;
+
+    return {
+      zIndex,
+      transform: [
+        { perspective: 1400 },
+        { translateX: -BOOK_WIDTH / 2 },
+        { rotateY: `${rotateY}deg` },
+        { translateX: BOOK_WIDTH / 2 },
+      ],
+    };
+  });
+
+  const frontFaceStyle = useAnimatedStyle(() => {
+    return {
+      opacity: progress.value < 0.5 ? 1 : 0,
+      zIndex: progress.value < 0.5 ? 2 : 0,
+    };
+  });
+
+  const backFaceStyle = useAnimatedStyle(() => {
+    return {
+      opacity: progress.value >= 0.5 ? 1 : 0,
+      zIndex: progress.value >= 0.5 ? 2 : 0,
+    };
+  });
+
+  const curlShadowStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      progress.value,
+      [0, 0.25, 0.5, 0.75, 1],
+      [0, 0.35, 0.5, 0.2, 0],
+      Extrapolation.CLAMP,
+    );
+    return { opacity };
+  });
+
+  return (
+    <Animated.View style={[styles.turningLeaf, leafAnimatedStyle]}>
+      {/* FRONT FACE (Visible 0deg to -90deg) */}
+      <Animated.View style={[styles.coverFaceFront, frontFaceStyle]}>
+        {frontContent}
+        <Animated.View style={[styles.curlShadowOverlay, curlShadowStyle]} />
+      </Animated.View>
+
+      {/* BACK FACE (Visible -90deg to -180deg) */}
+      <Animated.View style={[styles.coverFaceBackWrap, backFaceStyle]}>
+        {backContent}
+      </Animated.View>
+    </Animated.View>
+  );
 };
 
 interface FlipBookCoverProps {
@@ -69,159 +165,625 @@ interface FlipBookCoverProps {
     tagBg: string;
     tagText: string;
   };
+  fontSize?: number;
+  onPageChange?: (pageIndex: number, totalPages: number) => void;
 }
 
 export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
   story,
   currentLang,
   theme,
+  fontSize = 15,
+  onPageChange,
 }) => {
-  // 0 = Fully Closed (Cover visible)
-  // 1 = Fully Open (Inside page visible)
-  const flipProgress = useSharedValue(0);
-  const [isOpenState, setIsOpenState] = useState(false);
+  // Preload and memoize all story pages
+  const pages: StoryPage[] = useMemo(() => {
+    if (story?.pages && story.pages.length > 0) {
+      return story.pages;
+    }
+    return [
+      {
+        page: 1,
+        sourceHi: story?.sourceHi,
+        contentHi: story?.contentHi || story?.descriptionHi,
+        shloka: story?.shloka,
+        shlokaTranslationHi: story?.shlokaTranslationHi,
+        moralHi: story?.moralHi,
+      },
+    ];
+  }, [story]);
 
-  const title = currentLang === 'hi' ? story.titleHi : story.titleEn;
-  const subtitle = currentLang === 'hi' ? story.subtitleHi : story.subtitleEn;
-  const category = currentLang === 'hi' ? story.categoryHi : story.categoryEn;
-  const source = currentLang === 'hi' ? story.sourceHi : story.sourceEn;
-  const shloka = story.shloka;
-  const shlokaTranslation =
-    currentLang === 'hi'
-      ? story.shlokaTranslationHi
-      : story.shlokaTranslationEn;
-  const excerpt =
-    currentLang === 'hi'
-      ? story.descriptionHi || story.moralHi
-      : story.descriptionEn || story.moralEn;
+  const totalPages = pages.length;
 
-  const onFlipEnd = useCallback((open: boolean) => {
-    setIsOpenState(open);
-    triggerHaptic();
-  }, []);
+  // Discrete shared values for each sheet in the book stack
+  const sheetProgress0 = useSharedValue(0);
+  const sheetProgress1 = useSharedValue(0);
+  const sheetProgress2 = useSharedValue(0);
+  const sheetProgress3 = useSharedValue(0);
+  const sheetProgress4 = useSharedValue(0);
+  const sheetProgress5 = useSharedValue(0);
+  const sheetProgress6 = useSharedValue(0);
+  const sheetProgress7 = useSharedValue(0);
 
-  // Tap handler to toggle flip
-  const handleToggleFlip = useCallback(() => {
-    'worklet';
-    const target = flipProgress.value > 0.5 ? 0 : 1;
-    flipProgress.value = withSpring(target, SPRING_CONFIG, finished => {
-      if (finished) {
-        runOnJS(onFlipEnd)(target === 1);
+  const sheetProgressList = useMemo(() => {
+    return [
+      sheetProgress0,
+      sheetProgress1,
+      sheetProgress2,
+      sheetProgress3,
+      sheetProgress4,
+      sheetProgress5,
+      sheetProgress6,
+      sheetProgress7,
+    ];
+  }, [
+    sheetProgress0,
+    sheetProgress1,
+    sheetProgress2,
+    sheetProgress3,
+    sheetProgress4,
+    sheetProgress5,
+    sheetProgress6,
+    sheetProgress7,
+  ]);
+
+  // Shared values for UI-thread gesture coordination (prevents race conditions)
+  const activeSheetIdx = useSharedValue<number>(0);
+  const gestureDir = useSharedValue<'forward' | 'backward'>('forward');
+  const isGestureActive = useSharedValue<boolean>(false);
+
+  // Current page state (0 = Cover, 1 = Page 1, ..., totalPages = Page N)
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [isFlipping, setIsFlipping] = useState<boolean>(false);
+  const pendingActionRef = React.useRef<'next' | 'prev' | null>(null);
+
+  // Keep shared value in sync with currentPage for worklet gesture logic
+  const currentPageShared = useSharedValue<number>(0);
+  useEffect(() => {
+    currentPageShared.value = currentPage;
+  }, [currentPage, currentPageShared]);
+
+  // Notify parent of active page change
+  useEffect(() => {
+    onPageChange?.(currentPage, totalPages);
+  }, [currentPage, totalPages, onPageChange]);
+
+  const title = story.titleHi;
+  const subtitle = story.subtitleHi;
+  const category = story.categoryHi;
+  const source = story.sourceHi;
+
+  // Forward turn initiator
+  const executeForwardFlip = useCallback(
+    (fromPage: number) => {
+      if (fromPage >= totalPages) {
+        setIsFlipping(false);
+        pendingActionRef.current = null;
+        return;
       }
-    });
-  }, [flipProgress, onFlipEnd]);
-
-  // Pan gesture for interactive swipe flip
-  const panGesture = Gesture.Pan()
-    .activeOffsetX([-10, 10])
-    .onUpdate(event => {
-      // Swiping left (negative translationX) opens the book
-      // Swiping right (positive translationX) closes the book
-      const delta = -event.translationX / BOOK_WIDTH;
-      const base = isOpenState ? 1 : 0;
-      const current = Math.min(1, Math.max(0, base + delta));
-      flipProgress.value = current;
-    })
-    .onEnd(event => {
-      // If flicked with velocity or dragged past threshold
-      const velocityThreshold = 400;
-      let target = flipProgress.value > 0.4 ? 1 : 0;
-
-      if (event.velocityX < -velocityThreshold) {
-        target = 1;
-      } else if (event.velocityX > velocityThreshold) {
-        target = 0;
+      const targetSheet = fromPage;
+      const progressVal = sheetProgressList[targetSheet];
+      if (!progressVal) {
+        setIsFlipping(false);
+        pendingActionRef.current = null;
+        return;
       }
 
-      flipProgress.value = withSpring(target, SPRING_CONFIG, finished => {
+      setIsFlipping(true);
+      progressVal.value = withSpring(1, SPRING_CONFIG, finished => {
         if (finished) {
-          runOnJS(onFlipEnd)(target === 1);
+          runOnJS(onForwardTurnFinish)(targetSheet);
         }
       });
+    },
+    [totalPages, sheetProgressList],
+  );
+
+  // Backward turn initiator
+  const executeBackwardFlip = useCallback(
+    (fromPage: number) => {
+      if (fromPage <= 0) {
+        setIsFlipping(false);
+        pendingActionRef.current = null;
+        return;
+      }
+      const targetSheet = fromPage - 1;
+      const progressVal = sheetProgressList[targetSheet];
+      if (!progressVal) {
+        setIsFlipping(false);
+        pendingActionRef.current = null;
+        return;
+      }
+
+      setIsFlipping(true);
+      progressVal.value = withSpring(0, SPRING_CONFIG, finished => {
+        if (finished) {
+          runOnJS(onBackwardTurnFinish)(targetSheet);
+        }
+      });
+    },
+    [sheetProgressList],
+  );
+
+  // Complete page turn callbacks
+  const onForwardTurnFinish = useCallback(
+    (sheetIdx: number) => {
+      const nextPage = sheetIdx + 1;
+      setCurrentPage(nextPage);
+      triggerHaptic();
+
+      if (pendingActionRef.current === 'next' && nextPage < totalPages) {
+        pendingActionRef.current = null;
+        executeForwardFlip(nextPage);
+      } else if (pendingActionRef.current === 'prev' && nextPage > 0) {
+        pendingActionRef.current = null;
+        executeBackwardFlip(nextPage);
+      } else {
+        pendingActionRef.current = null;
+        setIsFlipping(false);
+      }
+    },
+    [totalPages, executeForwardFlip, executeBackwardFlip],
+  );
+
+  const onBackwardTurnFinish = useCallback(
+    (sheetIdx: number) => {
+      const prevPage = sheetIdx;
+      setCurrentPage(prevPage);
+      triggerHaptic();
+
+      if (pendingActionRef.current === 'prev' && prevPage > 0) {
+        pendingActionRef.current = null;
+        executeBackwardFlip(prevPage);
+      } else if (pendingActionRef.current === 'next' && prevPage < totalPages) {
+        pendingActionRef.current = null;
+        executeForwardFlip(prevPage);
+      } else {
+        pendingActionRef.current = null;
+        setIsFlipping(false);
+      }
+    },
+    [totalPages, executeBackwardFlip, executeForwardFlip],
+  );
+
+  const onFlipCancel = useCallback(() => {
+    pendingActionRef.current = null;
+    setIsFlipping(false);
+  }, []);
+
+  // Programmatic forward flip with fast-click queueing
+  const handleNextPage = useCallback(() => {
+    if (currentPage >= totalPages) return;
+    if (isFlipping) {
+      pendingActionRef.current = 'next';
+      return;
+    }
+    executeForwardFlip(currentPage);
+  }, [currentPage, totalPages, isFlipping, executeForwardFlip]);
+
+  // Programmatic backward flip with fast-click queueing
+  const handlePrevPage = useCallback(() => {
+    if (currentPage <= 0) return;
+    if (isFlipping) {
+      pendingActionRef.current = 'prev';
+      return;
+    }
+    executeBackwardFlip(currentPage);
+  }, [currentPage, isFlipping, executeBackwardFlip]);
+
+  // Jump to specific page via dots
+  const handleJumpToPage = useCallback(
+    (targetPage: number) => {
+      if (isFlipping || targetPage === currentPage) return;
+      triggerHaptic();
+      setIsFlipping(true);
+
+      for (let i = 0; i < totalPages; i++) {
+        const progressVal = sheetProgressList[i];
+        if (progressVal) {
+          if (i < targetPage) {
+            progressVal.value = withSpring(1, SPRING_CONFIG);
+          } else {
+            progressVal.value = withSpring(0, SPRING_CONFIG);
+          }
+        }
+      }
+
+      setCurrentPage(targetPage);
+      setTimeout(() => {
+        setIsFlipping(false);
+      }, 350);
+    },
+    [isFlipping, currentPage, totalPages, sheetProgressList],
+  );
+
+  // Pan gesture with UI-thread worklets for instant, reliable boundary handling
+  const panGesture = Gesture.Pan()
+    .activeOffsetX([-10, 10])
+    .onStart(event => {
+      'worklet';
+      const curPage = currentPageShared.value;
+
+      if (event.velocityX < 0) {
+        // Swiping left -> Turn forward
+        if (curPage >= totalPages) return; // Already on last page, cannot turn forward
+        activeSheetIdx.value = curPage;
+        gestureDir.value = 'forward';
+        isGestureActive.value = true;
+      } else if (event.velocityX > 0) {
+        // Swiping right -> Turn backward
+        if (curPage <= 0) return; // Already on cover, cannot turn backward
+        activeSheetIdx.value = curPage - 1;
+        gestureDir.value = 'backward';
+        isGestureActive.value = true;
+      }
+    })
+    .onUpdate(event => {
+      'worklet';
+      if (!isGestureActive.value) return;
+      const sheetIdx = activeSheetIdx.value;
+      if (sheetIdx < 0 || sheetIdx >= totalPages) return;
+
+      const progressVal = sheetProgressList[sheetIdx];
+      if (!progressVal) return;
+
+      if (gestureDir.value === 'forward') {
+        const progress = Math.min(
+          1,
+          Math.max(0, -event.translationX / BOOK_WIDTH),
+        );
+        progressVal.value = progress;
+      } else {
+        const progress = Math.min(
+          1,
+          Math.max(0, 1 - event.translationX / BOOK_WIDTH),
+        );
+        progressVal.value = progress;
+      }
+    })
+    .onEnd(event => {
+      'worklet';
+      if (!isGestureActive.value) return;
+      isGestureActive.value = false;
+
+      const sheetIdx = activeSheetIdx.value;
+      if (sheetIdx < 0 || sheetIdx >= totalPages) return;
+
+      const progressVal = sheetProgressList[sheetIdx];
+      if (!progressVal) return;
+
+      const velocityThreshold = 250;
+      if (gestureDir.value === 'forward') {
+        const shouldTurn =
+          progressVal.value > 0.35 || event.velocityX < -velocityThreshold;
+        if (shouldTurn) {
+          progressVal.value = withSpring(1, SPRING_CONFIG, finished => {
+            if (finished) {
+              runOnJS(onForwardTurnFinish)(sheetIdx);
+            }
+          });
+        } else {
+          progressVal.value = withSpring(0, SPRING_CONFIG, finished => {
+            if (finished) {
+              runOnJS(onFlipCancel)();
+            }
+          });
+        }
+      } else {
+        const shouldTurn =
+          progressVal.value < 0.65 || event.velocityX > velocityThreshold;
+        if (shouldTurn) {
+          progressVal.value = withSpring(0, SPRING_CONFIG, finished => {
+            if (finished) {
+              runOnJS(onBackwardTurnFinish)(sheetIdx);
+            }
+          });
+        } else {
+          progressVal.value = withSpring(1, SPRING_CONFIG, finished => {
+            if (finished) {
+              runOnJS(onFlipCancel)();
+            }
+          });
+        }
+      }
     });
 
-  const tapGesture = Gesture.Tap().onEnd(() => {
-    handleToggleFlip();
-  });
+  // Render Inside Book Page Content (No page numbers inside)
+  const renderInsidePageContent = (
+    pageData: StoryPage,
+    isInteractive: boolean = true,
+  ) => {
+    const pageSource = pageData.sourceHi || source;
+    const pageContent = pageData.contentHi;
+    const pageShloka = pageData.shloka;
+    const pageShlokaTrans = pageData.shlokaTranslationHi;
+    const pageMoral = pageData.moralHi;
 
-  const composedGesture = Gesture.Exclusive(panGesture, tapGesture);
+    const paragraphs = (pageContent || '')
+      .split('\n\n')
+      .filter(p => p.trim().length > 0);
 
-  // Animated style for the Turning Leaf (anchored on left edge)
-  const leafAnimatedStyle = useAnimatedStyle(() => {
-    // Rotate from 0deg (closed) to -180deg (open)
-    const rotateY = interpolate(
-      flipProgress.value,
-      [0, 1],
-      [0, -180],
-      Extrapolation.CLAMP,
+    return (
+      <View
+        style={[
+          styles.insidePageContainer,
+          {
+            backgroundColor:
+              theme.bg === '#121215' || theme.bg === colors.black
+                ? '#1A1D27'
+                : theme.bg === '#FAF5EC'
+                ? '#FAF3E3'
+                : '#FFFDF9',
+            borderColor: theme.cardBorder,
+          },
+        ]}
+      >
+        {/* Ornate Golden Inner Margin Frame */}
+        <View style={[styles.ornateBorder, { borderColor: GOLD_BORDER }]}>
+          {/* Corner Flourishes */}
+          <Text style={[styles.cornerFlourish, styles.flourishTL]}>✦</Text>
+          <Text style={[styles.cornerFlourish, styles.flourishTR]}>✦</Text>
+          <Text style={[styles.cornerFlourish, styles.flourishBL]}>✦</Text>
+          <Text style={[styles.cornerFlourish, styles.flourishBR]}>✦</Text>
+
+          {/* Page Top Header Bar */}
+          <View style={styles.insideHeaderBar}>
+            <View
+              style={[styles.pageSourceBadge, { backgroundColor: theme.tagBg }]}
+            >
+              <Text
+                style={[styles.pageSourceText, { color: theme.tagText }]}
+                numberOfLines={1}
+              >
+                {pageSource || category}
+              </Text>
+            </View>
+          </View>
+
+          {/* Scrollable Page Body */}
+          <ScrollView
+            style={styles.pageScrollView}
+            contentContainerStyle={styles.pageScrollContent}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={isInteractive}
+            bounces={false}
+          >
+            {/* Holy Shloka Card */}
+            {pageShloka ? (
+              <View
+                style={[
+                  styles.shlokaBox,
+                  {
+                    backgroundColor:
+                      theme.bg === '#121215' || theme.bg === colors.black
+                        ? '#222736'
+                        : theme.bg === '#FAF5EC'
+                        ? '#F1E6D0'
+                        : '#FCF7EC',
+                    borderColor: GOLD_BORDER,
+                  },
+                ]}
+              >
+                <View style={styles.shlokaHeaderPill}>
+                  <Text style={[styles.shlokaTagText, { color: GOLD_ACCENT }]}>
+                    ✦ पावन श्लोक ✦
+                  </Text>
+                </View>
+                <Text
+                  style={[
+                    styles.shlokaVerseText,
+                    {
+                      color: theme.text,
+                      fontSize: fs(Math.max(12, fontSize - 1.5)),
+                    },
+                  ]}
+                >
+                  {pageShloka}
+                </Text>
+                {pageShlokaTrans ? (
+                  <View
+                    style={[styles.shlokaDivider, { borderColor: GOLD_BORDER }]}
+                  >
+                    <Text
+                      style={[
+                        styles.shlokaMeaningText,
+                        {
+                          color: theme.textSecondary,
+                          fontSize: fs(Math.max(10.5, fontSize - 3)),
+                        },
+                      ]}
+                    >
+                      {pageShlokaTrans}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+            ) : null}
+
+            {/* Narrative Content */}
+            {paragraphs.map((para, idx) => (
+              <Text
+                key={`p-${idx}`}
+                style={[
+                  styles.narrativeParagraph,
+                  {
+                    color: theme.text,
+                    fontSize: fs(fontSize),
+                    lineHeight: fs(fontSize * 1.55),
+                  },
+                ]}
+              >
+                {para}
+              </Text>
+            ))}
+
+            {/* Moral Wisdom Card */}
+            {pageMoral ? (
+              <View
+                style={[
+                  styles.moralCard,
+                  {
+                    backgroundColor:
+                      theme.bg === '#121215' || theme.bg === colors.black
+                        ? '#202638'
+                        : theme.bg === '#FAF5EC'
+                        ? '#EFE2C6'
+                        : '#FEF8EB',
+                    borderColor: GOLD_ACCENT,
+                  },
+                ]}
+              >
+                <Text style={[styles.moralCardHeader, { color: theme.accent }]}>
+                  ✦ दिव्य सीख ✦
+                </Text>
+                <Text
+                  style={[
+                    styles.moralCardText,
+                    {
+                      color: theme.text,
+                      fontSize: fs(Math.max(11.5, fontSize - 2)),
+                      lineHeight: fs(fontSize * 1.45),
+                    },
+                  ]}
+                >
+                  {pageMoral}
+                </Text>
+              </View>
+            ) : null}
+          </ScrollView>
+
+          {/* Footer Bar */}
+          <View style={styles.insideFooterRow}>
+            <Text
+              style={[
+                styles.footerCategoryText,
+                { color: theme.textSecondary },
+              ]}
+            >
+              {category}
+            </Text>
+          </View>
+        </View>
+      </View>
     );
+  };
 
-    return {
-      transform: [
-        { perspective: 1400 },
-        { translateX: -BOOK_WIDTH / 2 },
-        { rotateY: `${rotateY}deg` },
-        { translateX: BOOK_WIDTH / 2 },
-      ],
-    };
-  });
+  // Render Front Cover Page
+  const renderCoverFront = () => (
+    <View style={styles.coverFaceContainer}>
+      {story.image ? (
+        <Image
+          source={story.image}
+          style={styles.coverImage}
+          resizeMode="cover"
+        />
+      ) : (
+        <View
+          style={[styles.coverPlaceholder, { backgroundColor: colors.ring }]}
+        />
+      )}
 
-  // Front Cover visibility (visible when 0deg to -90deg)
-  const frontCoverStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      flipProgress.value,
-      [0, 0.48, 0.5, 1],
-      [1, 1, 0, 0],
-      Extrapolation.CLAMP,
-    );
-    return {
-      opacity,
-      zIndex: flipProgress.value < 0.5 ? 10 : 0,
-    };
-  });
+      {/* Rich Vignette Gradient */}
+      <LinearGradient
+        colors={['rgba(0,0,0,0.15)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.9)']}
+        style={styles.coverGradient}
+      >
+        {/* Top Category Badge */}
+        <View style={styles.topBadgeRow}>
+          <View style={styles.categoryGlassBadge}>
+            <Text style={styles.categoryGlassBadgeText}>{category}</Text>
+          </View>
+        </View>
 
-  // Back of Cover visibility (visible when -90deg to -180deg)
-  const backCoverStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      flipProgress.value,
-      [0, 0.5, 0.52, 1],
-      [0, 0, 1, 1],
-      Extrapolation.CLAMP,
-    );
-    return {
-      opacity,
-      zIndex: flipProgress.value >= 0.5 ? 10 : 0,
-    };
-  });
+        {/* Bottom Cover Title & Open Prompt */}
+        <View style={styles.coverBottomInfo}>
+          <Text style={styles.coverTitleText} numberOfLines={2}>
+            {title}
+          </Text>
+          {subtitle ? (
+            <Text style={styles.coverSubtitleText} numberOfLines={1}>
+              {subtitle}
+            </Text>
+          ) : null}
 
-  // Dynamic spine shadow overlay on the turning page
-  const curlShadowStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      flipProgress.value,
-      [0, 0.25, 0.5, 0.75, 1],
-      [0, 0.45, 0.6, 0.3, 0],
-      Extrapolation.CLAMP,
-    );
-    return { opacity };
-  });
+          {/* Open Book Prompt Button */}
+          <TouchableOpacity
+            style={styles.openBookPromptBadge}
+            onPress={handleNextPage}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.openBookPromptText}>📖 पुस्तक खोलें ➔</Text>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
 
-  // Underneath page shadow (cast onto the right page while turning)
-  const underPageShadowStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      flipProgress.value,
-      [0, 0.2, 0.7, 1],
-      [0.65, 0.4, 0.1, 0],
-      Extrapolation.CLAMP,
-    );
-    return { opacity };
-  });
+      {/* Golden Ribbon Bookmark */}
+      <View style={styles.ribbonBookmark}>
+        <View style={styles.ribbonTail} />
+      </View>
+    </View>
+  );
+
+  // Render Inside Left Reflection Page
+  const renderBackFace = (isCoverBack: boolean) => (
+    <View
+      style={[
+        styles.coverFaceBack,
+        {
+          backgroundColor:
+            theme.bg === '#121215' || theme.bg === colors.black
+              ? '#161922'
+              : theme.bg === '#FAF5EC'
+              ? '#F4ECE0'
+              : '#FBF8F2',
+        },
+      ]}
+    >
+      <View style={[styles.backFaceInnerBorder, { borderColor: GOLD_BORDER }]}>
+        <Text style={styles.backFaceOm}>ॐ</Text>
+        <Text style={[styles.backFaceMantra, { color: theme.accent }]}>
+          ॥ श्री गुरुभ्यो नमः ॥
+        </Text>
+
+        <View style={styles.backFaceDivider} />
+
+        <Text style={[styles.backFaceDedicationTitle, { color: theme.text }]}>
+          {isCoverBack ? 'ज्ञानं परमं ध्येयम्' : 'पवित्र गाथा'}
+        </Text>
+
+        <Text
+          style={[
+            styles.backFaceDedicationBody,
+            { color: theme.textSecondary },
+          ]}
+          numberOfLines={4}
+        >
+          {isCoverBack
+            ? 'यह दिव्य गाथा आत्म-ज्ञान, धर्म और सत्य के मार्ग को प्रकाशित करती है।'
+            : 'कर्मण्येवाधिकारस्ते मा फलेषु कदाचन — कर्तव्य ही पूजा है।'}
+        </Text>
+
+        <View style={styles.backFaceDivider} />
+
+        <Text
+          style={[styles.backFaceSourceNote, { color: theme.textSecondary }]}
+        >
+          {source}
+        </Text>
+      </View>
+    </View>
+  );
+
+  // Total sheets = totalPages (Sheet 0 = Cover, Sheet 1..totalPages-1 = Pages 1..N-1)
+  // Base underneath page = Last Page (Page totalPages)
+  const lastPageData = pages[totalPages - 1] || pages[0];
 
   return (
     <View style={styles.outerContainer}>
       {/* 3D Stacked Book Container */}
-      <GestureDetector gesture={composedGesture}>
+      <GestureDetector gesture={panGesture}>
         <View style={styles.bookWrapper}>
-          {/* Multiple Page Layer Shadows on Right & Bottom to simulate 3D book thickness */}
+          {/* Multiple Page Layer Shadows */}
           <View
             style={[
               styles.paperPageLayer2,
@@ -241,281 +803,182 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
             ]}
           />
 
-          {/* Book Spine (Left Stitched Leather Border) */}
-          {/* <View style={styles.spineHinge}>
-            <LinearGradient
-              colors={['#3D1E06', '#663309', '#2E1503']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.spineGradient}
-            >
-              <View style={styles.spineRibbonStitch} />
-              <View style={styles.spineRibbonStitch} />
-              <View style={styles.spineRibbonStitch} />
-            </LinearGradient>
-          </View> */}
+          {/* ============================================================ */}
+          {/* BASE UNDERNEATH PAGE: Last Page in stack                     */}
+          {/* ============================================================ */}
+          {renderInsidePageContent(lastPageData, currentPage === totalPages)}
 
           {/* ============================================================ */}
-          {/* LAYER 1: BASE INSIDE RIGHT PAGE (Revealed when cover flips) */}
+          {/* STACKED ANIMATED SHEETS (Cover + Pages)                       */}
           {/* ============================================================ */}
-          <View
-            style={[
-              styles.insidePageContainer,
-              {
-                backgroundColor:
-                  theme.bg === colors.black
-                    ? '#161922'
-                    : theme.bg === '#F4E8D1'
-                    ? '#F9F1E2'
-                    : '#FFFDF9',
-                borderColor: theme.cardBorder,
-              },
-            ]}
-          >
-            {/* Ornate Golden Inner Margin Frame */}
-            <View style={[styles.ornateBorder, { borderColor: GOLD_BORDER }]}>
-              {/* Corner Ornaments */}
-              <Text style={[styles.cornerFlourish, styles.flourishTL]}>✦</Text>
-              <Text style={[styles.cornerFlourish, styles.flourishTR]}>✦</Text>
-              <Text style={[styles.cornerFlourish, styles.flourishBL]}>✦</Text>
-              <Text style={[styles.cornerFlourish, styles.flourishBR]}>✦</Text>
 
-              {/* Inside Page Header */}
-              <View style={styles.insideHeader}>
-                <Text
-                  style={[styles.insidePrologueLabel, { color: theme.accent }]}
-                >
-                  {currentLang === 'hi'
-                    ? '✦ प्रस्तावना • अध्याय १ ✦'
-                    : '✦ PROLOGUE • CHAPTER I ✦'}
-                </Text>
-                <Text
-                  style={[styles.insideTitle, { color: theme.text }]}
-                  numberOfLines={2}
-                >
-                  {title}
-                </Text>
-                {subtitle ? (
-                  <Text
-                    style={[
-                      styles.insideSubtitle,
-                      { color: theme.textSecondary },
-                    ]}
-                  >
-                    {subtitle}
-                  </Text>
-                ) : null}
-              </View>
+          {/* Sheet 0: Cover (Turns to reveal Page 1) */}
+          <BookSheet
+            index={0}
+            totalSheets={totalPages}
+            progress={sheetProgress0}
+            frontContent={renderCoverFront()}
+            backContent={renderBackFace(true)}
+          />
 
-              {/* Sacred Shloka Card if available */}
-              {shloka ? (
-                <View
-                  style={[
-                    styles.insideShlokaBox,
-                    {
-                      backgroundColor:
-                        theme.bg === '#0D0E12'
-                          ? '#1E2330'
-                          : theme.bg === '#F4E8D1'
-                          ? '#EDE0C8'
-                          : '#FBF5EB',
-                      borderColor: GOLD_BORDER,
-                    },
-                  ]}
-                >
-                  <Text
-                    style={[styles.insideShlokaVerse, { color: theme.text }]}
-                    numberOfLines={3}
-                  >
-                    {shloka}
-                  </Text>
-                  {shlokaTranslation ? (
-                    <Text
-                      style={[
-                        styles.insideShlokaMeaning,
-                        { color: theme.textSecondary },
-                      ]}
-                      numberOfLines={2}
-                    >
-                      {shlokaTranslation}
-                    </Text>
-                  ) : null}
-                </View>
-              ) : (
-                <Text
-                  style={[styles.insideExcerptText, { color: theme.text }]}
-                  numberOfLines={6}
-                >
-                  {excerpt}
-                </Text>
-              )}
+          {/* Sheets 1 to totalPages-1: Story Pages */}
+          {pages.slice(0, totalPages - 1).map((pageItem, idx) => {
+            const sheetIdx = idx + 1;
+            const progressSharedVal = sheetProgressList[sheetIdx];
+            if (!progressSharedVal) return null;
 
-              {/* Meta information tags */}
-              <View style={styles.insideFooterRow}>
-                <View
-                  style={[styles.insideTag, { backgroundColor: theme.tagBg }]}
-                >
-                  <Text
-                    style={[styles.insideTagText, { color: theme.tagText }]}
-                  >
-                    {category}
-                  </Text>
-                </View>
-                <Text
-                  style={[styles.insideSource, { color: theme.textSecondary }]}
-                >
-                  {source}
-                </Text>
-              </View>
+            return (
+              <BookSheet
+                key={`sheet-${sheetIdx}`}
+                index={sheetIdx}
+                totalSheets={totalPages}
+                progress={progressSharedVal}
+                frontContent={renderInsidePageContent(
+                  pageItem,
+                  currentPage === sheetIdx,
+                )}
+                backContent={renderBackFace(false)}
+              />
+            );
+          })}
 
-              {/* Flip back instruction hint */}
-              <View style={styles.flipBackHintRow}>
-                <Text
-                  style={[styles.flipBackHintText, { color: theme.accent }]}
-                >
-                  {currentLang === 'hi'
-                    ? '↩ मुखपृष्ठ बंद करें'
-                    : '↩ Tap to Close Cover'}
-                </Text>
+          {/* Floating Page-Turning Status Indicator */}
+          {isFlipping && (
+            <View style={styles.loadingOverlay} pointerEvents="none">
+              <View
+                style={[
+                  styles.loadingPill,
+                  {
+                    backgroundColor: 'rgba(18, 18, 23, 0.88)',
+                    borderColor: GOLD_BORDER,
+                  },
+                ]}
+              >
+                <ActivityIndicator
+                  size="small"
+                  color={GOLD_ACCENT}
+                  style={styles.loadingSpinner}
+                />
+                <Text style={styles.loadingText}>पृष्ठ तैयार हो रहा है...</Text>
               </View>
             </View>
+          )}
+        </View>
+      </GestureDetector>
 
-            {/* Dynamic Shadow Cast by turning leaf */}
-            <Animated.View
-              style={[styles.underPageShadow, underPageShadowStyle]}
-            />
-          </View>
-
-          {/* ============================================================ */}
-          {/* LAYER 2: THE TURNING LEAF (Animated 3D Page Flip) */}
-          {/* ============================================================ */}
-          <Animated.View style={[styles.turningLeaf, leafAnimatedStyle]}>
-            {/* FRONT FACE: Book Cover Image & Embossed Title */}
-            <Animated.View style={[styles.coverFaceFront, frontCoverStyle]}>
-              {story.image ? (
-                <Image
-                  source={story.image}
-                  style={styles.coverImage}
-                  resizeMode="cover"
-                />
-              ) : (
-                <View
-                  style={[
-                    styles.coverPlaceholder,
-                    { backgroundColor: colors.ring },
-                  ]}
-                />
-              )}
-
-              {/* Rich Vignette Gradient */}
-              <LinearGradient
-                colors={[
-                  'rgba(0,0,0,0.1)',
-                  'rgba(0,0,0,0.3)',
-                  'rgba(0,0,0,0.85)',
-                ]}
-                style={styles.coverGradient}
-              >
-                {/* Top Badge: Category */}
-                <View style={styles.topBadgeRow}>
-                  <View style={styles.categoryGlassBadge}>
-                    <Text style={styles.categoryGlassBadgeText}>
-                      {category}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Bottom Cover Title & Open Prompt */}
-                <View style={styles.coverBottomInfo}>
-                  <Text style={styles.coverTitleText} numberOfLines={2}>
-                    {title}
-                  </Text>
-                  {subtitle ? (
-                    <Text style={styles.coverSubtitleText} numberOfLines={1}>
-                      {subtitle}
-                    </Text>
-                  ) : null}
-                </View>
-              </LinearGradient>
-
-              {/* Dynamic Page Curl Shadow Overlay */}
-              <Animated.View
-                style={[styles.curlShadowOverlay, curlShadowStyle]}
-              />
-            </Animated.View>
-
-            {/* Golden Ribbon Marker - attached to cover page so it moves with the 3D flip */}
-            <Animated.View style={[styles.ribbonBookmark, frontCoverStyle]}>
-              <View style={styles.ribbonTail} />
-            </Animated.View>
-
-            {/* BACK FACE: Inside Left Page (Ex Libris / Dedication) */}
-            <Animated.View
+      {/* ============================================================ */}
+      {/* BOTTOM BOOK NAVIGATION CONTROLS BAR                         */}
+      {/* ============================================================ */}
+      <View style={styles.bottomNavBar}>
+        {/* Previous Button */}
+        <TouchableOpacity
+          style={[
+            styles.navPageBtn,
+            { backgroundColor: theme.surface, borderColor: theme.border },
+            (currentPage === 0 || isFlipping) && styles.navBtnDisabled,
+          ]}
+          onPress={handlePrevPage}
+          disabled={currentPage === 0 || isFlipping}
+          activeOpacity={0.7}
+        >
+          {isFlipping && gestureDir.value === 'backward' ? (
+            <ActivityIndicator size="small" color={theme.accent} />
+          ) : (
+            <Text
               style={[
-                styles.coverFaceBack,
-                backCoverStyle,
+                styles.navBtnText,
+                { color: currentPage === 0 ? theme.textSecondary : theme.text },
+              ]}
+            >
+              ‹ पिछला
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        {/* Page Dots & Jumper */}
+        <View style={styles.pageDotsContainer}>
+          <TouchableOpacity
+            onPress={() => handleJumpToPage(0)}
+            disabled={isFlipping}
+            style={[
+              styles.pageDot,
+              currentPage === 0
+                ? [styles.pageDotActive, { backgroundColor: theme.accent }]
+                : { backgroundColor: theme.surfaceSubtle },
+            ]}
+          >
+            <Text
+              style={[
+                styles.dotLabel,
+                { color: currentPage === 0 ? '#FFF' : theme.textSecondary },
+              ]}
+            >
+              मुख
+            </Text>
+          </TouchableOpacity>
+
+          {pages.map((_, idx) => {
+            const pageNum = idx + 1;
+            const isActive = currentPage === pageNum;
+            return (
+              <TouchableOpacity
+                key={`dot-${pageNum}`}
+                onPress={() => handleJumpToPage(pageNum)}
+                disabled={isFlipping}
+                style={[
+                  styles.pageDot,
+                  isActive
+                    ? [styles.pageDotActive, { backgroundColor: theme.accent }]
+                    : { backgroundColor: theme.surfaceSubtle },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.dotLabel,
+                    { color: isActive ? '#FFF' : theme.textSecondary },
+                  ]}
+                >
+                  {toHindiNumeral(pageNum)}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* Next Button */}
+        <TouchableOpacity
+          style={[
+            styles.navPageBtn,
+            { backgroundColor: theme.surface, borderColor: theme.border },
+            (currentPage === totalPages || isFlipping) && styles.navBtnDisabled,
+          ]}
+          onPress={handleNextPage}
+          disabled={currentPage === totalPages || isFlipping}
+          activeOpacity={0.7}
+        >
+          {isFlipping && gestureDir.value === 'forward' ? (
+            <ActivityIndicator size="small" color={theme.accent} />
+          ) : (
+            <Text
+              style={[
+                styles.navBtnText,
                 {
-                  backgroundColor:
-                    theme.bg === '#0D0E12'
-                      ? '#191C26'
-                      : theme.bg === '#F4E8D1'
-                      ? '#F2E6D0'
-                      : '#FDFBF7',
+                  color:
+                    currentPage === totalPages
+                      ? theme.textSecondary
+                      : theme.accent,
                 },
               ]}
             >
-              <View
-                style={[
-                  styles.backFaceInnerBorder,
-                  { borderColor: GOLD_BORDER },
-                ]}
-              >
-                <Text style={styles.backFaceOm}>ॐ</Text>
-                <Text style={[styles.backFaceMantra, { color: theme.accent }]}>
-                  {currentLang === 'hi'
-                    ? '॥ श्री गुरुभ्यो नमः ॥'
-                    : '॥ Om Namo Bhagavate Vasudevaya ॥'}
-                </Text>
-
-                <View style={styles.backFaceDivider} />
-
-                <Text
-                  style={[
-                    styles.backFaceDedicationTitle,
-                    { color: theme.text },
-                  ]}
-                >
-                  {currentLang === 'hi'
-                    ? 'ज्ञानं परमं ध्येयम्'
-                    : 'Sacred Wisdom'}
-                </Text>
-                <Text
-                  style={[
-                    styles.backFaceDedicationBody,
-                    { color: theme.textSecondary },
-                  ]}
-                  numberOfLines={4}
-                >
-                  {currentLang === 'hi'
-                    ? 'यह दिव्य गाथा आत्म-ज्ञान, धर्म और सत्य के मार्ग को प्रकाशित करती है।'
-                    : 'This sacred narrative illuminates the path of Dharma, righteous action, and spiritual clarity.'}
-                </Text>
-
-                <View style={styles.backFaceDivider} />
-
-                <Text
-                  style={[
-                    styles.backFaceSourceNote,
-                    { color: theme.textSecondary },
-                  ]}
-                >
-                  {source}
-                </Text>
-              </View>
-            </Animated.View>
-          </Animated.View>
-        </View>
-      </GestureDetector>
+              {currentPage === 0
+                ? 'खोलें ›'
+                : currentPage === totalPages
+                ? 'पूर्ण ✓'
+                : 'अगला ›'}
+            </Text>
+          )}
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -525,17 +988,18 @@ export default FlipBookCover;
 const styles = StyleSheet.create({
   outerContainer: {
     alignItems: 'center',
-    marginVertical: scale(14),
+    marginVertical: scale(8),
+    flex: 1,
+    justifyContent: 'center',
   },
   bookWrapper: {
     width: BOOK_WIDTH,
     height: BOOK_HEIGHT,
     position: 'relative',
     borderRadius: scale(14),
-    // borderColor: colors.ring,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.22,
+    shadowOpacity: 0.25,
     shadowRadius: 12,
     elevation: 8,
   },
@@ -562,63 +1026,6 @@ const styles = StyleSheet.create({
     zIndex: 0,
   },
 
-  // Left spine hinge band
-  spineHinge: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: -scale(4),
-    width: scale(16),
-    zIndex: 25,
-    borderTopLeftRadius: scale(14),
-    borderBottomLeftRadius: scale(14),
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 0 },
-    shadowOpacity: 0.35,
-    shadowRadius: 4,
-    elevation: 6,
-  },
-  spineGradient: {
-    flex: 1,
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingVertical: scale(20),
-  },
-  spineRibbonStitch: {
-    width: scale(8),
-    height: scale(2),
-    backgroundColor: 'rgba(255, 215, 0, 0.4)',
-    borderRadius: 1,
-  },
-
-  ribbonBookmark: {
-    position: 'absolute',
-    top: -scale(6),
-    right: scale(36),
-    width: scale(14),
-    height: scale(30),
-    backgroundColor: colors.ring,
-    zIndex: 25,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    elevation: 4,
-  },
-  ribbonTail: {
-    position: 'absolute',
-    bottom: -scale(4),
-    left: 0,
-    right: 0,
-    borderLeftWidth: scale(7),
-    borderRightWidth: scale(7),
-    borderBottomWidth: scale(4),
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderBottomColor: 'transparent',
-  },
-
   // BASE RIGHT INSIDE PAGE
   insidePageContainer: {
     position: 'absolute',
@@ -628,8 +1035,8 @@ const styles = StyleSheet.create({
     height: BOOK_HEIGHT,
     borderRadius: scale(14),
     borderWidth: 1.5,
-    padding: scale(14),
-    paddingLeft: scale(22),
+    padding: scale(10),
+    paddingLeft: scale(14),
     zIndex: 2,
     overflow: 'hidden',
   },
@@ -637,13 +1044,13 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     borderRadius: scale(8),
-    padding: scale(12),
+    padding: scale(10),
     justifyContent: 'space-between',
     position: 'relative',
   },
   cornerFlourish: {
     position: 'absolute',
-    fontSize: fs(12),
+    fontSize: fs(11),
     color: GOLD_ACCENT,
     fontWeight: 'bold',
   },
@@ -652,55 +1059,87 @@ const styles = StyleSheet.create({
   flourishBL: { bottom: scale(3), left: scale(4) },
   flourishBR: { bottom: scale(3), right: scale(4) },
 
-  insideHeader: {
+  insideHeaderBar: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: scale(2),
+    marginBottom: scale(6),
+    paddingHorizontal: scale(4),
   },
-  insidePrologueLabel: {
+  pageSourceBadge: {
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(2.5),
+    borderRadius: scale(6),
+  },
+  pageSourceText: {
     fontFamily: fonts.PoppinsSemiBold,
     fontSize: fs(9),
-    letterSpacing: 1.2,
-    marginBottom: scale(3),
-  },
-  insideTitle: {
-    fontFamily: fonts.PoppinsBold,
-    fontSize: fs(15),
-    textAlign: 'center',
-    lineHeight: fs(20),
-  },
-  insideSubtitle: {
-    fontFamily: fonts.PoppinsRegular,
-    fontSize: fs(10),
-    textAlign: 'center',
-    marginTop: scale(2),
   },
 
-  insideShlokaBox: {
+  pageScrollView: {
+    flex: 1,
+    marginVertical: scale(2),
+  },
+  pageScrollContent: {
+    paddingVertical: scale(4),
+    paddingHorizontal: scale(2),
+  },
+
+  shlokaBox: {
+    marginVertical: scale(6),
+    padding: scale(10),
+    borderRadius: scale(8),
+    borderWidth: 1,
+  },
+  shlokaHeaderPill: {
+    alignItems: 'center',
+    marginBottom: scale(4),
+  },
+  shlokaTagText: {
+    fontFamily: fonts.PoppinsBold,
+    fontSize: fs(9),
+    letterSpacing: 1,
+  },
+  shlokaVerseText: {
+    fontFamily: fonts.Marcellus,
+    lineHeight: fs(19),
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  shlokaDivider: {
+    borderTopWidth: 0.8,
+    marginTop: scale(6),
+    paddingTop: scale(4),
+  },
+  shlokaMeaningText: {
+    fontFamily: fonts.PoppinsRegular,
+    lineHeight: fs(15),
+    textAlign: 'center',
+  },
+
+  narrativeParagraph: {
+    fontFamily: fonts.PoppinsRegular,
+    marginBottom: scale(10),
+    letterSpacing: 0.2,
+    textAlign: 'justify',
+  },
+
+  moralCard: {
     marginVertical: scale(8),
     padding: scale(10),
     borderRadius: scale(8),
     borderWidth: 1,
   },
-  insideShlokaVerse: {
-    fontFamily: fonts.Marcellus,
-    fontSize: fs(12),
-    lineHeight: fs(18),
+  moralCardHeader: {
+    fontFamily: fonts.PoppinsBold,
+    fontSize: fs(10),
+    marginBottom: scale(3),
     textAlign: 'center',
+  },
+  moralCardText: {
+    fontFamily: fonts.PoppinsMedium,
     fontStyle: 'italic',
-  },
-  insideShlokaMeaning: {
-    fontFamily: fonts.PoppinsRegular,
-    fontSize: fs(9.5),
-    lineHeight: fs(14),
     textAlign: 'center',
-    marginTop: scale(4),
-  },
-  insideExcerptText: {
-    fontFamily: fonts.PoppinsRegular,
-    fontSize: fs(11),
-    lineHeight: fs(17),
-    textAlign: 'justify',
-    marginVertical: scale(8),
   },
 
   insideFooterRow: {
@@ -708,34 +1147,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: scale(4),
+    paddingHorizontal: scale(4),
   },
-  insideTag: {
-    paddingHorizontal: scale(8),
-    paddingVertical: scale(2.5),
-    borderRadius: scale(6),
-  },
-  insideTagText: {
-    fontFamily: fonts.PoppinsMedium,
-    fontSize: fs(9),
-  },
-  insideSource: {
+  footerCategoryText: {
     fontFamily: fonts.PoppinsRegular,
-    fontSize: fs(9),
-  },
-  flipBackHintRow: {
-    alignItems: 'center',
-    marginTop: scale(6),
-    paddingTop: scale(4),
-  },
-  flipBackHintText: {
-    fontFamily: fonts.PoppinsSemiBold,
-    fontSize: fs(10),
-    letterSpacing: 0.5,
-  },
-  underPageShadow: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: '#000',
-    pointerEvents: 'none',
+    fontSize: fs(8.5),
   },
 
   // THE TURNING LEAF
@@ -746,15 +1162,16 @@ const styles = StyleSheet.create({
     width: BOOK_WIDTH,
     height: BOOK_HEIGHT,
     borderRadius: scale(14),
-    zIndex: 15,
   },
   coverFaceFront: {
     ...StyleSheet.absoluteFill,
     borderRadius: scale(14),
     overflow: 'hidden',
     borderColor: '#1E1E1E',
-    borderLeftWidth: 8,
-    // backgroundColor: '#1E1E1E',
+    borderLeftWidth: 6,
+  },
+  coverFaceContainer: {
+    flex: 1,
   },
   coverImage: {
     width: '100%',
@@ -768,7 +1185,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     justifyContent: 'space-between',
     padding: scale(14),
-    paddingLeft: scale(22),
+    paddingLeft: scale(20),
   },
   topBadgeRow: {
     flexDirection: 'row',
@@ -788,17 +1205,7 @@ const styles = StyleSheet.create({
     fontSize: fs(9.5),
     color: '#FFD700',
   },
-  readingTimeGlassBadge: {
-    backgroundColor: 'rgba(0, 0, 0, 0.55)',
-    paddingHorizontal: scale(8),
-    paddingVertical: scale(3),
-    borderRadius: scale(8),
-  },
-  readingTimeGlassBadgeText: {
-    fontFamily: fonts.PoppinsMedium,
-    fontSize: fs(9.5),
-    color: '#FFF',
-  },
+
   coverBottomInfo: {
     marginBottom: scale(4),
   },
@@ -835,19 +1242,52 @@ const styles = StyleSheet.create({
     fontSize: fs(10.5),
     color: '#FFF',
   },
+
+  ribbonBookmark: {
+    position: 'absolute',
+    top: -scale(6),
+    right: scale(32),
+    width: scale(14),
+    height: scale(28),
+    backgroundColor: colors.ring,
+    zIndex: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  ribbonTail: {
+    position: 'absolute',
+    bottom: -scale(4),
+    left: 0,
+    right: 0,
+    borderLeftWidth: scale(7),
+    borderRightWidth: scale(7),
+    borderBottomWidth: scale(4),
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: 'transparent',
+  },
+
   curlShadowOverlay: {
     ...StyleSheet.absoluteFill,
     backgroundColor: '#000',
     pointerEvents: 'none',
   },
 
-  // BACK FACE (shown when flipped 180deg)
-  coverFaceBack: {
+  // BACK FACE
+  coverFaceBackWrap: {
     ...StyleSheet.absoluteFill,
     borderRadius: scale(14),
-    padding: scale(16),
-    paddingRight: scale(22),
-    transform: [{ scaleX: -1 }], // flips content so it reads naturally when page is turned over
+    overflow: 'hidden',
+  },
+  coverFaceBack: {
+    flex: 1,
+    borderRadius: scale(14),
+    padding: scale(14),
+    paddingRight: scale(18),
+    transform: [{ scaleX: -1 }],
     borderWidth: 1.5,
     borderColor: colors.borderLight,
     justifyContent: 'center',
@@ -856,53 +1296,112 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     borderRadius: scale(8),
-    padding: scale(14),
+    padding: scale(12),
     alignItems: 'center',
     justifyContent: 'center',
   },
   backFaceOm: {
-    fontSize: fs(26),
+    fontSize: fs(24),
     color: GOLD_ACCENT,
     fontFamily: fonts.Marcellus,
   },
   backFaceMantra: {
     fontFamily: fonts.PoppinsSemiBold,
-    fontSize: fs(10),
+    fontSize: fs(9.5),
     letterSpacing: 0.8,
-    marginTop: scale(4),
+    marginTop: scale(3),
   },
   backFaceDivider: {
-    width: scale(80),
+    width: scale(70),
     height: 1,
     backgroundColor: GOLD_ACCENT,
     opacity: 0.4,
-    marginVertical: scale(10),
+    marginVertical: scale(8),
   },
   backFaceDedicationTitle: {
     fontFamily: fonts.PoppinsBold,
-    fontSize: fs(13),
+    fontSize: fs(12),
   },
   backFaceDedicationBody: {
     fontFamily: fonts.PoppinsRegular,
-    fontSize: fs(10),
-    lineHeight: fs(15),
+    fontSize: fs(9.5),
+    lineHeight: fs(14),
     textAlign: 'center',
-    marginTop: scale(4),
+    marginTop: scale(3),
   },
   backFaceSourceNote: {
     fontFamily: fonts.PoppinsRegular,
-    fontSize: fs(9),
+    fontSize: fs(8.5),
     fontStyle: 'italic',
   },
 
-  // Bottom helper text
-  indicatorRow: {
-    marginTop: scale(6),
+  // Bottom Nav Bar
+  bottomNavBar: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    width: BOOK_WIDTH,
+    marginTop: scale(10),
+    paddingHorizontal: scale(4),
   },
-  indicatorText: {
+  navPageBtn: {
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(6),
+    borderRadius: scale(8),
+    borderWidth: 1,
+  },
+  navBtnDisabled: {
+    opacity: 0.4,
+  },
+  navBtnText: {
+    fontFamily: fonts.PoppinsSemiBold,
+    fontSize: fs(11),
+  },
+  pageDotsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(4),
+  },
+  pageDot: {
+    paddingHorizontal: scale(7),
+    paddingVertical: scale(3),
+    borderRadius: scale(6),
+  },
+  pageDotActive: {
+    borderRadius: scale(6),
+  },
+  dotLabel: {
+    fontFamily: fonts.PoppinsBold,
+    fontSize: fs(9),
+  },
+
+  // Loading Status Pill Overlay
+  loadingOverlay: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  loadingPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: scale(14),
+    paddingVertical: scale(8),
+    borderRadius: scale(20),
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 10,
+    gap: scale(8),
+  },
+  loadingSpinner: {
+    marginRight: scale(2),
+  },
+  loadingText: {
+    color: '#FFF',
     fontFamily: fonts.PoppinsMedium,
-    fontSize: fs(10),
-    textAlign: 'center',
+    fontSize: fs(11),
   },
 });

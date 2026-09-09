@@ -1,21 +1,13 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   StyleSheet,
   View,
   Text,
-  ScrollView,
   TouchableOpacity,
   StatusBar,
-  Share,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
   Vibration,
-  Image,
 } from 'react-native';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -31,7 +23,6 @@ import {
   MoonIcon,
   BackIcon as Back,
 } from '@components/icons/SvgIcons';
-import AnimatedButton from '@components/AnimatedButton';
 import FlipBookCover from './components/FlipBookCover';
 
 type ReaderTheme = 'sepia' | 'dark' | 'light';
@@ -87,7 +78,6 @@ const triggerHaptic = () => {
 export const TextReadingScreen = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const insets = useSafeAreaInsets();
   const { i18n } = useTranslation();
   const currentLang = (i18n.language === 'hi' ? 'hi' : 'en') as 'en' | 'hi';
 
@@ -105,16 +95,19 @@ export const TextReadingScreen = () => {
     return 'sepia';
   });
 
-  // Font Size Scale State (14 to 22)
-  const [fontSize, setFontSize] = useState<number>(16);
+  // Font Size Scale State (13 to 22)
+  const [fontSize, setFontSize] = useState<number>(15);
 
   // Favorite / Bookmark State
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   // Reading Progress State (0 to 100%)
   const [readingProgress, setReadingProgress] = useState(0);
+  const [pageInfo, setPageInfo] = useState<{ current: number; total: number }>({
+    current: 0,
+    total: story?.pages?.length || 1,
+  });
 
-  const scrollViewRef = useRef<ScrollView>(null);
   const theme = THEME_CONFIGS[themeMode];
 
   // Load Initial Bookmark & Progress State
@@ -128,12 +121,6 @@ export const TextReadingScreen = () => {
       const bookmarks = JSON.parse(rawBookmarks);
       if (Array.isArray(bookmarks)) {
         setIsBookmarked(bookmarks.includes(story.id));
-      }
-
-      const rawProgress = Storage.getString(STORAGE_KEYS.STORY_PROGRESS, '{}');
-      const progressMap = JSON.parse(rawProgress);
-      if (progressMap && typeof progressMap[story.id] === 'number') {
-        setReadingProgress(progressMap[story.id]);
       }
     } catch {}
   }, [story?.id]);
@@ -156,7 +143,7 @@ export const TextReadingScreen = () => {
   };
 
   const decreaseFontSize = () => {
-    if (fontSize > 13.5) {
+    if (fontSize > 13) {
       triggerHaptic();
       setFontSize(prev => prev - 1.5);
     }
@@ -182,66 +169,28 @@ export const TextReadingScreen = () => {
     } catch {}
   };
 
-  // Track Reading Progress on Scroll
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-    const totalHeight = contentSize.height - layoutMeasurement.height;
-    if (totalHeight > 0) {
-      const current = Math.min(
-        100,
-        Math.max(0, Math.round((contentOffset.y / totalHeight) * 100)),
-      );
-      setReadingProgress(current);
+  // Callback when user flips pages in FlipBookCover
+  const handlePageChange = useCallback(
+    (pageIndex: number, total: number) => {
+      setPageInfo({ current: pageIndex, total });
 
       if (story?.id) {
         try {
           const raw = Storage.getString(STORAGE_KEYS.STORY_PROGRESS, '{}');
           const map = JSON.parse(raw) || {};
-          map[story.id] = current;
+
           Storage.set(STORAGE_KEYS.STORY_PROGRESS, JSON.stringify(map));
         } catch {}
       }
-    }
-  };
-
-  // Share Wisdom
-  const handleShareWisdom = async () => {
-    triggerHaptic();
-    if (!story) return;
-
-    const title = currentLang === 'hi' ? story.titleHi : story.titleEn;
-    const quote =
-      currentLang === 'hi'
-        ? story.moralHi || story.descriptionHi
-        : story.moralEn || story.descriptionEn;
-
-    const message = `✨ ${title} ✨\n\n"${quote}"\n\nRead more divine wisdom on GuruVani 🙏`;
-    try {
-      await Share.share({ message, title });
-    } catch {}
-  };
+    },
+    [story?.id],
+  );
 
   if (!story) {
     return null;
   }
 
   const title = currentLang === 'hi' ? story.titleHi : story.titleEn;
-  const subtitle = currentLang === 'hi' ? story.subtitleHi : story.subtitleEn;
-  const category = currentLang === 'hi' ? story.categoryHi : story.categoryEn;
-  const source = currentLang === 'hi' ? story.sourceHi : story.sourceEn;
-  const difficulty =
-    currentLang === 'hi' ? story.difficultyHi : story.difficultyEn;
-  const content = currentLang === 'hi' ? story.contentHi : story.contentEn;
-  const shlokaTranslation =
-    currentLang === 'hi'
-      ? story.shlokaTranslationHi
-      : story.shlokaTranslationEn;
-  const moral = currentLang === 'hi' ? story.moralHi : story.moralEn;
-
-  // Split narrative into readable paragraphs
-  const paragraphs = (content || '')
-    .split('\n\n')
-    .filter(p => p.trim().length > 0);
 
   return (
     <SafeAreaView
@@ -270,11 +219,6 @@ export const TextReadingScreen = () => {
             numberOfLines={1}
           >
             {title}
-          </Text>
-          <Text
-            style={[styles.headerProgressText, { color: theme.textSecondary }]}
-          >
-            {readingProgress}% {currentLang === 'hi' ? 'पढ़ा गया' : 'Read'}
           </Text>
         </View>
 
@@ -325,22 +269,13 @@ export const TextReadingScreen = () => {
         </View>
       </View>
 
-      {/* Subtle Progress Bar */}
-      <View
-        style={[styles.progressTrack, { backgroundColor: theme.surfaceSubtle }]}
-      >
-        <View
-          style={[
-            styles.progressBar,
-            {
-              width: `${readingProgress}%`,
-              backgroundColor: theme.accent,
-            },
-          ]}
-        />
-      </View>
-
-      <FlipBookCover story={story} currentLang={currentLang} theme={theme} />
+      <FlipBookCover
+        story={story}
+        currentLang={currentLang}
+        theme={theme}
+        fontSize={fontSize}
+        onPageChange={handlePageChange}
+      />
     </SafeAreaView>
   );
 };
@@ -400,132 +335,5 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: '100%',
-  },
-  scrollBody: {
-    paddingHorizontal: scale(18),
-    paddingTop: scale(16),
-  },
-  heroCard: {
-    flexDirection: 'row',
-    padding: scale(14),
-    borderRadius: scale(16),
-    borderWidth: 1,
-    marginBottom: scale(18),
-    gap: scale(14),
-    alignItems: 'center',
-  },
-  coverThumbnail: {
-    width: scale(80),
-    height: scale(105),
-    borderRadius: scale(10),
-    resizeMode: 'cover',
-  },
-  heroDetails: {
-    flex: 1,
-  },
-  categoryPill: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: scale(8),
-    paddingVertical: scale(2),
-    borderRadius: scale(6),
-    marginBottom: scale(6),
-  },
-  categoryText: {
-    fontSize: fs(9.5),
-    fontFamily: fonts.PoppinsSemiBold,
-  },
-  bookTitle: {
-    fontSize: fs(16),
-    fontFamily: fonts.Marcellus,
-    lineHeight: fs(21),
-    marginBottom: scale(2),
-  },
-  bookSubtitle: {
-    fontSize: fs(11),
-    fontFamily: fonts.PoppinsMedium,
-    marginBottom: scale(6),
-  },
-  metaRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: scale(6),
-  },
-  metaItem: {
-    fontSize: fs(10),
-    fontFamily: fonts.PoppinsRegular,
-  },
-  shlokaBox: {
-    borderRadius: scale(14),
-    borderWidth: 1.5,
-    padding: scale(16),
-    marginBottom: scale(20),
-  },
-  shlokaHeaderRow: {
-    alignItems: 'center',
-    marginBottom: scale(8),
-  },
-  shlokaTag: {
-    fontSize: fs(10.5),
-    fontFamily: fonts.PoppinsBold,
-    letterSpacing: 1.5,
-  },
-  shlokaText: {
-    fontFamily: fonts.Marcellus,
-    fontSize: fs(16),
-    lineHeight: fs(25),
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
-  shlokaMeaningBox: {
-    marginTop: scale(12),
-    paddingTop: scale(10),
-    borderTopWidth: 1,
-  },
-  meaningTitle: {
-    fontFamily: fonts.PoppinsSemiBold,
-    fontSize: fs(11),
-    marginBottom: scale(2),
-  },
-  meaningText: {
-    fontFamily: fonts.PoppinsRegular,
-    fontSize: fs(12.5),
-    lineHeight: fs(18),
-  },
-  textContainer: {
-    marginBottom: scale(20),
-  },
-  paragraph: {
-    fontFamily: fonts.PoppinsRegular,
-    marginBottom: scale(16),
-    letterSpacing: 0.2,
-  },
-  moralCard: {
-    borderRadius: scale(14),
-    borderWidth: 1.5,
-    padding: scale(16),
-    marginBottom: scale(24),
-  },
-  moralHeader: {
-    fontFamily: fonts.PoppinsBold,
-    fontSize: fs(13),
-    marginBottom: scale(6),
-  },
-  moralContent: {
-    fontFamily: fonts.PoppinsMedium,
-    fontSize: fs(13.5),
-    lineHeight: fs(20),
-    fontStyle: 'italic',
-  },
-  shareBtn: {
-    paddingVertical: scale(12),
-    borderRadius: scale(12),
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: scale(20),
-  },
-  shareBtnText: {
-    color: colors.white,
-    fontFamily: fonts.PoppinsBold,
-    fontSize: fs(13),
   },
 });
