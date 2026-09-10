@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   ActivityIndicator,
   useWindowDimensions,
+  ScrollView,
 } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 
@@ -101,6 +102,18 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
     onPageChange,
     bookWidth,
   });
+
+  const dotsScrollRef = useRef<ScrollView>(null);
+
+  // Auto-center active page dot in the scrollable dot bar
+  useEffect(() => {
+    if (dotsScrollRef.current) {
+      dotsScrollRef.current.scrollTo({
+        x: Math.max(0, (displayPage - 2) * scale(36)),
+        animated: true,
+      });
+    }
+  }, [displayPage]);
 
   // Memoized Content Elements
   const coverFrontElement = useMemo(
@@ -284,56 +297,63 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
           )}
         </TouchableOpacity>
 
-        {/* Page Dots & Jumper */}
-        <View style={styles.pageDotsContainer}>
-          <TouchableOpacity
-            onPress={() => handleJumpToPage(0)}
-            disabled={isFlipping}
-            style={[
-              styles.pageDot,
-              displayPage === 0
-                ? [styles.pageDotActive, { backgroundColor: colors.ring }]
-                : { backgroundColor: theme.surfaceSubtle },
-            ]}
+        {/* Page Dots & Jumper (Scrollable horizontally so 8, 10, 12, 14+ pages never break the layout) */}
+        <View style={styles.pageDotsWrapper}>
+          <ScrollView
+            ref={dotsScrollRef}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.pageDotsScrollContent}
           >
-            <Text
+            <TouchableOpacity
+              onPress={() => handleJumpToPage(0)}
+              disabled={isFlipping}
               style={[
-                styles.dotLabel,
-                {
-                  color: displayPage === 0 ? colors.white : theme.textSecondary,
-                },
+                styles.pageDot,
+                displayPage === 0
+                  ? [styles.pageDotActive, { backgroundColor: colors.ring }]
+                  : { backgroundColor: theme.surfaceSubtle },
               ]}
             >
-              {strings.cover}
-            </Text>
-          </TouchableOpacity>
-
-          {pages.map((_, idx) => {
-            const pageNum = idx + 1;
-            const isActive = displayPage === pageNum;
-            return (
-              <TouchableOpacity
-                key={`dot-${pageNum}`}
-                onPress={() => handleJumpToPage(pageNum)}
-                disabled={isFlipping}
+              <Text
                 style={[
-                  styles.pageDot,
-                  isActive
-                    ? [styles.pageDotActive, { backgroundColor: colors.ring }]
-                    : { backgroundColor: theme.surfaceSubtle },
+                  styles.dotLabel,
+                  {
+                    color: displayPage === 0 ? colors.white : theme.textSecondary,
+                  },
                 ]}
               >
-                <Text
+                {strings.cover}
+              </Text>
+            </TouchableOpacity>
+
+            {pages.map((_, idx) => {
+              const pageNum = idx + 1;
+              const isActive = displayPage === pageNum;
+              return (
+                <TouchableOpacity
+                  key={`dot-${pageNum}`}
+                  onPress={() => handleJumpToPage(pageNum)}
+                  disabled={isFlipping}
                   style={[
-                    styles.dotLabel,
-                    { color: isActive ? colors.white : theme.textSecondary },
+                    styles.pageDot,
+                    isActive
+                      ? [styles.pageDotActive, { backgroundColor: colors.ring }]
+                      : { backgroundColor: theme.surfaceSubtle },
                   ]}
                 >
-                  {formatPageNumber(pageNum, currentLang)}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
+                  <Text
+                    style={[
+                      styles.dotLabel,
+                      { color: isActive ? colors.white : theme.textSecondary },
+                    ]}
+                  >
+                    {formatPageNumber(pageNum, currentLang)}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
         </View>
 
         {/* Next Button */}

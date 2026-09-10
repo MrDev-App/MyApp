@@ -1,8 +1,22 @@
-import React, { useMemo } from 'react';
-import { View, Text, Image, ScrollView } from 'react-native';
+import React, { useMemo, useState, useCallback } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  Modal,
+  TouchableOpacity,
+  StatusBar,
+  useWindowDimensions,
+} from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import colors from '@theme/colors';
-import { fs } from '@theme/sizes';
+import { fs, scale } from '@theme/sizes';
+import imagePath from '@assets/index';
+import { formatPageNumber, triggerHaptic } from '@helper/helper';
+import { ZoomableImage } from './ZoomableImage';
 import { StoryPageViewProps } from './FlipBookCover.types';
 import { styles } from './FlipBookCover.styles';
 import { GOLD_BORDER } from './FlipBookCover.constants';
@@ -20,6 +34,12 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
     totalPages,
   }) => {
     const strings = getStrings(currentLang);
+    const insets = useSafeAreaInsets();
+    const { width: windowWidth } = useWindowDimensions();
+    const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
+      null,
+    );
+    const [isZoomed, setIsZoomed] = useState<boolean>(false);
 
     const isEn = currentLang === 'en';
     const pageSource = isEn
@@ -36,10 +56,54 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
       ? pageData.moralEn || pageData.moralHi
       : pageData.moralHi;
 
+    // Normalize all illustrations on this page
+    const allPageImages: any[] = useMemo(() => {
+      if (
+        pageData.imagePages &&
+        Array.isArray(pageData.imagePages) &&
+        pageData.imagePages.length > 0
+      ) {
+        return pageData.imagePages;
+      }
+      if (Array.isArray(pageData.image) && pageData.image.length > 0) {
+        return pageData.image;
+      }
+      if (pageData.image) {
+        return [pageData.image];
+      }
+      return [];
+    }, [pageData.image, pageData.imagePages]);
+
+    const handleOpenFullscreen = useCallback((idx: number) => {
+      triggerHaptic('week');
+      setSelectedImageIndex(idx);
+      setIsZoomed(false);
+    }, []);
+
+    const handleCloseFullscreen = useCallback(() => {
+      triggerHaptic('week');
+      setSelectedImageIndex(null);
+      setIsZoomed(false);
+    }, []);
+
+    const handlePrevImage = useCallback(() => {
+      triggerHaptic('week');
+      setSelectedImageIndex(prev =>
+        prev !== null && prev > 0 ? prev - 1 : prev,
+      );
+      setIsZoomed(false);
+    }, []);
+
+    const handleNextImage = useCallback(() => {
+      triggerHaptic('week');
+      setSelectedImageIndex(prev =>
+        prev !== null && prev < allPageImages.length - 1 ? prev + 1 : prev,
+      );
+      setIsZoomed(false);
+    }, [allPageImages.length]);
+
     const paragraphs = useMemo(() => {
-      return (pageContent || '')
-        .split('\n\n')
-        .filter(p => p.trim().length > 0);
+      return (pageContent || '').split('\n\n').filter(p => p.trim().length > 0);
     }, [pageContent]);
 
     const pageNumber = pageData?.page || 1;
@@ -73,6 +137,11 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
             <View
               style={[styles.pageSourceBadge, { backgroundColor: theme.tagBg }]}
             >
+              <Image
+                source={imagePath.lotus}
+                style={[styles.headerBadgeIcon, { tintColor: theme.tagText }]}
+                resizeMode="contain"
+              />
               <Text
                 style={[styles.pageSourceText, { color: theme.tagText }]}
                 numberOfLines={1}
@@ -90,41 +159,27 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
             scrollEnabled={isInteractive}
             bounces={false}
           >
-            {/* Page Illustrations from imagePages / image */}
-            {pageData.imagePages && pageData.imagePages.length > 0 ? (
+            {/* Page Illustrations with Tap to Fullscreen & Zoom */}
+            {allPageImages.length > 0 ? (
               <View style={styles.pageImagesContainer}>
-                {pageData.imagePages.map((imgSrc: any, imgIdx: number) => (
-                  <View key={`page-img-${imgIdx}`} style={styles.pageImageCard}>
-                    <Image
-                      source={imgSrc}
-                      style={styles.pageImage}
-                      resizeMode="contain"
-                    />
-                  </View>
-                ))}
-              </View>
-            ) : Array.isArray(pageData.image) && pageData.image.length > 0 ? (
-              <View style={styles.pageImagesContainer}>
-                {pageData.image.map((imgSrc: any, imgIdx: number) => (
-                  <View
-                    key={`page-img-arr-${imgIdx}`}
+                {allPageImages.map((imgSrc: any, imgIdx: number) => (
+                  <TouchableOpacity
+                    key={`page-img-${imgIdx}`}
                     style={styles.pageImageCard}
+                    activeOpacity={0.88}
+                    disabled={!isInteractive}
+                    onPress={() => handleOpenFullscreen(imgIdx)}
                   >
                     <Image
                       source={imgSrc}
                       style={styles.pageImage}
                       resizeMode="contain"
                     />
-                  </View>
+                    <View style={styles.imageZoomBadge}>
+                      <Text style={styles.imageZoomText}>[]</Text>
+                    </View>
+                  </TouchableOpacity>
                 ))}
-              </View>
-            ) : pageData.image ? (
-              <View style={styles.pageImageCard}>
-                <Image
-                  source={pageData.image}
-                  style={styles.pageImage}
-                  resizeMode="contain"
-                />
               </View>
             ) : null}
 
@@ -145,9 +200,7 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                 ]}
               >
                 <View style={styles.shlokaHeaderPill}>
-                  <Text
-                    style={[styles.shlokaTagText, { color: theme.accent }]}
-                  >
+                  <Text style={[styles.shlokaTagText, { color: theme.accent }]}>
                     ✦ {strings.shlokaTranslationHeader} ✦
                   </Text>
                 </View>
@@ -162,6 +215,7 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                 >
                   {pageShloka}
                 </Text>
+
                 {pageShlokaTrans ? (
                   <View
                     style={[
@@ -185,22 +239,127 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
               </View>
             ) : null}
 
-            {/* Narrative Paragraphs */}
-            {paragraphs.map((p, pIdx) => (
-              <Text
-                key={`para-${pIdx}`}
-                style={[
-                  styles.narrativeParagraph,
-                  {
-                    color: theme.text,
-                    fontSize: fs(fontSize),
-                    lineHeight: fs(fontSize * 1.62),
-                  },
-                ]}
-              >
-                {p}
-              </Text>
-            ))}
+            {/* Narrative Paragraphs & Dynamic Visual Cards */}
+            {paragraphs.map((p, pIdx) => {
+              const trimmed = p.trim();
+              const isSectionHeader =
+                trimmed.length <= 70 &&
+                !trimmed.startsWith('"') &&
+                !trimmed.startsWith('“') &&
+                (trimmed.includes(':') ||
+                  /^(?:[०-९\d]+\.|अध्याय|भाग|Table of Contents)/i.test(
+                    trimmed,
+                  ));
+
+              if (isSectionHeader) {
+                return (
+                  <View
+                    key={`para-header-${pIdx}`}
+                    style={[
+                      styles.sectionHeaderCard,
+                      {
+                        backgroundColor:
+                          theme.bg === '#121215' || theme.bg === colors.black
+                            ? '#262A38'
+                            : theme.bg === '#FAF5EC'
+                            ? '#F4E9D5'
+                            : '#F7F3E8',
+                        borderLeftColor: theme.accent,
+                      },
+                    ]}
+                  >
+                    <Image
+                      source={imagePath.lamp}
+                      style={[
+                        styles.sectionHeaderIcon,
+                        { tintColor: theme.accent },
+                      ]}
+                      resizeMode="contain"
+                    />
+                    <Text
+                      style={[
+                        styles.sectionHeaderText,
+                        {
+                          color: theme.accent,
+                          fontSize: fs(fontSize),
+                          lineHeight: fs(fontSize * 1.45),
+                        },
+                      ]}
+                    >
+                      {p}
+                    </Text>
+                  </View>
+                );
+              }
+
+              const isQuote =
+                trimmed.startsWith('"') ||
+                trimmed.startsWith('“') ||
+                trimmed.startsWith('”') ||
+                trimmed.startsWith("'");
+
+              if (isQuote) {
+                return (
+                  <View
+                    key={`para-quote-${pIdx}`}
+                    style={[
+                      styles.quoteCalloutCard,
+                      {
+                        backgroundColor:
+                          theme.bg === '#121215' || theme.bg === colors.black
+                            ? '#24222E'
+                            : theme.bg === '#FAF5EC'
+                            ? '#F7EFE1'
+                            : '#FFFBF2',
+                        borderLeftColor: theme.accent,
+                      },
+                    ]}
+                  >
+                    <View style={styles.quoteIconWrap}>
+                      <Text
+                        style={[styles.quoteIconText, { color: theme.accent }]}
+                      >
+                        ❝
+                      </Text>
+                    </View>
+                    <Text
+                      style={[styles.quoteTagText, { color: theme.accent }]}
+                    >
+                      ⚜ {isEn ? 'DIVINE SPEECH / PROPHECY' : 'दिव्य वाणी / कथन'}{' '}
+                      ⚜
+                    </Text>
+                    <Text
+                      style={[
+                        styles.quoteParagraphText,
+                        {
+                          color: theme.text,
+                          fontSize: fs(fontSize + 0.2),
+                          lineHeight: fs((fontSize + 0.2) * 1.68),
+                        },
+                      ]}
+                    >
+                      {p}
+                    </Text>
+                  </View>
+                );
+              }
+
+              return (
+                <Text
+                  key={`para-${pIdx}`}
+                  style={[
+                    styles.narrativeParagraph,
+                    {
+                      color: theme.text,
+                      fontSize: fs(fontSize),
+                      lineHeight: fs(fontSize * 1.68),
+                    },
+                  ]}
+                >
+                  {p}
+                </Text>
+              );
+            })}
 
             {/* Moral / Education Box */}
             {pageMoral ? (
@@ -218,9 +377,7 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                   },
                 ]}
               >
-                <Text
-                  style={[styles.moralCardHeader, { color: theme.accent }]}
-                >
+                <Text style={[styles.moralCardHeader, { color: theme.accent }]}>
                   ⚜ {strings.moralHeader} ⚜
                 </Text>
                 <Text
@@ -237,28 +394,142 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                 </Text>
               </View>
             ) : null}
+
+            {/* Decorative Page End Flourish */}
+            <View style={styles.pageEndFlourish}>
+              <Text style={[styles.flourishLineText, { color: theme.accent }]}>
+                ─────────
+              </Text>
+              <Image
+                source={imagePath.lotus}
+                style={[styles.flourishMiniIcon, { tintColor: theme.accent }]}
+                resizeMode="contain"
+              />
+              <Text style={[styles.flourishLineText, { color: theme.accent }]}>
+                ─────────
+              </Text>
+            </View>
           </ScrollView>
 
           {/* Page Footer Row */}
-          <View style={styles.insideFooterRow}>
-            <Text
-              style={[
-                styles.footerCategoryText,
-                { color: theme.textSecondary },
-              ]}
-            >
-              {category}
-            </Text>
-            <Text
-              style={[
-                styles.footerCategoryText,
-                { color: theme.textSecondary },
-              ]}
-            >
-              {strings.pageOf(pageNumber, totalCount)}
-            </Text>
-          </View>
         </View>
+
+        {/* Fullscreen Interactive Zoom Modal */}
+        <Modal
+          visible={selectedImageIndex !== null}
+          transparent={true}
+          animationType="fade"
+          statusBarTranslucent={true}
+          onRequestClose={handleCloseFullscreen}
+        >
+          <GestureHandlerRootView style={styles.fullscreenModalRoot}>
+            <StatusBar
+              barStyle="light-content"
+              backgroundColor="transparent"
+              translucent={true}
+            />
+            <View style={styles.fullscreenModalBackdrop}>
+              {/* Header Bar with Title and Close Button */}
+              <View
+                style={[
+                  styles.fullscreenHeaderBar,
+                  { paddingTop: Math.max(insets.top, scale(16)) + scale(8) },
+                ]}
+              >
+                <View style={styles.fullscreenTitleWrap}>
+                  <Text style={styles.fullscreenTitleText} numberOfLines={1}>
+                    {pageSource ||
+                      category ||
+                      (isEn ? 'Sacred Artwork' : 'पवित्र चित्र')}
+                  </Text>
+                  <Text style={styles.fullscreenSubtitleText} numberOfLines={1}>
+                    ✦ {isEn ? 'Page' : 'पृष्ठ'}{' '}
+                    {formatPageNumber(pageNumber, currentLang)}
+                    {allPageImages.length > 1 && selectedImageIndex !== null
+                      ? ` • ${formatPageNumber(
+                          selectedImageIndex + 1,
+                          currentLang,
+                        )}/${formatPageNumber(
+                          allPageImages.length,
+                          currentLang,
+                        )}`
+                      : ''}{' '}
+                    ✦
+                  </Text>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.fullscreenCloseBtn}
+                  onPress={handleCloseFullscreen}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                >
+                  <Text style={styles.fullscreenCloseIcon}>✕</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Main Fullscreen Zoomable Image */}
+              <View style={styles.fullscreenImageArea}>
+                {selectedImageIndex !== null &&
+                  allPageImages[selectedImageIndex] && (
+                    <ZoomableImage
+                      key={`fullscreen-zoom-${selectedImageIndex}`}
+                      source={allPageImages[selectedImageIndex]}
+                      width={windowWidth}
+                      height="100%"
+                      isZoomed={isZoomed}
+                      onZoomStateChange={setIsZoomed}
+                    />
+                  )}
+
+                {/* Left Navigation Arrow for multiple images */}
+                {allPageImages.length > 1 &&
+                  selectedImageIndex !== null &&
+                  selectedImageIndex > 0 && (
+                    <TouchableOpacity
+                      style={[
+                        styles.fullscreenNavBtn,
+                        styles.fullscreenNavBtnLeft,
+                      ]}
+                      onPress={handlePrevImage}
+                      activeOpacity={0.7}
+                      hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                    >
+                      <Text style={styles.fullscreenNavBtnText}>‹</Text>
+                    </TouchableOpacity>
+                  )}
+
+                {/* Right Navigation Arrow for multiple images */}
+                {allPageImages.length > 1 &&
+                  selectedImageIndex !== null &&
+                  selectedImageIndex < allPageImages.length - 1 && (
+                    <TouchableOpacity
+                      style={[
+                        styles.fullscreenNavBtn,
+                        styles.fullscreenNavBtnRight,
+                      ]}
+                      onPress={handleNextImage}
+                      activeOpacity={0.7}
+                      hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                    >
+                      <Text style={styles.fullscreenNavBtnText}>›</Text>
+                    </TouchableOpacity>
+                  )}
+              </View>
+
+              {/* Bottom Hint Pill */}
+              <View
+                style={[
+                  styles.fullscreenBottomBar,
+                  {
+                    paddingBottom:
+                      Math.max(insets.bottom, scale(16)) + scale(10),
+                  },
+                ]}
+              ></View>
+            </View>
+          </GestureHandlerRootView>
+        </Modal>
       </View>
     );
   },

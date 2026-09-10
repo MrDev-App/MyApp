@@ -66,7 +66,7 @@ export default {
   CHALLENGE_STATUS_COMPLETED: 'आज का संकल्प पूर्ण! ✨',
   CHALLENGE_STATUS_PROGRESS: 'आज का संकल्प पूरा करें\nशेष: {{count}}',
   CHALLENGE_STATUS_NOT_STARTED: 'संकल्प अभी शुरू नहीं हुआ है',
-  BOOK_SCREEN_TITLE: 'पौराणिक गाथाएं',
+  BOOK_SCREEN_TITLE: 'पुस्तकें',
   BOOK_SCREEN_SUBTITLE: 'सत्य और ज्ञान की अमर आध्यात्मिक कथाएं',
   BOOK_SEARCH_PLACEHOLDER: 'कहानियां, ग्रंथ या देवी-देवता खोजें...',
   BOOK_FEATURED_TITLE: 'आज की विशेष कथा',

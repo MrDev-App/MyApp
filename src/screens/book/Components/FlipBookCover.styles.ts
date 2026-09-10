@@ -85,19 +85,113 @@ export const styles = StyleSheet.create({
 
   insideHeaderBar: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: scale(6),
     paddingHorizontal: scale(4),
   },
   pageSourceBadge: {
-    paddingHorizontal: scale(10),
+    paddingHorizontal: scale(8),
     paddingVertical: scale(2.5),
     borderRadius: scale(6),
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(4),
+  },
+  headerBadgeIcon: {
+    width: scale(11),
+    height: scale(11),
   },
   pageSourceText: {
     fontFamily: fonts.PoppinsSemiBold,
     fontSize: fs(9),
+  },
+  headerPagePill: {
+    paddingHorizontal: scale(7),
+    paddingVertical: scale(2),
+    borderRadius: scale(6),
+  },
+  headerPagePillText: {
+    fontFamily: fonts.PoppinsSemiBold,
+    fontSize: fs(8.5),
+    letterSpacing: 0.5,
+  },
+
+  // Section Header Banner Card
+  sectionHeaderCard: {
+    marginVertical: scale(6),
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(7),
+    borderRadius: scale(8),
+    borderLeftWidth: 3,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(6),
+  },
+  sectionHeaderIcon: {
+    width: scale(14),
+    height: scale(14),
+  },
+  sectionHeaderText: {
+    fontFamily: fonts.TiroHindiRegular,
+    fontSize: fs(11),
+    letterSpacing: 0.3,
+    flex: 1,
+  },
+
+  // Divine Speech / Quote Callout Card
+  quoteCalloutCard: {
+    marginVertical: scale(7),
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(8),
+    borderRadius: scale(8),
+    borderLeftWidth: 3.5,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  quoteIconWrap: {
+    position: 'absolute',
+    top: scale(2),
+    right: scale(6),
+    opacity: 0.16,
+  },
+  quoteIconText: {
+    fontFamily: fonts.Marcellus,
+    fontSize: fs(24),
+  },
+  quoteTagText: {
+    fontFamily: fonts.PoppinsBold,
+    fontSize: fs(8.5),
+    letterSpacing: 0.8,
+    marginBottom: scale(3),
+    textTransform: 'uppercase',
+  },
+  quoteParagraphText: {
+    fontFamily: fonts.TiroHindiRegular,
+    fontStyle: 'italic',
+    letterSpacing: 0,
+    textAlign: 'left',
+  },
+
+  // Decorative Page Ending Flourish
+  pageEndFlourish: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: scale(12),
+    marginBottom: scale(8),
+    flexDirection: 'row',
+    gap: scale(6),
+  },
+  flourishMiniIcon: {
+    width: scale(13),
+    height: scale(13),
+    opacity: 0.85,
+  },
+  flourishLineText: {
+    fontFamily: fonts.Marcellus,
+    fontSize: fs(9),
+    letterSpacing: 2,
+    opacity: 0.55,
   },
 
   pageScrollView: {
@@ -105,8 +199,9 @@ export const styles = StyleSheet.create({
     marginVertical: scale(2),
   },
   pageScrollContent: {
-    paddingVertical: scale(4),
-    paddingHorizontal: scale(2),
+    paddingTop: scale(4),
+    paddingBottom: scale(36),
+    paddingHorizontal: scale(6),
   },
   pageImagesContainer: {
     width: '100%',
@@ -116,12 +211,10 @@ export const styles = StyleSheet.create({
   pageImageCard: {
     width: '100%',
     height: scale(160),
-    borderRadius: scale(8),
+    borderColor: '#EDE2CC',
+    borderRadius: scale(10),
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: GOLD_BORDER,
-    backgroundColor: 'rgba(0, 0, 0, 0.04)',
-    marginVertical: scale(4),
   },
   pageImage: {
     width: '100%',
@@ -145,7 +238,7 @@ export const styles = StyleSheet.create({
   },
   shlokaVerseText: {
     fontFamily: fonts.Marcellus,
-    lineHeight: fs(19),
+    lineHeight: fs(21),
     textAlign: 'center',
     fontStyle: 'italic',
   },
@@ -156,15 +249,15 @@ export const styles = StyleSheet.create({
   },
   shlokaMeaningText: {
     fontFamily: fonts.PoppinsRegular,
-    lineHeight: fs(15),
+    lineHeight: fs(16),
     textAlign: 'center',
   },
 
   narrativeParagraph: {
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     marginBottom: scale(10),
-    letterSpacing: 0.2,
-    textAlign: 'justify',
+    letterSpacing: 0,
+    textAlign: 'left',
   },
 
   moralCard: {
@@ -417,17 +510,34 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     gap: scale(4),
   },
+  pageDotsWrapper: {
+    flex: 1,
+    marginHorizontal: scale(6),
+    height: scale(36),
+    justifyContent: 'center',
+  },
+  pageDotsScrollContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: scale(2),
+    gap: scale(5),
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
   pageDot: {
-    paddingHorizontal: scale(7),
-    paddingVertical: scale(3),
-    borderRadius: scale(6),
+    paddingHorizontal: scale(8),
+    paddingVertical: scale(5),
+    borderRadius: scale(8),
+    minWidth: scale(26),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   pageDotActive: {
-    borderRadius: scale(6),
+    borderRadius: scale(8),
   },
   dotLabel: {
     fontFamily: fonts.PoppinsBold,
-    fontSize: fs(9),
+    fontSize: fs(9.5),
   },
 
   // Loading Status Pill Overlay
@@ -458,5 +568,132 @@ export const styles = StyleSheet.create({
     color: '#FFF',
     fontFamily: fonts.PoppinsMedium,
     fontSize: fs(11),
+  },
+
+  // Image Zoom Hint Badge on Page Card
+  imageZoomBadge: {
+    position: 'absolute',
+    bottom: scale(6),
+    right: scale(6),
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: scale(8),
+    paddingVertical: scale(3),
+    borderRadius: scale(12),
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(4),
+    borderWidth: 0.5,
+    borderColor: 'rgba(255, 215, 0, 0.4)',
+  },
+  imageZoomIcon: {
+    color: colors.ring,
+    fontSize: fs(10),
+    fontWeight: 'bold',
+  },
+  imageZoomText: {
+    color: '#FFF',
+    fontFamily: fonts.PoppinsMedium,
+    fontSize: fs(8.5),
+  },
+
+  // Fullscreen Modal Image Viewer
+  fullscreenModalRoot: {
+    flex: 1,
+  },
+  fullscreenModalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(5, 5, 8, 0.97)',
+    justifyContent: 'space-between',
+  },
+  fullscreenHeaderBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: scale(16),
+    paddingBottom: scale(10),
+    zIndex: 20,
+  },
+  fullscreenTitleWrap: {
+    flex: 1,
+    marginRight: scale(12),
+  },
+  fullscreenTitleText: {
+    fontFamily: fonts.PoppinsBold,
+    fontSize: fs(13.5),
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
+  },
+  fullscreenSubtitleText: {
+    fontFamily: fonts.PoppinsRegular,
+    fontSize: fs(10),
+    color: colors.ring,
+    marginTop: scale(2),
+  },
+  fullscreenCloseBtn: {
+    width: scale(36),
+    height: scale(36),
+    borderRadius: scale(18),
+    backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+  },
+  fullscreenCloseIcon: {
+    color: '#FFFFFF',
+    fontSize: fs(15),
+    fontWeight: 'bold',
+    lineHeight: fs(17),
+  },
+  fullscreenImageArea: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fullscreenNavBtn: {
+    position: 'absolute',
+    top: '46%',
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.4)',
+    zIndex: 25,
+  },
+  fullscreenNavBtnLeft: {
+    left: scale(12),
+  },
+  fullscreenNavBtnRight: {
+    right: scale(12),
+  },
+  fullscreenNavBtnText: {
+    color: '#FFF',
+    fontSize: fs(24),
+    fontFamily: fonts.PoppinsBold,
+    lineHeight: fs(26),
+  },
+  fullscreenBottomBar: {
+    alignItems: 'center',
+    paddingTop: scale(8),
+    zIndex: 20,
+  },
+  fullscreenHintPill: {
+    backgroundColor: 'rgba(25, 25, 32, 0.88)',
+    paddingHorizontal: scale(16),
+    paddingVertical: scale(6),
+    borderRadius: scale(20),
+    borderWidth: 0.5,
+    borderColor: 'rgba(255, 215, 0, 0.35)',
+  },
+  fullscreenHintText: {
+    color: '#E0E0E0',
+    fontFamily: fonts.PoppinsMedium,
+    fontSize: fs(10),
   },
 });

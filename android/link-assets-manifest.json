@@ -2,24 +2,40 @@
   "migIndex": 1,
   "data": [
     {
-      "path": "src/assets/fonts/Poppins-Bold.ttf",
-      "sha1": "45e4d582cbb4dab2bbad3f624fad9ae567c66547"
+      "path": "src/assets/fonts/Marcellus-Regular.ttf",
+      "sha1": "a83ca5e1e8dbf8316177ff5f2f360ea3e1708981"
     },
     {
-      "path": "src/assets/fonts/Poppins-Light.ttf",
-      "sha1": "942f703a54d603f65bb2f2eb587431406dc1ae3f"
+      "path": "src/assets/fonts/Poppins-Black.ttf",
+      "sha1": "645e04c53c6b5b35bce654a811ebce16af8aa721"
+    },
+    {
+      "path": "src/assets/fonts/Poppins-Bold.ttf",
+      "sha1": "875cf0cecd647bcf22e79d633d868c1b1ec98dfa"
+    },
+    {
+      "path": "src/assets/fonts/Poppins-ExtraBold.ttf",
+      "sha1": "4b5c0750f073abd576413a0898d3b95adaf199c8"
     },
     {
       "path": "src/assets/fonts/Poppins-Medium.ttf",
-      "sha1": "e837165aedb031ea74872c5983a3217d1c190a1a"
+      "sha1": "283f21b44efbdbf276ba802be2d949a36bbc4233"
     },
     {
       "path": "src/assets/fonts/Poppins-Regular.ttf",
-      "sha1": "86a425be5a919d86729b85b2bc1d07da5ce413d4"
+      "sha1": "fdd3002e7d814ee47c1c1b8487c72c6bbb3a2d00"
     },
     {
       "path": "src/assets/fonts/Poppins-SemiBold.ttf",
-      "sha1": "622ca6ccbe2f22c5611dffa016b745bd26be154c"
+      "sha1": "8a4ace9392d06bcb7f8ea2f5169b07e4c383a90d"
+    },
+    {
+      "path": "src/assets/fonts/TiroHindiItalic.ttf",
+      "sha1": "e729d72c2987f584ca28ca0154504d6774ac61d0"
+    },
+    {
+      "path": "src/assets/fonts/TiroHindiRegular.ttf",
+      "sha1": "266f42e80905b9cd28c089bc1b30c7f4dba4c95c"
     }
   ]
 }

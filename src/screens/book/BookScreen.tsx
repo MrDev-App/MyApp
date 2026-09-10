@@ -142,9 +142,6 @@ const BookScreen = () => {
         {/* Header Section */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.headerSubtitle}>
-              {labels.screenSubtitle.toUpperCase()}
-            </Text>
             <Text style={styles.headerTitle}>{labels.screenTitle}</Text>
           </View>
         </View>

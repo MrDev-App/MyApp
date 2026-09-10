@@ -6,6 +6,8 @@ const fonts = {
   PoppinsRegular: 'Poppins-Regular',
   PoppinsSemiBold: 'Poppins-SemiBold',
   Marcellus: 'Marcellus-Regular',
+  TiroHindiRegular: 'TiroHindiRegular',
+  TiroHindiItalic: 'TiroHindiItalic',
 };
 
 export default fonts;
