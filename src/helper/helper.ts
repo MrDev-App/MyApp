@@ -20,3 +20,24 @@ export const triggerHaptic = (id: HapticType = 'week') => {
     }
   } catch {}
 };
+
+const HINDI_DIGITS = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+
+export const toHindiNumeral = (num: number): string => {
+  return num
+    .toString()
+    .split('')
+    .map(d => HINDI_DIGITS[parseInt(d, 10)] ?? d)
+    .join('');
+};
+
+export const formatPageNumber = (
+  num: number,
+  lang: 'en' | 'hi' = 'hi',
+): string => {
+  if (lang === 'en') {
+    return num.toString();
+  }
+  return toHindiNumeral(num);
+};
+

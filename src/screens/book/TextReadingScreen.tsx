@@ -5,8 +5,8 @@ import {
   Text,
   TouchableOpacity,
   StatusBar,
-  Vibration,
 } from 'react-native';
+import { triggerHaptic } from '@helper/helper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -73,12 +73,6 @@ const THEME_CONFIGS = {
     ring: colors.primary,
     white: colors.white,
   },
-};
-
-const triggerHaptic = () => {
-  try {
-    Vibration.vibrate(25);
-  } catch {}
 };
 
 export const TextReadingScreen = () => {
