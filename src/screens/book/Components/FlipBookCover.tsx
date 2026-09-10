@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  useRef,
+} from 'react';
 import {
   StyleSheet,
   Text,
@@ -15,18 +21,20 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  useAnimatedReaction,
   withSpring,
   interpolate,
   Extrapolation,
   SharedValue,
 } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
+import { runOnJS } from 'react-native-worklets';
 
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Story, StoryPage } from '@constants/storiesData';
-import { runOnJS } from 'react-native-worklets';
+import { Back } from '@assets/index';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const BOOK_WIDTH = Math.min(SCREEN_WIDTH - scale(28), scale(380));
@@ -59,6 +67,12 @@ const SPRING_CONFIG = {
   mass: 0.8,
 };
 
+const QUEUED_SPRING_CONFIG = {
+  damping: 24,
+  stiffness: 220,
+  mass: 0.6,
+};
+
 // Hindi numeral converter
 const toHindiNumeral = (num: number): string => {
   const hindiDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
@@ -75,433 +89,125 @@ interface BookSheetProps {
   progress: SharedValue<number>;
   frontContent: React.ReactNode;
   backContent: React.ReactNode;
+  onHalfwayChange: (targetPage: number) => void;
 }
 
-// Dedicated Stacked Book Sheet Component - Zero Reset, Zero Flicker
-const BookSheet: React.FC<BookSheetProps> = ({
-  index,
-  totalSheets,
-  progress,
-  frontContent,
-  backContent,
-}) => {
-  const leafAnimatedStyle = useAnimatedStyle(() => {
-    const rotateY = interpolate(
-      progress.value,
-      [0, 1],
-      [0, -180],
-      Extrapolation.CLAMP,
-    );
-
-    // Dynamic zIndex:
-    // When on right stack (> -90deg): Sheet 0 on top of Sheet 1, Sheet 1 on top of Sheet 2...
-    // When turned to left stack (<= -90deg): Sheet 1 on top of Sheet 0, Sheet 2 on top of Sheet 1...
-    const zIndex =
-      rotateY > -90 ? (totalSheets - index) * 10 : (index + 1) * 10;
-
-    return {
-      zIndex,
-      transform: [
-        { perspective: 1400 },
-        { translateX: -BOOK_WIDTH / 2 },
-        { rotateY: `${rotateY}deg` },
-        { translateX: BOOK_WIDTH / 2 },
-      ],
-    };
-  });
-
-  const frontFaceStyle = useAnimatedStyle(() => {
-    return {
-      opacity: progress.value < 0.5 ? 1 : 0,
-      zIndex: progress.value < 0.5 ? 2 : 0,
-    };
-  });
-
-  const backFaceStyle = useAnimatedStyle(() => {
-    return {
-      opacity: progress.value >= 0.5 ? 1 : 0,
-      zIndex: progress.value >= 0.5 ? 2 : 0,
-    };
-  });
-
-  const curlShadowStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      progress.value,
-      [0, 0.25, 0.5, 0.75, 1],
-      [0, 0.35, 0.5, 0.2, 0],
-      Extrapolation.CLAMP,
-    );
-    return { opacity };
-  });
-
-  return (
-    <Animated.View style={[styles.turningLeaf, leafAnimatedStyle]}>
-      {/* FRONT FACE (Visible 0deg to -90deg) */}
-      <Animated.View style={[styles.coverFaceFront, frontFaceStyle]}>
-        {frontContent}
-        <Animated.View style={[styles.curlShadowOverlay, curlShadowStyle]} />
-      </Animated.View>
-
-      {/* BACK FACE (Visible -90deg to -180deg) */}
-      <Animated.View style={[styles.coverFaceBackWrap, backFaceStyle]}>
-        {backContent}
-      </Animated.View>
-    </Animated.View>
-  );
-};
-
-interface FlipBookCoverProps {
-  story: Story;
-  currentLang: 'en' | 'hi';
-  theme: {
-    bg: string;
-    surface: string;
-    surfaceSubtle: string;
-    cardBorder: string;
-    text: string;
-    textSecondary: string;
-    accent: string;
-    border: string;
-    tagBg: string;
-    tagText: string;
-  };
-  fontSize?: number;
-  onPageChange?: (pageIndex: number, totalPages: number) => void;
-}
-
-export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
-  story,
-  currentLang,
-  theme,
-  fontSize = 15,
-  onPageChange,
-}) => {
-  // Preload and memoize all story pages
-  const pages: StoryPage[] = useMemo(() => {
-    if (story?.pages && story.pages.length > 0) {
-      return story.pages;
-    }
-    return [
-      {
-        page: 1,
-        sourceHi: story?.sourceHi,
-        contentHi: story?.contentHi || story?.descriptionHi,
-        shloka: story?.shloka,
-        shlokaTranslationHi: story?.shlokaTranslationHi,
-        moralHi: story?.moralHi,
+// Dedicated Stacked Book Sheet Component - Memoized, Hardware-Accelerated, Zero-Flicker
+const BookSheet: React.FC<BookSheetProps> = React.memo(
+  ({
+    index,
+    totalSheets,
+    progress,
+    frontContent,
+    backContent,
+    onHalfwayChange,
+  }) => {
+    // Synchronously report halfway crossing (0.5 progress) to update page number instantly
+    useAnimatedReaction(
+      () => progress.value >= 0.5,
+      (isPastHalf, wasPastHalf) => {
+        if (wasPastHalf !== null && isPastHalf !== wasPastHalf) {
+          const targetPage = isPastHalf ? index + 1 : index;
+          runOnJS(onHalfwayChange)(targetPage);
+        }
       },
-    ];
-  }, [story]);
+      [index, onHalfwayChange],
+    );
 
-  const totalPages = pages.length;
+    const leafAnimatedStyle = useAnimatedStyle(() => {
+      const rotateY = interpolate(
+        progress.value,
+        [0, 1],
+        [0, -180],
+        Extrapolation.CLAMP,
+      );
 
-  // Discrete shared values for each sheet in the book stack
-  const sheetProgress0 = useSharedValue(0);
-  const sheetProgress1 = useSharedValue(0);
-  const sheetProgress2 = useSharedValue(0);
-  const sheetProgress3 = useSharedValue(0);
-  const sheetProgress4 = useSharedValue(0);
-  const sheetProgress5 = useSharedValue(0);
-  const sheetProgress6 = useSharedValue(0);
-  const sheetProgress7 = useSharedValue(0);
-
-  const sheetProgressList = useMemo(() => {
-    return [
-      sheetProgress0,
-      sheetProgress1,
-      sheetProgress2,
-      sheetProgress3,
-      sheetProgress4,
-      sheetProgress5,
-      sheetProgress6,
-      sheetProgress7,
-    ];
-  }, [
-    sheetProgress0,
-    sheetProgress1,
-    sheetProgress2,
-    sheetProgress3,
-    sheetProgress4,
-    sheetProgress5,
-    sheetProgress6,
-    sheetProgress7,
-  ]);
-
-  // Shared values for UI-thread gesture coordination (prevents race conditions)
-  const activeSheetIdx = useSharedValue<number>(0);
-  const gestureDir = useSharedValue<'forward' | 'backward'>('forward');
-  const isGestureActive = useSharedValue<boolean>(false);
-
-  // Current page state (0 = Cover, 1 = Page 1, ..., totalPages = Page N)
-  const [currentPage, setCurrentPage] = useState<number>(0);
-  const [isFlipping, setIsFlipping] = useState<boolean>(false);
-  const pendingActionRef = React.useRef<'next' | 'prev' | null>(null);
-
-  // Keep shared value in sync with currentPage for worklet gesture logic
-  const currentPageShared = useSharedValue<number>(0);
-  useEffect(() => {
-    currentPageShared.value = currentPage;
-  }, [currentPage, currentPageShared]);
-
-  // Notify parent of active page change
-  useEffect(() => {
-    onPageChange?.(currentPage, totalPages);
-  }, [currentPage, totalPages, onPageChange]);
-
-  const title = story.titleHi;
-  const subtitle = story.subtitleHi;
-  const category = story.categoryHi;
-  const source = story.sourceHi;
-
-  // Forward turn initiator
-  const executeForwardFlip = useCallback(
-    (fromPage: number) => {
-      if (fromPage >= totalPages) {
-        setIsFlipping(false);
-        pendingActionRef.current = null;
-        return;
-      }
-      const targetSheet = fromPage;
-      const progressVal = sheetProgressList[targetSheet];
-      if (!progressVal) {
-        setIsFlipping(false);
-        pendingActionRef.current = null;
-        return;
+      let zIndex =
+        rotateY > -90 ? (totalSheets - index) * 10 : (index + 1) * 10;
+      if (progress.value > 0.005 && progress.value < 0.995) {
+        zIndex = 1000 + (totalSheets - index);
       }
 
-      setIsFlipping(true);
-      progressVal.value = withSpring(1, SPRING_CONFIG, finished => {
-        if (finished) {
-          runOnJS(onForwardTurnFinish)(targetSheet);
-        }
-      });
-    },
-    [totalPages, sheetProgressList],
-  );
-
-  // Backward turn initiator
-  const executeBackwardFlip = useCallback(
-    (fromPage: number) => {
-      if (fromPage <= 0) {
-        setIsFlipping(false);
-        pendingActionRef.current = null;
-        return;
-      }
-      const targetSheet = fromPage - 1;
-      const progressVal = sheetProgressList[targetSheet];
-      if (!progressVal) {
-        setIsFlipping(false);
-        pendingActionRef.current = null;
-        return;
-      }
-
-      setIsFlipping(true);
-      progressVal.value = withSpring(0, SPRING_CONFIG, finished => {
-        if (finished) {
-          runOnJS(onBackwardTurnFinish)(targetSheet);
-        }
-      });
-    },
-    [sheetProgressList],
-  );
-
-  // Complete page turn callbacks
-  const onForwardTurnFinish = useCallback(
-    (sheetIdx: number) => {
-      const nextPage = sheetIdx + 1;
-      setCurrentPage(nextPage);
-      triggerHaptic();
-
-      if (pendingActionRef.current === 'next' && nextPage < totalPages) {
-        pendingActionRef.current = null;
-        executeForwardFlip(nextPage);
-      } else if (pendingActionRef.current === 'prev' && nextPage > 0) {
-        pendingActionRef.current = null;
-        executeBackwardFlip(nextPage);
-      } else {
-        pendingActionRef.current = null;
-        setIsFlipping(false);
-      }
-    },
-    [totalPages, executeForwardFlip, executeBackwardFlip],
-  );
-
-  const onBackwardTurnFinish = useCallback(
-    (sheetIdx: number) => {
-      const prevPage = sheetIdx;
-      setCurrentPage(prevPage);
-      triggerHaptic();
-
-      if (pendingActionRef.current === 'prev' && prevPage > 0) {
-        pendingActionRef.current = null;
-        executeBackwardFlip(prevPage);
-      } else if (pendingActionRef.current === 'next' && prevPage < totalPages) {
-        pendingActionRef.current = null;
-        executeForwardFlip(prevPage);
-      } else {
-        pendingActionRef.current = null;
-        setIsFlipping(false);
-      }
-    },
-    [totalPages, executeBackwardFlip, executeForwardFlip],
-  );
-
-  const onFlipCancel = useCallback(() => {
-    pendingActionRef.current = null;
-    setIsFlipping(false);
-  }, []);
-
-  // Programmatic forward flip with fast-click queueing
-  const handleNextPage = useCallback(() => {
-    if (currentPage >= totalPages) return;
-    if (isFlipping) {
-      pendingActionRef.current = 'next';
-      return;
-    }
-    executeForwardFlip(currentPage);
-  }, [currentPage, totalPages, isFlipping, executeForwardFlip]);
-
-  // Programmatic backward flip with fast-click queueing
-  const handlePrevPage = useCallback(() => {
-    if (currentPage <= 0) return;
-    if (isFlipping) {
-      pendingActionRef.current = 'prev';
-      return;
-    }
-    executeBackwardFlip(currentPage);
-  }, [currentPage, isFlipping, executeBackwardFlip]);
-
-  // Jump to specific page via dots
-  const handleJumpToPage = useCallback(
-    (targetPage: number) => {
-      if (isFlipping || targetPage === currentPage) return;
-      triggerHaptic();
-      setIsFlipping(true);
-
-      for (let i = 0; i < totalPages; i++) {
-        const progressVal = sheetProgressList[i];
-        if (progressVal) {
-          if (i < targetPage) {
-            progressVal.value = withSpring(1, SPRING_CONFIG);
-          } else {
-            progressVal.value = withSpring(0, SPRING_CONFIG);
-          }
-        }
-      }
-
-      setCurrentPage(targetPage);
-      setTimeout(() => {
-        setIsFlipping(false);
-      }, 350);
-    },
-    [isFlipping, currentPage, totalPages, sheetProgressList],
-  );
-
-  // Pan gesture with UI-thread worklets for instant, reliable boundary handling
-  const panGesture = Gesture.Pan()
-    .activeOffsetX([-10, 10])
-    .onStart(event => {
-      'worklet';
-      const curPage = currentPageShared.value;
-
-      if (event.velocityX < 0) {
-        // Swiping left -> Turn forward
-        if (curPage >= totalPages) return; // Already on last page, cannot turn forward
-        activeSheetIdx.value = curPage;
-        gestureDir.value = 'forward';
-        isGestureActive.value = true;
-      } else if (event.velocityX > 0) {
-        // Swiping right -> Turn backward
-        if (curPage <= 0) return; // Already on cover, cannot turn backward
-        activeSheetIdx.value = curPage - 1;
-        gestureDir.value = 'backward';
-        isGestureActive.value = true;
-      }
-    })
-    .onUpdate(event => {
-      'worklet';
-      if (!isGestureActive.value) return;
-      const sheetIdx = activeSheetIdx.value;
-      if (sheetIdx < 0 || sheetIdx >= totalPages) return;
-
-      const progressVal = sheetProgressList[sheetIdx];
-      if (!progressVal) return;
-
-      if (gestureDir.value === 'forward') {
-        const progress = Math.min(
-          1,
-          Math.max(0, -event.translationX / BOOK_WIDTH),
-        );
-        progressVal.value = progress;
-      } else {
-        const progress = Math.min(
-          1,
-          Math.max(0, 1 - event.translationX / BOOK_WIDTH),
-        );
-        progressVal.value = progress;
-      }
-    })
-    .onEnd(event => {
-      'worklet';
-      if (!isGestureActive.value) return;
-      isGestureActive.value = false;
-
-      const sheetIdx = activeSheetIdx.value;
-      if (sheetIdx < 0 || sheetIdx >= totalPages) return;
-
-      const progressVal = sheetProgressList[sheetIdx];
-      if (!progressVal) return;
-
-      const velocityThreshold = 250;
-      if (gestureDir.value === 'forward') {
-        const shouldTurn =
-          progressVal.value > 0.35 || event.velocityX < -velocityThreshold;
-        if (shouldTurn) {
-          progressVal.value = withSpring(1, SPRING_CONFIG, finished => {
-            if (finished) {
-              runOnJS(onForwardTurnFinish)(sheetIdx);
-            }
-          });
-        } else {
-          progressVal.value = withSpring(0, SPRING_CONFIG, finished => {
-            if (finished) {
-              runOnJS(onFlipCancel)();
-            }
-          });
-        }
-      } else {
-        const shouldTurn =
-          progressVal.value < 0.65 || event.velocityX > velocityThreshold;
-        if (shouldTurn) {
-          progressVal.value = withSpring(0, SPRING_CONFIG, finished => {
-            if (finished) {
-              runOnJS(onBackwardTurnFinish)(sheetIdx);
-            }
-          });
-        } else {
-          progressVal.value = withSpring(1, SPRING_CONFIG, finished => {
-            if (finished) {
-              runOnJS(onFlipCancel)();
-            }
-          });
-        }
-      }
+      return {
+        zIndex,
+        transform: [
+          { perspective: 1400 },
+          { translateX: -BOOK_WIDTH / 2 },
+          { rotateY: `${rotateY}deg` },
+          { translateX: BOOK_WIDTH / 2 },
+        ],
+      };
     });
 
-  // Render Inside Book Page Content (No page numbers inside)
-  const renderInsidePageContent = (
-    pageData: StoryPage,
-    isInteractive: boolean = true,
-  ) => {
+    const frontFaceStyle = useAnimatedStyle(() => {
+      return {
+        opacity: progress.value < 0.5 ? 1 : 0,
+        zIndex: progress.value < 0.5 ? 2 : 0,
+      };
+    });
+
+    const backFaceStyle = useAnimatedStyle(() => {
+      return {
+        opacity: progress.value >= 0.5 ? 1 : 0,
+        zIndex: progress.value >= 0.5 ? 2 : 0,
+      };
+    });
+
+    const curlShadowStyle = useAnimatedStyle(() => {
+      const opacity = interpolate(
+        progress.value,
+        [0, 0.25, 0.5, 0.75, 1],
+        [0, 0.35, 0.5, 0.2, 0],
+        Extrapolation.CLAMP,
+      );
+      return { opacity };
+    });
+
+    return (
+      <Animated.View style={[styles.turningLeaf, leafAnimatedStyle]}>
+        {/* FRONT FACE (Visible 0deg to -90deg) */}
+        <Animated.View
+          style={[styles.coverFaceFront, frontFaceStyle]}
+          renderToHardwareTextureAndroid={true}
+          shouldRasterizeIOS={true}
+        >
+          {frontContent}
+          <Animated.View style={[styles.curlShadowOverlay, curlShadowStyle]} />
+        </Animated.View>
+
+        {/* BACK FACE (Visible -90deg to -180deg) */}
+        <Animated.View
+          style={[styles.coverFaceBackWrap, backFaceStyle]}
+          renderToHardwareTextureAndroid={true}
+          shouldRasterizeIOS={true}
+        >
+          {backContent}
+        </Animated.View>
+      </Animated.View>
+    );
+  },
+);
+
+interface StoryPageViewProps {
+  pageData: StoryPage;
+  theme: any;
+  fontSize: number;
+  category?: string;
+  source?: string;
+  isInteractive: boolean;
+}
+
+const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
+  ({ pageData, theme, fontSize, category, source, isInteractive }) => {
     const pageSource = pageData.sourceHi || source;
     const pageContent = pageData.contentHi;
     const pageShloka = pageData.shloka;
     const pageShlokaTrans = pageData.shlokaTranslationHi;
     const pageMoral = pageData.moralHi;
 
-    const paragraphs = (pageContent || '')
-      .split('\n\n')
-      .filter(p => p.trim().length > 0);
+    const paragraphs = useMemo(() => {
+      return (pageContent || '').split('\n\n').filter(p => p.trim().length > 0);
+    }, [pageContent]);
 
     return (
       <View
@@ -548,6 +254,44 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
             scrollEnabled={isInteractive}
             bounces={false}
           >
+            {/* Page Illustrations from imagePages / image */}
+            {pageData.imagePages && pageData.imagePages.length > 0 ? (
+              <View style={styles.pageImagesContainer}>
+                {pageData.imagePages.map((imgSrc: any, imgIdx: number) => (
+                  <View key={`page-img-${imgIdx}`} style={styles.pageImageCard}>
+                    <Image
+                      source={imgSrc}
+                      style={styles.pageImage}
+                      resizeMode="contain"
+                    />
+                  </View>
+                ))}
+              </View>
+            ) : Array.isArray(pageData.image) && pageData.image.length > 0 ? (
+              <View style={styles.pageImagesContainer}>
+                {pageData.image.map((imgSrc: any, imgIdx: number) => (
+                  <View
+                    key={`page-img-arr-${imgIdx}`}
+                    style={styles.pageImageCard}
+                  >
+                    <Image
+                      source={imgSrc}
+                      style={styles.pageImage}
+                      resizeMode="contain"
+                    />
+                  </View>
+                ))}
+              </View>
+            ) : pageData.image ? (
+              <View style={styles.pageImageCard}>
+                <Image
+                  source={pageData.image}
+                  style={styles.pageImage}
+                  resizeMode="contain"
+                />
+              </View>
+            ) : null}
+
             {/* Holy Shloka Card */}
             {pageShloka ? (
               <View
@@ -651,29 +395,27 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
               </View>
             ) : null}
           </ScrollView>
-
-          {/* Footer Bar */}
-          <View style={styles.insideFooterRow}>
-            <Text
-              style={[
-                styles.footerCategoryText,
-                { color: theme.textSecondary },
-              ]}
-            >
-              {category}
-            </Text>
-          </View>
         </View>
       </View>
     );
-  };
+  },
+);
 
-  // Render Front Cover Page
-  const renderCoverFront = () => (
+// Memoized Front Cover View
+interface CoverFrontViewProps {
+  story: Story;
+  title: string;
+  subtitle?: string;
+  category?: string;
+  onOpenBook: () => void;
+}
+
+const CoverFrontView: React.FC<CoverFrontViewProps> = React.memo(
+  ({ story, title, subtitle, category, onOpenBook }) => (
     <View style={styles.coverFaceContainer}>
       {story.image ? (
         <Image
-          source={story.image}
+          source={Array.isArray(story.image) ? story.image[0] : story.image}
           style={styles.coverImage}
           resizeMode="cover"
         />
@@ -705,15 +447,6 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
               {subtitle}
             </Text>
           ) : null}
-
-          {/* Open Book Prompt Button */}
-          <TouchableOpacity
-            style={styles.openBookPromptBadge}
-            onPress={handleNextPage}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.openBookPromptText}>📖 पुस्तक खोलें ➔</Text>
-          </TouchableOpacity>
         </View>
       </LinearGradient>
 
@@ -722,10 +455,18 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
         <View style={styles.ribbonTail} />
       </View>
     </View>
-  );
+  ),
+);
 
-  // Render Inside Left Reflection Page
-  const renderBackFace = (isCoverBack: boolean) => (
+// Memoized Back Face View
+interface BackFaceViewProps {
+  isCoverBack: boolean;
+  theme: any;
+  source?: string;
+}
+
+const BackFaceView: React.FC<BackFaceViewProps> = React.memo(
+  ({ isCoverBack, theme, source }) => (
     <View
       style={[
         styles.coverFaceBack,
@@ -765,17 +506,545 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
 
         <View style={styles.backFaceDivider} />
 
-        <Text
-          style={[styles.backFaceSourceNote, { color: theme.textSecondary }]}
-        >
-          {source}
-        </Text>
+        {source ? (
+          <Text
+            style={[styles.backFaceSourceNote, { color: theme.textSecondary }]}
+          >
+            {source}
+          </Text>
+        ) : null}
       </View>
     </View>
+  ),
+);
+
+interface FlipBookCoverProps {
+  story: Story;
+  currentLang: 'en' | 'hi';
+  theme: {
+    bg: string;
+    surface: string;
+    surfaceSubtle: string;
+    cardBorder: string;
+    text: string;
+    textSecondary: string;
+    accent: string;
+    border: string;
+    tagBg: string;
+    tagText: string;
+    ring: string;
+  };
+  fontSize?: number;
+  onPageChange?: (pageIndex: number, totalPages: number) => void;
+}
+
+export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
+  story,
+  currentLang,
+  theme,
+  fontSize = 15,
+  onPageChange,
+}) => {
+  // Preload and memoize all story pages
+  const pages: StoryPage[] = useMemo(() => {
+    if (story?.pages && story.pages.length > 0) {
+      return story.pages;
+    }
+    return [
+      {
+        page: 1,
+        sourceHi: story?.sourceHi,
+        contentHi: story?.contentHi || story?.descriptionHi,
+        shloka: story?.shloka,
+        shlokaTranslationHi: story?.shlokaTranslationHi,
+        moralHi: story?.moralHi,
+        imagePages: story.imagePages,
+        image: story.image,
+      },
+    ];
+  }, [story]);
+
+  const totalPages = pages.length;
+
+  // Discrete shared values for each sheet in the book stack
+  const sheetProgress0 = useSharedValue(0);
+  const sheetProgress1 = useSharedValue(0);
+  const sheetProgress2 = useSharedValue(0);
+  const sheetProgress3 = useSharedValue(0);
+  const sheetProgress4 = useSharedValue(0);
+  const sheetProgress5 = useSharedValue(0);
+  const sheetProgress6 = useSharedValue(0);
+  const sheetProgress7 = useSharedValue(0);
+
+  const sheetProgressList = useMemo(() => {
+    return [
+      sheetProgress0,
+      sheetProgress1,
+      sheetProgress2,
+      sheetProgress3,
+      sheetProgress4,
+      sheetProgress5,
+      sheetProgress6,
+      sheetProgress7,
+    ];
+  }, [
+    sheetProgress0,
+    sheetProgress1,
+    sheetProgress2,
+    sheetProgress3,
+    sheetProgress4,
+    sheetProgress5,
+    sheetProgress6,
+    sheetProgress7,
+  ]);
+
+  // UI-thread shared values for coordination & gesture boundaries
+  const activeSheetIdx = useSharedValue<number>(0);
+  const gestureDir = useSharedValue<'forward' | 'backward'>('forward');
+  const isGestureActive = useSharedValue<boolean>(false);
+  const isAnimatingShared = useSharedValue<boolean>(false);
+  const currentPageShared = useSharedValue<number>(0);
+
+  // Synchronous JS-thread state tracking (prevents React state tick desync)
+  const currentPageRef = useRef<number>(0);
+  const isAnimatingRef = useRef<boolean>(false);
+  const isJumpingRef = useRef<boolean>(false);
+  const actionQueueRef = useRef<Array<'next' | 'prev'>>([]);
+
+  // React state for UI rendering only
+  const [displayPage, setDisplayPage] = useState<number>(0);
+  const [isFlipping, setIsFlipping] = useState<boolean>(false);
+  const [activeFlipDir, setActiveFlipDir] = useState<
+    'forward' | 'backward' | null
+  >(null);
+  const [queueLength, setQueueLength] = useState<number>(0);
+
+  const title = story.titleHi;
+  const subtitle = story.subtitleHi;
+  const category = story.categoryHi;
+  const source = story.sourceHi;
+
+  // Refs to break circular callback dependencies cleanly
+  const processNextQueueRef = useRef<() => void>(() => {});
+  const executeForwardFlipRef = useRef<
+    (fromPage: number, isQueued?: boolean) => void
+  >(() => {});
+  const executeBackwardFlipRef = useRef<
+    (fromPage: number, isQueued?: boolean) => void
+  >(() => {});
+
+  // Complete turn callbacks
+  const onForwardTurnFinish = useCallback(
+    (sheetIdx: number) => {
+      const nextPage = sheetIdx + 1;
+      currentPageRef.current = nextPage;
+      currentPageShared.value = nextPage;
+      setDisplayPage(nextPage);
+      onPageChange?.(nextPage, totalPages);
+
+      processNextQueueRef.current();
+    },
+    [totalPages, onPageChange, currentPageShared],
   );
 
-  // Total sheets = totalPages (Sheet 0 = Cover, Sheet 1..totalPages-1 = Pages 1..N-1)
-  // Base underneath page = Last Page (Page totalPages)
+  const onBackwardTurnFinish = useCallback(
+    (sheetIdx: number) => {
+      const prevPage = sheetIdx;
+      currentPageRef.current = prevPage;
+      currentPageShared.value = prevPage;
+      setDisplayPage(prevPage);
+      onPageChange?.(prevPage, totalPages);
+
+      processNextQueueRef.current();
+    },
+    [totalPages, onPageChange, currentPageShared],
+  );
+
+  const onFlipCancel = useCallback(
+    (sheetIdx: number, wasTurningForward: boolean) => {
+      const originalPage = wasTurningForward ? sheetIdx : sheetIdx + 1;
+      currentPageRef.current = originalPage;
+      currentPageShared.value = originalPage;
+      setDisplayPage(originalPage);
+      onPageChange?.(originalPage, totalPages);
+
+      actionQueueRef.current = [];
+      setQueueLength(0);
+      isAnimatingRef.current = false;
+      isAnimatingShared.value = false;
+      setIsFlipping(false);
+      setActiveFlipDir(null);
+    },
+    [totalPages, onPageChange, currentPageShared],
+  );
+
+  // Midway crossing callback: fired by useAnimatedReaction when progress crosses 0.5
+  const handleHalfwayChange = useCallback(
+    (targetPage: number) => {
+      if (isJumpingRef.current) return;
+      if (currentPageRef.current === targetPage) return;
+      currentPageRef.current = targetPage;
+      currentPageShared.value = targetPage;
+      setDisplayPage(targetPage);
+      triggerHaptic();
+      onPageChange?.(targetPage, totalPages);
+    },
+    [totalPages, onPageChange, currentPageShared],
+  );
+
+  // Core Forward Flip Execution
+  const executeForwardFlip = useCallback(
+    (fromPage: number, isQueued: boolean = false) => {
+      if (fromPage >= totalPages) {
+        processNextQueueRef.current();
+        return;
+      }
+      const targetSheet = fromPage;
+      const progressVal = sheetProgressList[targetSheet];
+      if (!progressVal) {
+        processNextQueueRef.current();
+        return;
+      }
+
+      isAnimatingRef.current = true;
+      isAnimatingShared.value = true;
+      setIsFlipping(true);
+      setActiveFlipDir('forward');
+
+      const config = isQueued ? QUEUED_SPRING_CONFIG : SPRING_CONFIG;
+      progressVal.value = withSpring(1, config, finished => {
+        if (finished) {
+          runOnJS(onForwardTurnFinish)(targetSheet);
+        }
+      });
+    },
+    [totalPages, sheetProgressList, onForwardTurnFinish, isAnimatingShared],
+  );
+  executeForwardFlipRef.current = executeForwardFlip;
+
+  // Core Backward Flip Execution
+  const executeBackwardFlip = useCallback(
+    (fromPage: number, isQueued: boolean = false) => {
+      if (fromPage <= 0) {
+        processNextQueueRef.current();
+        return;
+      }
+      const targetSheet = fromPage - 1;
+      const progressVal = sheetProgressList[targetSheet];
+      if (!progressVal) {
+        processNextQueueRef.current();
+        return;
+      }
+
+      isAnimatingRef.current = true;
+      isAnimatingShared.value = true;
+      setIsFlipping(true);
+      setActiveFlipDir('backward');
+
+      const config = isQueued ? QUEUED_SPRING_CONFIG : SPRING_CONFIG;
+      progressVal.value = withSpring(0, config, finished => {
+        if (finished) {
+          runOnJS(onBackwardTurnFinish)(targetSheet);
+        }
+      });
+    },
+    [sheetProgressList, onBackwardTurnFinish, isAnimatingShared],
+  );
+  executeBackwardFlipRef.current = executeBackwardFlip;
+
+  // Process next action in the multi-tap queue with smooth pacing
+  const processNextQueue = useCallback(() => {
+    if (actionQueueRef.current.length === 0) {
+      isAnimatingRef.current = false;
+      isAnimatingShared.value = false;
+      setIsFlipping(false);
+      setActiveFlipDir(null);
+      setQueueLength(0);
+      return;
+    }
+
+    const nextAction = actionQueueRef.current.shift()!;
+    setQueueLength(actionQueueRef.current.length);
+
+    const cur = currentPageRef.current;
+    if (nextAction === 'next') {
+      if (cur < totalPages) {
+        setActiveFlipDir('forward');
+        executeForwardFlipRef.current(cur, true);
+      } else {
+        processNextQueue();
+      }
+    } else {
+      if (cur > 0) {
+        setActiveFlipDir('backward');
+        executeBackwardFlipRef.current(cur, true);
+      } else {
+        processNextQueue();
+      }
+    }
+  }, [totalPages, isAnimatingShared]);
+  processNextQueueRef.current = processNextQueue;
+
+  // Programmatic forward flip with multi-tap queueing
+  const handleNextPage = useCallback(() => {
+    const cur = currentPageRef.current;
+    if (cur >= totalPages) return;
+
+    if (isAnimatingRef.current) {
+      if (actionQueueRef.current.length < 10) {
+        actionQueueRef.current.push('next');
+        setQueueLength(actionQueueRef.current.length);
+      }
+      return;
+    }
+
+    executeForwardFlip(cur, false);
+  }, [totalPages, executeForwardFlip]);
+
+  // Programmatic backward flip with multi-tap queueing
+  const handlePrevPage = useCallback(() => {
+    const cur = currentPageRef.current;
+    if (cur <= 0) return;
+
+    if (isAnimatingRef.current) {
+      if (actionQueueRef.current.length < 10) {
+        actionQueueRef.current.push('prev');
+        setQueueLength(actionQueueRef.current.length);
+      }
+      return;
+    }
+
+    executeBackwardFlip(cur, false);
+  }, [executeBackwardFlip]);
+
+  // Stable callback when jump animation finishes
+  const onJumpSettled = useCallback(
+    (targetPage: number) => {
+      isJumpingRef.current = false;
+      currentPageRef.current = targetPage;
+      currentPageShared.value = targetPage;
+      setDisplayPage(targetPage);
+      onPageChange?.(targetPage, totalPages);
+      isAnimatingRef.current = false;
+      isAnimatingShared.value = false;
+      setIsFlipping(false);
+      setActiveFlipDir(null);
+    },
+    [totalPages, onPageChange, currentPageShared, isAnimatingShared],
+  );
+
+  // Jump to specific page via dots - Smooth, crash-proof multi-sheet transition
+  const handleJumpToPage = useCallback(
+    (targetPage: number) => {
+      if (
+        isAnimatingRef.current ||
+        targetPage === currentPageRef.current ||
+        targetPage < 0 ||
+        targetPage > totalPages
+      ) {
+        return;
+      }
+      triggerHaptic();
+
+      isAnimatingRef.current = true;
+      isAnimatingShared.value = true;
+      isJumpingRef.current = true;
+      setIsFlipping(true);
+      actionQueueRef.current = [];
+      setQueueLength(0);
+
+      const fromPage = currentPageRef.current;
+      const isForward = targetPage > fromPage;
+      setActiveFlipDir(isForward ? 'forward' : 'backward');
+      setDisplayPage(targetPage);
+
+      if (isForward) {
+        const finalSheetIdx = targetPage - 1;
+        for (let i = fromPage; i < targetPage; i++) {
+          const progressVal = sheetProgressList[i];
+          if (progressVal) {
+            if (i === finalSheetIdx) {
+              progressVal.value = withSpring(
+                1,
+                QUEUED_SPRING_CONFIG,
+                finished => {
+                  if (finished) {
+                    runOnJS(onJumpSettled)(targetPage);
+                  }
+                },
+              );
+            } else {
+              progressVal.value = withSpring(1, QUEUED_SPRING_CONFIG);
+            }
+          }
+        }
+      } else {
+        const finalSheetIdx = targetPage;
+        for (let i = fromPage - 1; i >= targetPage; i--) {
+          const progressVal = sheetProgressList[i];
+          if (progressVal) {
+            if (i === finalSheetIdx) {
+              progressVal.value = withSpring(
+                0,
+                QUEUED_SPRING_CONFIG,
+                finished => {
+                  if (finished) {
+                    runOnJS(onJumpSettled)(targetPage);
+                  }
+                },
+              );
+            } else {
+              progressVal.value = withSpring(0, QUEUED_SPRING_CONFIG);
+            }
+          }
+        }
+      }
+    },
+    [totalPages, sheetProgressList, onJumpSettled, isAnimatingShared],
+  );
+
+  const notifyPanAnimationStart = useCallback(() => {
+    isAnimatingRef.current = true;
+    setIsFlipping(true);
+  }, []);
+
+  // Stable, memoized Pan Gesture with UI-thread worklets
+  const panGesture = useMemo(() => {
+    return Gesture.Pan()
+      .activeOffsetX([-10, 10])
+      .onStart(event => {
+        'worklet';
+        // Reject pan if any programmatic or queued flip is animating
+        if (isAnimatingShared.value) {
+          isGestureActive.value = false;
+          return;
+        }
+        const curPage = currentPageShared.value;
+
+        if (event.velocityX < 0) {
+          // Swiping left -> Turn forward
+          if (curPage >= totalPages) return;
+          activeSheetIdx.value = curPage;
+          gestureDir.value = 'forward';
+          isGestureActive.value = true;
+        } else if (event.velocityX > 0) {
+          // Swiping right -> Turn backward
+          if (curPage <= 0) return;
+          activeSheetIdx.value = curPage - 1;
+          gestureDir.value = 'backward';
+          isGestureActive.value = true;
+        }
+      })
+      .onUpdate(event => {
+        'worklet';
+        if (!isGestureActive.value) return;
+        const sheetIdx = activeSheetIdx.value;
+        if (sheetIdx < 0 || sheetIdx >= totalPages) return;
+
+        const progressVal = sheetProgressList[sheetIdx];
+        if (!progressVal) return;
+
+        if (gestureDir.value === 'forward') {
+          const progress = Math.min(
+            1,
+            Math.max(0, -event.translationX / BOOK_WIDTH),
+          );
+          progressVal.value = progress;
+        } else {
+          const progress = Math.min(
+            1,
+            Math.max(0, 1 - event.translationX / BOOK_WIDTH),
+          );
+          progressVal.value = progress;
+        }
+      })
+      .onEnd(event => {
+        'worklet';
+        if (!isGestureActive.value) return;
+        isGestureActive.value = false;
+
+        const sheetIdx = activeSheetIdx.value;
+        if (sheetIdx < 0 || sheetIdx >= totalPages) return;
+
+        const progressVal = sheetProgressList[sheetIdx];
+        if (!progressVal) return;
+
+        isAnimatingShared.value = true;
+        runOnJS(notifyPanAnimationStart)();
+
+        const velocityThreshold = 250;
+        if (gestureDir.value === 'forward') {
+          const shouldTurn =
+            progressVal.value > 0.35 || event.velocityX < -velocityThreshold;
+          if (shouldTurn) {
+            progressVal.value = withSpring(1, SPRING_CONFIG, finished => {
+              if (finished) {
+                runOnJS(onForwardTurnFinish)(sheetIdx);
+              }
+            });
+          } else {
+            progressVal.value = withSpring(0, SPRING_CONFIG, finished => {
+              if (finished) {
+                runOnJS(onFlipCancel)(sheetIdx, true);
+              }
+            });
+          }
+        } else {
+          const shouldTurn =
+            progressVal.value < 0.65 || event.velocityX > velocityThreshold;
+          if (shouldTurn) {
+            progressVal.value = withSpring(0, SPRING_CONFIG, finished => {
+              if (finished) {
+                runOnJS(onBackwardTurnFinish)(sheetIdx);
+              }
+            });
+          } else {
+            progressVal.value = withSpring(1, SPRING_CONFIG, finished => {
+              if (finished) {
+                runOnJS(onFlipCancel)(sheetIdx, false);
+              }
+            });
+          }
+        }
+      });
+  }, [
+    totalPages,
+    sheetProgressList,
+    currentPageShared,
+    isAnimatingShared,
+    activeSheetIdx,
+    gestureDir,
+    isGestureActive,
+    notifyPanAnimationStart,
+    onForwardTurnFinish,
+    onBackwardTurnFinish,
+    onFlipCancel,
+  ]);
+
+  // Memoized Content Elements
+  const coverFrontElement = useMemo(
+    () => (
+      <CoverFrontView
+        story={story}
+        title={title}
+        subtitle={subtitle}
+        category={category}
+        onOpenBook={handleNextPage}
+      />
+    ),
+    [story, title, subtitle, category, handleNextPage],
+  );
+
+  const coverBackElement = useMemo(
+    () => <BackFaceView isCoverBack={true} theme={theme} source={source} />,
+    [theme, source],
+  );
+
+  const pageBackElement = useMemo(
+    () => <BackFaceView isCoverBack={false} theme={theme} source={source} />,
+    [theme, source],
+  );
+
   const lastPageData = pages[totalPages - 1] || pages[0];
 
   return (
@@ -806,7 +1075,14 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
           {/* ============================================================ */}
           {/* BASE UNDERNEATH PAGE: Last Page in stack                     */}
           {/* ============================================================ */}
-          {renderInsidePageContent(lastPageData, currentPage === totalPages)}
+          <StoryPageView
+            pageData={lastPageData}
+            theme={theme}
+            fontSize={fontSize}
+            category={category}
+            source={source}
+            isInteractive={displayPage === totalPages}
+          />
 
           {/* ============================================================ */}
           {/* STACKED ANIMATED SHEETS (Cover + Pages)                       */}
@@ -817,8 +1093,9 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
             index={0}
             totalSheets={totalPages}
             progress={sheetProgress0}
-            frontContent={renderCoverFront()}
-            backContent={renderBackFace(true)}
+            frontContent={coverFrontElement}
+            backContent={coverBackElement}
+            onHalfwayChange={handleHalfwayChange}
           />
 
           {/* Sheets 1 to totalPages-1: Story Pages */}
@@ -833,16 +1110,23 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
                 index={sheetIdx}
                 totalSheets={totalPages}
                 progress={progressSharedVal}
-                frontContent={renderInsidePageContent(
-                  pageItem,
-                  currentPage === sheetIdx,
-                )}
-                backContent={renderBackFace(false)}
+                frontContent={
+                  <StoryPageView
+                    pageData={pageItem}
+                    theme={theme}
+                    fontSize={fontSize}
+                    category={category}
+                    source={source}
+                    isInteractive={displayPage === sheetIdx}
+                  />
+                }
+                backContent={pageBackElement}
+                onHalfwayChange={handleHalfwayChange}
               />
             );
           })}
 
-          {/* Floating Page-Turning Status Indicator */}
+          {/* Floating Page-Turning Status Indicator with Queue Backlog Counter */}
           {isFlipping && (
             <View style={styles.loadingOverlay} pointerEvents="none">
               <View
@@ -859,7 +1143,11 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
                   color={GOLD_ACCENT}
                   style={styles.loadingSpinner}
                 />
-                <Text style={styles.loadingText}>पृष्ठ तैयार हो रहा है...</Text>
+                <Text style={styles.loadingText}>
+                  {queueLength >= 2
+                    ? `पृष्ठ पलट रहे हैं (+${queueLength})...`
+                    : 'कृपया प्रतीक्षा करें...'}
+                </Text>
               </View>
             </View>
           )}
@@ -874,24 +1162,17 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
         <TouchableOpacity
           style={[
             styles.navPageBtn,
-            { backgroundColor: theme.surface, borderColor: theme.border },
-            (currentPage === 0 || isFlipping) && styles.navBtnDisabled,
+
+            // (displayPage === 0 || isFlipping) && styles.navBtnDisabled,
           ]}
           onPress={handlePrevPage}
-          disabled={currentPage === 0 || isFlipping}
+          disabled={displayPage === 0 || isFlipping}
           activeOpacity={0.7}
         >
-          {isFlipping && gestureDir.value === 'backward' ? (
-            <ActivityIndicator size="small" color={theme.accent} />
+          {isFlipping && activeFlipDir === 'backward' ? (
+            <ActivityIndicator size={scale(14)} color={colors.white} />
           ) : (
-            <Text
-              style={[
-                styles.navBtnText,
-                { color: currentPage === 0 ? theme.textSecondary : theme.text },
-              ]}
-            >
-              ‹ पिछला
-            </Text>
+            <Back width={scale(14)} height={scale(14)} />
           )}
         </TouchableOpacity>
 
@@ -902,15 +1183,17 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
             disabled={isFlipping}
             style={[
               styles.pageDot,
-              currentPage === 0
-                ? [styles.pageDotActive, { backgroundColor: theme.accent }]
+              displayPage === 0
+                ? [styles.pageDotActive, { backgroundColor: colors.ring }]
                 : { backgroundColor: theme.surfaceSubtle },
             ]}
           >
             <Text
               style={[
                 styles.dotLabel,
-                { color: currentPage === 0 ? '#FFF' : theme.textSecondary },
+                {
+                  color: displayPage === 0 ? colors.white : theme.textSecondary,
+                },
               ]}
             >
               मुख
@@ -919,7 +1202,7 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
 
           {pages.map((_, idx) => {
             const pageNum = idx + 1;
-            const isActive = currentPage === pageNum;
+            const isActive = displayPage === pageNum;
             return (
               <TouchableOpacity
                 key={`dot-${pageNum}`}
@@ -928,14 +1211,14 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
                 style={[
                   styles.pageDot,
                   isActive
-                    ? [styles.pageDotActive, { backgroundColor: theme.accent }]
+                    ? [styles.pageDotActive, { backgroundColor: colors.ring }]
                     : { backgroundColor: theme.surfaceSubtle },
                 ]}
               >
                 <Text
                   style={[
                     styles.dotLabel,
-                    { color: isActive ? '#FFF' : theme.textSecondary },
+                    { color: isActive ? colors.white : theme.textSecondary },
                   ]}
                 >
                   {toHindiNumeral(pageNum)}
@@ -949,33 +1232,19 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
         <TouchableOpacity
           style={[
             styles.navPageBtn,
-            { backgroundColor: theme.surface, borderColor: theme.border },
-            (currentPage === totalPages || isFlipping) && styles.navBtnDisabled,
+
+            // (displayPage === totalPages || isFlipping) && styles.navBtnDisabled,
           ]}
           onPress={handleNextPage}
-          disabled={currentPage === totalPages || isFlipping}
+          disabled={displayPage === totalPages || isFlipping}
           activeOpacity={0.7}
         >
-          {isFlipping && gestureDir.value === 'forward' ? (
-            <ActivityIndicator size="small" color={theme.accent} />
+          {isFlipping && activeFlipDir === 'forward' ? (
+            <ActivityIndicator size={scale(14)} color={colors.white} />
           ) : (
-            <Text
-              style={[
-                styles.navBtnText,
-                {
-                  color:
-                    currentPage === totalPages
-                      ? theme.textSecondary
-                      : theme.accent,
-                },
-              ]}
-            >
-              {currentPage === 0
-                ? 'खोलें ›'
-                : currentPage === totalPages
-                ? 'पूर्ण ✓'
-                : 'अगला ›'}
-            </Text>
+            <View style={styles.forwardIconWrap}>
+              <Back width={scale(14)} height={scale(14)} />
+            </View>
           )}
         </TouchableOpacity>
       </View>
@@ -1083,6 +1352,25 @@ const styles = StyleSheet.create({
   pageScrollContent: {
     paddingVertical: scale(4),
     paddingHorizontal: scale(2),
+  },
+  pageImagesContainer: {
+    width: '100%',
+    gap: scale(8),
+    marginBottom: scale(8),
+  },
+  pageImageCard: {
+    width: '100%',
+    height: scale(160),
+    borderRadius: scale(8),
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: GOLD_BORDER,
+    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+    marginVertical: scale(4),
+  },
+  pageImage: {
+    width: '100%',
+    height: '100%',
   },
 
   shlokaBox: {
@@ -1341,14 +1629,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: BOOK_WIDTH,
-    marginTop: scale(10),
+    marginTop: scale(40),
     paddingHorizontal: scale(4),
   },
   navPageBtn: {
     paddingHorizontal: scale(12),
-    paddingVertical: scale(6),
+    paddingVertical: scale(10),
     borderRadius: scale(8),
-    borderWidth: 1,
+
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: scale(38),
+    minHeight: scale(30),
+    backgroundColor: colors.ring,
+  },
+  forwardIconWrap: {
+    transform: [{ scaleX: -1 }],
   },
   navBtnDisabled: {
     opacity: 0.4,

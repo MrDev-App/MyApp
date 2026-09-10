@@ -40,6 +40,8 @@ const THEME_CONFIGS = {
     tagBg: '#EFE3CE',
     tagText: '#995B16',
     statusBar: 'dark-content' as const,
+    ring: colors.primary,
+    white: colors.white,
   },
   dark: {
     bg: '#121215',
@@ -53,6 +55,8 @@ const THEME_CONFIGS = {
     tagBg: '#2A2A36',
     tagText: '#FBBF24',
     statusBar: 'light-content' as const,
+    ring: colors.primary,
+    white: colors.white,
   },
   light: {
     bg: '#FFFFFF',
@@ -66,6 +70,8 @@ const THEME_CONFIGS = {
     tagBg: '#FEF3C7',
     tagText: '#92400E',
     statusBar: 'dark-content' as const,
+    ring: colors.primary,
+    white: colors.white,
   },
 };
 
@@ -88,7 +94,7 @@ export const TextReadingScreen = () => {
 
   // Theme State (sepia -> dark -> light)
   const [themeMode, setThemeMode] = useState<ReaderTheme>(() => {
-    const saved = Storage.getString(STORAGE_KEYS.READER_THEME, 'sepia');
+    const saved = Storage.getString(STORAGE_KEYS.TEXT_READER_THEME, 'sepia');
     if (saved === 'dark' || saved === 'light' || saved === 'sepia') {
       return saved;
     }
@@ -131,7 +137,7 @@ export const TextReadingScreen = () => {
     const next: ReaderTheme =
       themeMode === 'sepia' ? 'dark' : themeMode === 'dark' ? 'light' : 'sepia';
     setThemeMode(next);
-    Storage.set(STORAGE_KEYS.READER_THEME, next);
+    Storage.set(STORAGE_KEYS.TEXT_READER_THEME, next);
   };
 
   // Adjust Font Size
@@ -206,11 +212,11 @@ export const TextReadingScreen = () => {
       {/* Top Header Controls Bar */}
       <View style={[styles.headerBar, { borderBottomColor: theme.border }]}>
         <TouchableOpacity
-          style={[styles.iconButton, { backgroundColor: theme.surface }]}
+          style={[styles.iconButton, { backgroundColor: colors.ring }]}
           onPress={() => navigation.goBack()}
           activeOpacity={0.7}
         >
-          <Back width={scale(14)} height={scale(14)} stroke={theme.text} />
+          <Back width={scale(14)} height={scale(14)} stroke={colors.white} />
         </TouchableOpacity>
 
         <View style={styles.headerTitleWrap}>
@@ -223,24 +229,6 @@ export const TextReadingScreen = () => {
         </View>
 
         <View style={styles.headerRightActions}>
-          {/* Font Size Decrement */}
-          <TouchableOpacity
-            style={[styles.miniButton, { backgroundColor: theme.surface }]}
-            onPress={decreaseFontSize}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.fontBtnText, { color: theme.text }]}>A-</Text>
-          </TouchableOpacity>
-
-          {/* Font Size Increment */}
-          <TouchableOpacity
-            style={[styles.miniButton, { backgroundColor: theme.surface }]}
-            onPress={increaseFontSize}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.fontBtnText, { color: theme.text }]}>A+</Text>
-          </TouchableOpacity>
-
           {/* Theme Switcher Button */}
           <TouchableOpacity
             style={[styles.iconButton, { backgroundColor: theme.surface }]}

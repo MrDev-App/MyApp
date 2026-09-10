@@ -15,6 +15,8 @@ export interface StoryPage {
   moralEn?: string;
   titleHi?: string;
   titleEn?: string;
+  image?: any;
+  imagePages?: any[];
 }
 
 export interface Story {
@@ -69,6 +71,8 @@ export const TextBooks: Story[] = [
     pages: [
       {
         page: 1,
+
+        image: [imagePath.karm, imagePath.karm],
 
         sourceHi: 'श्रीमद्भगवद्गीता, द्वितीय अध्याय',
 

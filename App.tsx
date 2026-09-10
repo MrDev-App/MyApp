@@ -67,7 +67,7 @@ const App = () => {
           </NavigationContainer>
         </SafeAreaProvider>
       </ErrorBoundary>
-    </GestureHandlerRootView>
+    </GestureHandlerRootView> 
   );
 };
 export default App;

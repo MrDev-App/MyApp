@@ -4,8 +4,9 @@ import {
   Text,
   View,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
 import { Story } from '@constants/storiesData';
 import { fs, scale } from '@theme/sizes';
 import fonts from '@theme/fonts';
@@ -17,6 +18,7 @@ interface ComicShelfProps {
   data: Story[];
   onPressBook: (story: Story) => void;
   currentLang?: 'en' | 'hi';
+  loadingStoryId?: string | null;
 }
 
 export const ComicShelf: React.FC<ComicShelfProps> = ({
@@ -24,6 +26,7 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
   data,
   onPressBook,
   currentLang = 'en',
+  loadingStoryId,
 }) => {
   if (!data || data.length === 0) {
     return null;
@@ -38,11 +41,15 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
         contentContainerStyle={styles.comicsScroll}
       >
         {data.map(story => {
+          const isLoadingThis = loadingStoryId === story.id;
           return (
             <AnimatedButton
               key={story.id}
               style={styles.comicCard}
-              onPress={() => onPressBook(story)}
+              onPress={() => {
+                if (loadingStoryId) return;
+                onPressBook(story);
+              }}
             >
               <View style={styles.comicImageContainer}>
                 <Animated.Image
@@ -50,17 +57,25 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
                   style={styles.comicImage}
                   sharedTransitionTag={`story_image_${story.id}`}
                 />
-                <View style={styles.typeBadge}>
-                  <Text style={styles.typeBadgeText}>
-                    {story.type === 'text'
-                      ? currentLang === 'hi'
-                        ? '📖 पुस्तक'
-                        : '📖 Book'
-                      : currentLang === 'hi'
-                      ? '🎨 चित्रकथा'
-                      : '🎨 Comic'}
-                  </Text>
-                </View>
+
+                {isLoadingThis && (
+                  <Animated.View
+                    style={styles.centerLoadingWrap}
+                    entering={FadeIn.duration(200)}
+                    exiting={FadeOut.duration(200)}
+                  >
+                    <ActivityIndicator size="large" color={colors.white} />
+                    <Animated.Text
+                      style={styles.loadingText}
+                      entering={FadeInDown.duration(350)
+                        .springify()
+                        .damping(100)
+                        .stiffness(120)}
+                    >
+                      'कृपया प्रतीक्षा करें...'
+                    </Animated.Text>
+                  </Animated.View>
+                )}
               </View>
               <Text style={styles.comicCardTitle} numberOfLines={1}>
                 {currentLang === 'hi' ? story.titleHi : story.titleEn}
@@ -141,6 +156,26 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: fs(9),
     fontFamily: fonts.PoppinsSemiBold,
+  },
+  centerLoadingWrap: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  loadingText: {
+    color: colors.white,
+    fontFamily: fonts.PoppinsSemiBold,
+    fontSize: fs(10),
+    marginTop: scale(6),
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.85)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
 });
 

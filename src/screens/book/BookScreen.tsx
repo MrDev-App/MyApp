@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -12,7 +12,7 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
@@ -43,6 +43,7 @@ const BookScreen = () => {
   const [loading, setLoading] = useState(true);
 
   const [pendingStory, setPendingStory] = useState<Story | null>(null);
+  const [openingStory, setOpeningStory] = useState<Story | null>(null);
   const { isLoaded: isRewardedLoaded, show: showRewardedAd } = useRewardedAd(
     'ca-app-pub-7403088686757883/3663931262',
   );
@@ -54,14 +55,24 @@ const BookScreen = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Reset opening book loading state whenever BookScreen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      setOpeningStory(null);
+    }, []),
+  );
+
   const openStoryReader = (story: Story) => {
     if (isBookUnlockedToday(story.id)) {
       triggerHaptic();
-      if (story.type === 'text') {
-        navigation.navigate('TextReadingScreen', { storyId: story.id });
-      } else {
-        navigation.navigate('ReadingScreen', { storyId: story.id });
-      }
+      setOpeningStory(story);
+      setTimeout(() => {
+        if (story.type === 'text') {
+          navigation.navigate('TextReadingScreen', { storyId: story.id });
+        } else {
+          navigation.navigate('ReadingScreen', { storyId: story.id });
+        }
+      }, 550);
       return;
     }
     // Not unlocked today — ask for consent before showing the ad
@@ -73,19 +84,23 @@ const BookScreen = () => {
   const handleWatchAd = () => {
     if (!pendingStory) return;
     const storyToUnlock = pendingStory;
+    setPendingStory(null); // close the popup — the ad SDK takes over the screen next
 
     showRewardedAd(() => {
       // This only runs if the user watched the FULL video (EARNED_REWARD)
       markBookUnlockedToday(storyToUnlock.id);
       triggerHaptic();
-      if (storyToUnlock.type === 'text') {
-        navigation.navigate('TextReadingScreen', { storyId: storyToUnlock.id });
-      } else {
-        navigation.navigate('ReadingScreen', { storyId: storyToUnlock.id });
-      }
+      setOpeningStory(storyToUnlock);
+      setTimeout(() => {
+        if (storyToUnlock.type === 'text') {
+          navigation.navigate('TextReadingScreen', {
+            storyId: storyToUnlock.id,
+          });
+        } else {
+          navigation.navigate('ReadingScreen', { storyId: storyToUnlock.id });
+        }
+      }, 550);
     });
-
-    setPendingStory(null); // close the popup — the ad SDK takes over the screen next
   };
 
   const labels = {
@@ -178,6 +193,7 @@ const BookScreen = () => {
               data={TextBooks}
               onPressBook={openStoryReader}
               currentLang={currentLang}
+              loadingStoryId={openingStory?.id}
             />
 
             {/* Illustrated Comics Shelf List */}
@@ -190,6 +206,7 @@ const BookScreen = () => {
               data={MahaBharatStories}
               onPressBook={openStoryReader}
               currentLang={currentLang}
+              loadingStoryId={openingStory?.id}
             />
           </ScrollView>
         )}
