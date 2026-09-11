@@ -68,7 +68,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     borderRadius: scale(8),
-    padding: scale(10),
+    padding: scale(8),
     justifyContent: 'space-between',
     position: 'relative',
   },
@@ -120,10 +120,10 @@ export const styles = StyleSheet.create({
   // Section Header Banner Card
   sectionHeaderCard: {
     marginVertical: scale(6),
-    paddingHorizontal: scale(10),
+    // paddingHorizontal: scale(10),
     paddingVertical: scale(7),
     borderRadius: scale(8),
-    borderLeftWidth: 3,
+
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(6),

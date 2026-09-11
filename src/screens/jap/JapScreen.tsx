@@ -62,6 +62,7 @@ const JapScreen = () => {
   const [displayedMantra, setDisplayedMantra] =
     useState<MantraSelectorItem>(DEFAULT_MANTRA);
   const [count, setCount] = useState(0);
+  const countRef = useRef(0);
   const [rounds, setRounds] = useState(0);
   const [target, _setTarget] = useState(108);
   const [isHapticOn, setIsHapticOn] = useState(true);
@@ -241,19 +242,16 @@ const JapScreen = () => {
   const handleChantPress = useCallback(() => {
     handleDateCheck();
 
-    let nextCount = 0;
-    let isMalaCompleted = false;
-    setCount(prev => {
-      const next = prev + 1;
-      if (next >= target) {
-        setRounds(r => r + 1);
-        nextCount = 0;
-        isMalaCompleted = true;
-        return 0;
-      }
-      nextCount = next;
-      return next;
-    });
+    const currentVal = countRef.current;
+    const nextVal = currentVal + 1;
+    const isMalaCompleted = nextVal >= target;
+    const nextCount = isMalaCompleted ? 0 : nextVal;
+
+    countRef.current = nextCount;
+    setCount(nextCount);
+    if (isMalaCompleted) {
+      setRounds(r => r + 1);
+    }
 
     const mantraId = selectedMantra.id;
 
@@ -281,13 +279,29 @@ const JapScreen = () => {
       setTotalMala(nextTotalMala);
     }
 
-    // Rotation step calculation
+    // Rotation step calculation - perfectly smooth without jumping
     const step = 360 / TOTAL_BEADS;
-    const targetRotation = nextCount === 0 ? 0 : -(nextCount * step);
-    malaRotation.value = withTiming(targetRotation, {
-      duration: 250,
-      easing: Easing.out(Easing.cubic),
-    });
+    if (isMalaCompleted) {
+      malaRotation.value = withTiming(
+        -360,
+        {
+          duration: 250,
+          easing: Easing.out(Easing.cubic),
+        },
+        finished => {
+          'worklet';
+          if (finished) {
+            malaRotation.value = 0;
+          }
+        },
+      );
+    } else {
+      const targetRotation = -(nextCount * step);
+      malaRotation.value = withTiming(targetRotation, {
+        duration: 250,
+        easing: Easing.out(Easing.cubic),
+      });
+    }
 
     sphereScale.value = withSequence(
       withSpring(0.94, { damping: 14, stiffness: 200 }),
@@ -320,6 +334,7 @@ const JapScreen = () => {
 
   const handleReset = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    countRef.current = 0;
     setCount(0);
     setRounds(0);
     malaRotation.value = withTiming(0, {
@@ -331,7 +346,7 @@ const JapScreen = () => {
   const handleMantraSelect = (item: MantraSelectorItem) => {
     if (item.id === selectedMantra.id) return;
 
-    if (count > 0 || rounds > 0) {
+    if (countRef.current > 0 || rounds > 0) {
       setPendingMantra(item);
       setIsSwitchModalVisible(true);
     } else {
@@ -342,6 +357,7 @@ const JapScreen = () => {
   const handleConfirmSwitch = () => {
     if (pendingMantra) {
       setSelectedMantra(pendingMantra);
+      countRef.current = 0;
       setCount(0);
       setRounds(0);
       malaRotation.value = withTiming(0, {

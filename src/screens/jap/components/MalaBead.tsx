@@ -12,11 +12,11 @@ type MalaBeadProps = {
   angle: number;
   filled: boolean;
   isMarker: boolean;
-  rotationOffset: number; // degrees
+  rotationOffset?: number; // degrees
 };
 
 const MalaBead = React.memo(
-  ({ angle, filled, isMarker, rotationOffset }: MalaBeadProps) => {
+  ({ angle, filled, isMarker, rotationOffset = 0 }: MalaBeadProps) => {
     const rad = angle + (rotationOffset * Math.PI) / 180;
     const beadRadius = isMarker ? scale(6) : BEAD_RADIUS;
     const size = beadRadius * 2;

@@ -25,24 +25,9 @@ import {
 } from '@components/icons/SvgIcons';
 import FlipBookCover from './components/FlipBookCover';
 
-type ReaderTheme = 'sepia' | 'dark' | 'light';
+type ReaderTheme = 'dark' | 'light';
 
 const THEME_CONFIGS = {
-  sepia: {
-    bg: '#FAF5EC',
-    surface: '#F3EAD7',
-    surfaceSubtle: '#EDE2CC',
-    text: '#2C1D11',
-    textSecondary: '#6E5D4F',
-    accent: '#B87A24',
-    border: '#E2D5BE',
-    cardBorder: '#D8C7AA',
-    tagBg: '#EFE3CE',
-    tagText: '#995B16',
-    statusBar: 'dark-content' as const,
-    ring: colors.primary,
-    white: colors.white,
-  },
   dark: {
     bg: '#121215',
     surface: '#1A1A20',
@@ -86,22 +71,19 @@ export const TextReadingScreen = () => {
     return findStoryById(storyId) || TextBooks[0];
   }, [storyId]);
 
-  // Theme State (sepia -> dark -> light)
+  // Theme State (dark <-> light)
   const [themeMode, setThemeMode] = useState<ReaderTheme>(() => {
-    const saved = Storage.getString(STORAGE_KEYS.TEXT_READER_THEME, 'sepia');
-    if (saved === 'dark' || saved === 'light' || saved === 'sepia') {
+    const saved = Storage.getString(STORAGE_KEYS.TEXT_READER_THEME, 'dark');
+    if (saved === 'dark' || saved === 'light') {
       return saved;
     }
-    return 'sepia';
+    return 'dark';
   });
 
-  // Font Size Scale State (13 to 22)
   const [fontSize, setFontSize] = useState<number>(15);
 
-  // Favorite / Bookmark State
   const [isBookmarked, setIsBookmarked] = useState(false);
 
-  // Reading Progress State (0 to 100%)
   const [readingProgress, setReadingProgress] = useState(0);
   const [pageInfo, setPageInfo] = useState<{ current: number; total: number }>({
     current: 0,
@@ -110,7 +92,6 @@ export const TextReadingScreen = () => {
 
   const theme = THEME_CONFIGS[themeMode];
 
-  // Load Initial Bookmark & Progress State
   useEffect(() => {
     if (!story?.id) return;
     try {
@@ -125,28 +106,12 @@ export const TextReadingScreen = () => {
     } catch {}
   }, [story?.id]);
 
-  // Toggle Theme
+  // Toggle Theme between dark and light
   const cycleTheme = () => {
     triggerHaptic();
-    const next: ReaderTheme =
-      themeMode === 'sepia' ? 'dark' : themeMode === 'dark' ? 'light' : 'sepia';
+    const next: ReaderTheme = themeMode === 'dark' ? 'light' : 'dark';
     setThemeMode(next);
     Storage.set(STORAGE_KEYS.TEXT_READER_THEME, next);
-  };
-
-  // Adjust Font Size
-  const increaseFontSize = () => {
-    if (fontSize < 22) {
-      triggerHaptic();
-      setFontSize(prev => prev + 1.5);
-    }
-  };
-
-  const decreaseFontSize = () => {
-    if (fontSize > 13) {
-      triggerHaptic();
-      setFontSize(prev => prev - 1.5);
-    }
   };
 
   // Toggle Bookmark

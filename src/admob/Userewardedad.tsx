@@ -9,7 +9,7 @@ import { isAdMobEnabled } from './adConfig';
 
 interface UseRewardedAdResult {
   isLoaded: boolean;
-  /** Shows the ad if loaded. Calls onReward when the user earns the reward. */
+
   show: (onReward: () => void) => void;
 }
 
@@ -17,7 +17,6 @@ export function useRewardedAd(unitId: string): UseRewardedAdResult {
   const adEnabled = isAdMobEnabled();
   const resolvedUnitId = __DEV__ ? TestIds.REWARDED : unitId;
 
-  // useRef so the ad instance is created once and persists across re-renders
   const rewardedAdRef = useRef<RewardedAd | null>(
     adEnabled
       ? RewardedAd.createForAdRequest(resolvedUnitId, {
@@ -46,7 +45,6 @@ export function useRewardedAd(unitId: string): UseRewardedAdResult {
     const unsubscribeEarned = rewardedAd.addAdEventListener(
       RewardedAdEventType.EARNED_REWARD,
       () => {
-        // User watched the full video — grant the reward here
         onRewardCallbackRef.current?.();
       },
     );
@@ -56,7 +54,7 @@ export function useRewardedAd(unitId: string): UseRewardedAdResult {
       () => {
         setIsLoaded(false);
         onRewardCallbackRef.current = null;
-        rewardedAd.load(); // preload the next one immediately
+        rewardedAd.load();
       },
     );
 

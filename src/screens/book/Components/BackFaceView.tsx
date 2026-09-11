@@ -9,18 +9,17 @@ import { getStrings } from './FlipBookCover.strings';
 export const BackFaceView: React.FC<BackFaceViewProps> = React.memo(
   ({ isCoverBack, theme, source, currentLang = 'hi' }) => {
     const strings = getStrings(currentLang);
+    const isDark =
+      theme.bg === '#121215' ||
+      theme.bg === colors.black ||
+      theme.statusBar === 'light-content';
 
     return (
       <View
         style={[
           styles.coverFaceBack,
           {
-            backgroundColor:
-              theme.bg === '#121215' || theme.bg === colors.black
-                ? '#161922'
-                : theme.bg === '#FAF5EC'
-                ? '#F4ECE0'
-                : '#FBF8F2',
+            backgroundColor: isDark ? '#161922' : '#FBF8F2',
           },
         ]}
       >
@@ -28,10 +27,9 @@ export const BackFaceView: React.FC<BackFaceViewProps> = React.memo(
           style={[
             styles.backFaceInnerBorder,
             {
-              borderColor:
-                theme.bg === '#121215' || theme.bg === colors.black
-                  ? 'rgba(218, 165, 32, 0.3)'
-                  : 'rgba(218, 165, 32, 0.45)',
+              borderColor: isDark
+                ? 'rgba(218, 165, 32, 0.3)'
+                : 'rgba(218, 165, 32, 0.45)',
             },
           ]}
         >

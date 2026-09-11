@@ -41,6 +41,11 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
     );
     const [isZoomed, setIsZoomed] = useState<boolean>(false);
 
+    const isDark =
+      theme.bg === '#121215' ||
+      theme.bg === colors.black ||
+      theme.statusBar === 'light-content';
+
     const isEn = currentLang === 'en';
     const pageSource = isEn
       ? pageData.sourceEn || pageData.sourceHi || source
@@ -114,24 +119,13 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
         style={[
           styles.insidePageContainer,
           {
-            backgroundColor:
-              theme.bg === '#121215' || theme.bg === colors.black
-                ? '#1A1D27'
-                : theme.bg === '#FAF5EC'
-                ? '#FAF3E3'
-                : '#FFFDF9',
+            backgroundColor: isDark ? '#1A1D27' : '#FFFDF9',
             borderColor: theme.cardBorder,
           },
         ]}
       >
         {/* Ornate Golden Inner Margin Frame */}
         <View style={[styles.ornateBorder, { borderColor: GOLD_BORDER }]}>
-          {/* Corner Flourishes */}
-          <Text style={[styles.cornerFlourish, styles.flourishTL]}>✦</Text>
-          <Text style={[styles.cornerFlourish, styles.flourishTR]}>✦</Text>
-          <Text style={[styles.cornerFlourish, styles.flourishBL]}>✦</Text>
-          <Text style={[styles.cornerFlourish, styles.flourishBR]}>✦</Text>
-
           {/* Page Top Header Bar */}
           <View style={styles.insideHeaderBar}>
             <View
@@ -189,12 +183,7 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                 style={[
                   styles.shlokaBox,
                   {
-                    backgroundColor:
-                      theme.bg === '#121215' || theme.bg === colors.black
-                        ? '#222533'
-                        : theme.bg === '#FAF5EC'
-                        ? '#F4E9D5'
-                        : '#F9F5EC',
+                    backgroundColor: isDark ? '#222533' : '#F9F5EC',
                     borderColor: theme.cardBorder,
                   },
                 ]}
@@ -255,27 +244,8 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                 return (
                   <View
                     key={`para-header-${pIdx}`}
-                    style={[
-                      styles.sectionHeaderCard,
-                      {
-                        backgroundColor:
-                          theme.bg === '#121215' || theme.bg === colors.black
-                            ? '#262A38'
-                            : theme.bg === '#FAF5EC'
-                            ? '#F4E9D5'
-                            : '#F7F3E8',
-                        borderLeftColor: theme.accent,
-                      },
-                    ]}
+                    style={[styles.sectionHeaderCard]}
                   >
-                    <Image
-                      source={imagePath.lamp}
-                      style={[
-                        styles.sectionHeaderIcon,
-                        { tintColor: theme.accent },
-                      ]}
-                      resizeMode="contain"
-                    />
                     <Text
                       style={[
                         styles.sectionHeaderText,
@@ -305,12 +275,7 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                     style={[
                       styles.quoteCalloutCard,
                       {
-                        backgroundColor:
-                          theme.bg === '#121215' || theme.bg === colors.black
-                            ? '#24222E'
-                            : theme.bg === '#FAF5EC'
-                            ? '#F7EFE1'
-                            : '#FFFBF2',
+                        backgroundColor: isDark ? '#24222E' : '#FFFBF2',
                         borderLeftColor: theme.accent,
                       },
                     ]}
@@ -367,12 +332,7 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                 style={[
                   styles.moralCard,
                   {
-                    backgroundColor:
-                      theme.bg === '#121215' || theme.bg === colors.black
-                        ? '#262018'
-                        : theme.bg === '#FAF5EC'
-                        ? '#F9EDD6'
-                        : '#FEF9EE',
+                    backgroundColor: isDark ? '#262018' : '#FEF9EE',
                     borderColor: theme.accent,
                   },
                 ]}
