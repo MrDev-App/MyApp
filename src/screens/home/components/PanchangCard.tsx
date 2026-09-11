@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fs(16),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   card: {
@@ -93,13 +93,13 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: fs(8),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.black,
     letterSpacing: 1,
   },
   value: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
 });

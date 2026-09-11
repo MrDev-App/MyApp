@@ -67,19 +67,19 @@ const styles = StyleSheet.create({
   },
   templeName: {
     fontSize: fs(15),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   templeSubtitle: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     marginTop: scale(2),
     marginBottom: scale(6),
   },
   templeText: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     lineHeight: fs(17),
     opacity: 0.95,

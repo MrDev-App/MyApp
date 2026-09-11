@@ -159,13 +159,13 @@ const styles = StyleSheet.create({
   },
   englishText: {
     fontSize: fs(20),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     letterSpacing: scale(2),
     textAlign: 'center',
   },
   hindiText: {
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(20),
     color: colors.ring,
     letterSpacing: scale(1),

@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   badgeText: {
     color: colors.primary,
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
   },
   currentBadge: {
     position: 'absolute',
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
   badgeStar: {
     color: colors.primary,
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
   },
   lockBadge: {
     position: 'absolute',
@@ -461,29 +461,29 @@ const styles = StyleSheet.create({
   },
   nodeName: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.primary,
     textAlign: 'center',
   },
   nodeNameCurrent: {
     color: colors.pathActiveLine,
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(12),
   },
   nodeNameLocked: {
     color: colors.warmTaupe,
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
   },
   nodeMalas: {
     fontSize: fs(9),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.charcoal,
     textAlign: 'center',
     marginTop: scale(1),
   },
   nodeMalasCurrent: {
     color: colors.secondary,
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
   },
   nodeMalasLocked: {
     color: colors.charcoal,

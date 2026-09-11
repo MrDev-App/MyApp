@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Text,
   View,
@@ -6,7 +6,10 @@ import {
   ScrollView,
   Image,
   Switch,
+  Modal,
 } from 'react-native';
+import LottieView from 'lottie-react-native';
+import { BlurView } from '@react-native-community/blur';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -77,7 +80,27 @@ const ProfileScreen = () => {
   } = useProfileData();
 
   const insets = useSafeAreaInsets();
-  const [showJapHistory, setShowJapHistory] = React.useState(false);
+  const [showJapHistory, setShowJapHistory] = useState(false);
+  const [isLangChanging, setIsLangChanging] = useState(false);
+  const [targetLang, setTargetLang] = useState<'en' | 'hi' | null>(null);
+
+  const handleLanguageChange = useCallback(
+    (newLang: 'en' | 'hi') => {
+      if (newLang === currentLanguage || isLangChanging) return;
+      setTargetLang(newLang);
+      setIsLangChanging(true);
+
+      setTimeout(() => {
+        changeLanguage(newLang);
+      }, 500);
+
+      setTimeout(() => {
+        setIsLangChanging(false);
+        setTargetLang(null);
+      }, 2000);
+    },
+    [currentLanguage, isLangChanging, changeLanguage],
+  );
 
   return (
     <GradientBackground>
@@ -192,7 +215,8 @@ const ProfileScreen = () => {
                     profileStyles.langButton,
                     currentLanguage === 'en' && profileStyles.langButtonActive,
                   ]}
-                  onPress={() => changeLanguage('en')}
+                  onPress={() => handleLanguageChange('en')}
+                  disabled={isLangChanging}
                   activeOpacity={0.8}
                 >
                   <Text
@@ -210,7 +234,8 @@ const ProfileScreen = () => {
                     profileStyles.langButton,
                     currentLanguage === 'hi' && profileStyles.langButtonActive,
                   ]}
-                  onPress={() => changeLanguage('hi')}
+                  onPress={() => handleLanguageChange('hi')}
+                  disabled={isLangChanging}
                   activeOpacity={0.8}
                 >
                   <Text
@@ -313,7 +338,6 @@ const ProfileScreen = () => {
               <ChevronRight size={scale(16)} color={colors.ring} />
             </TouchableOpacity>
 
-            {/* Give up challenge row (conditional) */}
             {challengeStarted && (
               <>
                 <View style={profileStyles.separator} />
@@ -427,6 +451,29 @@ const ProfileScreen = () => {
         onClose={handleCloseResetModal}
         onExecute={handleExecuteReset}
       />
+
+      {/* ── Language Change Dim Loading Overlay ── */}
+      <Modal
+        visible={isLangChanging}
+        transparent={true}
+        animationType="fade"
+        statusBarTranslucent={true}
+      >
+        <BlurView
+          style={profileStyles.langLoadingBackdrop}
+          blurType="dark"
+          blurAmount={8}
+          overlayColor="rgba(0, 0, 0, 0.35)"
+          reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.35)"
+        >
+          <LottieView
+            source={imagePath.loading}
+            autoPlay
+            loop
+            style={profileStyles.lottieLoading}
+          />
+        </BlurView>
+      </Modal>
     </GradientBackground>
   );
 };

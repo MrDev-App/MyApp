@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: fs(18),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
   levelBadgeHeader: {
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   },
   levelBadgeHeaderText: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   scrollContent: {
@@ -255,12 +255,12 @@ const styles = StyleSheet.create({
   },
   pathHeadingTitle: {
     fontSize: fs(18),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
   pathHeadingDesc: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.charcoal,
     marginTop: scale(2),
   },
@@ -310,13 +310,13 @@ const styles = StyleSheet.create({
   },
   modalLevelTitle: {
     fontSize: fs(18),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     textAlign: 'center',
   },
   modalLevelSubtitle: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
     marginTop: scale(2),
@@ -339,12 +339,12 @@ const styles = StyleSheet.create({
   },
   reqLabel: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.charcoal,
   },
   reqValue: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
   statusCompleted: {
@@ -367,13 +367,13 @@ const styles = StyleSheet.create({
   },
   blessingTitle: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     marginBottom: scale(4),
   },
   blessingText: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     lineHeight: fs(18),
     fontStyle: 'italic',
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   },
   modalOkBtnText: {
     color: colors.white,
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(14),
   },
 });

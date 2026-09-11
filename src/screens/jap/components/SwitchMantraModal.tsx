@@ -122,14 +122,14 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: fs(18),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
     marginBottom: verticalScale(8),
   },
   descriptionText: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
     textAlign: 'center',
     lineHeight: fs(20),
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   },
   cancelBtnText: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   confirmBtn: {
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   },
   confirmBtnText: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.white,
   },
 });

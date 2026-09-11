@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     maxHeight: '90%',
   },
   modalTitle: {
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(20),
     color: colors.black,
     marginBottom: scale(15),
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     fontSize: fs(13),
     color: colors.black,
     marginBottom: scale(8),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     marginTop: scale(10),
   },
   timeSelectorContainer: {
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   },
   btnCancelText: {
     color: colors.white,
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(14),
   },
   btnSave: {
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   },
   btnSaveText: {
     color: colors.white,
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(14),
   },
 });

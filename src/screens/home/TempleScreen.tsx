@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: fs(18),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   contentWrapper: {
@@ -235,12 +235,12 @@ const styles = StyleSheet.create({
   },
   templeName: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   templeSubtitle: {
     fontSize: fs(10),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     marginTop: scale(2),
   },
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   },
   noDataText: {
     fontSize: fs(16),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.neutralDisabled,
   },
   modalOverlay: {
@@ -279,12 +279,12 @@ const styles = StyleSheet.create({
   },
   modalTempleName: {
     fontSize: fs(18),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   modalTempleSubtitle: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     marginTop: scale(4),
     marginBottom: scale(16),
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
   },
   modalTempleText: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     lineHeight: fs(19),
     opacity: 0.9,
@@ -310,6 +310,6 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: colors.white,
     fontSize: fs(14),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
   },
 });

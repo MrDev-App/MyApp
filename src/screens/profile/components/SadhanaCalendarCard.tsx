@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: fs(14),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   calendarWrapper: {},

@@ -358,13 +358,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.05,
     shadowRadius: 6,
-    elevation: 2,
+    elevation: 1,
   },
 
   searchInput: {
     flex: 1,
-    fontFamily: fonts.PoppinsRegular,
-    fontSize: fs(14),
+    fontFamily: fonts.TiroHindiRegular,
+    fontSize: fs(12),
     color: colors.secondary,
     marginHorizontal: scale(10),
   },

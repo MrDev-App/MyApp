@@ -45,6 +45,8 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { RootNavigationProp } from '@navigation/types';
 import { triggerHaptic } from '@helper/helper';
 import BannerAdComponent from '@admob/Banneradcomponent';
+import { askAI } from '@services/aiService';
+import { ResetIcon, ZapIcon, ChartBarIcon } from '@components/icons/SvgIcons';
 
 const TOTAL_BEADS = 108;
 
@@ -71,6 +73,22 @@ const JapScreen = () => {
 
   // Custom Mantras State
   const [customMantras, setCustomMantras] = useState<CustomMantra[]>([]);
+
+  const handleAskAI = async () => {
+    try {
+      const reply = await askAI(
+        'Explain JavaScript closures with a React Native example.',
+      );
+
+      console.log('AI Reply:', reply);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log(error.message);
+      } else {
+        console.log('Something went wrong');
+      }
+    }
+  };
 
   // Load mantras
   useEffect(() => {
@@ -478,7 +496,12 @@ const JapScreen = () => {
           <View style={styles.statsBar}>
             {/* Today Jap Card */}
             <View style={styles.statChip}>
-              <Text style={styles.statChipIcon}>⚡</Text>
+              <ZapIcon
+                size={scale(18)}
+                color={colors.ring}
+                strokeWidth={2}
+                filled={true}
+              />
               <Text style={styles.statChipLabel}>
                 {t(Translation.JAP_TODAY_JAP)}
               </Text>
@@ -502,7 +525,11 @@ const JapScreen = () => {
 
             {/* Total Chants Card */}
             <View style={styles.statChip}>
-              <Text style={styles.statChipIcon}>📊</Text>
+              <ChartBarIcon
+                size={scale(18)}
+                color={colors.ring}
+                strokeWidth={2}
+              />
               <Text style={styles.statChipLabel}>
                 {t(Translation.JAP_TOTAL_CHANTS)}
               </Text>
@@ -518,6 +545,7 @@ const JapScreen = () => {
             <View style={styles.mantraAccentBar} />
             <Animated.Text
               style={[styles.mantraDisplayText, animatedTextStyle]}
+              onPress={handleAskAI}
             >
               {mantraText}
             </Animated.Text>
@@ -546,7 +574,11 @@ const JapScreen = () => {
               onPress={handleReset}
               activeOpacity={0.8}
             >
-              <Text style={styles.actionBtnIcon}>↺</Text>
+              <ResetIcon
+                size={scale(15)}
+                color={colors.alertRed}
+                strokeWidth={2.4}
+              />
               <Text style={[styles.actionBtnLabel, styles.resetBtnText]}>
                 {t(Translation.RESET_LABEL)}
               </Text>
@@ -593,7 +625,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: fs(18),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   headerRight: {
@@ -617,7 +649,7 @@ const styles = StyleSheet.create({
   },
   progressBtnText: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   hapticBtn: {
@@ -658,7 +690,7 @@ const styles = StyleSheet.create({
   },
   selectorText: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   selectorTextSelected: { color: colors.white },
@@ -695,13 +727,13 @@ const styles = StyleSheet.create({
   statChipIcon: { fontSize: fs(14) },
   statChipLabel: {
     fontSize: fs(10),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
     letterSpacing: 0.8,
   },
   statChipValue: {
     fontSize: fs(15),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   statDivider: {
@@ -740,7 +772,7 @@ const styles = StyleSheet.create({
   mantraDisplayText: {
     flex: 1,
     fontSize: fs(14),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     letterSpacing: 1,
     lineHeight: fs(24),
@@ -768,6 +800,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: scale(10),
+    marginBottom: scale(20),
     paddingHorizontal: scale(24),
     borderRadius: scale(12),
     gap: scale(8),
@@ -786,7 +819,7 @@ const styles = StyleSheet.create({
   },
   actionBtnLabel: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     lineHeight: fs(20),
     color: colors.secondary,
     textAlignVertical: 'center',

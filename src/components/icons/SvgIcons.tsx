@@ -179,4 +179,99 @@ export const CloseIcon = (props: SvgIconProps) => {
   );
 };
 
+export const ExpandIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 16, 2.2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      {/* Top Left */}
+      <Path d="M3 9V3h6" />
+      <Path d="M3 3l6 6" />
+      {/* Top Right */}
+      <Path d="M21 9V3h-6" />
+      <Path d="M21 3l-6 6" />
+      {/* Bottom Left */}
+      <Path d="M3 15v6h6" />
+      <Path d="M3 21l6-6" />
+      {/* Bottom Right */}
+      <Path d="M21 15v6h-6" />
+      <Path d="M21 21l-6-6" />
+    </Svg>
+  );
+};
+
+export const ResetIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 16, 2.2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M1 4v6h6" />
+      <Path d="M3.51 15a9 9 0 102.13-9.36L1 10" />
+    </Svg>
+  );
+};
+
+export const ZapIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 18, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill={props.filled ? color : 'none'}
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+    </Svg>
+  );
+};
+
+export const ChartBarIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 18, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M18 20V10" />
+      <Path d="M12 20V4" />
+      <Path d="M6 20v-6" />
+    </Svg>
+  );
+};
+
+
+
+
+
+
 

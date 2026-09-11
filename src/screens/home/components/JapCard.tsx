@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fs(16),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   card: {
@@ -123,14 +123,14 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: fs(8.5),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.black,
     letterSpacing: 1,
     marginBottom: scale(4),
   },
   value: {
     fontSize: fs(16),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
   chantButton: {
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   },
   chantButtonText: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.white,
   },
 });

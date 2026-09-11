@@ -103,7 +103,7 @@ export const styles = StyleSheet.create({
     height: scale(11),
   },
   pageSourceText: {
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(9),
   },
   headerPagePill: {
@@ -112,7 +112,7 @@ export const styles = StyleSheet.create({
     borderRadius: scale(6),
   },
   headerPagePillText: {
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(8.5),
     letterSpacing: 0.5,
   },
@@ -156,11 +156,11 @@ export const styles = StyleSheet.create({
     opacity: 0.16,
   },
   quoteIconText: {
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(24),
   },
   quoteTagText: {
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(8.5),
     letterSpacing: 0.8,
     marginBottom: scale(3),
@@ -188,7 +188,7 @@ export const styles = StyleSheet.create({
     opacity: 0.85,
   },
   flourishLineText: {
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(9),
     letterSpacing: 2,
     opacity: 0.55,
@@ -232,12 +232,12 @@ export const styles = StyleSheet.create({
     marginBottom: scale(4),
   },
   shlokaTagText: {
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(9),
     letterSpacing: 1,
   },
   shlokaVerseText: {
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     lineHeight: fs(21),
     textAlign: 'center',
     fontStyle: 'italic',
@@ -248,7 +248,7 @@ export const styles = StyleSheet.create({
     paddingTop: scale(4),
   },
   shlokaMeaningText: {
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     lineHeight: fs(16),
     textAlign: 'center',
   },
@@ -267,13 +267,13 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
   },
   moralCardHeader: {
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(10),
     marginBottom: scale(3),
     textAlign: 'center',
   },
   moralCardText: {
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     fontStyle: 'italic',
     textAlign: 'center',
   },
@@ -286,7 +286,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: scale(4),
   },
   footerCategoryText: {
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(8.5),
   },
 
@@ -337,7 +337,7 @@ export const styles = StyleSheet.create({
     borderRadius: scale(8),
   },
   categoryGlassBadgeText: {
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(9.5),
     color: '#FFD700',
   },
@@ -346,7 +346,7 @@ export const styles = StyleSheet.create({
     marginBottom: scale(4),
   },
   coverTitleText: {
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(18),
     color: '#FFF',
     lineHeight: fs(24),
@@ -355,7 +355,7 @@ export const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
   coverSubtitleText: {
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(11),
     color: '#E0E0E0',
     marginTop: scale(2),
@@ -377,7 +377,7 @@ export const styles = StyleSheet.create({
     gap: scale(6),
   },
   openBookPromptText: {
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(10.5),
     color: '#FFF',
   },
@@ -441,10 +441,10 @@ export const styles = StyleSheet.create({
   backFaceOm: {
     fontSize: fs(24),
     color: GOLD_ACCENT,
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
   },
   backFaceMantra: {
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(9.5),
     letterSpacing: 0.8,
     marginTop: scale(3),
@@ -458,19 +458,19 @@ export const styles = StyleSheet.create({
     marginVertical: scale(8),
   },
   backFaceDedicationTitle: {
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(12),
     textAlign: 'center',
   },
   backFaceDedicationBody: {
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(9.5),
     lineHeight: fs(14),
     textAlign: 'center',
     marginTop: scale(3),
   },
   backFaceSourceNote: {
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(8.5),
     fontStyle: 'italic',
     textAlign: 'center',
@@ -502,7 +502,7 @@ export const styles = StyleSheet.create({
     opacity: 0.35,
   },
   navBtnText: {
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(11),
   },
   pageDotsContainer: {
@@ -536,7 +536,7 @@ export const styles = StyleSheet.create({
     borderRadius: scale(8),
   },
   dotLabel: {
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(9.5),
   },
 
@@ -566,24 +566,28 @@ export const styles = StyleSheet.create({
   },
   loadingText: {
     color: '#FFF',
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(11),
   },
 
   // Image Zoom Hint Badge on Page Card
   imageZoomBadge: {
     position: 'absolute',
-    bottom: scale(6),
-    right: scale(6),
+    bottom: scale(8),
+    right: scale(8),
+    width: scale(28),
+    height: scale(28),
+    borderRadius: scale(14),
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    paddingHorizontal: scale(8),
-    paddingVertical: scale(3),
-    borderRadius: scale(12),
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: scale(4),
-    borderWidth: 0.5,
-    borderColor: 'rgba(255, 215, 0, 0.4)',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 4,
   },
   imageZoomIcon: {
     color: colors.ring,
@@ -592,7 +596,7 @@ export const styles = StyleSheet.create({
   },
   imageZoomText: {
     color: '#FFF',
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(8.5),
   },
 
@@ -618,13 +622,13 @@ export const styles = StyleSheet.create({
     marginRight: scale(12),
   },
   fullscreenTitleText: {
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(13.5),
     color: '#FFFFFF',
     letterSpacing: 0.3,
   },
   fullscreenSubtitleText: {
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(10),
     color: colors.ring,
     marginTop: scale(2),
@@ -675,7 +679,7 @@ export const styles = StyleSheet.create({
   fullscreenNavBtnText: {
     color: '#FFF',
     fontSize: fs(24),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     lineHeight: fs(26),
   },
   fullscreenBottomBar: {
@@ -693,7 +697,7 @@ export const styles = StyleSheet.create({
   },
   fullscreenHintText: {
     color: '#E0E0E0',
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(10),
   },
 });

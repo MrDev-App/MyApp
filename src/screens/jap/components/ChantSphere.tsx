@@ -53,18 +53,18 @@ const styles = StyleSheet.create({
   },
   chantCountText: {
     fontSize: fs(50),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     lineHeight: fs(50),
   },
   chantTargetText: {
     fontSize: fs(20),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
   chantLabel: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
     letterSpacing: 2,
   },

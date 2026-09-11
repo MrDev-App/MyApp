@@ -108,9 +108,7 @@ const FestivalModal: React.FC<FestivalModalProps> = ({
                   {categoryText ? (
                     <View style={styles.metaBadge}>
                       <Tag width={scale(10)} height={scale(10)} />
-                      <Text style={styles.metaBadgeText}>
-                        {categoryText}
-                      </Text>
+                      <Text style={styles.metaBadgeText}>{categoryText}</Text>
                     </View>
                   ) : null}
                 </View>
@@ -222,7 +220,7 @@ const styles = StyleSheet.create({
   },
   modalFestivalName: {
     fontSize: fs(18),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   modalMetaRow: {
@@ -248,7 +246,7 @@ const styles = StyleSheet.create({
   },
   metaBadgeText: {
     fontSize: fs(10),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
   modalTextScroll: {
@@ -263,18 +261,18 @@ const styles = StyleSheet.create({
   },
   modalSectionLabel: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     flex: 1,
   },
   modalSectionValue: {
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     opacity: 0.85,
   },
   modalFestivalDesc: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     lineHeight: fs(19),
     opacity: 0.9,
@@ -290,6 +288,6 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: colors.white,
     fontSize: fs(14),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
   },
 });

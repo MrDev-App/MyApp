@@ -159,7 +159,7 @@ const ChallengeCard = () => {
                 <Text
                   style={{
                     color: colors.ring,
-                    fontFamily: fonts.PoppinsSemiBold,
+                    fontFamily: fonts.TiroHindiRegular,
                   }}
                 >
                   {dailyTargetGoal}
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fs(16),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   streakBadge: {
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   },
   streakText: {
     fontSize: fs(10.5),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
   card: {
@@ -358,12 +358,12 @@ const styles = StyleSheet.create({
   },
   challengeName: {
     fontSize: fs(14.5),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   targetText: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.accent,
     opacity: 0.8,
   },
@@ -378,12 +378,12 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: fs(11.5),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   percentageText: {
     fontSize: fs(11.5),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
   progressBarBg: {
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.success,
   },
   statusTextInactive: {
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.white,
   },
   targetRow: {
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
   },
   editTargetIcon: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
   modalCenterContainer: {
@@ -463,14 +463,14 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: fs(15),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     marginBottom: scale(16),
     paddingRight: scale(20),
   },
   inputLabel: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.accent,
     marginBottom: scale(6),
   },
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(8),
     paddingHorizontal: scale(12),
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     backgroundColor: colors.inputBgLight,
   },
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
   setGoalBtnText: {
     color: colors.white,
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
   },
   modalCloseBtn: {
     position: 'absolute',
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
   },
   activeWarningText: {
     fontSize: fs(10),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     textAlign: 'right',
     marginTop: scale(6),

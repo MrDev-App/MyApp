@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   },
   pageNumberText: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
 });

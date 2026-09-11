@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   fontBtnText: {
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(12),
   },
   headerTitleWrap: {
@@ -264,11 +264,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitleText: {
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(13),
   },
   headerProgressText: {
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(10),
   },
   headerRightActions: {

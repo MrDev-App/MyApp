@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: fs(15),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
   },

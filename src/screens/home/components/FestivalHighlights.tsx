@@ -12,7 +12,6 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
@@ -89,6 +88,7 @@ const FestivalHighlights = ({ onPress }: any) => {
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => navigation.navigate('AllFestivals')}
+          hitSlop={12}
         >
           <Text style={styles.allText}>{t(Translation.ALL)}</Text>
         </TouchableOpacity>
@@ -165,12 +165,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fs(16),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   allText: {
     fontSize: fs(10),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     letterSpacing: 1,
   },
@@ -213,22 +213,22 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.white,
   },
   date: {
     fontSize: fs(9.5),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.textWhiteMuted,
   },
   countdown: {
     fontSize: fs(9.5),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.accentPeach,
   },
   icon: {
     fontSize: fs(16),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.accentPeach,
   },
 });

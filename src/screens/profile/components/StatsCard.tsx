@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   },
   historyBtnText: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
   historyBtnTextActive: {

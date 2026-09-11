@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   },
   shlokName: {
     fontSize: fs(16),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     marginBottom: scale(8),
   },
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   },
   shlokTextHi: {
     fontSize: fs(16),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
     lineHeight: fs(24),
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   },
   shlokTextEn: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
     fontStyle: 'italic',
     textAlign: 'center',

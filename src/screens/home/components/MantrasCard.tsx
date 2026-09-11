@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
   container: { width: '100%', marginVertical: scale(16) },
   title: {
     fontSize: fs(16),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     marginBottom: scale(14),
     paddingHorizontal: scale(4),
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
   avatarImage: { width: '100%', height: '100%', resizeMode: 'cover' },
   godName: {
     fontSize: fs(10.5),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     marginTop: scale(4),
     textAlign: 'center',
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
   },
   expandedName: {
     fontSize: fs(22),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   modalHeaderTitleCol: {
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
   },
   modalSubtitle: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     marginTop: scale(2),
   },
@@ -417,20 +417,20 @@ const styles = StyleSheet.create({
   },
   mantraName: {
     fontSize: fs(14),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     flex: 1,
     marginRight: scale(10),
   },
   mantraTextHi: {
     fontSize: fs(15),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     lineHeight: fs(22),
   },
   mantraTextEn: {
     fontSize: fs(12.5),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
     marginTop: scale(4),
     fontStyle: 'italic',
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
   },
   mantraDetailHi: {
     fontSize: fs(18),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
     lineHeight: fs(28),
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
   },
   mantraDetailEn: {
     fontSize: fs(13.5),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
     lineHeight: fs(22),

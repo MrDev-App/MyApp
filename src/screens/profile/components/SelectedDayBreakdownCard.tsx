@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: fs(14),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   selectedDayDetails: {
@@ -115,13 +115,13 @@ const styles = StyleSheet.create({
   },
   breakdownLabel: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     marginBottom: scale(8),
   },
   noBreakdownText: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
     fontStyle: 'italic',
   },
@@ -146,12 +146,12 @@ const styles = StyleSheet.create({
   },
   breakdownMantraName: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   breakdownMantraValue: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
   },
   emptyDayBreakdown: {
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   },
   emptyDayBreakdownText: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
   },
 });

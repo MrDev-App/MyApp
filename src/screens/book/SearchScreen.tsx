@@ -28,7 +28,11 @@ import { STORAGE_KEYS } from '@constants/storageKeys';
 import { AllBooks } from '@constants/storiesData';
 import GradientBackground from '@components/GradientBackground';
 import { Translation } from '@i18n/language';
-import { SearchIcon, HeartIcon, BackIcon as Back } from '@components/icons/SvgIcons';
+import {
+  SearchIcon,
+  HeartIcon,
+  BackIcon as Back,
+} from '@components/icons/SvgIcons';
 
 // Localization
 
@@ -77,13 +81,19 @@ const SearchScreen = () => {
   // Load storage maps
   useEffect(() => {
     try {
-      const savedBookmarksStr = Storage.getString(STORAGE_KEYS.STORY_BOOKMARKS, '[]');
+      const savedBookmarksStr = Storage.getString(
+        STORAGE_KEYS.STORY_BOOKMARKS,
+        '[]',
+      );
       const savedBookmarks = JSON.parse(savedBookmarksStr);
       if (Array.isArray(savedBookmarks)) {
         setBookmarks(savedBookmarks);
       }
 
-      const savedProgressStr = Storage.getString(STORAGE_KEYS.STORY_PROGRESS, '{}');
+      const savedProgressStr = Storage.getString(
+        STORAGE_KEYS.STORY_PROGRESS,
+        '{}',
+      );
       const savedProgress = JSON.parse(savedProgressStr);
       if (savedProgress && typeof savedProgress === 'object') {
         setProgressMap(savedProgress);
@@ -136,7 +146,7 @@ const SearchScreen = () => {
               navigation.goBack();
             }}
           >
-            <Back width={scale(12)} height={scale(12)} stroke={colors.white} />
+            <Back width={scale(14)} height={scale(14)} stroke={colors.white} />
           </TouchableOpacity>
 
           <View style={styles.searchBar}>
@@ -200,9 +210,13 @@ const SearchScreen = () => {
                   onPress={() => {
                     triggerHaptic('impactHeavy');
                     if (story.type === 'text') {
-                      navigation.navigate('TextReadingScreen', { storyId: story.id });
+                      navigation.navigate('TextReadingScreen', {
+                        storyId: story.id,
+                      });
                     } else {
-                      navigation.navigate('ReadingScreen', { storyId: story.id });
+                      navigation.navigate('ReadingScreen', {
+                        storyId: story.id,
+                      });
                     }
                   }}
                   activeOpacity={0.8}
@@ -221,12 +235,6 @@ const SearchScreen = () => {
                             : story.categoryEn}
                         </Text>
                       </View>
-                      <Text style={styles.searchCardTime}>
-                        {labels.readingTime.replace(
-                          '{{time}}',
-                          String(story.readingTimeMin),
-                        )}
-                      </Text>
                     </View>
                     <Text style={styles.searchCardTitle} numberOfLines={1}>
                       {currentLang === 'hi' ? story.titleHi : story.titleEn}
@@ -244,7 +252,9 @@ const SearchScreen = () => {
                           resizeMode="contain"
                         />
                         <Text style={styles.searchCardSource}>
-                          {currentLang === 'hi' ? story.sourceHi : story.sourceEn}
+                          {currentLang === 'hi'
+                            ? story.sourceHi
+                            : story.sourceEn}
                         </Text>
                       </View>
                       {progress > 0 && (
@@ -303,8 +313,8 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginRight: scale(10),
-    width: scale(32),
-    height: scale(32),
+    width: scale(36),
+    height: scale(36),
     borderRadius: scale(18),
     backgroundColor: colors.ring,
     justifyContent: 'center',
@@ -317,38 +327,33 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  backButtonText: {
-    fontSize: fs(20),
-    color: colors.secondary,
-    lineHeight: scale(22),
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
+
   searchBar: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: colors.white,
     borderRadius: scale(14),
     paddingHorizontal: scale(10),
-    height: scale(38),
+    height: scale(44),
     borderWidth: 1.5,
     borderColor: colors.borderMedium,
     shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 6,
-    elevation: 2,
+    elevation: 1,
   },
   searchIcon: {
-    fontSize: fs(16),
-    marginRight: scale(8),
+    fontSize: fs(18),
+    marginRight: scale(10),
   },
   searchInput: {
     flex: 1,
     height: '100%',
-    fontFamily: fonts.PoppinsRegular,
-    fontSize: fs(14),
+    fontFamily: fonts.TiroHindiRegular,
+    fontSize: fs(12),
     color: colors.secondary,
     paddingVertical: 0,
   },
@@ -373,7 +378,7 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: fs(14),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.neutralDisabled,
     textAlign: 'center',
   },
@@ -399,7 +404,7 @@ const styles = StyleSheet.create({
   },
   noResultsText: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.neutralDisabled,
     textAlign: 'center',
     flexShrink: 1,
@@ -445,24 +450,20 @@ const styles = StyleSheet.create({
     paddingVertical: scale(2),
   },
   categoryBadgeText: {
-    fontSize: fs(9),
-    fontFamily: fonts.PoppinsMedium,
+    fontSize: fs(10),
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.neutralDark,
   },
-  searchCardTime: {
-    fontSize: fs(10),
-    fontFamily: fonts.PoppinsRegular,
-    color: colors.neutralDisabled,
-  },
+
   searchCardTitle: {
-    fontSize: fs(14),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontSize: fs(12),
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     marginTop: scale(4),
   },
   searchCardDesc: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.neutralDisabled,
     marginTop: scale(2),
     lineHeight: fs(16),
@@ -484,12 +485,12 @@ const styles = StyleSheet.create({
   },
   searchCardSource: {
     fontSize: fs(10),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.neutralDisabled,
   },
   searchCardProgress: {
     fontSize: fs(9),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
   progressBarBg: {

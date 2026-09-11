@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: fs(18),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
   },
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: fs(16),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     marginBottom: scale(12),
   },
@@ -366,13 +366,13 @@ const styles = StyleSheet.create({
   dateCapsuleText: {
     color: colors.white,
     fontSize: fs(10),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
   },
 
   infoIconText: {
     color: colors.white,
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
   },
   cardBottomRow: {
     gap: scale(2),
@@ -380,16 +380,16 @@ const styles = StyleSheet.create({
   cardFestivalName: {
     color: colors.white,
     fontSize: fs(16),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
   },
   cardFestivalTithi: {
     color: colors.textWhiteMuted,
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
   },
   noDataText: {
     fontSize: fs(14),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.neutralDisabled,
     textAlign: 'center',
     marginTop: scale(20),

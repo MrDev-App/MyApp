@@ -227,13 +227,13 @@ const styles = StyleSheet.create({
   },
   greetingTime: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.white,
     letterSpacing: 4,
   },
   greetingText: {
     fontSize: fs(24),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.primary2,
     letterSpacing: 1,
   },
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.black,
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     letterSpacing: 0.3,
   },
   vratsVerticalContainer: {
@@ -293,13 +293,13 @@ const styles = StyleSheet.create({
   dateDayText: {
     color: colors.ring,
     fontSize: fs(18),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     lineHeight: fs(22),
   },
   dateMonthText: {
     color: colors.ring,
     fontSize: fs(9.5),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.black,
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
   },
   todayBadge: {
     backgroundColor: colors.ring,
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
   todayBadgeText: {
     color: colors.black,
     fontSize: fs(8),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
   },
   detailsRow: {
     flexDirection: 'row',
@@ -345,12 +345,12 @@ const styles = StyleSheet.create({
   pakshaText: {
     color: colors.black,
     fontSize: fs(9.5),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
   },
   dayOfWeekText: {
     color: colors.black,
     fontSize: fs(9.5),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
   },
   emptyContainer: {
     paddingVertical: scale(12),
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
   emptyText: {
     color: colors.textWhite70,
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
   },
 });
 

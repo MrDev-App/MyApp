@@ -86,13 +86,13 @@ const styles = StyleSheet.create({
   },
   aartiGridName: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
   },
   aartiGridSubtitle: {
     fontSize: fs(10.5),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     textAlign: 'center',
     marginTop: scale(2),

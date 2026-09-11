@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fs(18),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     marginBottom: scale(16),
     paddingHorizontal: scale(4),
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
   },
@@ -245,13 +245,13 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: fs(24),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     marginBottom: scale(4),
   },
   modalDesc: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     opacity: 0.7,
     lineHeight: fs(18),
@@ -271,13 +271,13 @@ const styles = StyleSheet.create({
   },
   aartiDetailText: {
     fontSize: fs(14),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
     lineHeight: fs(23),
   },
   artiTitle: {
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     textAlign: 'center',
     fontSize: fs(20),
     color: colors.secondary,

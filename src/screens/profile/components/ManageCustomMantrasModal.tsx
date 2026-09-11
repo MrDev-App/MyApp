@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   modalCloseBtnText: {
     fontSize: fs(12),
     color: colors.white,
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
   },
   titleRow: {
     flexDirection: 'row',
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: fs(18),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   emptyCustomBox: {
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
   emptyCustomText: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
     textAlign: 'center',
   },
@@ -192,12 +192,12 @@ const styles = StyleSheet.create({
   },
   customMantraName: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   customMantraText: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
     marginTop: scale(2),
   },
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   },
   deleteMantraBtnText: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.danger,
   },
 });

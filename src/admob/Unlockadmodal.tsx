@@ -70,13 +70,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fs(16),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     marginBottom: scale(8),
   },
   subtitle: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.neutralDisabled,
     marginBottom: scale(20),
   },
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
   },
   cancelText: {
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.neutralDisabled,
     fontSize: fs(13),
   },
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   watchText: {
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.white,
     fontSize: fs(13),
   },

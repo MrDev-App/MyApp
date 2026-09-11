@@ -21,6 +21,7 @@ import { StoryPageViewProps } from './FlipBookCover.types';
 import { styles } from './FlipBookCover.styles';
 import { GOLD_BORDER } from './FlipBookCover.constants';
 import { getStrings } from './FlipBookCover.strings';
+import { ExpandIcon } from '@components/icons/SvgIcons';
 
 export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
   ({
@@ -159,7 +160,10 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                 {allPageImages.map((imgSrc: any, imgIdx: number) => (
                   <TouchableOpacity
                     key={`page-img-${imgIdx}`}
-                    style={styles.pageImageCard}
+                    style={[
+                      styles.pageImageCard,
+                      { borderColor: theme.cardBorder },
+                    ]}
                     activeOpacity={0.88}
                     disabled={!isInteractive}
                     onPress={() => handleOpenFullscreen(imgIdx)}
@@ -169,8 +173,22 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                       style={styles.pageImage}
                       resizeMode="contain"
                     />
-                    <View style={styles.imageZoomBadge}>
-                      <Text style={styles.imageZoomText}>[]</Text>
+                    <View
+                      style={[
+                        styles.imageZoomBadge,
+                        {
+                          backgroundColor: isDark
+                            ? 'rgba(20, 20, 26, 0.75)'
+                            : 'rgba(255, 255, 255, 0.88)',
+                          borderColor: theme.cardBorder,
+                        },
+                      ]}
+                    >
+                      <ExpandIcon
+                        size={scale(13)}
+                        color={theme.accent || theme.ring || colors.ring}
+                        strokeWidth={2.4}
+                      />
                     </View>
                   </TouchableOpacity>
                 ))}

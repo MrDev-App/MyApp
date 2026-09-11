@@ -65,12 +65,12 @@ const styles = StyleSheet.create({
   },
   storyName: {
     fontSize: fs(16),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   storySubtitle: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     marginTop: scale(2),
   },
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   storyText: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     lineHeight: fs(20),
   },

@@ -25,7 +25,12 @@ const profileStyles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.profileEditBgSubtle,
   },
-  avatarImage: { width: '100%', height: '100%', borderRadius: scale(40), resizeMode: 'cover' },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: scale(40),
+    resizeMode: 'cover',
+  },
   cameraBadge: {
     position: 'absolute',
     bottom: -scale(2),
@@ -41,13 +46,13 @@ const profileStyles = StyleSheet.create({
   },
   userName: {
     fontSize: fs(18),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     flexShrink: 1,
   },
   userJoined: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.accent,
     opacity: 0.8,
     flexShrink: 1,
@@ -69,11 +74,15 @@ const profileStyles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: fs(14),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     marginBottom: scale(14),
   },
-  separator: { height: 1, backgroundColor: colors.borderSubtle, marginVertical: scale(10) },
+  separator: {
+    height: 1,
+    backgroundColor: colors.borderSubtle,
+    marginVertical: scale(10),
+  },
 
   statsGrid: {
     flexDirection: 'row',
@@ -82,16 +91,20 @@ const profileStyles = StyleSheet.create({
     width: '100%',
   },
   statItem: { alignItems: 'center', flex: 1 },
-  statDivider: { width: 1, height: scale(28), backgroundColor: colors.borderMedium },
+  statDivider: {
+    width: 1,
+    height: scale(28),
+    backgroundColor: colors.borderMedium,
+  },
   statValue: {
     fontSize: fs(16),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     marginBottom: scale(2),
   },
   statLabel: {
     fontSize: fs(9),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     opacity: 0.75,
     textAlign: 'center',
@@ -100,7 +113,7 @@ const profileStyles = StyleSheet.create({
   sectionContainer: { width: '100%', marginVertical: scale(8) },
   rowTitle: {
     fontSize: fs(14),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     paddingHorizontal: scale(20),
     marginBottom: scale(12),
@@ -135,13 +148,13 @@ const profileStyles = StyleSheet.create({
   },
   categoryBadgeText: {
     fontSize: fs(8),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.white,
     textTransform: 'uppercase',
   },
   storyBookTitle: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     paddingHorizontal: scale(2),
   },
@@ -160,7 +173,7 @@ const profileStyles = StyleSheet.create({
   removeFavoriteText: {
     color: colors.white,
     fontSize: fs(20),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     lineHeight: fs(15),
     textAlign: 'center',
   },
@@ -174,13 +187,13 @@ const profileStyles = StyleSheet.create({
   settingInfo: { flex: 1, marginRight: scale(10) },
   settingLabel: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     flexShrink: 1,
   },
   settingSubLabel: {
     fontSize: fs(10.5),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
     marginTop: scale(1),
     flexShrink: 1,
@@ -201,7 +214,7 @@ const profileStyles = StyleSheet.create({
   langButtonActive: { backgroundColor: colors.ring },
   langButtonText: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   langButtonTextActive: { color: colors.white },
@@ -216,7 +229,7 @@ const profileStyles = StyleSheet.create({
   giveUpButtonText: {
     color: colors.profileGiveUpText,
     fontSize: fs(11.5),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
   },
 
   dangerZoneCard: {
@@ -235,7 +248,7 @@ const profileStyles = StyleSheet.create({
   resetButtonText: {
     color: colors.danger,
     fontSize: fs(11.5),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
   },
 
   modalCenterContainer: {
@@ -262,14 +275,14 @@ const profileStyles = StyleSheet.create({
   modalIcon: { fontSize: fs(36), marginBottom: scale(12) },
   modalTitle: {
     fontSize: fs(18),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     marginBottom: scale(8),
     textAlign: 'center',
   },
   modalMessage: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
     textAlign: 'center',
     lineHeight: fs(18),
@@ -286,7 +299,7 @@ const profileStyles = StyleSheet.create({
   modalButtonText: {
     color: colors.white,
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
   },
   modalCloseBtn: {
     position: 'absolute',
@@ -298,19 +311,19 @@ const profileStyles = StyleSheet.create({
   modalCloseBtnText: {
     fontSize: fs(14),
     color: colors.mutedForeground,
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
   },
 
   modalTitleDestructive: {
     fontSize: fs(18),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.danger,
     marginBottom: scale(8),
     textAlign: 'center',
   },
   modalDescription: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
     textAlign: 'center',
     lineHeight: fs(17),
@@ -333,17 +346,20 @@ const profileStyles = StyleSheet.create({
     marginRight: scale(8),
     flexShrink: 0,
   },
-  checkboxActive: { borderColor: colors.danger, backgroundColor: colors.dangerSubtle },
+  checkboxActive: {
+    borderColor: colors.danger,
+    backgroundColor: colors.dangerSubtle,
+  },
   checkboxTick: { color: colors.danger, fontSize: fs(11), fontWeight: 'bold' },
   checkboxLabel: {
     flex: 1,
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   resetConfirmLabel: {
     fontSize: fs(11.5),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     alignSelf: 'flex-start',
     marginTop: scale(14),
@@ -358,7 +374,7 @@ const profileStyles = StyleSheet.create({
     backgroundColor: colors.white,
     paddingHorizontal: scale(10),
     color: colors.danger,
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(13),
     textAlign: 'center',
   },
@@ -380,7 +396,7 @@ const profileStyles = StyleSheet.create({
   },
   resetCancelText: {
     color: colors.secondary,
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(12),
   },
   resetConfirmBtn: {
@@ -392,11 +408,39 @@ const profileStyles = StyleSheet.create({
     borderRadius: scale(8),
     backgroundColor: colors.danger,
   },
-  resetConfirmBtnDisabled: { backgroundColor: colors.neutralDisabled, opacity: 0.4 },
+  resetConfirmBtnDisabled: {
+    backgroundColor: colors.neutralDisabled,
+    opacity: 0.4,
+  },
   resetConfirmText: {
     color: colors.white,
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(12),
+  },
+
+  // Language Change Loading Overlay
+  langLoadingBackdrop: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  langLoadingCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    borderRadius: scale(24),
+    padding: scale(18),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
+    shadowColor: colors.ring,
+    shadowOffset: { width: 0, height: scale(8) },
+    shadowOpacity: 0.22,
+    shadowRadius: scale(16),
+    elevation: 12,
+  },
+  lottieLoading: {
+    width: scale(70),
+    height: scale(70),
   },
 });
 

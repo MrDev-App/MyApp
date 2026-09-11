@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: fs(18),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   unreadBadge: {
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
   },
   unreadBadgeText: {
     fontSize: fs(10),
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.white,
   },
   clearAllBtn: {
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
   },
   clearAllText: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
   filterContainer: {
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
   },
   filterText: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   filterTextActive: {
@@ -489,12 +489,12 @@ const styles = StyleSheet.create({
   },
   unreadSubText: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
   },
   markReadText: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
   scrollContent: {
@@ -543,23 +543,23 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     flex: 1,
     marginRight: scale(8),
   },
   cardTitleUnread: {
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
   },
   timeText: {
     fontSize: fs(10),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.neutralDisabled,
   },
   cardMessage: {
     fontSize: fs(11.5),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
     lineHeight: fs(17),
   },
@@ -568,7 +568,7 @@ const styles = StyleSheet.create({
   },
   actionLinkText: {
     fontSize: fs(11),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
   cardRightActions: {
@@ -610,13 +610,13 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: fs(16),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     marginBottom: scale(6),
   },
   emptyDesc: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.neutralDisabled,
     textAlign: 'center',
     lineHeight: fs(18),

@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   headerSubtitle: {
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(16),
     color: colors.secondary,
     marginTop: verticalScale(6),
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   actionButtonText: {
-    fontFamily: fonts.PoppinsBold,
+    fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(14),
     color: colors.white,
     textAlign: 'center',

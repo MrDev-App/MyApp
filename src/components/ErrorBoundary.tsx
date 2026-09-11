@@ -120,13 +120,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fs(18),
-    fontFamily: fonts.Marcellus,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsMedium,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     marginTop: scale(2),
     marginBottom: scale(10),
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.mutedForeground,
     textAlign: 'center',
     lineHeight: fs(18),
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   },
   retryButtonText: {
     fontSize: fs(13),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.white,
   },
 });

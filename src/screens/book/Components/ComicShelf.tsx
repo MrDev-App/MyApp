@@ -1,12 +1,9 @@
 import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  ActivityIndicator,
-} from 'react-native';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
+import { BlurView } from '@react-native-community/blur';
+import LottieView from 'lottie-react-native';
+import imagePath from '@assets/index';
 import { Story } from '@constants/storiesData';
 import { fs, scale } from '@theme/sizes';
 import fonts from '@theme/fonts';
@@ -64,7 +61,19 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
                     entering={FadeIn.duration(200)}
                     exiting={FadeOut.duration(200)}
                   >
-                    <ActivityIndicator size="large" color={colors.white} />
+                    <BlurView
+                      style={StyleSheet.absoluteFill}
+                      blurType="dark"
+                      blurAmount={6}
+                      overlayColor="rgba(0, 0, 0, 0.35)"
+                      reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.35)"
+                    />
+                    <LottieView
+                      source={imagePath.loading}
+                      autoPlay
+                      loop
+                      style={styles.lottieLoading}
+                    />
                     <Animated.Text
                       style={styles.loadingText}
                       entering={FadeInDown.duration(350)
@@ -72,7 +81,9 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
                         .damping(100)
                         .stiffness(120)}
                     >
-                      'कृपया प्रतीक्षा करें...'
+                      {currentLang === 'hi'
+                        ? 'कृपया प्रतीक्षा करें...'
+                        : 'Please wait...'}
                     </Animated.Text>
                   </Animated.View>
                 )}
@@ -98,7 +109,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: fs(16),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     paddingHorizontal: scale(20),
     marginBottom: scale(4),
@@ -125,7 +136,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 6,
     elevation: 2,
-    marginBottom: scale(6),
+    marginBottom: scale(4),
   },
   comicImage: {
     width: '100%',
@@ -134,13 +145,12 @@ const styles = StyleSheet.create({
   },
   comicCardTitle: {
     fontSize: fs(12),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
-    marginTop: scale(2),
   },
   comicCardMeta: {
     fontSize: fs(10),
-    fontFamily: fonts.PoppinsRegular,
+    fontFamily: fonts.TiroHindiRegular,
     color: colors.neutralDisabled,
   },
   typeBadge: {
@@ -155,7 +165,7 @@ const styles = StyleSheet.create({
   typeBadgeText: {
     color: colors.white,
     fontSize: fs(9),
-    fontFamily: fonts.PoppinsSemiBold,
+    fontFamily: fonts.TiroHindiRegular,
   },
   centerLoadingWrap: {
     position: 'absolute',
@@ -166,12 +176,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
+    overflow: 'hidden',
+    borderRadius: scale(14),
+  },
+  lottieLoading: {
+    width: scale(55),
+    height: scale(55),
   },
   loadingText: {
     color: colors.white,
-    fontFamily: fonts.PoppinsSemiBold,
-    fontSize: fs(10),
-    marginTop: scale(6),
+    fontFamily: fonts.TiroHindiRegular,
+    fontSize: fs(9.5),
+    marginTop: scale(2),
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.85)',
     textShadowOffset: { width: 0, height: 1 },
