@@ -205,7 +205,6 @@ const styles = StyleSheet.create({
     borderRadius: scale(14),
   },
   cardOverlay: {
-    backgroundColor: colors.cardOverlayDark,
     paddingHorizontal: scale(12),
     paddingVertical: scale(12),
     height: '100%',
@@ -214,12 +213,12 @@ const styles = StyleSheet.create({
   name: {
     fontSize: fs(12),
     fontFamily: fonts.TiroHindiRegular,
-    color: colors.white,
+    color: colors.black,
   },
   date: {
     fontSize: fs(9.5),
     fontFamily: fonts.TiroHindiRegular,
-    color: colors.textWhiteMuted,
+    color: colors.black,
   },
   countdown: {
     fontSize: fs(9.5),

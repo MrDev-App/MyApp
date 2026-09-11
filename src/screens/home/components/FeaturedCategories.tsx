@@ -23,6 +23,8 @@ import { useExpandTrigger } from '@hooks/useExpandTrigger';
 import { Translation } from '@i18n/language';
 import { AartiScreen, ShlokScreen } from '../categories';
 import AnimatedButton from '@components/AnimatedButton';
+import LottieView from 'lottie-react-native';
+import imagePath from '@assets/index';
 
 const ALLOWED_CATEGORY_IDS = new Set(['aarti', 'aartis', 'shlok', 'shlokas']);
 
@@ -103,11 +105,21 @@ const FeaturedCategories = () => {
                   collapsable={false}
                   style={styles.iconContainer}
                 >
-                  <Image
-                    source={category.icon}
-                    style={{ height: scale(60), width: scale(60) }}
-                    resizeMode="contain"
-                  />
+                  {category.id.toLowerCase() === 'aarti' ||
+                  category.id.toLowerCase() === 'aartis' ? (
+                    <LottieView
+                      source={imagePath.lampLottie}
+                      autoPlay
+                      loop
+                      style={{ height: scale(65), width: scale(65) }}
+                    />
+                  ) : (
+                    <Image
+                      source={category.icon}
+                      style={{ height: scale(60), width: scale(60) }}
+                      resizeMode="contain"
+                    />
+                  )}
                 </View>
                 <Text style={styles.cardTitle}>{categoryTitle}</Text>
               </AnimatedButton>

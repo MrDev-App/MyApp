@@ -215,6 +215,7 @@ const imagePath = {
   vanaraRamSetu: require('./png/ram_setu/vanara_ram_setu.jpg'),
   buildingSetuLanka: require('./png/ram_setu/building_setu_lanka.jpg'),
   loading: require('./lottie/loading.json'),
+  lampLottie: require('./lottie/lamp.json'),
 };
 
 export { Back, Forward, Bell, Pin, FoldedHands, Location, Tag };
