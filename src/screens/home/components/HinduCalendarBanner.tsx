@@ -158,12 +158,12 @@ const HinduCalendarBanner: React.FC = () => {
 
   const handlePress = () => {
     try {
-      navigation.navigate('BottomTabs', { screen: 'Calendar' });
+      navigation.navigate('Calendar');
     } catch {
       try {
-        navigation.navigate('Calendar');
+        navigation.navigate('BottomTabs', { screen: 'Calendar' });
       } catch {
-        navigation.navigate('AllFestivals');
+        navigation.navigate('CalendarScreen');
       }
     }
   };

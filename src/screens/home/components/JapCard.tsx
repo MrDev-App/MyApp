@@ -56,7 +56,13 @@ const JapCard = () => {
         {/* Start Chanting Button */}
         <AnimatedButton
           style={styles.chantButton}
-          onPress={() => navigation.navigate('BottomTabs', { screen: 'Jap' })}
+          onPress={() => {
+            try {
+              navigation.navigate('Jap');
+            } catch {
+              navigation.navigate('BottomTabs', { screen: 'Jap' });
+            }
+          }}
         >
           <View
             style={{

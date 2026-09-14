@@ -7,6 +7,7 @@ import {
 import imagePath from '@assets/index';
 import { monthsHi } from '@constants/calendarData';
 import { STORAGE_KEYS } from '@constants/storageKeys';
+import { CALENDAR_2026 } from '@constants/Calendar_2026';
 
 export interface Festival {
   id: string;
@@ -58,65 +59,69 @@ const localFestivalImageMap: Record<string, any> = {
   chaitra_navratri: imagePath.Navratri,
   rama_navami: imagePath.Rama,
   hanuman_jayanti: imagePath.Hanuman,
+  mahavir_jayanti: imagePath.greeting,
+  good_friday: imagePath.greeting,
+  baisakhi: imagePath.greeting,
   buddha_purnima: imagePath.greeting,
-  ganga_dussehra: imagePath.Gangama,
-  ganga_saptami: imagePath.Gangama,
-  vishwakarma_puja: imagePath.Vishwakarma,
-  vishwakarma_jayanti: imagePath.Vishwakarma,
-  kali_puja: imagePath.Kalima,
-  nirjala_ekadashi: imagePath.Vishnu,
-  jagannath_rath_yatra: imagePath.JagannathRathYatra,
+  rath_yatra: imagePath.Vishnu,
   guru_purnima: imagePath.greeting,
-  nag_panchami: imagePath.nagpachmi,
-  raksha_bandhan: imagePath.RakshaBandhan,
-  janmashtami: imagePath.dhahiHande,
-  ganesh_chaturthi: imagePath.GaneshChaturthi,
-  gauri_puja: imagePath.GauriPuja,
-  navratri: imagePath.Navratri,
-  dussehra: imagePath.Dussehra,
-  karwa_chauth: imagePath.KarwaChauth,
-  diwali: imagePath.Diwali,
-  lakshmi_puja: imagePath.Laxmi,
-  govardhan_puja: imagePath.Govardhan,
-  bhai_dooj: imagePath.BhaiDooj,
+  raksha_bandhan: imagePath.greeting,
+  krishna_janmashtami: imagePath.Krishna,
+  ganesh_chaturthi: imagePath.Ganesha,
+  gandhi_jayanti: imagePath.greeting,
+  sharad_navratri: imagePath.Durga,
+  durga_puja: imagePath.Durga,
+  dussehra: imagePath.Rama,
+  karwa_chauth: imagePath.greeting,
+  dhanteras: imagePath.greeting,
+  naraka_chaturdashi: imagePath.greeting,
+  diwali: imagePath.greeting,
+  govardhan_puja: imagePath.Krishna,
+  bhai_dooj: imagePath.greeting,
+  chhath_puja: imagePath.Surya,
+  guru_nanak_jayanti: imagePath.greeting,
+  christmas: imagePath.greeting,
+};
+
+export const resolveFestivalImage = (fest: any): any => {
+  if (
+    fest.imageUrl &&
+    typeof fest.imageUrl === 'string' &&
+    fest.imageUrl.trim().startsWith('http')
+  ) {
+    return { uri: fest.imageUrl.trim() };
+  }
+
+  const rawId = (fest.id || '').toLowerCase().trim();
+  const cleanId = rawId.replace(/[^a-z0-9]/g, '');
+
+  if (localFestivalImageMap[rawId]) return localFestivalImageMap[rawId];
+  if (localFestivalImageMap[cleanId]) return localFestivalImageMap[cleanId];
+
+  for (const key of Object.keys(localFestivalImageMap)) {
+    if (cleanId.includes(key) || rawId.includes(key)) {
+      return localFestivalImageMap[key];
+    }
+  }
+
+  return imagePath.greeting;
 };
 
 export const mapFestivalWithImage = (fest: any): Festival => {
-  const fullId = fest.id || '';
-  const baseId = fullId.replace(/_\d{4}$/, '');
-
-  let month = fest.month;
-  let day = fest.day;
-
-  if (fest.date && typeof fest.date === 'object' && fest.date.seconds) {
-    const d = new Date(fest.date.seconds * 1000);
-    month = d.getMonth() + 1;
-    day = d.getDate();
-  } else if (fest.date && typeof fest.date.toDate === 'function') {
-    const d = fest.date.toDate();
-    month = d.getMonth() + 1;
-    day = d.getDate();
-  } else if (!month || !day) {
-    month = month || 1;
-    day = day || 1;
-  }
+  const month = typeof fest.month === 'number' ? fest.month : 1;
+  const day = typeof fest.day === 'number' ? fest.day : 1;
 
   const dateStrEn =
     fest.dateStrEn || `${shortMonthsEn[month - 1] || 'Jan'} ${day}`;
   const dateStrHi =
     fest.dateStrHi || `${day} ${monthsHi[month - 1] || 'जनवरी'}`;
 
-  const image = fest.imageUrl
-    ? { uri: fest.imageUrl }
-    : localFestivalImageMap[baseId] ||
-      localFestivalImageMap[fullId] ||
-      fest.image ||
-      imagePath.greeting;
+  const image = resolveFestivalImage(fest);
 
   return {
-    id: baseId || fullId,
-    englishName: fest.englishName || fest.nameEn || '',
-    hindiName: fest.hindiName || fest.nameHi || '',
+    id: fest.id || `fest_${month}_${day}`,
+    englishName: fest.englishName || fest.name || 'Festival',
+    hindiName: fest.hindiName || fest.nameHi || 'त्यौहार',
     month,
     day,
     dateStrEn,
@@ -136,34 +141,81 @@ export const mapFestivalWithImage = (fest: any): Festival => {
   };
 };
 
+export const getLocalFestivalsFallback = (): Festival[] => {
+  return CALENDAR_2026.map(item =>
+    mapFestivalWithImage({
+      id: item.id,
+      englishName: item.englishName || item.name,
+      hindiName: item.hindiName || item.nameHi,
+      month: item.month,
+      day: item.day,
+      dateStrEn: item.dateStrEn,
+      dateStrHi: item.dateStrHi,
+      deity: [],
+      deityHi: [],
+      category: item.category,
+      categoryHi: item.categoryHi,
+      tithi: item.tithi,
+      tithiHi: item.tithiHi,
+      description: item.description,
+      descriptionHi: item.descriptionHi,
+      regions: [],
+      regionsHi: [],
+      icon: '',
+      imageUrl: item.imageUrl,
+    }),
+  );
+};
+
 export const getFestivalData = async (): Promise<Festival[]> => {
   try {
     const cachedData = storage.getString(FESTIVAL_DATA_CACHE_KEY);
 
     if (cachedData) {
       const parsed: any[] = JSON.parse(cachedData);
-      return parsed.map(mapFestivalWithImage);
+      // Validate that cached data has the full dataset
+      if (Array.isArray(parsed) && parsed.length >= CALENDAR_2026.length) {
+        return parsed.map(mapFestivalWithImage);
+      }
     }
 
-    const db = getFirestore();
-    const snapshot = await getDocs(collection(db, 'festivals'));
+    const localList = getLocalFestivalsFallback();
 
-    let rawList: any[] = [];
-    if (!snapshot.empty) {
-      rawList = snapshot.docs.map(docSnap => ({
-        id: docSnap.id,
-        ...docSnap.data(),
-      }));
+    try {
+      const db = getFirestore();
+      const snapshot = await getDocs(collection(db, 'festivals'));
+
+      if (!snapshot.empty) {
+        const firestoreMap = new Map<string, any>();
+        snapshot.docs.forEach(docSnap => {
+          firestoreMap.set(docSnap.id, { id: docSnap.id, ...docSnap.data() });
+        });
+
+        const merged = localList.map(fest => {
+          const remote = firestoreMap.get(fest.id);
+          if (remote) {
+            firestoreMap.delete(fest.id);
+            return mapFestivalWithImage(remote);
+          }
+          return fest;
+        });
+
+        firestoreMap.forEach(remoteDoc => {
+          merged.push(mapFestivalWithImage(remoteDoc));
+        });
+
+        storage.set(FESTIVAL_DATA_CACHE_KEY, JSON.stringify(merged));
+        return merged;
+      }
+    } catch {
+      // Offline or remote error -> proceed with complete local list
     }
 
-    if (rawList.length > 0) {
-      storage.set(FESTIVAL_DATA_CACHE_KEY, JSON.stringify(rawList));
-    }
-
-    return rawList.map(mapFestivalWithImage);
+    storage.set(FESTIVAL_DATA_CACHE_KEY, JSON.stringify(localList));
+    return localList;
   } catch (error) {
-    console.warn('Notice: Firestore unavailable, using local festival data:', error);
-    return [];
+    console.warn('Notice: Firestore unavailable, using local festival data fallback');
+    return getLocalFestivalsFallback();
   }
 };
 

@@ -132,7 +132,11 @@ const ChallengeCard = () => {
       Storage.set('CHALLENGE_BASE_CHANTS', todayChants);
       Storage.set('CHALLENGE_BASE_DATE', new Date().toDateString());
     }
-    navigation.navigate('BottomTabs', { screen: 'Jap' });
+    try {
+      navigation.navigate('Jap');
+    } catch {
+      navigation.navigate('BottomTabs', { screen: 'Jap' });
+    }
   };
 
   return (

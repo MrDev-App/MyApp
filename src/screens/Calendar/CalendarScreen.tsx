@@ -18,13 +18,16 @@ import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import GradientBackground from '@components/GradientBackground';
-import { getFestivalData, Festival } from '@services/festivalService';
+import {
+  getFestivalData,
+  getLocalFestivalsFallback,
+  Festival,
+} from '@services/festivalService';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { Back } from '@assets/index';
 import AnimatedButton from '@components/AnimatedButton';
 import imagePath from '@assets/index';
 import FestivalModal from '@components/FestivalModal';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import {
   getMonthName,
   monthsHi,
@@ -60,15 +63,18 @@ const CalendarScreen = () => {
   // Synchronously update the calendar locale configuration during the render phase
   LocaleConfig.defaultLocale = currentLanguage;
 
-  const [festivals, setFestivals] = React.useState<Festival[]>([]);
-  const [_loading, setLoading] = React.useState(true);
+  // Initialize immediately with local CALENDAR_2026 data so cards are visible with 0ms delay
+  const [festivals, setFestivals] = React.useState<Festival[]>(() =>
+    getLocalFestivalsFallback(),
+  );
+  const [_loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     let isMounted = true;
     const fetchFestivals = async () => {
       try {
         const data = await getFestivalData();
-        if (isMounted) {
+        if (isMounted && data.length > 0) {
           setFestivals(data);
         }
       } catch (error) {
@@ -102,61 +108,89 @@ const CalendarScreen = () => {
     null,
   );
 
-  const currentMonthName = React.useMemo(() => {
-    const d = new Date(currentMonthDate);
-    const monthNum = d.getMonth() + 1;
-    return getMonthName(monthNum, currentLanguage) + '  ' + d.getFullYear();
-  }, [currentMonthDate, currentLanguage]);
-
-  const currentMonthNum = React.useMemo(() => {
-    return new Date(currentMonthDate).getMonth() + 1;
+  const currentYearNum = React.useMemo(() => {
+    const parts = currentMonthDate.split('-');
+    return parseInt(parts[0], 10) || 2026;
   }, [currentMonthDate]);
 
-  // Filter other festivals for the active month (excluding selected day's festivals)
-  const otherMonthFestivals = React.useMemo(() => {
-    return festivals.filter(f => f.month === currentMonthNum);
+  const currentMonthNum = React.useMemo(() => {
+    const parts = currentMonthDate.split('-');
+    return parseInt(parts[1], 10) || 1;
+  }, [currentMonthDate]);
+
+  const currentMonthName = React.useMemo(() => {
+    return (
+      getMonthName(currentMonthNum, currentLanguage) + '  ' + currentYearNum
+    );
+  }, [currentMonthNum, currentYearNum, currentLanguage]);
+
+  const monthOnlyName = React.useMemo(() => {
+    return currentLanguage === 'hi'
+      ? monthsHi[currentMonthNum - 1] || 'महीने'
+      : monthsEn[currentMonthNum - 1] || 'Month';
+  }, [currentMonthNum, currentLanguage]);
+
+  // Festivals for the active month sorted by day
+  const monthFestivals = React.useMemo(() => {
+    return festivals
+      .filter(f => f.month === currentMonthNum)
+      .sort((a, b) => a.day - b.day);
   }, [festivals, currentMonthNum]);
 
-  // Compute marked dates for the calendar, showing a light primary color background on every day that has a festival
+  // Festivals on the specifically selected day (if any)
+  const selectedDayFestivals = React.useMemo(() => {
+    if (!selectedDate) return [];
+    const parts = selectedDate.split('-');
+    const m = parseInt(parts[1], 10);
+    const d = parseInt(parts[2], 10);
+    if (m !== currentMonthNum) return [];
+    return monthFestivals.filter(f => f.day === d);
+  }, [selectedDate, currentMonthNum, monthFestivals]);
+
+  // Compute marked dates for the calendar
   const calendarMarkedDates = React.useMemo(() => {
     const marks: { [date: string]: any } = {};
 
-    // 1. Extract current year from currentMonthDate
-    const currentYear = new Date(currentMonthDate).getFullYear();
-
-    // 2. Mark all festivals of the year with a light primary color background
     festivals.forEach(fest => {
       const mm = String(fest.month).padStart(2, '0');
       const dd = String(fest.day).padStart(2, '0');
-      const dateString = `${currentYear}-${mm}-${dd}`;
+      const dateString = `${currentYearNum}-${mm}-${dd}`;
 
       marks[dateString] = {
-        selected: true,
-        selectedColor: colors.white, // light primary bg
-        selectedTextColor: colors.background, // preserve readable text color
+        marked: true,
+        dotColor: colors.ring,
       };
     });
 
-    // 3. Mark the currently selected date (with a highlighted circle/background)
-    marks[selectedDate] = {
-      ...marks[selectedDate],
-      selected: true,
-      selectedColor: colors.ring, // primary color bg for selection
-      selectedTextColor: colors.white, // white text color for selection
-    };
+    if (selectedDate) {
+      marks[selectedDate] = {
+        ...(marks[selectedDate] || {}),
+        selected: true,
+        selectedColor: colors.ring,
+        selectedTextColor: colors.white,
+      };
+    }
 
     return marks;
-  }, [festivals, selectedDate, currentMonthDate]);
+  }, [festivals, selectedDate, currentYearNum]);
 
   const renderFestivalCard = (item: Festival) => {
     const name = currentLanguage === 'hi' ? item.hindiName : item.englishName;
     const dateStr = currentLanguage === 'hi' ? item.dateStrHi : item.dateStrEn;
-    const tithi = item.tithi;
+    const tithi =
+      currentLanguage === 'hi'
+        ? item.tithiHi || item.tithi
+        : item.tithi || item.tithiHi;
+    const category =
+      currentLanguage === 'hi'
+        ? item.categoryHi || item.category
+        : item.category || item.categoryHi;
 
     return (
-      <Animated.View key={item.id} entering={FadeInDown.duration(500)}>
+      <View key={item.id} style={styles.festivalCardWrapper}>
         <AnimatedButton
           style={styles.festivalCardContainer}
+          activeOpacity={0.85}
           onPress={() => setDetailFestival(item)}
         >
           <ImageBackground
@@ -165,12 +199,19 @@ const CalendarScreen = () => {
             imageStyle={styles.cardBgImageStyle}
             fadeDuration={0}
           >
-            <View style={styles.cardTintOverlay}>
-              {/* Top Row: Date capsule & Info marker */}
+            <View style={styles.cardTintOverlay} pointerEvents="none">
+              {/* Top Row: Date capsule & Category Badge */}
               <View style={styles.cardTopRow}>
                 <View style={styles.dateCapsule}>
                   <Text style={styles.dateCapsuleText}>{dateStr}</Text>
                 </View>
+                {category ? (
+                  <View style={styles.categoryBadge}>
+                    <Text style={styles.categoryBadgeText} numberOfLines={1}>
+                      {category}
+                    </Text>
+                  </View>
+                ) : null}
               </View>
 
               {/* Bottom Row: Festival Name & Sub-details */}
@@ -178,7 +219,7 @@ const CalendarScreen = () => {
                 <Text style={styles.cardFestivalName} numberOfLines={1}>
                   {name}
                 </Text>
-                {tithi && (
+                {tithi ? (
                   <View style={styles.tithiRow}>
                     <Image
                       source={imagePath.sakura}
@@ -188,12 +229,12 @@ const CalendarScreen = () => {
                       {tithi}
                     </Text>
                   </View>
-                )}
+                ) : null}
               </View>
             </View>
           </ImageBackground>
         </AnimatedButton>
-      </Animated.View>
+      </View>
     );
   };
 
@@ -260,21 +301,37 @@ const CalendarScreen = () => {
             }}
           />
 
-          {/* Month's Other Festivals Section */}
+          {/* Selected Date Festival(s) if user tapped a date with festival */}
+          {selectedDayFestivals.length > 0 && (
+            <View style={styles.sectionContainer}>
+              <View style={styles.sectionHeaderRow}>
+                <Text style={styles.sectionTitle}>
+                  {currentLanguage === 'hi'
+                    ? `चयनित तिथि के विशेष पर्व (${selectedDayFestivals.length})`
+                    : `Selected Date Festivals (${selectedDayFestivals.length})`}
+                </Text>
+              </View>
+              {selectedDayFestivals.map(renderFestivalCard)}
+            </View>
+          )}
+
+          {/* Month's Full Festivals Section */}
           <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>
-              {currentLanguage === 'hi'
-                ? `${currentMonthName.split(' ')[0]} के त्योहार`
-                : `Festivals in ${currentMonthName.split(' ')[0]}`}
-            </Text>
-            {otherMonthFestivals.length === 0 ? (
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionTitle}>
+                {currentLanguage === 'hi'
+                  ? `${monthOnlyName} के समस्त त्यौहार (${monthFestivals.length})`
+                  : `All Festivals in ${monthOnlyName} (${monthFestivals.length})`}
+              </Text>
+            </View>
+            {monthFestivals.length === 0 ? (
               <Text style={styles.noDataText}>
                 {currentLanguage === 'hi'
                   ? 'इस महीने कोई त्योहार नहीं है'
                   : 'No festivals this month'}
               </Text>
             ) : (
-              otherMonthFestivals.map(renderFestivalCard)
+              monthFestivals.map(renderFestivalCard)
             )}
           </View>
         </ScrollView>
@@ -414,6 +471,27 @@ const styles = StyleSheet.create({
     width: scale(14),
     height: scale(14),
     resizeMode: 'contain',
+  },
+  festivalCardWrapper: {
+    marginBottom: scale(12),
+  },
+  categoryBadge: {
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    paddingHorizontal: scale(8),
+    paddingVertical: scale(3),
+    borderRadius: scale(10),
+    maxWidth: '55%',
+  },
+  categoryBadgeText: {
+    color: colors.white,
+    fontSize: fs(9.5),
+    fontFamily: fonts.TiroHindiRegular,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: scale(12),
   },
 });
 

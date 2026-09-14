@@ -8,6 +8,7 @@ export const useAutoScroll = (
   speed = 40, // Pixels per second
   isPausedRef?: React.MutableRefObject<boolean>,
   pauseAtEnds = 1000, // Milliseconds to pause at ends before reversing
+  isExternalPaused = false,
 ) => {
   const scrollOffsetRef = useRef(0);
   const directionRef = useRef<1 | -1>(1); // 1 = forward (right to left), -1 = backward (left to right)
@@ -31,10 +32,21 @@ export const useAutoScroll = (
   };
 
   useEffect(() => {
+    // If paused externally (e.g. modal is open), cancel animation frame completely for 100% optimization!
+    if (isExternalPaused) {
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+        animationFrameId.current = null;
+      }
+      lastTimeRef.current = null;
+      return;
+    }
+
     // Start auto scroll only if content exceeds the container
     if (contentWidth <= containerWidth || containerWidth === 0) {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
+        animationFrameId.current = null;
       }
       return;
     }
@@ -45,7 +57,7 @@ export const useAutoScroll = (
       if (lastTimeRef.current !== null) {
         const delta = (time - lastTimeRef.current) / 1000;
 
-        // Advance scroll offset if not paused by touch or active modal
+        // Advance scroll offset if not paused by touch
         if (!isPausedRef?.current) {
           // Check if currently resting at an edge
           if (edgePauseUntilRef.current !== null) {
@@ -94,10 +106,19 @@ export const useAutoScroll = (
     return () => {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
+        animationFrameId.current = null;
       }
       lastTimeRef.current = null;
     };
-  }, [contentWidth, containerWidth, speed, listRef, isPausedRef, pauseAtEnds]);
+  }, [
+    contentWidth,
+    containerWidth,
+    speed,
+    listRef,
+    isPausedRef,
+    pauseAtEnds,
+    isExternalPaused,
+  ]);
 
   return { syncOffset, directionRef };
 };

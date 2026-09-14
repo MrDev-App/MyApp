@@ -1,13 +1,10 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   Image,
   TouchableOpacity,
-  Pressable,
-  GestureResponderEvent,
-  FlatList,
   Modal,
   ScrollView,
 } from 'react-native';
@@ -23,7 +20,10 @@ import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { God, GodMantra } from '@services/godService';
-import { useAutoScroll } from '@hooks/useAutoScroll';
+import {
+  AutoScrollFlatList,
+  AutoScrollItem,
+} from '@components/AutoScrollFlatList';
 
 const MantraScreen = () => {
   const insets = useSafeAreaInsets();
@@ -42,71 +42,9 @@ const MantraScreen = () => {
   );
   const [selectedMantra, setSelectedMantra] = useState<GodMantra | null>(null);
 
-  const deityListRef = useRef<FlatList<God>>(null);
-  const [deityContainerWidth, setDeityContainerWidth] = useState(0);
-  const [deityContentWidth, setDeityContentWidth] = useState(0);
-  const isPaused = useRef(false);
-  const isDraggingList = useRef(false);
-  const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const touchDownInfo = useRef<{
-    x: number;
-    y: number;
-    time: number;
-  } | null>(null);
-  const lastSelectedGodId = useRef<string | null>(null);
-  const lastSelectTime = useRef<number>(0);
-
-  const restartAutoScrollAfterDelay = (delayMs = 1500) => {
-    if (resumeTimer.current) {
-      clearTimeout(resumeTimer.current);
-    }
-    resumeTimer.current = setTimeout(() => {
-      if (selectedMantra === null && !isDraggingList.current) {
-        isPaused.current = false;
-      }
-    }, delayMs);
-  };
-
-  const { syncOffset } = useAutoScroll(
-    deityListRef,
-    deityContentWidth,
-    deityContainerWidth,
-    32,
-    isPaused,
-    1500,
-  );
-
   const handleSelectGod = (item: God) => {
-    const now = Date.now();
-    if (
-      lastSelectedGodId.current === item.id &&
-      now - lastSelectTime.current < 400
-    ) {
-      return;
-    }
-    lastSelectedGodId.current = item.id;
-    lastSelectTime.current = now;
     setSelectedGod(item);
   };
-
-  useEffect(() => {
-    return () => {
-      if (resumeTimer.current) {
-        clearTimeout(resumeTimer.current);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (selectedMantra !== null) {
-      if (resumeTimer.current) {
-        clearTimeout(resumeTimer.current);
-      }
-      isPaused.current = true;
-    } else {
-      restartAutoScrollAfterDelay(1500);
-    }
-  }, [selectedMantra]);
 
   const currentGod = selectedGod || initialGod || allGods[0];
 
@@ -199,124 +137,24 @@ const MantraScreen = () => {
               <Text style={styles.sectionSubtitle}>
                 {isHindi ? 'अन्य देवी-देवता चुनें' : 'Select Deity'}
               </Text>
-              <FlatList
-                ref={deityListRef}
-                horizontal
-                showsHorizontalScrollIndicator={false}
+              <AutoScrollFlatList
                 data={allGods}
                 keyExtractor={item => item.id}
                 contentContainerStyle={styles.deitiesListContent}
-                keyboardShouldPersistTaps="always"
-                nestedScrollEnabled={true}
-                onLayout={e =>
-                  setDeityContainerWidth(e.nativeEvent.layout.width)
-                }
-                onContentSizeChange={w => setDeityContentWidth(w)}
-                onScrollBeginDrag={() => {
-                  isDraggingList.current = true;
-                  // Flow Case 1: When user scrolls, autoscrolling completely stops
-                  isPaused.current = true;
-                  if (resumeTimer.current) {
-                    clearTimeout(resumeTimer.current);
-                    resumeTimer.current = null;
-                  }
-                }}
-                onScrollEndDrag={e => {
-                  const vx = e.nativeEvent.velocity?.x ?? 0;
-                  const direction = vx > 0.1 ? 1 : vx < -0.1 ? -1 : undefined;
-                  syncOffset(e.nativeEvent.contentOffset.x, direction);
-                  if (Math.abs(vx) < 0.05) {
-                    isDraggingList.current = false;
-                    // Flow Case 2: Start autoscrolling after 1 to 2 seconds if user does not scroll again
-                    restartAutoScrollAfterDelay(1500);
-                  } else {
-                    restartAutoScrollAfterDelay(2200);
-                  }
-                }}
-                onMomentumScrollEnd={e => {
-                  syncOffset(e.nativeEvent.contentOffset.x);
-                  isDraggingList.current = false;
-                  // Flow Case 2: After momentum scroll ends, resume after 1.5s
-                  restartAutoScrollAfterDelay(1500);
-                }}
+                isExternalPaused={selectedMantra !== null}
+                speed={32}
+                resumeDelayMs={1500}
                 renderItem={({ item }) => {
                   const isSelected = item.id === currentGod?.id;
                   const name = isHindi ? item.hindiName : item.englishName;
                   return (
-                    <Pressable
+                    <AutoScrollItem
                       style={({ pressed }) => [
                         styles.deityChip,
                         isSelected && styles.deityChipActive,
                         pressed && { opacity: 0.75 },
                       ]}
-                      onTouchStart={(e: GestureResponderEvent) => {
-                        touchDownInfo.current = {
-                          x: e.nativeEvent.pageX,
-                          y: e.nativeEvent.pageY,
-                          time: Date.now(),
-                        };
-                        isPaused.current = true;
-                        if (resumeTimer.current) {
-                          clearTimeout(resumeTimer.current);
-                          resumeTimer.current = null;
-                        }
-                      }}
-                      onTouchMove={(e: GestureResponderEvent) => {
-                        if (touchDownInfo.current) {
-                          const dx = Math.abs(
-                            e.nativeEvent.pageX - touchDownInfo.current.x,
-                          );
-                          const dy = Math.abs(
-                            e.nativeEvent.pageY - touchDownInfo.current.y,
-                          );
-                          if (dx > 10 || dy > 10) {
-                            touchDownInfo.current = null;
-                          }
-                        }
-                      }}
-                      onTouchEnd={(e: GestureResponderEvent) => {
-                        if (touchDownInfo.current && !isDraggingList.current) {
-                          const dx = Math.abs(
-                            e.nativeEvent.pageX - touchDownInfo.current.x,
-                          );
-                          const dy = Math.abs(
-                            e.nativeEvent.pageY - touchDownInfo.current.y,
-                          );
-                          const dt = Date.now() - touchDownInfo.current.time;
-                          if (dx < 12 && dy < 12 && dt < 400) {
-                            // Flow: User click changes the data (whether stopped or during autoscroll)
-                            handleSelectGod(item);
-                          }
-                        }
-                        touchDownInfo.current = null;
-                        if (
-                          !isDraggingList.current &&
-                          selectedMantra === null
-                        ) {
-                          restartAutoScrollAfterDelay(1500);
-                        }
-                      }}
-                      onTouchCancel={() => {
-                        touchDownInfo.current = null;
-                        if (
-                          !isDraggingList.current &&
-                          selectedMantra === null
-                        ) {
-                          restartAutoScrollAfterDelay(1500);
-                        }
-                      }}
-                      onPress={() => {
-                        if (!isDraggingList.current) {
-                          // Flow: User click changes the data
-                          handleSelectGod(item);
-                        }
-                        if (
-                          !isDraggingList.current &&
-                          selectedMantra === null
-                        ) {
-                          restartAutoScrollAfterDelay(1500);
-                        }
-                      }}
+                      onPress={() => handleSelectGod(item)}
                     >
                       <Image
                         source={item.image}
@@ -332,7 +170,7 @@ const MantraScreen = () => {
                       >
                         {name}
                       </Text>
-                    </Pressable>
+                    </AutoScrollItem>
                   );
                 }}
               />
@@ -355,35 +193,36 @@ const MantraScreen = () => {
           {mantras.map((m, index) => {
             const title = isHindi && m.nameHi ? m.nameHi : m.nameEn || m.nameHi;
             return (
-              <TouchableOpacity
-                key={index}
-                style={styles.mantraCard}
-                activeOpacity={0.8}
-                onPress={() => setSelectedMantra(m)}
-              >
-                <View style={styles.mantraCardTop}>
-                  <View style={styles.mantraIndexBadge}>
-                    <Text style={styles.mantraIndexText}>{index + 1}</Text>
+              <View key={index} style={styles.mantraCard}>
+                <TouchableOpacity
+                  activeOpacity={0.85}
+                  onPress={() => setSelectedMantra(m)}
+                >
+                  <View style={styles.mantraCardTop}>
+                    <View style={styles.mantraIndexBadge}>
+                      <Text style={styles.mantraIndexText}>{index + 1}</Text>
+                    </View>
+                    <Text style={styles.mantraCardTitle} numberOfLines={1}>
+                      {title}
+                    </Text>
                   </View>
-                  <Text style={styles.mantraCardTitle} numberOfLines={1}>
-                    {title}
-                  </Text>
-                </View>
 
-                <Text style={styles.mantraCardText} numberOfLines={2}>
-                  {m.mantra}
-                </Text>
+                  <Text style={styles.mantraCardText} numberOfLines={2}>
+                    {m.mantra}
+                  </Text>
+                </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.mantraCardFooter}
                   activeOpacity={0.7}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   onPress={() => setSelectedMantra(m)}
                 >
                   <Text style={styles.viewMoreText}>
                     {isHindi ? 'पूर्ण मंत्र देखें →' : 'View Full Mantra →'}
                   </Text>
                 </TouchableOpacity>
-              </TouchableOpacity>
+              </View>
             );
           })}
         </ScrollView>
@@ -444,14 +283,6 @@ const MantraScreen = () => {
                         {godName}
                       </Text>
                     </View>
-                    <TouchableOpacity
-                      style={styles.modalCloseButton}
-                      onPress={() => setSelectedMantra(null)}
-                      activeOpacity={0.7}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                    >
-                      <Text style={styles.modalCloseText}>✕</Text>
-                    </TouchableOpacity>
                   </View>
 
                   {/* Mantra Box */}
@@ -747,11 +578,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   modalOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    flex: 1,
+    ...StyleSheet.absoluteFill,
     zIndex: 999,
     elevation: 10,
   },

@@ -3,8 +3,6 @@ import {
   StyleSheet,
   Text,
   View,
-  FlatList,
-  TouchableOpacity,
   Image,
   Platform,
 } from 'react-native';
@@ -15,6 +13,10 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Translation } from '@i18n/language';
 import { getNaamJapData, God } from '@services/godService';
+import {
+  AutoScrollFlatList,
+  AutoScrollItem,
+} from '@components/AutoScrollFlatList';
 
 const MantrasCard = () => {
   const { t, i18n } = useTranslation();
@@ -61,13 +63,12 @@ const MantrasCard = () => {
     <View style={styles.container}>
       <Text style={styles.title}>{t(Translation.MANTRAS_BY_DEITIES)}</Text>
 
-      <FlatList
-        horizontal
-        showsHorizontalScrollIndicator={false}
+      <AutoScrollFlatList
         data={pairedGods}
         keyExtractor={(_, index) => String(index)}
         contentContainerStyle={styles.listContent}
-        scrollEnabled={true}
+        speed={28}
+        resumeDelayMs={1500}
         initialNumToRender={4}
         maxToRenderPerBatch={4}
         windowSize={3}
@@ -78,11 +79,9 @@ const MantrasCard = () => {
               const name =
                 currentLanguage === 'hi' ? god.hindiName : god.englishName;
               return (
-                <TouchableOpacity
+                <AutoScrollItem
                   key={god.id}
                   style={styles.godContainer}
-                  activeOpacity={0.7}
-                  hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
                   onPress={() => handleDeityPress(god)}
                 >
                   <View style={styles.avatarContainer}>
@@ -95,7 +94,7 @@ const MantrasCard = () => {
                   >
                     {name}
                   </Text>
-                </TouchableOpacity>
+                </AutoScrollItem>
               );
             })}
           </View>

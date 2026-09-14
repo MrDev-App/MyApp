@@ -1,20 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  ActivityIndicator,
-} from 'react-native';
+import { StyleSheet, Text, View, Image, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import {
-  getCategoriesData,
-  Category,
-} from '@services/categoriesService';
+import { getCategoriesData, Category } from '@services/categoriesService';
+import { categoriesData } from '@constants/categoriesData';
 import { Translation } from '@i18n/language';
 import AnimatedButton from '@components/AnimatedButton';
 import LottieView from 'lottie-react-native';
@@ -36,9 +28,14 @@ const FeaturedCategories = () => {
       try {
         const data = await getCategoriesData();
         if (isMounted) {
-          const filtered = data.filter(cat =>
+          let filtered = data.filter(cat =>
             ALLOWED_CATEGORY_IDS.has(cat.id.toLowerCase()),
           );
+          if (filtered.length === 0) {
+            filtered = (categoriesData as Category[]).filter(cat =>
+              ALLOWED_CATEGORY_IDS.has(cat.id.toLowerCase()),
+            );
+          }
           setCategories(filtered);
         }
       } catch (error) {
@@ -46,6 +43,12 @@ const FeaturedCategories = () => {
           'Error fetching categories in FeaturedCategories:',
           error,
         );
+        if (isMounted) {
+          const fallback = (categoriesData as Category[]).filter(cat =>
+            ALLOWED_CATEGORY_IDS.has(cat.id.toLowerCase()),
+          );
+          setCategories(fallback);
+        }
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -90,7 +93,7 @@ const FeaturedCategories = () => {
                 style={styles.card}
                 onPress={() => handleCategoryPress(category)}
               >
-                <View style={styles.iconContainer}>
+                <View style={styles.iconContainer} pointerEvents="none">
                   {category.id.toLowerCase() === 'aarti' ||
                   category.id.toLowerCase() === 'aartis' ? (
                     <LottieView
@@ -107,7 +110,7 @@ const FeaturedCategories = () => {
                     />
                   )}
                 </View>
-                <Text style={styles.cardTitle}>{categoryTitle}</Text>
+                <Text style={styles.cardTitle} pointerEvents="none">{categoryTitle}</Text>
               </AnimatedButton>
             );
           })}

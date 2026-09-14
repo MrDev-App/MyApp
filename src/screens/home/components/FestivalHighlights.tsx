@@ -64,7 +64,7 @@ const FestivalHighlights = ({ onPress }: any) => {
   }, []);
 
   const filteredFestivals = useMemo(() => {
-    return festivals
+    const upcoming = festivals
       .filter(item => {
         const festivalDateThisYear = new Date(
           today.getFullYear(),
@@ -79,6 +79,18 @@ const FestivalHighlights = ({ onPress }: any) => {
         }
         return a.day - b.day;
       });
+
+    if (upcoming.length > 0) {
+      return upcoming;
+    }
+
+    // Fallback if no upcoming festivals left in current year: wrap around
+    return [...festivals].sort((a, b) => {
+      if (a.month !== b.month) {
+        return a.month - b.month;
+      }
+      return a.day - b.day;
+    });
   }, [festivals, today, todayStart]);
 
   return (
@@ -89,9 +101,9 @@ const FestivalHighlights = ({ onPress }: any) => {
           activeOpacity={0.7}
           onPress={() => {
             try {
-              navigation.navigate('BottomTabs', { screen: 'Calendar' });
-            } catch {
               navigation.navigate('Calendar');
+            } catch {
+              navigation.navigate('BottomTabs', { screen: 'Calendar' });
             }
           }}
           hitSlop={12}
@@ -126,22 +138,25 @@ const FestivalHighlights = ({ onPress }: any) => {
             return (
               <AnimatedButton
                 style={styles.cardContainer}
+                activeOpacity={0.8}
                 onPress={() => {
                   setSelectedFestival(item);
                   if (onPress) onPress(item);
                 }}
               >
-                <ImageBackground
-                  source={bgImage}
-                  style={styles.card}
-                  imageStyle={styles.cardImageStyle}
-                  fadeDuration={0}
-                >
-                  <View style={styles.cardOverlay}>
-                    <Text style={styles.name}>{name}</Text>
-                    <Text style={styles.date}>{dateStr}</Text>
-                  </View>
-                </ImageBackground>
+                <View style={{ flex: 1 }} pointerEvents="none">
+                  <ImageBackground
+                    source={bgImage}
+                    style={styles.card}
+                    imageStyle={styles.cardImageStyle}
+                    fadeDuration={0}
+                  >
+                    <View style={styles.cardOverlay}>
+                      <Text style={styles.name}>{name}</Text>
+                      <Text style={styles.date}>{dateStr}</Text>
+                    </View>
+                  </ImageBackground>
+                </View>
               </AnimatedButton>
             );
           }}
