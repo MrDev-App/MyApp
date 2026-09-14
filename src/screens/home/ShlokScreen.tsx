@@ -9,6 +9,7 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
+import { BlurView } from '@react-native-community/blur';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -98,6 +99,74 @@ const ShlokScreen = () => {
     return { sanskritText, translationText };
   };
 
+  const renderModalCard = (item: CategoryItem) => {
+    const { sanskritText, translationText } = parseShlokText(item);
+    const itemName = isHindi
+      ? item.headerTitleHi || item.nameHi
+      : item.headerTitleEn || item.nameEn;
+    const itemSub = isHindi ? item.subtitleHi : item.subtitleEn;
+
+    return (
+      <View style={styles.modalContainer}>
+        <View style={styles.modalCard}>
+          {item.image && (
+            <View style={styles.modalImageWrapper}>
+              <Image
+                source={item.image}
+                style={styles.modalDeityImage}
+                resizeMode="cover"
+              />
+            </View>
+          )}
+
+          {/* Shlok Title */}
+          <Text style={styles.modalShlokTitle} numberOfLines={1}>
+            {itemName}
+          </Text>
+
+          {itemSub ? (
+            <Text style={styles.modalShlokSubtitle} numberOfLines={1}>
+              {itemSub}
+            </Text>
+          ) : null}
+
+          {/* Scrollable Sanskrit & Meaning */}
+          <ScrollView
+            style={styles.modalScroll}
+            contentContainerStyle={styles.modalScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.modalSanskritBox}>
+              <Text style={styles.modalSanskritText}>{sanskritText}</Text>
+            </View>
+
+            {translationText ? (
+              <View style={styles.modalTranslationBox}>
+                <Text style={styles.modalTranslationTitle}>
+                  {isHindi ? '॥ भावार्थ ॥' : '॥ Meaning ॥'}
+                </Text>
+                <Text style={styles.modalTranslationText}>
+                  {translationText}
+                </Text>
+              </View>
+            ) : null}
+          </ScrollView>
+
+          {/* Close Button */}
+          <TouchableOpacity
+            style={styles.modalBottomCloseBtn}
+            activeOpacity={0.8}
+            onPress={() => setSelectedItem(null)}
+          >
+            <Text style={styles.modalBottomCloseText}>
+              {isHindi ? 'बंद करें' : 'Close'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
   const renderShlokItem = ({ item }: { item: CategoryItem }) => {
     const name = isHindi ? item.nameHi : item.nameEn;
     const subtitle = isHindi ? item.subtitleHi : item.subtitleEn;
@@ -160,140 +229,94 @@ const ShlokScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-      {/* Top Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.8}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Back width={scale(14)} height={scale(14)} stroke={colors.white} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          {screenTitle}
-        </Text>
-        <View style={{ width: scale(34) }} />
-      </View>
-
-      {/* Description Banner */}
-      {screenDesc ? (
-        <View style={styles.descriptionBanner}>
-          <Text style={styles.descriptionText}>{screenDesc}</Text>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+        {/* Top Header */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.8}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Back width={scale(14)} height={scale(14)} stroke={colors.white} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle} numberOfLines={1}>
+            {screenTitle}
+          </Text>
+          <View style={{ width: scale(34) }} />
         </View>
-      ) : null}
 
-      {/* Shlok List */}
-      <View style={styles.contentContainer}>
-        <FlatList
-          data={category.items || []}
-          renderItem={renderShlokItem}
-          keyExtractor={item => item.id}
-          contentContainerStyle={[
-            styles.listContent,
-            { paddingBottom: insets.bottom + scale(24) },
-          ]}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
+        {/* Description Banner */}
+        {screenDesc ? (
+          <View style={styles.descriptionBanner}>
+            <Text style={styles.descriptionText}>{screenDesc}</Text>
+          </View>
+        ) : null}
 
-      {/* Single Top-Level Shlok Detail Modal (Zero Nested Modals) */}
+        {/* Shlok List */}
+        <View style={styles.contentContainer}>
+          <FlatList
+            data={category.items || []}
+            renderItem={renderShlokItem}
+            keyExtractor={item => item.id}
+            contentContainerStyle={[
+              styles.listContent,
+              { paddingBottom: insets.bottom + scale(24) },
+            ]}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+      </SafeAreaView>
+
+      {/* Shlok Detail Popup with Native Blur Backdrop (Hardware Accelerated & Smooth on both iOS & Android) */}
       <Modal
         visible={selectedItem !== null}
         transparent={true}
         animationType="fade"
+        statusBarTranslucent={true}
+        hardwareAccelerated={true}
         onRequestClose={() => setSelectedItem(null)}
       >
-        <View style={styles.modalBackdrop}>
+        <View style={styles.modalOverlay}>
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="dark"
+            blurAmount={12}
+            blurRadius={8}
+            overlayColor="rgba(0, 0, 0, 0.45)"
+            reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.65)"
+          />
           <TouchableOpacity
             style={StyleSheet.absoluteFill}
             activeOpacity={1}
             onPress={() => setSelectedItem(null)}
           />
-
-          {selectedItem &&
-            (() => {
-              const { sanskritText, translationText } =
-                parseShlokText(selectedItem);
-              const itemName = isHindi
-                ? selectedItem.headerTitleHi || selectedItem.nameHi
-                : selectedItem.headerTitleEn || selectedItem.nameEn;
-              const itemSub = isHindi
-                ? selectedItem.subtitleHi
-                : selectedItem.subtitleEn;
-
-              return (
-                <View style={styles.modalContainer}>
-                  <View style={styles.modalCard}>
-                    {selectedItem.image && (
-                      <View style={styles.modalImageWrapper}>
-                        <Image
-                          source={selectedItem.image}
-                          style={styles.modalDeityImage}
-                          resizeMode="cover"
-                        />
-                      </View>
-                    )}
-
-                    {/* Shlok Title */}
-                    <Text style={styles.modalShlokTitle} numberOfLines={1}>
-                      {itemName}
-                    </Text>
-
-                    {itemSub ? (
-                      <Text style={styles.modalShlokSubtitle} numberOfLines={1}>
-                        {itemSub}
-                      </Text>
-                    ) : null}
-
-                    {/* Scrollable Sanskrit & Meaning */}
-                    <ScrollView
-                      style={styles.modalScroll}
-                      contentContainerStyle={styles.modalScrollContent}
-                      showsVerticalScrollIndicator={false}
-                    >
-                      <View style={styles.modalSanskritBox}>
-                        <Text style={styles.modalSanskritText}>
-                          {sanskritText}
-                        </Text>
-                      </View>
-
-                      {translationText ? (
-                        <View style={styles.modalTranslationBox}>
-                          <Text style={styles.modalTranslationTitle}>
-                            {isHindi ? '॥ भावार्थ ॥' : '॥ Meaning ॥'}
-                          </Text>
-                          <Text style={styles.modalTranslationText}>
-                            {translationText}
-                          </Text>
-                        </View>
-                      ) : null}
-                    </ScrollView>
-
-                    {/* Close Button */}
-                    <TouchableOpacity
-                      style={styles.modalBottomCloseBtn}
-                      activeOpacity={0.8}
-                      onPress={() => setSelectedItem(null)}
-                    >
-                      <Text style={styles.modalBottomCloseText}>
-                        {isHindi ? 'बंद करें' : 'Close'}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              );
-            })()}
+          <View
+            style={[
+              styles.modalBackdrop,
+              {
+                paddingTop: insets.top + scale(18),
+                paddingBottom: insets.bottom + scale(18),
+              },
+            ]}
+            pointerEvents="box-none"
+          >
+            {selectedItem && renderModalCard(selectedItem)}
+          </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 };
 
 export default ShlokScreen;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.primary,
+  },
   safeArea: {
     flex: 1,
     backgroundColor: colors.primary,
@@ -451,12 +474,16 @@ const styles = StyleSheet.create({
     color: colors.ring,
     fontWeight: '700',
   },
+  modalOverlay: {
+    ...StyleSheet.absoluteFill,
+    zIndex: 999,
+    elevation: 10,
+  },
   modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: scale(18),
+    paddingHorizontal: scale(18),
   },
   modalContainer: {
     width: '100%',
@@ -471,7 +498,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.25,
     shadowRadius: 18,
-    elevation: 10,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
   },

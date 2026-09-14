@@ -280,24 +280,29 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
+
+    gap: scale(10),
   },
   vratCardActive: {
     borderColor: colors.ring,
     backgroundColor: colors.goldHighlightBg,
   },
   dateBlock: {
+    marginTop: scale(7),
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: scale(36),
+    minWidth: scale(34),
+    borderRadius: scale(6),
+    backgroundColor: colors.overlayWhite50,
   },
   dateDayText: {
-    color: colors.ring,
+    color: colors.black,
     fontSize: fs(18),
     fontFamily: fonts.TiroHindiRegular,
-    lineHeight: fs(22),
+    // lineHeight: fs(22),
   },
   dateMonthText: {
-    color: colors.ring,
+    color: colors.black,
     fontSize: fs(9.5),
     fontFamily: fonts.TiroHindiRegular,
     textTransform: 'uppercase',
@@ -316,13 +321,13 @@ const styles = StyleSheet.create({
   vratName: {
     flex: 1,
     color: colors.black,
-    fontSize: fs(13),
+    fontSize: fs(14),
     fontFamily: fonts.TiroHindiRegular,
   },
   todayBadge: {
     backgroundColor: colors.ring,
     paddingHorizontal: scale(6),
-    paddingVertical: scale(1.5),
+    paddingVertical: scale(1),
     borderRadius: scale(6),
   },
   todayBadgeText: {
@@ -333,13 +338,13 @@ const styles = StyleSheet.create({
   detailsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: scale(6),
+    gap: scale(10),
     marginTop: scale(3),
   },
   pakshaPill: {
     paddingHorizontal: scale(6),
-    paddingVertical: scale(1.5),
-    borderRadius: scale(6),
+    paddingVertical: scale(1),
+    borderRadius: scale(3),
     backgroundColor: colors.overlayWhite50,
   },
   pakshaText: {
