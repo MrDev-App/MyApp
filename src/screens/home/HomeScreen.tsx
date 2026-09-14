@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -8,7 +8,6 @@ import GradientBackground from '@components/GradientBackground';
 import globalStyles from '@theme/globalStyles';
 import { scale } from '@theme/sizes';
 import colors from '@theme/colors';
-import { OverlayModalHandle } from '@components/OverlayModal';
 
 // Sub-components
 import HomeHeaderMedia from './components/HomeHeaderMedia';
@@ -26,11 +25,17 @@ import BannerAdComponent from '@admob/Banneradcomponent';
 export const HomeScreen = () => {
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
-  const overlayRef = useRef<OverlayModalHandle>(null);
-  const buttonRef = useRef<View>(null);
 
   const imageLoadedRef = useRef(false);
   const videoErrorRef = useRef(false);
+
+  // Safety fallback: ensure screen is visible quickly even if video decoder buffers or lags
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleVideoLoad = useCallback(() => {
     setLoading(false);
@@ -38,22 +43,12 @@ export const HomeScreen = () => {
 
   const handleImageLoad = useCallback(() => {
     imageLoadedRef.current = true;
-    if (videoErrorRef.current) {
-      setLoading(false);
-    }
+    setLoading(false);
   }, []);
 
   const handleVideoError = useCallback(() => {
     videoErrorRef.current = true;
-    if (imageLoadedRef.current) {
-      setLoading(false);
-    }
-  }, []);
-
-  const handleOpen = useCallback(() => {
-    buttonRef.current?.measureInWindow((x, y, width, height) => {
-      overlayRef.current?.open({ x: x + width / 2, y: y + height / 2 });
-    });
+    setLoading(false);
   }, []);
 
   return (
@@ -105,7 +100,7 @@ export const HomeScreen = () => {
               <BannerAdComponent unitId="ca-app-pub-7403088686757883/4289481752" />
 
               <FeaturedCategories />
-              <FestivalHighlights onPress={handleOpen} />
+              <FestivalHighlights />
             </>
           )}
         </ScrollView>

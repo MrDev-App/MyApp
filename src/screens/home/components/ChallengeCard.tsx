@@ -207,7 +207,6 @@ const ChallengeCard = () => {
           <AnimatedButton
             style={styles.actionButton}
             onPress={handlePress}
-            disabled={started && challengeChantsToday >= dailyTargetGoal}
           >
             <Text style={styles.actionButtonText}>
               {started ? texts.buttonView : texts.buttonStart}

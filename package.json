@@ -1,5 +1,5 @@
 {
-  "name": "MyApp",
+  "name": "guruvani",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -10,7 +10,7 @@
     "start": "react-native start",
     "test": "jest"
   },
-  "dependencies": {
+  "dependencies": { 
     "@notifee/react-native": "^9.1.8",
     "@react-native-community/blur": "^4.4.1",
     "@react-native-firebase/app": "^26.3.3",

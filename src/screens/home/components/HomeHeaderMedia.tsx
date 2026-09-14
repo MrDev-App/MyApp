@@ -122,7 +122,7 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
   const shouldRenderVideo = isReady && !videoError;
 
   return (
-    <View style={styles.imageContainer}>
+    <View style={styles.imageContainer} pointerEvents="none">
       <Image
         source={imagePath.greeting}
         style={styles.greetingImage}

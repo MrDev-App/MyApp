@@ -1,27 +1,21 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   Image,
-  ScrollView,
   ActivityIndicator,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import {
   getCategoriesData,
   Category,
-  CategoryItem,
 } from '@services/categoriesService';
-import ExpandableCard, {
-  ExpandableCardHandle,
-} from '@components/ExpandableCard';
-import { useExpandTrigger } from '@hooks/useExpandTrigger';
 import { Translation } from '@i18n/language';
-import { AartiScreen, ShlokScreen } from '../categories';
 import AnimatedButton from '@components/AnimatedButton';
 import LottieView from 'lottie-react-native';
 import imagePath from '@assets/index';
@@ -30,6 +24,7 @@ const ALLOWED_CATEGORY_IDS = new Set(['aarti', 'aartis', 'shlok', 'shlokas']);
 
 const FeaturedCategories = () => {
   const { t, i18n } = useTranslation();
+  const navigation = useNavigation<any>();
   const currentLanguage = i18n.language || 'en';
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -64,27 +59,23 @@ const FeaturedCategories = () => {
     };
   }, []);
 
-  // Main Category Modal
-  const cardRef = useRef<ExpandableCardHandle>(null);
-  const { registerRef, trigger } = useExpandTrigger<Category>(cardRef);
-
-  // Nested Item Detail Modal
-  const detailCardRef = useRef<ExpandableCardHandle>(null);
-  const { registerRef: registerItemRef, trigger: triggerItem } =
-    useExpandTrigger<CategoryItem>(detailCardRef);
+  const handleCategoryPress = (category: Category) => {
+    const catId = category.id.toLowerCase();
+    if (catId.includes('aarti') || catId.includes('arti')) {
+      navigation.navigate('ArtiScreen', { category });
+    } else if (catId.includes('shlok')) {
+      navigation.navigate('ShlokScreen', { category });
+    } else {
+      navigation.navigate('ArtiScreen', { category });
+    }
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{t(Translation.FEATURED_CATEGORIES)}</Text>
 
       {loading ? (
-        <View
-          style={{
-            height: scale(100),
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
+        <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color={colors.ring} />
         </View>
       ) : (
@@ -94,17 +85,12 @@ const FeaturedCategories = () => {
               currentLanguage === 'hi' ? category.titleHi : category.titleEn;
             return (
               <AnimatedButton
+                activeOpacity={0.8}
                 key={category.id}
                 style={styles.card}
-                onPress={() => {
-                  trigger(category.id, category);
-                }}
+                onPress={() => handleCategoryPress(category)}
               >
-                <View
-                  ref={registerRef(category.id)}
-                  collapsable={false}
-                  style={styles.iconContainer}
-                >
+                <View style={styles.iconContainer}>
                   {category.id.toLowerCase() === 'aarti' ||
                   category.id.toLowerCase() === 'aartis' ? (
                     <LottieView
@@ -127,72 +113,6 @@ const FeaturedCategories = () => {
           })}
         </View>
       )}
-
-      {/* Main Category Modal */}
-      <ExpandableCard<Category>
-        ref={cardRef}
-        imageMargin={scale(16)}
-        renderContent={(category, _close) => {
-          const categoryTitle =
-            currentLanguage === 'hi' ? category.titleHi : category.titleEn;
-          const categoryDesc =
-            currentLanguage === 'hi'
-              ? category.descriptionHi
-              : category.descriptionEn;
-          return (
-            <>
-              <View style={styles.modalHeaderRow}>
-                <View style={styles.modalHeaderTitleCol}>
-                  <Text style={styles.modalTitle}>{categoryTitle}</Text>
-                  <Text style={styles.modalDesc}>{categoryDesc}</Text>
-                </View>
-              </View>
-
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                style={styles.scrollList}
-                contentContainerStyle={styles.scrollListContent}
-              >
-                {category.id === 'aarti' && (
-                  <AartiScreen
-                    items={category.items}
-                    registerItemRef={registerItemRef}
-                    onItemPress={triggerItem}
-                  />
-                )}
-                {category.id === 'shlok' && (
-                  <ShlokScreen items={category.items} />
-                )}
-              </ScrollView>
-            </>
-          );
-        }}
-      />
-
-      {/* Nested Item Detail Modal for Aartis */}
-      <ExpandableCard<CategoryItem>
-        ref={detailCardRef}
-        expandedHeight={scale(190)}
-        getImage={(item: CategoryItem) => item.image}
-        renderContent={(item, _close) => {
-          return (
-            <View style={styles.aartiFixedCard}>
-              <Text style={styles.artiTitle}>
-                {currentLanguage === 'hi'
-                  ? item.headerTitleHi || item.nameHi
-                  : item.headerTitleEn || item.nameEn}
-              </Text>
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                style={styles.scrollList}
-                contentContainerStyle={styles.scrollListContent}
-              >
-                <Text style={styles.aartiDetailText}>{item.textHi}</Text>
-              </ScrollView>
-            </View>
-          );
-        }}
-      />
     </View>
   );
 };
@@ -210,6 +130,11 @@ const styles = StyleSheet.create({
     color: colors.secondary,
     marginBottom: scale(16),
     paddingHorizontal: scale(4),
+  },
+  loadingContainer: {
+    height: scale(100),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   gridContainer: {
     flexDirection: 'row',
@@ -244,57 +169,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
-  },
-  modalHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: scale(4),
-    width: '100%',
-    paddingRight: scale(45),
-  },
-  modalHeaderTitleCol: {
-    flex: 1,
-  },
-  modalTitle: {
-    fontSize: fs(24),
-    fontFamily: fonts.TiroHindiRegular,
-    color: colors.secondary,
-    marginBottom: scale(4),
-  },
-  modalDesc: {
-    fontSize: fs(13),
-    fontFamily: fonts.TiroHindiRegular,
-    color: colors.secondary,
-    opacity: 0.7,
-    lineHeight: fs(18),
-  },
-  scrollList: {
-    flex: 1,
-  },
-  scrollListContent: {
-    padding: scale(16),
-    borderColor: colors.borderStrong,
-    borderRadius: scale(8),
-  },
-  aartiFixedCard: {
-    flex: 1,
-    backgroundColor: colors.white,
-    borderRadius: scale(8),
-  },
-  aartiDetailText: {
-    fontSize: fs(14),
-    fontFamily: fonts.TiroHindiRegular,
-    color: colors.secondary,
-    textAlign: 'center',
-    lineHeight: fs(23),
-  },
-  artiTitle: {
-    fontFamily: fonts.TiroHindiRegular,
-    textAlign: 'center',
-    fontSize: fs(20),
-    color: colors.secondary,
-    lineHeight: fs(23),
-    paddingVertical: scale(4),
-    paddingHorizontal: scale(45),
   },
 });

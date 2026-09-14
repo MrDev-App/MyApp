@@ -67,7 +67,7 @@ export const getEkadashiMonthsData = async (): Promise<EkadashiMonth[]> => {
 
     return ekadashi2026Data.months;
   } catch (error) {
-    console.error('Error fetching Ekadashi from Firestore:', error);
+    console.warn('Notice: Firestore unavailable, using local Ekadashi data:', error);
     return ekadashi2026Data.months;
   }
 };

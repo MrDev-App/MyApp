@@ -45,7 +45,6 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { RootNavigationProp } from '@navigation/types';
 import { triggerHaptic } from '@helper/helper';
 import BannerAdComponent from '@admob/Banneradcomponent';
-import { askAI } from '@services/aiService';
 import { ResetIcon, ZapIcon, ChartBarIcon } from '@components/icons/SvgIcons';
 
 const TOTAL_BEADS = 108;
@@ -74,21 +73,6 @@ const JapScreen = () => {
   // Custom Mantras State
   const [customMantras, setCustomMantras] = useState<CustomMantra[]>([]);
 
-  const handleAskAI = async () => {
-    try {
-      const reply = await askAI(
-        'Explain JavaScript closures with a React Native example.',
-      );
-
-      console.log('AI Reply:', reply);
-    } catch (error) {
-      if (error instanceof Error) {
-        console.log(error.message);
-      } else {
-        console.log('Something went wrong');
-      }
-    }
-  };
 
   // Load mantras
   useEffect(() => {
@@ -545,7 +529,6 @@ const JapScreen = () => {
             <View style={styles.mantraAccentBar} />
             <Animated.Text
               style={[styles.mantraDisplayText, animatedTextStyle]}
-              onPress={handleAskAI}
             >
               {mantraText}
             </Animated.Text>

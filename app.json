@@ -1,7 +1,8 @@
 {
-  "name": "MyApp",
-  "displayName": "MyApp",
+  "name": "guruvani",
+  "displayName": "guruvani",
   "react-native-google-mobile-ads": {
-    "android_app_id": "ca-app-pub-7403088686757883~8803441837"
+    "android_app_id": "ca-app-pub-7403088686757883~8803441837",
+    "ios_app_id": "ca-app-pub-3940256099942544~1458002511"
   }
 }

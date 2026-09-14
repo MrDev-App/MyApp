@@ -15,6 +15,7 @@ import ProfileScreen from '@screens/profile/ProfileScreen';
 
 import { BottomTabParamList } from '@navigation/types';
 import { CustomTabBar } from './BottomTabs';
+import CalendarScreen from '@screens/Calendar/CalendarScreen';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -68,6 +69,11 @@ const JapTab = () => (
     <JapScreen />
   </TabScreenWrapper>
 );
+const CalendarTab = () => (
+  <TabScreenWrapper>
+    <CalendarScreen />
+  </TabScreenWrapper>
+);
 
 const BookTab = () => (
   <TabScreenWrapper>
@@ -94,6 +100,7 @@ const BottomNavigation = () => {
     >
       <Tab.Screen name="Home" component={HomeTab} />
       <Tab.Screen name="Jap" component={JapTab} />
+      <Tab.Screen name="Calendar" component={CalendarTab} />
       <Tab.Screen name="Book" component={BookTab} />
       <Tab.Screen name="Profile" component={ProfileTab} />
     </Tab.Navigator>

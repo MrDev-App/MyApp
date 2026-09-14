@@ -4,7 +4,7 @@ import { RootStackParamList } from '@navigation/types';
 import SplashScreen from '@screens/SplashScreen';
 import OnboardingScreen from '@screens/OnboardingScreen';
 import BottomNavigation from './BottomNavigation';
-import AllFestivalsScreen from '@screens/home/AllFestivalsScreen';
+import CalendarScreen from '@screens/Calendar/CalendarScreen';
 import '@i18n/index';
 import ReadingScreen from '@screens/book/ReadingScreen';
 import TextReadingScreen from '@screens/book/TextReadingScreen';
@@ -13,6 +13,9 @@ import TempleScreen from '@screens/home/TempleScreen';
 import NotificationScreen from '@screens/home/NotificationScreen';
 import SeedScreen from '@screens/SeedScreen';
 import ProgressScreen from '@screens/jap/ProgressScreen';
+import MantraScreen from '@screens/home/MantraScreen';
+import ArtiScreen from '@screens/home/ArtiScreen';
+import ShlokScreen from '@screens/home/ShlokScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -26,8 +29,13 @@ const StackNavigation = () => {
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       <Stack.Screen name="BottomTabs" component={BottomNavigation} />
       <Stack.Screen
+        name="CalendarScreen"
+        component={CalendarScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
         name="AllFestivals"
-        component={AllFestivalsScreen}
+        component={CalendarScreen}
         options={{ animation: 'slide_from_right' }}
       />
       <Stack.Screen
@@ -63,6 +71,21 @@ const StackNavigation = () => {
       <Stack.Screen
         name="ProgressScreen"
         component={ProgressScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="MantraScreen"
+        component={MantraScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="ArtiScreen"
+        component={ArtiScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="ShlokScreen"
+        component={ShlokScreen}
         options={{ animation: 'slide_from_right' }}
       />
     </Stack.Navigator>

@@ -66,7 +66,7 @@ export const getJapMantrasData = async (): Promise<MantraSelectorItem[]> => {
 
     return rawList.map(mapMantraItem);
   } catch (error) {
-    console.error('Error fetching japMantras from Firestore:', error);
+    console.warn('Notice: Firestore unavailable, using local jap data:', error);
     return [DEFAULT_MANTRA];
   }
 };

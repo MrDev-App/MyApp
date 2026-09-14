@@ -363,7 +363,7 @@ export const getCategoriesData = async (): Promise<Category[]> => {
 
     return categoriesData;
   } catch (error) {
-    console.error('Error fetching categories from Firestore:', error);
+    console.warn('Notice: Firestore unavailable, using local categories data:', error);
     return categoriesData;
   }
 };

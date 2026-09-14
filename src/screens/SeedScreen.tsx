@@ -17,6 +17,7 @@ import {
 } from '@react-native-firebase/firestore';
 import { ekadashi2026Data } from '@constants/ekadashiData';
 import { clearEkadashiDataCache } from '@services/ekadashiService';
+import { uploadNaamJapDataToFirestore } from '@services/seedNaamJapService';
 import colors from '@theme/colors';
 
 export default function SeedScreen() {
@@ -114,7 +115,11 @@ export default function SeedScreen() {
     setLoading(true);
     setStatus([]);
     try {
-      log('ℹ️ GodMantras collection is already seeded in Firestore.');
+      await uploadNaamJapDataToFirestore({
+        onProgress: log,
+      });
+    } catch (error: any) {
+      log(`❌ Error seeding naamJapData: ${error?.message || error}`);
     } finally {
       setLoading(false);
     }
@@ -181,7 +186,7 @@ export default function SeedScreen() {
           <ActivityIndicator color={colors.white} />
         ) : (
           <Text style={{ color: colors.white, fontWeight: 'bold' }}>
-            Seed GodMantras Collection
+            Seed naamJapData (godData) Collection
           </Text>
         )}
       </TouchableOpacity>

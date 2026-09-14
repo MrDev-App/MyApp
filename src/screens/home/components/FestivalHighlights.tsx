@@ -87,7 +87,13 @@ const FestivalHighlights = ({ onPress }: any) => {
         <Text style={styles.title}>{t(Translation.FESTIVAL_HIGHLIGHTS)}</Text>
         <TouchableOpacity
           activeOpacity={0.7}
-          onPress={() => navigation.navigate('AllFestivals')}
+          onPress={() => {
+            try {
+              navigation.navigate('BottomTabs', { screen: 'Calendar' });
+            } catch {
+              navigation.navigate('Calendar');
+            }
+          }}
           hitSlop={12}
         >
           <Text style={styles.allText}>{t(Translation.ALL)}</Text>

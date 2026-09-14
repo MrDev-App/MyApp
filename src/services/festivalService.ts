@@ -162,7 +162,7 @@ export const getFestivalData = async (): Promise<Festival[]> => {
 
     return rawList.map(mapFestivalWithImage);
   } catch (error) {
-    console.error('Error fetching festivals from Firestore:', error);
+    console.warn('Notice: Firestore unavailable, using local festival data:', error);
     return [];
   }
 };

@@ -28,12 +28,6 @@ import {
   AppNotification,
 } from '@services/notificationService';
 
-const triggerHaptic = (_type?: string) => {
-  try {
-    Vibration.vibrate(30);
-  } catch {}
-};
-
 type FilterType = 'all' | 'sadhana' | 'festival' | 'wisdom';
 
 const NotificationScreen = () => {
@@ -54,21 +48,17 @@ const NotificationScreen = () => {
   }, []);
 
   const handleMarkAllAsRead = () => {
-    triggerHaptic('impactLight');
     const updated = NotificationStorage.markAllAsRead();
     setNotifications(updated);
   };
 
   const handleClearAll = () => {
-    triggerHaptic('impactHeavy');
     const updated = NotificationStorage.clearAll();
     setNotifications(updated);
   };
 
   const handleNotificationPress = useCallback(
     (item: AppNotification) => {
-      triggerHaptic('impactLight');
-
       const updated = NotificationStorage.markAsRead(item.id);
       setNotifications(updated);
 
@@ -88,7 +78,6 @@ const NotificationScreen = () => {
   );
 
   const handleDeleteNotification = useCallback((id: string) => {
-    triggerHaptic('selection');
     const updated = NotificationStorage.deleteNotification(id);
     setNotifications(updated);
   }, []);
@@ -253,7 +242,6 @@ const NotificationScreen = () => {
         key={key}
         style={[styles.filterPill, isActive && styles.filterPillActive]}
         onPress={() => {
-          triggerHaptic('selection');
           setSelectedFilter(key);
         }}
         activeOpacity={0.8}
@@ -274,7 +262,6 @@ const NotificationScreen = () => {
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => {
-              triggerHaptic('selection');
               navigation.goBack();
             }}
             activeOpacity={0.8}

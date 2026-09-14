@@ -182,6 +182,7 @@ const imagePath = {
   book: require('./png/book.webp'),
   books: require('./png/books.webp'),
   mala: require('./png/mala.webp'),
+  calendarTab: require('./png/calendarTab.png'),
   star: require('./png/star.webp'),
   warning: require('./png/warning.webp'),
   sakura: require('./png/sakura.webp'),

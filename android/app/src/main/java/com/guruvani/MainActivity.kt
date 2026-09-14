@@ -28,7 +28,7 @@ class MainActivity : ReactActivity() {
     }
   }
 
-  override fun getMainComponentName(): String = "MyApp"
+  override fun getMainComponentName(): String = "guruvani"
 
   override fun createReactActivityDelegate(): ReactActivityDelegate =
           DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)

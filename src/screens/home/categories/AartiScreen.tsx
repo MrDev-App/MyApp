@@ -60,6 +60,8 @@ const styles = StyleSheet.create({
   },
   aartiGridCard: {
     width: '48%',
+    backgroundColor: colors.primary,
+    borderRadius: scale(14),
     padding: scale(14),
     marginBottom: scale(14),
     alignItems: 'center',

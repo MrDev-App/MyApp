@@ -29,6 +29,8 @@ const getIcon = (routeName: string) => {
       return imagePath.lotus;
     case 'Jap':
       return imagePath.mala;
+    case 'Calendar':
+      return imagePath.calendarTab;
     case 'Book':
       return imagePath.books;
     case 'Profile':
@@ -103,7 +105,8 @@ export const CustomTabBar = ({
   const onLayout = (event: any) => {
     const { width } = event.nativeEvent.layout;
 
-    buttonWidthShared.value = (width - scale(20)) / 4;
+    buttonWidthShared.value =
+      (width - scale(20)) / (state.routes.length || 5);
   };
 
   React.useEffect(() => {

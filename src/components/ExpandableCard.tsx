@@ -119,6 +119,7 @@ function ExpandableCardInner<T>(
       if (onOpen) {
         onOpen();
       }
+      progress.value = 0;
       progress.value = withTiming(1, {
         duration: 550,
         easing: Easing.bezier(0.25, 1, 0.5, 1),
@@ -181,15 +182,7 @@ function ExpandableCardInner<T>(
         translateY: interpolate(
           progress.value,
           [0.3, 1],
-          [35, 0],
-          Extrapolation.CLAMP,
-        ),
-      },
-      {
-        scale: interpolate(
-          progress.value,
-          [0.3, 1],
-          [0.96, 1],
+          [20, 0],
           Extrapolation.CLAMP,
         ),
       },
@@ -224,18 +217,26 @@ function ExpandableCardInner<T>(
           />
         )}
 
-        <TouchableOpacity
-          style={StyleSheet.absoluteFill}
-          activeOpacity={1}
-          onPress={handleClose}
-        />
+        {hasImage && (
+          <TouchableOpacity
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: expandedHeight + effectiveTop,
+            }}
+            activeOpacity={1}
+            onPress={handleClose}
+          />
+        )}
 
         {data && (
           <Animated.View
             style={[
               styles.expandedContent,
               contentAnimatedStyle,
-              { left: horizontalPadding, right: horizontalPadding },
+              { left: horizontalPadding, right: horizontalPadding, zIndex: 50 },
             ]}
           >
             {renderContent(data, handleClose)}
@@ -287,6 +288,7 @@ const styles = StyleSheet.create({
   },
   expandedContent: {
     position: 'absolute',
+    backgroundColor: colors.white,
   },
   closeButton: {
     position: 'absolute',

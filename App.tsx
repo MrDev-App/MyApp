@@ -1,4 +1,4 @@
-import { StatusBar } from 'react-native';
+import { StatusBar, LogBox } from 'react-native';
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -16,6 +16,11 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { getUserJoinedDate } from '@services/storageService';
 import { useAppOpenAd } from '@admob/useAppOpenAd';
 import { isAdMobEnabled } from '@admob/adConfig';
+import colors from '@theme/colors';
+
+LogBox.ignoreLogs([
+  'Sending `onAnimatedValueUpdate` with no listeners registered.',
+]);
 
 const App = () => {
   // Handles foreground ads with cooldown and auto-suppression during image picker
@@ -54,7 +59,9 @@ const App = () => {
   }, []);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView
+      style={{ flex: 1, backgroundColor: colors.primary }}
+    >
       <ErrorBoundary>
         <SafeAreaProvider>
           <NavigationContainer ref={navigationRef}>
@@ -67,7 +74,7 @@ const App = () => {
           </NavigationContainer>
         </SafeAreaProvider>
       </ErrorBoundary>
-    </GestureHandlerRootView> 
+    </GestureHandlerRootView>
   );
 };
 export default App;

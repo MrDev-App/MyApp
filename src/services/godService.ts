@@ -6,23 +6,19 @@ import {
 } from '@react-native-firebase/firestore';
 import imagePath from '@assets/index';
 import { STORAGE_KEYS } from '@constants/storageKeys';
+import {
+  naamJapData,
+  godData,
+  NaamJapItem,
+  God,
+  GodMantra,
+} from '@constants/naamJapData';
 
-export interface GodMantra {
-  nameEn: string;
-  nameHi: string;
-  mantra: string;
-}
-
-export interface God {
-  id: string;
-  englishName: string;
-  hindiName: string;
-  mantra: string;
-  image: any;
-  mantras: GodMantra[];
-}
+export type { NaamJapItem, God, GodMantra };
+export { naamJapData, godData };
 
 const storage = createMMKV();
+export const NAAM_JAP_DATA_CACHE_KEY = STORAGE_KEYS.NAAM_JAP_DATA_CACHE;
 export const GOD_DATA_CACHE_KEY = STORAGE_KEYS.GOD_DATA_CACHE;
 
 const localImageMap: Record<string, any> = {
@@ -311,9 +307,11 @@ export const mapGodWithImage = (god: any): God => {
   };
 };
 
-export const getGodData = async (): Promise<God[]> => {
+export const getNaamJapData = async (): Promise<God[]> => {
   try {
-    const cachedData = storage.getString(GOD_DATA_CACHE_KEY);
+    const cachedData =
+      storage.getString(NAAM_JAP_DATA_CACHE_KEY) ||
+      storage.getString(GOD_DATA_CACHE_KEY);
 
     if (cachedData) {
       const parsed: any[] = JSON.parse(cachedData);
@@ -321,8 +319,13 @@ export const getGodData = async (): Promise<God[]> => {
     }
 
     const db = getFirestore();
-    let snapshot = await getDocs(collection(db, 'godData'));
+    // 1. Primary collection: 'naamJapData'
+    let snapshot = await getDocs(collection(db, 'naamJapData'));
 
+    // 2. Fallbacks for existing deployments
+    if (snapshot.empty) {
+      snapshot = await getDocs(collection(db, 'godData'));
+    }
     if (snapshot.empty) {
       snapshot = await getDocs(collection(db, 'GodMantras'));
     }
@@ -336,16 +339,27 @@ export const getGodData = async (): Promise<God[]> => {
     }
 
     if (rawList.length > 0) {
+      storage.set(NAAM_JAP_DATA_CACHE_KEY, JSON.stringify(rawList));
       storage.set(GOD_DATA_CACHE_KEY, JSON.stringify(rawList));
+      return rawList.map(mapGodWithImage);
     }
 
-    return rawList.map(mapGodWithImage);
+    return naamJapData;
   } catch (error) {
-    console.error('Error fetching godData from Firestore:', error);
-    return [];
+    console.warn(
+      'Notice: Firestore unavailable, using local naamJapData (godData):',
+      error,
+    );
+    return naamJapData;
   }
 };
 
-export const clearGodDataCache = (): void => {
+// Backward-compatibility alias
+export const getGodData = getNaamJapData;
+
+export const clearNaamJapDataCache = (): void => {
+  storage.remove(NAAM_JAP_DATA_CACHE_KEY);
   storage.remove(GOD_DATA_CACHE_KEY);
 };
+
+export const clearGodDataCache = clearNaamJapDataCache;
