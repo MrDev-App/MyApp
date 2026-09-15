@@ -8,7 +8,7 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
+import BlurBackdrop from '@components/BlurBackdrop';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -238,14 +238,7 @@ const MantraScreen = () => {
         onRequestClose={() => setSelectedMantra(null)}
       >
         <View style={styles.modalOverlay}>
-          <BlurView
-            style={StyleSheet.absoluteFill}
-            blurType="dark"
-            blurAmount={12}
-            blurRadius={8}
-            overlayColor="rgba(0, 0, 0, 0.45)"
-            reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.65)"
-          />
+          <BlurBackdrop />
           <TouchableOpacity
             style={StyleSheet.absoluteFill}
             activeOpacity={1}

@@ -10,7 +10,7 @@
     "start": "react-native start",
     "test": "jest"
   },
-  "dependencies": { 
+  "dependencies": {
     "@notifee/react-native": "^9.1.8",
     "@react-native-community/blur": "^4.4.1",
     "@react-native-firebase/app": "^26.3.3",
@@ -53,6 +53,7 @@
     "@react-native/jest-preset": "0.86.2",
     "@react-native/metro-config": "0.86.2",
     "@react-native/typescript-config": "0.86.2",
+    "@testing-library/react-native": "^14.0.1",
     "@types/jest": "^29.5.13",
     "@types/react": "^19.2.0",
     "@types/react-test-renderer": "^19.1.0",
@@ -60,9 +61,11 @@
     "babel-plugin-transform-remove-console": "^6.9.4",
     "eslint": "^8.19.0",
     "jest": "^29.6.3",
+    "patch-package": "^8.0.0",
     "prettier": "2.8.8",
     "react-native-svg-transformer": "^1.5.3",
     "react-test-renderer": "19.2.3",
+    "test-renderer": "^1.2.0",
     "typescript": "^5.8.3"
   },
   "engines": {

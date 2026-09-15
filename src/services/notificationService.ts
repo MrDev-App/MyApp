@@ -275,7 +275,7 @@ export function handleNotificationClick(notification: any) {
   } else if (actionRoute === 'Book') {
     navigate('BottomTabs', { screen: 'Book' });
   } else if (actionRoute === 'AllFestivals') {
-    navigate('AllFestivals');
+    navigate('CalendarScreen');
   } else if (actionRoute === 'BottomTabs') {
     navigate('BottomTabs', { screen: 'Home' });
   } else {

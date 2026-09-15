@@ -45,6 +45,7 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { RootNavigationProp } from '@navigation/types';
 import { triggerHaptic } from '@helper/helper';
 import BannerAdComponent from '@admob/Banneradcomponent';
+import { AD_UNITS } from '@admob/adConfig';
 import { ResetIcon, ZapIcon, ChartBarIcon } from '@components/icons/SvgIcons';
 
 const TOTAL_BEADS = 108;
@@ -72,7 +73,6 @@ const JapScreen = () => {
 
   // Custom Mantras State
   const [customMantras, setCustomMantras] = useState<CustomMantra[]>([]);
-
 
   // Load mantras
   useEffect(() => {

@@ -25,6 +25,7 @@ import BookSkeleton from './components/BookSkeleton';
 import { SearchIcon } from '@components/icons/SvgIcons';
 import colors from '@theme/colors';
 import { useRewardedAd } from '@admob/Userewardedad';
+import { AD_UNITS } from '@admob/adConfig';
 import {
   isBookUnlockedToday,
   markBookUnlockedToday,
@@ -44,9 +45,11 @@ const BookScreen = () => {
 
   const [pendingStory, setPendingStory] = useState<Story | null>(null);
   const [openingStory, setOpeningStory] = useState<Story | null>(null);
-  const { isLoaded: isRewardedLoaded, show: showRewardedAd } = useRewardedAd(
-    'ca-app-pub-7403088686757883/3663931262',
-  );
+  const {
+    isLoaded: isRewardedLoaded,
+    loadAd: loadRewardedAd,
+    show: showRewardedAd,
+  } = useRewardedAd(AD_UNITS.REWARDED_BOOK);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -59,7 +62,8 @@ const BookScreen = () => {
   useFocusEffect(
     useCallback(() => {
       setOpeningStory(null);
-    }, []),
+      loadRewardedAd();
+    }, [loadRewardedAd]),
   );
 
   const openStoryReader = (story: Story) => {
@@ -76,6 +80,7 @@ const BookScreen = () => {
       return;
     }
     // Not unlocked today — ask for consent before showing the ad
+    loadRewardedAd();
     setPendingStory(story);
   };
 
@@ -83,11 +88,11 @@ const BookScreen = () => {
 
   const handleWatchAd = () => {
     if (!pendingStory) return;
-    const storyToUnlock = pendingStory;
-    setPendingStory(null); // close the popup — the ad SDK takes over the screen next
 
-    showRewardedAd(() => {
-      // This only runs if the user watched the FULL video (EARNED_REWARD)
+    const storyToUnlock = pendingStory;
+    setPendingStory(null); // close the popup
+
+    const proceedToUnlock = () => {
       markBookUnlockedToday(storyToUnlock.id);
       triggerHaptic();
       setOpeningStory(storyToUnlock);
@@ -100,7 +105,18 @@ const BookScreen = () => {
           navigation.navigate('ReadingScreen', { storyId: storyToUnlock.id });
         }
       }, 550);
-    });
+    };
+
+    if (isRewardedLoaded) {
+      setTimeout(() => {
+        showRewardedAd(() => {
+          proceedToUnlock();
+        });
+      }, 100);
+    } else {
+      // Fallback: If ad is not ready on iOS or failed to load, unlock directly so the user isn't stuck
+      proceedToUnlock();
+    }
   };
 
   const labels = {

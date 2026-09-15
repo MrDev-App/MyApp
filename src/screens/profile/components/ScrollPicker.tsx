@@ -113,12 +113,12 @@ const styles = StyleSheet.create({
   },
   pickerItemText: {
     fontSize: fs(22),
-    color: colors.black,
+    color: colors.secondary,
     fontFamily: fonts.TiroHindiRegular,
-    opacity: 0.4,
+    opacity: 0.35,
   },
   pickerItemTextActive: {
-    color: colors.black,
+    color: colors.secondary,
     fontSize: fs(24),
     fontWeight: 'bold',
     opacity: 1,

@@ -12,6 +12,7 @@ import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale, verticalScale } from '@theme/sizes';
 import imagePath from '@assets/index';
+import BlurBackdrop from '@components/BlurBackdrop';
 
 type SwitchMantraModalProps = {
   visible: boolean;
@@ -48,6 +49,7 @@ const SwitchMantraModal = ({
     >
       <TouchableWithoutFeedback onPress={onCancel}>
         <View style={styles.backdrop}>
+          <BlurBackdrop />
           <TouchableWithoutFeedback>
             <View style={styles.modalCard}>
               <View style={styles.iconContainer}>
@@ -85,7 +87,6 @@ const SwitchMantraModal = ({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: colors.cardOverlayDark,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: scale(24),

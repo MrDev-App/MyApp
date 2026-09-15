@@ -81,9 +81,6 @@ const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
   }, []);
 
   const handlePressBell = useCallback(() => {
-    try {
-      Vibration.vibrate(30);
-    } catch {}
     navigation.navigate('Notification');
   }, [navigation]);
 

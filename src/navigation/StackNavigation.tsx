@@ -9,7 +9,6 @@ import '@i18n/index';
 import ReadingScreen from '@screens/book/ReadingScreen';
 import TextReadingScreen from '@screens/book/TextReadingScreen';
 import SearchScreen from '@screens/book/SearchScreen';
-import TempleScreen from '@screens/home/TempleScreen';
 import NotificationScreen from '@screens/home/NotificationScreen';
 import SeedScreen from '@screens/SeedScreen';
 import ProgressScreen from '@screens/jap/ProgressScreen';
@@ -34,11 +33,6 @@ const StackNavigation = () => {
         options={{ animation: 'slide_from_right' }}
       />
       <Stack.Screen
-        name="AllFestivals"
-        component={CalendarScreen}
-        options={{ animation: 'slide_from_right' }}
-      />
-      <Stack.Screen
         name="ReadingScreen"
         component={ReadingScreen}
         options={{ animation: 'slide_from_right' }}
@@ -53,11 +47,7 @@ const StackNavigation = () => {
         component={SearchScreen}
         options={{ animation: 'slide_from_right' }}
       />
-      <Stack.Screen
-        name="TempleScreen"
-        component={TempleScreen}
-        options={{ animation: 'slide_from_right' }}
-      />
+
       <Stack.Screen
         name="Notification"
         component={NotificationScreen}

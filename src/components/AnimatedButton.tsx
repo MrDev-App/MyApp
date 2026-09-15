@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Pressable,
+  TouchableOpacity,
   StyleSheet,
   ViewStyle,
   StyleProp,
@@ -18,6 +18,7 @@ type AnimatedBtnProps = {
   enableHaptics?: boolean;
   hitSlop?: Insets;
   activeOpacity?: number;
+  testID?: string;
 };
 
 const AnimatedButton: React.FC<AnimatedBtnProps> = ({
@@ -27,20 +28,20 @@ const AnimatedButton: React.FC<AnimatedBtnProps> = ({
   disabled = false,
   hitSlop = { top: 8, bottom: 8, left: 8, right: 8 },
   activeOpacity = 0.75,
+  testID,
 }) => {
   return (
-    <Pressable
+    <TouchableOpacity
+      testID={testID}
       disabled={disabled}
       onPress={onPress}
       hitSlop={hitSlop}
-      style={({ pressed }) => [
-        style,
-        disabled && styles.disabled,
-        pressed && !disabled && { opacity: activeOpacity },
-      ]}
+      activeOpacity={activeOpacity}
+      delayPressIn={0}
+      style={[style, disabled && styles.disabled]}
     >
       {children}
-    </Pressable>
+    </TouchableOpacity>
   );
 };
 

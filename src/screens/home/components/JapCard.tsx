@@ -8,6 +8,7 @@ import { fs, scale } from '@theme/sizes';
 import { Translation } from '@i18n/language';
 import AnimatedButton from '@components/AnimatedButton';
 import { Storage, STORAGE_KEYS } from '@services/storageService';
+import { navigate as rootNavigate } from '@navigation/navigationRef';
 import imagePath from '@assets/index';
 
 const JapCard = () => {
@@ -30,8 +31,24 @@ const JapCard = () => {
     }
   }, [isFocused]);
 
+  const handleStartChanting = () => {
+    if (typeof navigation?.jumpTo === 'function') {
+      navigation.jumpTo('Jap');
+      return;
+    }
+    try {
+      navigation.navigate('Jap');
+    } catch {
+      try {
+        navigation.navigate('BottomTabs', { screen: 'Jap' });
+      } catch {
+        rootNavigate('BottomTabs', { screen: 'Jap' });
+      }
+    }
+  };
+
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="jap-card">
       {/* Header Row */}
       <View style={styles.header}>
         <Text style={styles.title}>{t(Translation.JAP_TITLE)}</Text>
@@ -42,29 +59,22 @@ const JapCard = () => {
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
             <Text style={styles.label}>{t(Translation.JAP_TODAYS_COUNT)}</Text>
-            <Text style={styles.value}>{todayCount}</Text>
+            <Text style={styles.value} testID="jap-today-count">{todayCount}</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.statItem}>
             <Text style={styles.label}>
               {t(Translation.JAP_MALA_COMPLETED)}
             </Text>
-            <Text style={styles.value}>{todayMala}</Text>
+            <Text style={styles.value} testID="jap-today-mala">{todayMala}</Text>
           </View>
         </View>
 
         {/* Start Chanting Button */}
         <AnimatedButton
+          testID="start-chanting-btn"
           style={styles.chantButton}
-          onPress={() => {
-            try {
-              console.log('try jap clicked');
-              navigation.navigate('Jap');
-            } catch {
-              console.log('try jap botom clicked');
-              navigation.navigate('BottomTabs', { screen: 'Jap' });
-            }
-          }}
+          onPress={handleStartChanting}
         >
           <View
             style={{

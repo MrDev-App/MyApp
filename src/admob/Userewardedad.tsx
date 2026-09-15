@@ -9,7 +9,7 @@ import { isAdMobEnabled } from './adConfig';
 
 interface UseRewardedAdResult {
   isLoaded: boolean;
-
+  loadAd: () => void;
   show: (onReward: () => void) => void;
 }
 
@@ -27,6 +27,19 @@ export function useRewardedAd(unitId: string): UseRewardedAdResult {
 
   const [isLoaded, setIsLoaded] = useState(false);
   const onRewardCallbackRef = useRef<(() => void) | null>(null);
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const loadAd = useCallback(() => {
+    if (!adEnabled) return;
+    const rewardedAd = rewardedAdRef.current;
+    if (rewardedAd && !rewardedAd.loaded) {
+      try {
+        rewardedAd.load();
+      } catch (e) {
+        console.warn('Error initiating RewardedAd load:', e);
+      }
+    }
+  }, [adEnabled]);
 
   useEffect(() => {
     if (!adEnabled) {
@@ -39,7 +52,9 @@ export function useRewardedAd(unitId: string): UseRewardedAdResult {
 
     const unsubscribeLoaded = rewardedAd.addAdEventListener(
       RewardedAdEventType.LOADED,
-      () => setIsLoaded(true),
+      () => {
+        setIsLoaded(true);
+      },
     );
 
     const unsubscribeEarned = rewardedAd.addAdEventListener(
@@ -54,18 +69,33 @@ export function useRewardedAd(unitId: string): UseRewardedAdResult {
       () => {
         setIsLoaded(false);
         onRewardCallbackRef.current = null;
-        rewardedAd.load();
+        loadAd();
       },
     );
 
-    rewardedAd.load();
+    const unsubscribeError = rewardedAd.addAdEventListener(
+      AdEventType.ERROR,
+      error => {
+        console.warn('Rewarded ad failed to load:', error);
+        setIsLoaded(false);
+        // Auto retry loading after 4 seconds if it failed on iOS / network
+        if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = setTimeout(() => {
+          loadAd();
+        }, 4000);
+      },
+    );
+
+    loadAd();
 
     return () => {
       unsubscribeLoaded();
       unsubscribeEarned();
       unsubscribeClosed();
+      unsubscribeError();
+      if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
     };
-  }, [adEnabled]);
+  }, [adEnabled, loadAd]);
 
   const show = useCallback(
     (onReward: () => void) => {
@@ -75,15 +105,24 @@ export function useRewardedAd(unitId: string): UseRewardedAdResult {
       }
 
       const rewardedAd = rewardedAdRef.current;
-      if (!isLoaded || !rewardedAd) {
-        console.warn('Rewarded ad not loaded yet — try again in a moment.');
+      if (!rewardedAd || !rewardedAd.loaded) {
+        console.warn('Rewarded ad not loaded yet — attempting reload.');
+        setIsLoaded(false);
+        loadAd();
         return;
       }
-      onRewardCallbackRef.current = onReward;
-      rewardedAd.show();
+
+      try {
+        onRewardCallbackRef.current = onReward;
+        rewardedAd.show();
+      } catch (err) {
+        console.error('Failed to show rewarded ad:', err);
+        setIsLoaded(false);
+        loadAd();
+      }
     },
-    [isLoaded, adEnabled],
+    [adEnabled, loadAd],
   );
 
-  return { isLoaded: adEnabled ? isLoaded : true, show };
+  return { isLoaded: adEnabled ? isLoaded : true, loadAd, show };
 }

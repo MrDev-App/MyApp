@@ -4,6 +4,8 @@ import {
   Text,
   View,
   Image,
+  FlatList,
+  TouchableOpacity,
   Platform,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -13,10 +15,7 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Translation } from '@i18n/language';
 import { getNaamJapData, God } from '@services/godService';
-import {
-  AutoScrollFlatList,
-  AutoScrollItem,
-} from '@components/AutoScrollFlatList';
+import { triggerHaptic } from '@helper/helper';
 
 const MantrasCard = () => {
   const { t, i18n } = useTranslation();
@@ -53,6 +52,7 @@ const MantrasCard = () => {
   }, [naamJapData]);
 
   const handleDeityPress = (god: God) => {
+    triggerHaptic();
     navigation.navigate('MantraScreen', {
       god,
       allGods: naamJapData,
@@ -63,12 +63,12 @@ const MantrasCard = () => {
     <View style={styles.container}>
       <Text style={styles.title}>{t(Translation.MANTRAS_BY_DEITIES)}</Text>
 
-      <AutoScrollFlatList
+      <FlatList
         data={pairedGods}
+        horizontal
+        showsHorizontalScrollIndicator={false}
         keyExtractor={(_, index) => String(index)}
         contentContainerStyle={styles.listContent}
-        speed={28}
-        resumeDelayMs={1500}
         initialNumToRender={4}
         maxToRenderPerBatch={4}
         windowSize={3}
@@ -79,10 +79,11 @@ const MantrasCard = () => {
               const name =
                 currentLanguage === 'hi' ? god.hindiName : god.englishName;
               return (
-                <AutoScrollItem
+                <TouchableOpacity
                   key={god.id}
                   style={styles.godContainer}
                   onPress={() => handleDeityPress(god)}
+                  activeOpacity={0.8}
                 >
                   <View style={styles.avatarContainer}>
                     <Image source={god.image} style={styles.avatarImage} />
@@ -94,7 +95,7 @@ const MantrasCard = () => {
                   >
                     {name}
                   </Text>
-                </AutoScrollItem>
+                </TouchableOpacity>
               );
             })}
           </View>

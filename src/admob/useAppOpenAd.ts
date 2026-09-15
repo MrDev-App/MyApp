@@ -6,11 +6,9 @@ import {
   TestIds,
 } from 'react-native-google-mobile-ads';
 
-import { isAdMobEnabled } from './adConfig';
+import { isAdMobEnabled, AD_UNITS } from './adConfig';
 
-const AD_UNIT_ID = __DEV__
-  ? TestIds.APP_OPEN
-  : 'ca-app-pub-7403088686757883/2765782561';
+const AD_UNIT_ID = AD_UNITS.APP_OPEN;
 
 // ⏱️ CONFIGURATION
 const COOLDOWN_TIME_MS = 60 * 1000; // 1 minute cooldown between ads on app minimize/resume
