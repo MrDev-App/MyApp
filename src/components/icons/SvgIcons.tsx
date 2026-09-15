@@ -269,6 +269,135 @@ export const ChartBarIcon = (props: SvgIconProps) => {
   );
 };
 
+export const PlusIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 16, 2.2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M12 5v14M5 12h14" />
+    </Svg>
+  );
+};
+
+export const MinusIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 16, 2.2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M5 12h14" />
+    </Svg>
+  );
+};
+
+export const PlayIcon = (props: SvgIconProps) => {
+  const { size, color } = getIconProps(props, 20, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill={color}
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M8 5v14l11-7z" />
+    </Svg>
+  );
+};
+
+export const PauseIcon = (props: SvgIconProps) => {
+  const { size, color } = getIconProps(props, 20, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill={color}
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+    </Svg>
+  );
+};
+
+export const Rewind15Icon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 22, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M3.05 11a9 9 0 11.5 4m-.5-4v-5m0 5h5" />
+    </Svg>
+  );
+};
+
+export const Forward15Icon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 22, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M20.95 11a9 9 0 10-.5 4m.5-4v-5m0 5h-5" />
+    </Svg>
+  );
+};
+
+export const RepeatIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 18, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M17 1l4 4-4 4" />
+      <Path d="M3 11V9a4 4 0 014-4h14" />
+      <Path d="M7 23l-4-4 4-4" />
+      <Path d="M21 13v2a4 4 0 01-4 4H3" />
+    </Svg>
+  );
+};
+
+
 
 
 

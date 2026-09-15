@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -17,7 +17,19 @@ import {
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Back } from '@assets/index';
-import { CloseIcon } from '@components/icons/SvgIcons';
+import {
+  CloseIcon,
+  PlusIcon,
+  MinusIcon,
+  PlayIcon,
+  PauseIcon,
+  Rewind15Icon,
+  Forward15Icon,
+  RepeatIcon,
+} from '@components/icons/SvgIcons';
+import { Storage } from '@services/storageService';
+import { STORAGE_KEYS } from '@constants/storageKeys';
+import { triggerHaptic } from '@helper/helper';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
@@ -32,7 +44,12 @@ const DEFAULT_AARTI_CATEGORY: Category = (categoriesData.find(c =>
   c.id.toLowerCase().includes('aarti'),
 ) || categoriesData[0]) as unknown as Category;
 
-const ArtiScreen = () => {
+const MIN_FONT_SIZE = 12;
+const MAX_FONT_SIZE = 26;
+const DEFAULT_FONT_SIZE = 16;
+const DEFAULT_AARTI_DURATION = 240; // 4 minutes in seconds
+
+export const ArtiScreen = () => {
   const insets = useSafeAreaInsets();
   const safeTop = insets.top > 0 ? insets.top : scale(44);
   const safeBottom = insets.bottom > 0 ? insets.bottom : scale(16);
@@ -43,12 +60,32 @@ const ArtiScreen = () => {
   const isHindi = currentLanguage.startsWith('hi');
   const { width: windowWidth } = useWindowDimensions();
 
+  const [fontSize, setFontSize] = useState<number>(() => {
+    const saved = Storage.getNumber(STORAGE_KEYS.AARTI_FONT_SIZE);
+    return saved && saved >= MIN_FONT_SIZE && saved <= MAX_FONT_SIZE
+      ? saved
+      : DEFAULT_FONT_SIZE;
+  });
+
   const initialCategory: Category =
     (route.params?.category as Category) || DEFAULT_AARTI_CATEGORY;
 
   const [category, setCategory] = useState<Category>(initialCategory);
   const [selectedItem, setSelectedItem] = useState<CategoryItem | null>(null);
 
+  // Audio Playback & Auto-scroll State
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [isLooping, setIsLooping] = useState(false);
+  const [isAutoScroll, setIsAutoScroll] = useState(true);
+
+  const duration = DEFAULT_AARTI_DURATION;
+  const playbackTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const contentHeightRef = useRef(0);
+  const scrollViewHeightRef = useRef(0);
+
+  // Load fresh categories from service if available
   useEffect(() => {
     let isMounted = true;
     const loadFreshCategory = async () => {
@@ -70,6 +107,124 @@ const ArtiScreen = () => {
     };
   }, []);
 
+  // Playback timer ticker
+  useEffect(() => {
+    if (isPlaying) {
+      playbackTimerRef.current = setInterval(() => {
+        setCurrentTime(prev => {
+          if (prev >= duration) {
+            if (isLooping) {
+              return 0;
+            }
+            setIsPlaying(false);
+            return 0;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } else {
+      if (playbackTimerRef.current) {
+        clearInterval(playbackTimerRef.current);
+        playbackTimerRef.current = null;
+      }
+    }
+
+    return () => {
+      if (playbackTimerRef.current) {
+        clearInterval(playbackTimerRef.current);
+        playbackTimerRef.current = null;
+      }
+    };
+  }, [isPlaying, duration, isLooping]);
+
+  // Synchronized Auto-scroll while playing
+  useEffect(() => {
+    if (
+      isPlaying &&
+      isAutoScroll &&
+      contentHeightRef.current > scrollViewHeightRef.current &&
+      scrollViewHeightRef.current > 0
+    ) {
+      const maxScroll =
+        contentHeightRef.current - scrollViewHeightRef.current + scale(40);
+      const progress = currentTime / duration;
+      const targetY = progress * maxScroll;
+      scrollViewRef.current?.scrollTo({ y: targetY, animated: true });
+    }
+  }, [currentTime, isPlaying, isAutoScroll, duration]);
+
+  // Reset playback when modal is closed or opened with a new item
+  const handleOpenAarti = (item: CategoryItem) => {
+    triggerHaptic();
+    setSelectedItem(item);
+    setIsPlaying(false);
+    setCurrentTime(0);
+  };
+
+  const handleCloseModal = () => {
+    triggerHaptic();
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setSelectedItem(null);
+  };
+
+  const togglePlayPause = () => {
+    triggerHaptic();
+    setIsPlaying(prev => !prev);
+  };
+
+  const handleSeekBackward = () => {
+    triggerHaptic();
+    setCurrentTime(prev => Math.max(0, prev - 15));
+  };
+
+  const handleSeekForward = () => {
+    triggerHaptic();
+    setCurrentTime(prev => Math.min(duration, prev + 15));
+  };
+
+  const toggleLoop = () => {
+    triggerHaptic();
+    setIsLooping(prev => !prev);
+  };
+
+  const toggleAutoScroll = () => {
+    triggerHaptic();
+    setIsAutoScroll(prev => !prev);
+  };
+
+  const increaseFontSize = () => {
+    triggerHaptic();
+    setFontSize(prev => {
+      const next = Math.min(MAX_FONT_SIZE, prev + 2);
+      Storage.set(STORAGE_KEYS.AARTI_FONT_SIZE, next);
+      return next;
+    });
+  };
+
+  const decreaseFontSize = () => {
+    triggerHaptic();
+    setFontSize(prev => {
+      const next = Math.max(MIN_FONT_SIZE, prev - 2);
+      Storage.set(STORAGE_KEYS.AARTI_FONT_SIZE, next);
+      return next;
+    });
+  };
+
+  const resetFontSize = () => {
+    triggerHaptic();
+    setFontSize(DEFAULT_FONT_SIZE);
+    Storage.set(STORAGE_KEYS.AARTI_FONT_SIZE, DEFAULT_FONT_SIZE);
+  };
+
+  const formatTime = (secs: number) => {
+    const mins = Math.floor(secs / 60);
+    const remainder = Math.floor(secs % 60);
+    return `${mins.toString().padStart(2, '0')}:${remainder
+      .toString()
+      .padStart(2, '0')}`;
+  };
+
   const screenTitle = isHindi ? 'आरती संग्रह' : 'Aarti Sangrah';
   const screenDesc = isHindi
     ? category.descriptionHi ||
@@ -82,6 +237,8 @@ const ArtiScreen = () => {
   const gap = scale(12);
   const cardWidth = (windowWidth - padding * 2 - gap) / 2;
 
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
   const renderAartiItem = ({ item }: { item: CategoryItem }) => {
     const name = isHindi ? item.nameHi : item.nameEn;
     const subtitle = isHindi ? item.subtitleHi : item.subtitleEn;
@@ -90,7 +247,7 @@ const ArtiScreen = () => {
       <TouchableOpacity
         style={[styles.aartiCard, { width: cardWidth }]}
         activeOpacity={0.8}
-        onPress={() => setSelectedItem(item)}
+        onPress={() => handleOpenAarti(item)}
       >
         <View style={styles.aartiImageWrapper}>
           <Image
@@ -157,31 +314,86 @@ const ArtiScreen = () => {
         />
       </View>
 
-      {/* Full-Screen Aarti Detail Modal (Protected with SafeAreaView) */}
+      {/* Full-Screen Aarti Detail & Audio Modal */}
       <Modal
         visible={selectedItem !== null}
         animationType="slide"
         presentationStyle="fullScreen"
-        onRequestClose={() => setSelectedItem(null)}
+        onRequestClose={handleCloseModal}
       >
         <View style={[styles.modalFullScreen, { paddingTop: safeTop }]}>
           {selectedItem && (
             <View style={styles.modalBody}>
-              {/* Fixed Close Button on top right */}
-              <TouchableOpacity
-                style={styles.modalHeaderCloseBtn}
-                onPress={() => setSelectedItem(null)}
-                activeOpacity={0.7}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <CloseIcon
-                  size={scale(16)}
-                  color={colors.white}
-                  strokeWidth={2.4}
-                />
-              </TouchableOpacity>
+              {/* Top Action Bar: Font Size Adjuster (Left) & Close Button (Right) */}
+              <View style={styles.modalTopBar}>
+                <View style={styles.fontSizeControlPill}>
+                  <TouchableOpacity
+                    style={[
+                      styles.fontBtn,
+                      fontSize <= MIN_FONT_SIZE && styles.fontBtnDisabled,
+                    ]}
+                    onPress={decreaseFontSize}
+                    disabled={fontSize <= MIN_FONT_SIZE}
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  >
+                    <MinusIcon
+                      size={scale(13)}
+                      color={
+                        fontSize <= MIN_FONT_SIZE
+                          ? colors.neutralDisabled
+                          : colors.ring
+                      }
+                      strokeWidth={2.4}
+                    />
+                  </TouchableOpacity>
 
-              {/* Fixed Deity Image & Aarti Title Header */}
+                  <TouchableOpacity
+                    style={styles.fontSizeDisplayBtn}
+                    onPress={resetFontSize}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.fontSizeLabel}>A</Text>
+                    <Text style={styles.fontSizeValue}>{fontSize}</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.fontBtn,
+                      fontSize >= MAX_FONT_SIZE && styles.fontBtnDisabled,
+                    ]}
+                    onPress={increaseFontSize}
+                    disabled={fontSize >= MAX_FONT_SIZE}
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  >
+                    <PlusIcon
+                      size={scale(13)}
+                      color={
+                        fontSize >= MAX_FONT_SIZE
+                          ? colors.neutralDisabled
+                          : colors.ring
+                      }
+                      strokeWidth={2.4}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.modalHeaderCloseBtn}
+                  onPress={handleCloseModal}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <CloseIcon
+                    size={scale(16)}
+                    color={colors.white}
+                    strokeWidth={2.4}
+                  />
+                </TouchableOpacity>
+              </View>
+
+              {/* Deity Showcase & Aarti Title Header */}
               <View style={styles.modalHeaderSection}>
                 {selectedItem.image && (
                   <View style={styles.modalImageWrapper}>
@@ -208,17 +420,155 @@ const ArtiScreen = () => {
                 ) : null}
               </View>
 
-              {/* Scrollable Aarti Lyrics Card (Only this card scrolls) */}
-              <View style={[styles.lyricsCard]}>
+              {/* Scrollable Aarti Lyrics Card */}
+              <View style={styles.lyricsCard}>
                 <ScrollView
+                  ref={scrollViewRef}
                   style={styles.lyricsScrollView}
-                  contentContainerStyle={styles.lyricsScrollContent}
+                  contentContainerStyle={[
+                    styles.lyricsScrollContent,
+                    { paddingBottom: scale(140) },
+                  ]}
                   showsVerticalScrollIndicator={false}
+                  onContentSizeChange={(_, h) => {
+                    contentHeightRef.current = h;
+                  }}
+                  onLayout={e => {
+                    scrollViewHeightRef.current = e.nativeEvent.layout.height;
+                  }}
                 >
-                  <Text style={styles.modalAartiLyrics}>
+                  <Text
+                    style={[
+                      styles.modalAartiLyrics,
+                      {
+                        fontSize: fs(fontSize),
+                        lineHeight: fs(Math.round(fontSize * 1.8)),
+                      },
+                    ]}
+                  >
                     {selectedItem.textHi || selectedItem.textEn}
                   </Text>
                 </ScrollView>
+
+                {/* Floating Bottom Audio Player Dock */}
+                <View
+                  style={[
+                    styles.playerDock,
+                    { paddingBottom: safeBottom + scale(4) },
+                  ]}
+                >
+                  {/* Progress Bar & Timers */}
+                  <View style={styles.progressContainer}>
+                    <Text style={styles.timeText}>
+                      {formatTime(currentTime)}
+                    </Text>
+                    <View style={styles.progressBarTrack}>
+                      <View
+                        style={[
+                          styles.progressBarFill,
+                          { width: `${progressPercent}%` },
+                        ]}
+                      />
+                      <View
+                        style={[
+                          styles.progressBarThumb,
+                          {
+                            left: `${Math.max(
+                              0,
+                              Math.min(97, progressPercent),
+                            )}%`,
+                          },
+                        ]}
+                      />
+                    </View>
+                    <Text style={styles.timeText}>{formatTime(duration)}</Text>
+                  </View>
+
+                  {/* Audio Controls Row */}
+                  <View style={styles.controlsRow}>
+                    {/* Auto-scroll Toggle Button */}
+                    <TouchableOpacity
+                      style={[
+                        styles.sideControlBtn,
+                        isAutoScroll && styles.sideControlBtnActive,
+                      ]}
+                      onPress={toggleAutoScroll}
+                      activeOpacity={0.7}
+                    >
+                      <Text
+                        style={[
+                          styles.autoScrollText,
+                          isAutoScroll && styles.autoScrollTextActive,
+                        ]}
+                      >
+                        {isHindi ? 'ऑटो' : 'Auto'}
+                      </Text>
+                    </TouchableOpacity>
+
+                    {/* -15 Seconds Rewind */}
+                    <TouchableOpacity
+                      style={styles.seekBtn}
+                      onPress={handleSeekBackward}
+                      activeOpacity={0.7}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <Rewind15Icon
+                        size={scale(24)}
+                        color={colors.secondary}
+                        strokeWidth={2.2}
+                      />
+                      <Text style={styles.seekBadge}>15s</Text>
+                    </TouchableOpacity>
+
+                    {/* Play / Pause Main Button */}
+                    <TouchableOpacity
+                      style={styles.playPauseBtn}
+                      onPress={togglePlayPause}
+                      activeOpacity={0.85}
+                    >
+                      <View style={styles.playPauseInner}>
+                        {isPlaying ? (
+                          <PauseIcon size={scale(24)} color={colors.white} />
+                        ) : (
+                          <View style={{ marginLeft: scale(3) }}>
+                            <PlayIcon size={scale(24)} color={colors.white} />
+                          </View>
+                        )}
+                      </View>
+                    </TouchableOpacity>
+
+                    {/* +15 Seconds Forward */}
+                    <TouchableOpacity
+                      style={styles.seekBtn}
+                      onPress={handleSeekForward}
+                      activeOpacity={0.7}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <Forward15Icon
+                        size={scale(24)}
+                        color={colors.secondary}
+                        strokeWidth={2.2}
+                      />
+                      <Text style={styles.seekBadge}>15s</Text>
+                    </TouchableOpacity>
+
+                    {/* Loop / Repeat Button */}
+                    <TouchableOpacity
+                      style={[
+                        styles.sideControlBtn,
+                        isLooping && styles.sideControlBtnActive,
+                      ]}
+                      onPress={toggleLoop}
+                      activeOpacity={0.7}
+                    >
+                      <RepeatIcon
+                        size={scale(16)}
+                        color={isLooping ? colors.white : colors.secondary}
+                        strokeWidth={2.2}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
             </View>
           )}
@@ -350,11 +700,61 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
   },
-  modalHeaderCloseBtn: {
-    position: 'absolute',
-    top: scale(6),
-    right: scale(16),
+  modalTopBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: scale(16),
+    paddingTop: scale(4),
+    paddingBottom: scale(2),
     zIndex: 100,
+  },
+  fontSizeControlPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderRadius: scale(20),
+    borderWidth: 1.5,
+    borderColor: colors.ring,
+    paddingHorizontal: scale(4),
+    paddingVertical: scale(2),
+    shadowColor: colors.ring,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  fontBtn: {
+    width: scale(26),
+    height: scale(26),
+    borderRadius: scale(13),
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(251, 148, 55, 0.12)',
+  },
+  fontBtnDisabled: {
+    backgroundColor: 'transparent',
+    opacity: 0.3,
+  },
+  fontSizeDisplayBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: scale(6),
+  },
+  fontSizeLabel: {
+    fontSize: fs(12),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.ring,
+    fontWeight: '700',
+  },
+  fontSizeValue: {
+    fontSize: fs(10),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
+    fontWeight: '600',
+    marginLeft: scale(2),
+  },
+  modalHeaderCloseBtn: {
     width: scale(36),
     height: scale(36),
     borderRadius: scale(18),
@@ -365,26 +765,26 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 3,
-    elevation: 5,
+    elevation: 4,
   },
   modalHeaderSection: {
     alignItems: 'center',
-    paddingTop: scale(6),
-    paddingBottom: scale(10),
-    paddingHorizontal: scale(24),
+    paddingTop: scale(2),
+    paddingBottom: scale(8),
+    paddingHorizontal: scale(20),
   },
   modalImageWrapper: {
-    width: scale(105),
-    height: scale(105),
-    borderRadius: scale(53),
+    width: scale(96),
+    height: scale(96),
+    borderRadius: scale(48),
     overflow: 'hidden',
     borderWidth: 2.5,
     borderColor: colors.ring,
-    marginBottom: scale(8),
+    marginBottom: scale(6),
     backgroundColor: colors.primary,
     shadowColor: colors.ring,
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.25,
     shadowRadius: 6,
     elevation: 4,
   },
@@ -393,7 +793,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   modalAartiTitle: {
-    fontSize: fs(19),
+    fontSize: fs(18),
     fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
@@ -401,64 +801,162 @@ const styles = StyleSheet.create({
     marginBottom: scale(2),
   },
   modalAartiSubtitle: {
-    fontSize: fs(12.5),
+    fontSize: fs(12),
     fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     textAlign: 'center',
   },
   lyricsCard: {
     flex: 1,
-
     backgroundColor: colors.white,
-    borderTopLeftRadius: scale(20),
-    borderTopRightRadius: scale(20),
+    borderTopLeftRadius: scale(24),
+    borderTopRightRadius: scale(24),
     borderWidth: 1,
     borderColor: colors.accentOrangeBg,
     shadowColor: colors.secondary,
-    shadowOffset: { width: 0, height: scale(2) },
-    shadowOpacity: 0.05,
-    shadowRadius: scale(6),
-    elevation: 2,
+    shadowOffset: { width: 0, height: scale(-2) },
+    shadowOpacity: 0.06,
+    shadowRadius: scale(8),
+    elevation: 3,
     overflow: 'hidden',
+    position: 'relative',
   },
   lyricsScrollView: {
     flex: 1,
   },
   lyricsScrollContent: {
-    padding: scale(18),
+    paddingHorizontal: scale(20),
+    paddingTop: scale(20),
   },
   modalAartiLyrics: {
-    fontSize: fs(15),
     fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
-    lineHeight: fs(27),
   },
-  modalBottomBar: {
-    paddingHorizontal: scale(16),
-    paddingTop: scale(10),
-    paddingBottom: scale(12),
+  playerDock: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.96)',
     borderTopWidth: 1,
     borderTopColor: colors.borderSubtle,
-    backgroundColor: colors.primary,
-  },
-  modalBottomCloseBtn: {
-    width: '100%',
-    backgroundColor: colors.ring,
-    borderRadius: scale(14),
-    paddingVertical: scale(12),
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingHorizontal: scale(20),
+    paddingTop: scale(10),
     shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: scale(8),
+  },
+  timeText: {
+    fontSize: fs(10),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.neutralDisabled,
+    fontWeight: '600',
+    width: scale(36),
+    textAlign: 'center',
+  },
+  progressBarTrack: {
+    flex: 1,
+    height: scale(4),
+    borderRadius: scale(2),
+    backgroundColor: 'rgba(251, 148, 55, 0.2)',
+    marginHorizontal: scale(8),
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: scale(2),
+    backgroundColor: colors.ring,
+  },
+  progressBarThumb: {
+    position: 'absolute',
+    width: scale(10),
+    height: scale(10),
+    borderRadius: scale(5),
+    backgroundColor: colors.ring,
+    borderWidth: 1.5,
+    borderColor: colors.white,
+    shadowColor: colors.ring,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
     elevation: 3,
   },
-  modalBottomCloseText: {
-    fontSize: fs(15),
+  controlsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingHorizontal: scale(6),
+  },
+  sideControlBtn: {
+    width: scale(34),
+    height: scale(34),
+    borderRadius: scale(17),
+    backgroundColor: 'rgba(251, 148, 55, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  sideControlBtnActive: {
+    backgroundColor: colors.ring,
+    borderColor: colors.ring,
+    shadowColor: colors.ring,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  autoScrollText: {
+    fontSize: fs(10),
     fontFamily: fonts.TiroHindiRegular,
-    color: colors.white,
+    color: colors.secondary,
     fontWeight: '700',
+  },
+  autoScrollTextActive: {
+    color: colors.white,
+  },
+  seekBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    width: scale(40),
+    height: scale(40),
+  },
+  seekBadge: {
+    position: 'absolute',
+    fontSize: fs(7.5),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
+    fontWeight: '800',
+    bottom: scale(13),
+  },
+  playPauseBtn: {
+    width: scale(54),
+    height: scale(54),
+    borderRadius: scale(27),
+    backgroundColor: colors.ring,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.ring,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 6,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  playPauseInner: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
