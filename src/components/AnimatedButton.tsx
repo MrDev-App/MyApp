@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   ViewStyle,
   StyleProp,
@@ -29,15 +29,18 @@ const AnimatedButton: React.FC<AnimatedBtnProps> = ({
   activeOpacity = 0.75,
 }) => {
   return (
-    <TouchableOpacity
-      activeOpacity={activeOpacity}
+    <Pressable
       disabled={disabled}
       onPress={onPress}
-      style={[style, disabled && styles.disabled]}
       hitSlop={hitSlop}
+      style={({ pressed }) => [
+        style,
+        disabled && styles.disabled,
+        pressed && !disabled && { opacity: activeOpacity },
+      ]}
     >
       {children}
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 

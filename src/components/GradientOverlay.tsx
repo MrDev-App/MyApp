@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, ViewStyle, StyleProp } from 'react-native';
+import { StyleSheet, ViewStyle, StyleProp, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import appColors from '@theme/colors';
 
@@ -106,15 +106,16 @@ const GradientOverlay: React.FC<GradientOverlayProps> = ({
   const coords = getCoordinates(direction, start, end);
 
   return (
-    <LinearGradient
-      colors={colors}
-      start={coords.start}
-      end={coords.end}
-      style={[styles.overlay, style]}
-      pointerEvents={pointerEvents}
-    >
-      {children}
-    </LinearGradient>
+    <View pointerEvents={pointerEvents} style={[styles.overlay, style]}>
+      <LinearGradient
+        colors={colors}
+        start={coords.start}
+        end={coords.end}
+        style={StyleSheet.absoluteFill}
+      >
+        {children}
+      </LinearGradient>
+    </View>
   );
 };
 

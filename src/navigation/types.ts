@@ -24,9 +24,7 @@ export type RootStackParamList = {
   MantraScreen: { god?: any; godId?: string; allGods?: any[] };
   Mantra?: { god?: any; godId?: string; allGods?: any[] };
   ArtiScreen: { category?: any };
-  Arti?: { category?: any };
   ShlokScreen: { category?: any };
-  Shlok?: { category?: any };
 };
 
 export type BottomTabParamList = {

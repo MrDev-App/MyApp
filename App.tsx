@@ -18,9 +18,20 @@ import { useAppOpenAd } from '@admob/useAppOpenAd';
 import { isAdMobEnabled } from '@admob/adConfig';
 import colors from '@theme/colors';
 
-LogBox.ignoreLogs([
-  'Sending `onAnimatedValueUpdate` with no listeners registered.',
-]);
+// LogBox.ignoreLogs([
+//   'Sending `onAnimatedValueUpdate` with no listeners registered.',
+// ]);
+
+// const originalWarn = console.warn;
+// console.warn = (...args: any[]) => {
+//   if (
+//     typeof args[0] === 'string' &&
+//     args[0].includes('onAnimatedValueUpdate')
+//   ) {
+//     return;
+//   }
+//   originalWarn(...args);
+// };
 
 const App = () => {
   // Handles foreground ads with cooldown and auto-suppression during image picker

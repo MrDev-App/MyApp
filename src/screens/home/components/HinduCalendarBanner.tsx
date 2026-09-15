@@ -23,6 +23,7 @@ import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import imagePath, { Forward } from '@assets/index';
+import { navigate } from '@navigation/navigationRef';
 
 const HinduCalendarBanner: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -158,21 +159,22 @@ const HinduCalendarBanner: React.FC = () => {
 
   const handlePress = () => {
     try {
-      navigation.navigate('Calendar');
-    } catch {
-      try {
-        navigation.navigate('BottomTabs', { screen: 'Calendar' });
-      } catch {
-        navigation.navigate('CalendarScreen');
-      }
-    }
+      (navigation as any).navigate('Calendar');
+    } catch {}
+    try {
+      (navigation as any).navigate('BottomTabs', { screen: 'Calendar' });
+    } catch {}
+    try {
+      navigate('BottomTabs', { screen: 'Calendar' });
+    } catch {}
   };
 
   return (
     <View style={styles.outerContainer}>
       <TouchableOpacity
         style={styles.touchable}
-        activeOpacity={0.92}
+        activeOpacity={0.9}
+        delayPressIn={0}
         onPress={handlePress}
       >
         <View style={styles.cardContainer}>
@@ -241,7 +243,7 @@ const HinduCalendarBanner: React.FC = () => {
               </View>
 
               {/* Right Animated Graphic: Calendar & Glowing Diya */}
-              <View style={styles.iconColumn}>
+              <View style={styles.iconColumn} pointerEvents="none">
                 {/* Glowing breathing aura */}
                 <Animated.View style={[styles.glowAura, auraStyle]} />
 
@@ -270,7 +272,12 @@ const HinduCalendarBanner: React.FC = () => {
                   : 'Explore Complete Hindu Calendar'}
               </Text>
 
-              <View style={styles.ctaButton}>
+              <TouchableOpacity
+                style={styles.ctaButton}
+                activeOpacity={0.8}
+                delayPressIn={0}
+                onPress={handlePress}
+              >
                 <Text style={styles.ctaButtonText}>
                   {isHi ? 'कैलेंडर देखें' : 'View Calendar'}
                 </Text>
@@ -281,27 +288,30 @@ const HinduCalendarBanner: React.FC = () => {
                     stroke={colors.white}
                   />
                 </Animated.View>
-              </View>
+              </TouchableOpacity>
             </View>
 
             {/* Dynamic Animated Golden Shimmer Beam Overlay */}
-            <Animated.View
-              pointerEvents="none"
-              style={[styles.shimmerContainer, shimmerStyle]}
-            >
-              <LinearGradient
-                colors={[
-                  'rgba(255, 215, 0, 0)',
-                  'rgba(255, 225, 120, 0.1)',
-                  'rgba(255, 255, 255, 0.25)',
-                  'rgba(255, 225, 120, 0.1)',
-                  'rgba(255, 215, 0, 0)',
-                ]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.shimmerGradient}
-              />
-            </Animated.View>
+            <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+              <Animated.View
+                pointerEvents="none"
+                style={[styles.shimmerContainer, shimmerStyle]}
+              >
+                <LinearGradient
+                  pointerEvents="none"
+                  colors={[
+                    'rgba(255, 215, 0, 0)',
+                    'rgba(255, 225, 120, 0.1)',
+                    'rgba(255, 255, 255, 0.25)',
+                    'rgba(255, 225, 120, 0.1)',
+                    'rgba(255, 215, 0, 0)',
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.shimmerGradient}
+                />
+              </Animated.View>
+            </View>
           </LinearGradient>
         </View>
       </TouchableOpacity>

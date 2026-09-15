@@ -109,6 +109,7 @@ const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
               <TouchableOpacity
                 onPress={() => navigation.navigate('SeedScreen')}
                 activeOpacity={0.7}
+                delayPressIn={0}
               >
                 <Text style={styles.greetingText}>
                   {t(Translation.RADHE_RADHE)}
@@ -119,10 +120,12 @@ const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
               style={styles.bellIconView}
               onPress={handlePressBell}
               activeOpacity={0.7}
+              delayPressIn={0}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             >
               <Bell width={scale(18)} height={scale(18)} />
               {unreadCount > 0 && (
-                <View style={styles.badgeView}>
+                <View style={styles.badgeView} pointerEvents="none">
                   <Text style={styles.badgeText}>
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </Text>

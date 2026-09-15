@@ -79,6 +79,8 @@ export const HomeScreen = () => {
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          nestedScrollEnabled={true}
           contentContainerStyle={[
             styles.scrollContent,
             { paddingBottom: insets.bottom + scale(80) },

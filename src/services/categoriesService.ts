@@ -284,13 +284,21 @@ export const resolveCategoryIcon = (category: any): any => {
   const title = (category.titleEn || '').toLowerCase();
   const titleHi = category.titleHi || '';
 
-  if (title.includes('aarti') || title.includes('arti') || titleHi.includes('आरती')) {
+  if (
+    title.includes('aarti') ||
+    title.includes('arti') ||
+    titleHi.includes('आरती')
+  ) {
     return imagePath.lamp;
   }
   if (title.includes('shlok') || titleHi.includes('श्लोक')) {
     return imagePath.shlok;
   }
-  if (title.includes('stori') || title.includes('katha') || titleHi.includes('कथा')) {
+  if (
+    title.includes('stori') ||
+    title.includes('katha') ||
+    titleHi.includes('कथा')
+  ) {
     return imagePath.books;
   }
   if (title.includes('temple') || titleHi.includes('मंदिर')) {
@@ -363,7 +371,10 @@ export const getCategoriesData = async (): Promise<Category[]> => {
 
     return categoriesData;
   } catch (error) {
-    console.warn('Notice: Firestore unavailable, using local categories data:', error);
+    console.warn(
+      'Notice: Firestore unavailable, using local categories data:',
+      error,
+    );
     return categoriesData;
   }
 };

@@ -37,7 +37,7 @@ export const STORAGE_KEYS = {
   JAP_MANTRAS_CACHE: 'jap_mantras_data_cache',
   GOD_DATA_CACHE: 'god_data_cache',
   NAAM_JAP_DATA_CACHE: 'naam_jap_data_cache',
-  FESTIVALS_CACHE: 'festivals_data_cache',
+  FESTIVALS_CACHE: 'festivals_data_cache_v4',
   CATEGORIES_CACHE: 'categories_data_cache',
 } as const;
 

@@ -19,9 +19,7 @@ import { fs, scale, verticalScale } from '@theme/sizes';
 import AnimatedButton from '@components/AnimatedButton';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
-import OverlayModal, {
-  OverlayModalHandle,
-} from '@components/OverlayModal';
+import OverlayModal, { OverlayModalHandle } from '@components/OverlayModal';
 import { CloseIcon } from '@components/icons/SvgIcons';
 import imagePath from '@assets/index';
 
@@ -30,7 +28,9 @@ const ChallengeCard = () => {
   const navigation = useNavigation<any>();
   const isFocused = useIsFocused();
 
-  const started = Storage.getBoolean(STORAGE_KEYS.CHALLENGE_STARTED, false);
+  const [started, setStarted] = useState(() =>
+    Storage.getBoolean(STORAGE_KEYS.CHALLENGE_STARTED, false),
+  );
   const todayChants = Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0);
 
   const baseChants = Storage.getNumber('CHALLENGE_BASE_CHANTS', 0);
@@ -57,8 +57,11 @@ const ChallengeCard = () => {
 
   useEffect(() => {
     if (isFocused) {
+      setStarted(Storage.getBoolean(STORAGE_KEYS.CHALLENGE_STARTED, false));
       setDailyTargetGoal(Storage.getNumber('CHALLENGE_DAILY_TARGET', 108));
-      setChallengeTotalDays(Storage.getNumber(STORAGE_KEYS.CHALLENGE_TOTAL_DAYS, 21));
+      setChallengeTotalDays(
+        Storage.getNumber(STORAGE_KEYS.CHALLENGE_TOTAL_DAYS, 21),
+      );
     }
   }, [isFocused]);
 
@@ -131,6 +134,7 @@ const ChallengeCard = () => {
       Storage.set('CHALLENGE_STREAK', 1);
       Storage.set('CHALLENGE_BASE_CHANTS', todayChants);
       Storage.set('CHALLENGE_BASE_DATE', new Date().toDateString());
+      setStarted(true);
     }
     try {
       navigation.navigate('Jap');
@@ -175,6 +179,7 @@ const ChallengeCard = () => {
                   style={styles.editTargetBtn}
                   onPress={handleOpenEditModal}
                   activeOpacity={0.7}
+                  hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
                 >
                   <Text style={styles.editTargetIcon}>edit</Text>
                 </TouchableOpacity>
@@ -208,10 +213,7 @@ const ChallengeCard = () => {
           >
             {statusText}
           </Text>
-          <AnimatedButton
-            style={styles.actionButton}
-            onPress={handlePress}
-          >
+          <AnimatedButton style={styles.actionButton} onPress={handlePress}>
             <Text style={styles.actionButtonText}>
               {started ? texts.buttonView : texts.buttonStart}
             </Text>
@@ -241,6 +243,7 @@ const ChallengeCard = () => {
                   style={styles.modalCloseBtn}
                   onPress={() => targetModalRef.current?.close()}
                   activeOpacity={0.7}
+                  hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
                 >
                   <CloseIcon size={scale(16)} color={colors.mutedForeground} />
                 </TouchableOpacity>

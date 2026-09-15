@@ -11,16 +11,21 @@ import { Translation } from '@i18n/language';
 import AnimatedButton from '@components/AnimatedButton';
 import LottieView from 'lottie-react-native';
 import imagePath from '@assets/index';
+import { RootNavigationProp } from '@navigation/types';
 
 const ALLOWED_CATEGORY_IDS = new Set(['aarti', 'aartis', 'shlok', 'shlokas']);
 
 const FeaturedCategories = () => {
   const { t, i18n } = useTranslation();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<RootNavigationProp>();
   const currentLanguage = i18n.language || 'en';
 
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<Category[]>(() => {
+    return (categoriesData as Category[]).filter(cat =>
+      ALLOWED_CATEGORY_IDS.has(cat.id.toLowerCase()),
+    );
+  });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -31,28 +36,15 @@ const FeaturedCategories = () => {
           let filtered = data.filter(cat =>
             ALLOWED_CATEGORY_IDS.has(cat.id.toLowerCase()),
           );
-          if (filtered.length === 0) {
-            filtered = (categoriesData as Category[]).filter(cat =>
-              ALLOWED_CATEGORY_IDS.has(cat.id.toLowerCase()),
-            );
+          if (filtered.length > 0) {
+            setCategories(filtered);
           }
-          setCategories(filtered);
         }
       } catch (error) {
         console.error(
           'Error fetching categories in FeaturedCategories:',
           error,
         );
-        if (isMounted) {
-          const fallback = (categoriesData as Category[]).filter(cat =>
-            ALLOWED_CATEGORY_IDS.has(cat.id.toLowerCase()),
-          );
-          setCategories(fallback);
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
       }
     };
 
@@ -63,6 +55,7 @@ const FeaturedCategories = () => {
   }, []);
 
   const handleCategoryPress = (category: Category) => {
+    console.log('clicked');
     const catId = category.id.toLowerCase();
     if (catId.includes('aarti') || catId.includes('arti')) {
       navigation.navigate('ArtiScreen', { category });
@@ -110,7 +103,9 @@ const FeaturedCategories = () => {
                     />
                   )}
                 </View>
-                <Text style={styles.cardTitle} pointerEvents="none">{categoryTitle}</Text>
+                <Text style={styles.cardTitle} pointerEvents="none">
+                  {categoryTitle}
+                </Text>
               </AnimatedButton>
             );
           })}

@@ -58,8 +58,10 @@ const JapCard = () => {
           style={styles.chantButton}
           onPress={() => {
             try {
+              console.log('try jap clicked');
               navigation.navigate('Jap');
             } catch {
+              console.log('try jap botom clicked');
               navigation.navigate('BottomTabs', { screen: 'Jap' });
             }
           }}

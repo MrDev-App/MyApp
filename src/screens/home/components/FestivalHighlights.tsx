@@ -5,6 +5,7 @@ import {
   View,
   FlatList,
   TouchableOpacity,
+  Pressable,
   ImageBackground,
   Platform,
   ActivityIndicator,
@@ -17,7 +18,12 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Translation } from '@i18n/language';
 import { RootStackParamList } from '@navigation/types';
-import { getFestivalData, Festival } from '@services/festivalService';
+import { navigate } from '@navigation/navigationRef';
+import {
+  getFestivalData,
+  getLocalFestivalsFallback,
+  Festival,
+} from '@services/festivalService';
 import imagePath from '@assets/index';
 import AnimatedButton from '@components/AnimatedButton';
 import FestivalModal from '@components/FestivalModal';
@@ -28,8 +34,12 @@ const FestivalHighlights = ({ onPress }: any) => {
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language || 'en';
 
-  const [festivals, setFestivals] = useState<Festival[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [festivals, setFestivals] = useState<Festival[]>(() =>
+    getLocalFestivalsFallback(),
+  );
+  const [loading, setLoading] = useState(false);
+  const PAGE_SIZE = 10;
+  const [page, setPage] = useState(1);
   const [selectedFestival, setSelectedFestival] = useState<Festival | null>(
     null,
   );
@@ -39,15 +49,11 @@ const FestivalHighlights = ({ onPress }: any) => {
     const loadData = async () => {
       try {
         const data = await getFestivalData();
-        if (isMounted) {
+        if (isMounted && data.length > 0) {
           setFestivals(data);
         }
       } catch (error) {
         console.error('Error fetching festivals in FestivalHighlights:', error);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
       }
     };
 
@@ -56,6 +62,10 @@ const FestivalHighlights = ({ onPress }: any) => {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [festivals]);
 
   const { today, todayStart } = useMemo(() => {
     const tDate = new Date();
@@ -93,23 +103,52 @@ const FestivalHighlights = ({ onPress }: any) => {
     });
   }, [festivals, today, todayStart]);
 
+  const paginatedFestivals = useMemo(() => {
+    return filteredFestivals.slice(0, page * PAGE_SIZE);
+  }, [filteredFestivals, page]);
+
+  const handleEndReached = () => {
+    if (paginatedFestivals.length < filteredFestivals.length) {
+      setPage(prev => prev + 1);
+    }
+  };
+
+  const handlePressAll = () => {
+    try {
+      (navigation as any).navigate('Calendar');
+    } catch {}
+    try {
+      (navigation as any).navigate('BottomTabs', { screen: 'Calendar' });
+    } catch {}
+    try {
+      navigate('BottomTabs', { screen: 'Calendar' });
+    } catch {}
+  };
+
+  const renderFooter = () => {
+    if (paginatedFestivals.length >= filteredFestivals.length) {
+      return null;
+    }
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color={colors.ring} />
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{t(Translation.FESTIVAL_HIGHLIGHTS)}</Text>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={() => {
-            try {
-              navigation.navigate('Calendar');
-            } catch {
-              navigation.navigate('BottomTabs', { screen: 'Calendar' });
-            }
-          }}
-          hitSlop={12}
+        <Pressable
+          hitSlop={{ top: 16, bottom: 16, left: 24, right: 24 }}
+          style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+          onPress={handlePressAll}
         >
-          <Text style={styles.allText}>{t(Translation.ALL)}</Text>
-        </TouchableOpacity>
+          <Text style={styles.allText} pointerEvents="none">
+            {t(Translation.ALL)}
+          </Text>
+        </Pressable>
       </View>
 
       {loading ? (
@@ -120,13 +159,17 @@ const FestivalHighlights = ({ onPress }: any) => {
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
-          data={filteredFestivals}
-          keyExtractor={item => item.id}
-          initialNumToRender={4}
-          maxToRenderPerBatch={4}
-          windowSize={3}
+          keyboardShouldPersistTaps="handled"
+          data={paginatedFestivals}
+          keyExtractor={(item, index) => `${item.id}_${index}`}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={5}
           removeClippedSubviews={Platform.OS === 'android'}
           contentContainerStyle={styles.listContent}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={renderFooter}
           renderItem={({ item }) => {
             const name =
               currentLanguage === 'hi' ? item.hindiName : item.englishName;
@@ -201,6 +244,11 @@ const styles = StyleSheet.create({
   },
   loaderContainer: {
     height: scale(100),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  footerLoader: {
+    width: scale(50),
     justifyContent: 'center',
     alignItems: 'center',
   },
