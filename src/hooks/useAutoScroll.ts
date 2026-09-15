@@ -1,126 +1,269 @@
-import React, { useRef, useEffect } from 'react';
-import { FlatList } from 'react-native';
+import { useRef, useEffect, useCallback } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
+import {
+  useSharedValue,
+  useAnimatedStyle,
+  useFrameCallback,
+  withDecay,
+  cancelAnimation,
+  runOnJS,
+} from 'react-native-reanimated';
+import { Gesture } from 'react-native-gesture-handler';
 
-export const useAutoScroll = (
-  listRef: React.RefObject<FlatList<any> | null>,
-  contentWidth: number,
-  containerWidth: number,
-  speed = 40, // Pixels per second
-  isPausedRef?: React.MutableRefObject<boolean>,
-  pauseAtEnds = 1000, // Milliseconds to pause at ends before reversing
+export interface UseAutoScrollOptions {
+  contentWidth: number;
+  containerWidth: number;
+  speed?: number; // Pixels per second (default 32)
+  pauseAtEnds?: number; // Milliseconds to pause at ends (default 1500)
+  resumeDelayMs?: number; // Milliseconds to wait before resuming after drag (default 1500)
+  isExternalPaused?: boolean;
+}
+
+/**
+ * Transform-based UI-Thread Auto-Scrolling Hook using Reanimated & Gesture Handler.
+ *
+ * Why this fixes iOS button blocking:
+ * - On iOS, native UIScrollView puts UIKit into a "scroll-tracking" mode that intercepts
+ *   and drops touches across the entire window while contentOffset is changing.
+ * - By animating `translateX` on an Animated.View instead of scrolling a UIScrollView,
+ *   iOS UIKit never enters scroll-tracking mode. All modal buttons, cards, and screen
+ *   buttons receive taps on the first touch with zero delay.
+ * - Integrates withDecay and PanGesture for full 120Hz native momentum fling and rubber-band physics.
+ */
+export const useAutoScroll = ({
+  contentWidth,
+  containerWidth,
+  speed = 32,
+  pauseAtEnds = 1500,
+  resumeDelayMs = 1500,
   isExternalPaused = false,
-) => {
-  const scrollOffsetRef = useRef(0);
-  const directionRef = useRef<1 | -1>(1); // 1 = forward (right to left), -1 = backward (left to right)
-  const animationFrameId = useRef<number | null>(null);
-  const lastTimeRef = useRef<number | null>(null);
-  const edgePauseUntilRef = useRef<number | null>(null);
+}: UseAutoScrollOptions) => {
+  const isFocused = useIsFocused();
+  const isFocusedRef = useRef(isFocused);
+  isFocusedRef.current = isFocused;
 
-  // Expose sync offset for manual scrolling/touch events
-  const syncOffset = (offset: number, direction?: 1 | -1) => {
-    const maxScroll = Math.max(0, contentWidth - containerWidth);
-    scrollOffsetRef.current = Math.max(0, Math.min(offset, maxScroll));
-    edgePauseUntilRef.current = null;
+  const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    if (direction !== undefined) {
-      directionRef.current = direction;
-    } else if (scrollOffsetRef.current >= maxScroll) {
-      directionRef.current = -1;
-    } else if (scrollOffsetRef.current <= 0) {
-      directionRef.current = 1;
-    }
-  };
+  // Shared values on the UI thread
+  const translateX = useSharedValue(0);
+  const startX = useSharedValue(0);
+  const direction = useSharedValue<1 | -1>(1); // 1 = forward (decreasing translateX), -1 = backward (increasing translateX)
+  const edgePauseUntil = useSharedValue(0);
+  const maxScroll = useSharedValue(0);
+  const speedShared = useSharedValue(speed);
+  const pauseAtEndsShared = useSharedValue(pauseAtEnds);
+  const isPaused = useSharedValue(false);
+  const isDragging = useSharedValue(false);
+  const isDecaying = useSharedValue(false);
+  const isExternalPausedShared = useSharedValue(isExternalPaused);
+
+  // Sync props to shared values
+  const maxScrollCalculated = Math.max(0, contentWidth - containerWidth);
+  useEffect(() => {
+    maxScroll.value = maxScrollCalculated;
+  }, [maxScrollCalculated, maxScroll]);
 
   useEffect(() => {
-    // If paused externally (e.g. modal is open), cancel animation frame completely for 100% optimization!
-    if (isExternalPaused) {
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-        animationFrameId.current = null;
+    speedShared.value = speed;
+  }, [speed, speedShared]);
+
+  useEffect(() => {
+    pauseAtEndsShared.value = pauseAtEnds;
+  }, [pauseAtEnds, pauseAtEndsShared]);
+
+  useEffect(() => {
+    isExternalPausedShared.value = isExternalPaused;
+  }, [isExternalPaused, isExternalPausedShared]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: translateX.value }],
+    };
+  });
+
+  const restartAutoScrollAfterDelay = useCallback(
+    (delayMs = resumeDelayMs) => {
+      if (resumeTimerRef.current) {
+        clearTimeout(resumeTimerRef.current);
+        resumeTimerRef.current = null;
       }
-      lastTimeRef.current = null;
-      return;
-    }
 
-    // Start auto scroll only if content exceeds the container
-    if (contentWidth <= containerWidth || containerWidth === 0) {
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-        animationFrameId.current = null;
-      }
-      return;
-    }
-
-    const maxScroll = contentWidth - containerWidth;
-
-    const animate = (time: number) => {
-      if (lastTimeRef.current !== null) {
-        const delta = (time - lastTimeRef.current) / 1000;
-
-        // Advance scroll offset if not paused by touch
-        if (!isPausedRef?.current) {
-          // Check if currently resting at an edge
-          if (edgePauseUntilRef.current !== null) {
-            if (time < edgePauseUntilRef.current) {
-              lastTimeRef.current = time;
-              animationFrameId.current = requestAnimationFrame(animate);
-              return;
-            }
-            edgePauseUntilRef.current = null;
-          }
-
-          const nextOffset =
-            scrollOffsetRef.current + directionRef.current * speed * delta;
-
-          // Reached end -> reverse direction to scroll back (left to right)
-          if (nextOffset >= maxScroll) {
-            scrollOffsetRef.current = maxScroll;
-            directionRef.current = -1;
-            if (pauseAtEnds > 0) {
-              edgePauseUntilRef.current = time + pauseAtEnds;
-            }
-          } else if (nextOffset <= 0) {
-            // Reached beginning -> reverse direction to scroll forward (right to left)
-            scrollOffsetRef.current = 0;
-            directionRef.current = 1;
-            if (pauseAtEnds > 0) {
-              edgePauseUntilRef.current = time + pauseAtEnds;
-            }
-          } else {
-            scrollOffsetRef.current = nextOffset;
-          }
-
-          listRef.current?.scrollToOffset({
-            offset: scrollOffsetRef.current,
-            animated: false,
-          });
+      resumeTimerRef.current = setTimeout(() => {
+        if (
+          isFocusedRef.current &&
+          !isExternalPausedShared.value &&
+          maxScroll.value > 0
+        ) {
+          isPaused.value = false;
+          isDragging.value = false;
+          isDecaying.value = false;
         }
+      }, delayMs);
+    },
+    [
+      isDecaying,
+      isDragging,
+      isExternalPausedShared,
+      isPaused,
+      maxScroll,
+      resumeDelayMs,
+    ],
+  );
+
+  // Frame callback for continuous auto-scrolling
+  useFrameCallback(frameInfo => {
+    'worklet';
+    if (
+      isExternalPausedShared.value ||
+      isPaused.value ||
+      isDragging.value ||
+      isDecaying.value ||
+      maxScroll.value <= 0
+    ) {
+      return;
+    }
+
+    const dtMs = frameInfo.timeSincePreviousFrame;
+    if (dtMs === null || dtMs === undefined || dtMs <= 0) {
+      return;
+    }
+
+    const delta = Math.min(dtMs / 1000, 0.1);
+    const currentTime = frameInfo.timestamp;
+
+    // Handle edge pause
+    if (edgePauseUntil.value > 0) {
+      if (currentTime < edgePauseUntil.value) {
+        return;
       }
+      edgePauseUntil.value = 0;
+    }
 
-      lastTimeRef.current = time;
-      animationFrameId.current = requestAnimationFrame(animate);
-    };
+    const max = maxScroll.value;
+    let next = translateX.value - direction.value * speedShared.value * delta;
 
-    animationFrameId.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-        animationFrameId.current = null;
+    if (next <= -max) {
+      next = -max;
+      translateX.value = -max;
+      direction.value = -1; // reverse towards 0
+      if (pauseAtEndsShared.value > 0) {
+        edgePauseUntil.value = currentTime + pauseAtEndsShared.value;
       }
-      lastTimeRef.current = null;
-    };
+    } else if (next >= 0) {
+      next = 0;
+      translateX.value = 0;
+      direction.value = 1; // reverse towards -max
+      if (pauseAtEndsShared.value > 0) {
+        edgePauseUntil.value = currentTime + pauseAtEndsShared.value;
+      }
+    } else {
+      translateX.value = next;
+    }
+  });
+
+  // Pan gesture for finger dragging with native momentum physics
+  const panGesture = Gesture.Pan()
+    .activeOffsetX([-8, 8])
+    .failOffsetY([-12, 12])
+    .onBegin(() => {
+      'worklet';
+      isDragging.value = true;
+      isDecaying.value = false;
+      cancelAnimation(translateX);
+      startX.value = translateX.value;
+    })
+    .onUpdate(e => {
+      'worklet';
+      const max = maxScroll.value;
+      let newX = startX.value + e.translationX;
+      if (newX > 0) {
+        newX = newX * 0.25;
+      } else if (newX < -max) {
+        newX = -max + (newX - -max) * 0.25;
+      }
+      translateX.value = newX;
+    })
+    .onEnd(e => {
+      'worklet';
+      isDragging.value = false;
+      const max = maxScroll.value;
+
+      isDecaying.value = true;
+      translateX.value = withDecay(
+        {
+          velocity: e.velocityX,
+          clamp: [-max, 0],
+          rubberBandEffect: true,
+        },
+        finished => {
+          'worklet';
+          if (finished) {
+            isDecaying.value = false;
+            if (e.velocityX < -50) {
+              direction.value = 1;
+            } else if (e.velocityX > 50) {
+              direction.value = -1;
+            }
+            runOnJS(restartAutoScrollAfterDelay)(resumeDelayMs);
+          }
+        },
+      );
+    });
+
+  // Focus management
+  useEffect(() => {
+    if (!isFocused) {
+      isPaused.value = true;
+      if (resumeTimerRef.current) {
+        clearTimeout(resumeTimerRef.current);
+        resumeTimerRef.current = null;
+      }
+    } else if (!isExternalPaused && maxScroll.value > 0) {
+      restartAutoScrollAfterDelay(800);
+    }
   }, [
-    contentWidth,
-    containerWidth,
-    speed,
-    listRef,
-    isPausedRef,
-    pauseAtEnds,
+    isFocused,
     isExternalPaused,
+    isPaused,
+    maxScroll,
+    restartAutoScrollAfterDelay,
   ]);
 
-  return { syncOffset, directionRef };
+  // AppState management
+  useEffect(() => {
+    const sub = AppState.addEventListener(
+      'change',
+      (nextState: AppStateStatus) => {
+        if (nextState !== 'active') {
+          isPaused.value = true;
+          if (resumeTimerRef.current) {
+            clearTimeout(resumeTimerRef.current);
+            resumeTimerRef.current = null;
+          }
+        } else if (
+          isFocusedRef.current &&
+          !isExternalPausedShared.value &&
+          maxScroll.value > 0
+        ) {
+          restartAutoScrollAfterDelay(800);
+        }
+      },
+    );
+    return () => sub.remove();
+  }, [
+    isExternalPausedShared,
+    isPaused,
+    maxScroll,
+    restartAutoScrollAfterDelay,
+  ]);
+
+  return {
+    translateX,
+    animatedStyle,
+    panGesture,
+    restartAutoScrollAfterDelay,
+  };
 };
 
 export default useAutoScroll;

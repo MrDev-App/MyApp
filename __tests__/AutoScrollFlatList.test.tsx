@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { render, fireEvent } from '@testing-library/react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AutoScrollFlatList, AutoScrollItem } from '../src/components/AutoScrollFlatList';
 
 jest.mock('@react-navigation/native', () => ({
@@ -20,15 +21,17 @@ describe('AutoScrollFlatList', () => {
     ];
 
     const { getByText } = await render(
-      <AutoScrollFlatList
-        data={mockData}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <AutoScrollItem onPress={() => onPressItem(item)}>
-            <Text>{item.title}</Text>
-          </AutoScrollItem>
-        )}
-      />,
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <AutoScrollFlatList
+          data={mockData}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => (
+            <AutoScrollItem onPress={() => onPressItem(item)}>
+              <Text>{item.title}</Text>
+            </AutoScrollItem>
+          )}
+        />
+      </GestureHandlerRootView>,
     );
 
     const firstItem = getByText('Item 1');
@@ -49,27 +52,29 @@ describe('AutoScrollFlatList', () => {
     ];
 
     const ScreenWithAutoScrollAndButtons = () => (
-      <View>
-        <TouchableOpacity
-          testID="jap-card-button"
-          onPress={onExternalButtonClick}
-        >
-          <Text>Start Naam Jap</Text>
-        </TouchableOpacity>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <View>
+          <TouchableOpacity
+            testID="jap-card-button"
+            onPress={onExternalButtonClick}
+          >
+            <Text>Start Naam Jap</Text>
+          </TouchableOpacity>
 
-        <AutoScrollFlatList
-          data={mockDeities}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              testID={`deity-${item.id}`}
-              onPress={() => onDeityClick(item)}
-            >
-              <Text>{item.name}</Text>
-            </TouchableOpacity>
-          )}
-        />
-      </View>
+          <AutoScrollFlatList
+            data={mockDeities}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                testID={`deity-${item.id}`}
+                onPress={() => onDeityClick(item)}
+              >
+                <Text>{item.name}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      </GestureHandlerRootView>
     );
 
     const { getByTestId } = await render(<ScreenWithAutoScrollAndButtons />);

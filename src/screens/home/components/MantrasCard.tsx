@@ -16,6 +16,7 @@ import { fs, scale } from '@theme/sizes';
 import { Translation } from '@i18n/language';
 import { getNaamJapData, God } from '@services/godService';
 import { triggerHaptic } from '@helper/helper';
+import AutoScrollFlatList from '@components/AutoScrollFlatList';
 
 const MantrasCard = () => {
   const { t, i18n } = useTranslation();
@@ -63,7 +64,7 @@ const MantrasCard = () => {
     <View style={styles.container}>
       <Text style={styles.title}>{t(Translation.MANTRAS_BY_DEITIES)}</Text>
 
-      <FlatList
+      <AutoScrollFlatList
         data={pairedGods}
         horizontal
         showsHorizontalScrollIndicator={false}
