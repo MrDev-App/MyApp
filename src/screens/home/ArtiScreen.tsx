@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -15,7 +15,6 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
 import { Back } from '@assets/index';
 import {
   CloseIcon,
@@ -40,6 +39,8 @@ import {
 } from '@services/categoriesService';
 import { categoriesData } from '@constants/categoriesData';
 
+import { useAppLanguage } from '@hooks';
+
 const DEFAULT_AARTI_CATEGORY: Category = (categoriesData.find(c =>
   c.id.toLowerCase().includes('aarti'),
 ) || categoriesData[0]) as unknown as Category;
@@ -55,9 +56,7 @@ export const ArtiScreen = () => {
   const safeBottom = insets.bottom > 0 ? insets.bottom : scale(16);
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { i18n } = useTranslation();
-  const currentLanguage = i18n.language || 'en';
-  const isHindi = currentLanguage.startsWith('hi');
+  const { isHindi } = useAppLanguage();
   const { width: windowWidth } = useWindowDimensions();
 
   const [fontSize, setFontSize] = useState<number>(() => {
@@ -97,7 +96,7 @@ export const ArtiScreen = () => {
         if (freshAarti && isMounted) {
           setCategory(freshAarti);
         }
-      } catch (e) {
+      } catch {
         // Fallback to initial category
       }
     };

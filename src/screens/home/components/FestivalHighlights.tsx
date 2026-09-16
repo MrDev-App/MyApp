@@ -4,15 +4,14 @@ import {
   Text,
   View,
   FlatList,
-  TouchableOpacity,
   Pressable,
   ImageBackground,
   Platform,
   ActivityIndicator,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useAppLanguage } from '@hooks';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
@@ -31,8 +30,7 @@ import FestivalModal from '@components/FestivalModal';
 const FestivalHighlights = ({ onPress }: any) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { t, i18n } = useTranslation();
-  const currentLanguage = i18n.language || 'en';
+  const { t, currentLanguage } = useAppLanguage();
 
   const [festivals, setFestivals] = useState<Festival[]>(() =>
     getLocalFestivalsFallback(),
@@ -54,6 +52,10 @@ const FestivalHighlights = ({ onPress }: any) => {
         }
       } catch (error) {
         console.error('Error fetching festivals in FestivalHighlights:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -187,7 +189,7 @@ const FestivalHighlights = ({ onPress }: any) => {
                   if (onPress) onPress(item);
                 }}
               >
-                <View style={{ flex: 1 }} pointerEvents="none">
+                <View style={{ flex: 1 }}>
                   <ImageBackground
                     source={bgImage}
                     style={styles.card}

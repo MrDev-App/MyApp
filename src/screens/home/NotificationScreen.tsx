@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   FlatList,
   Platform,
-  Vibration,
   StatusBar,
   ScrollView,
 } from 'react-native';
@@ -15,13 +14,13 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
 import Animated, { FadeInDown, Layout } from 'react-native-reanimated';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { Back } from '@assets/index';
-import GradientBackground from '@components/GradientBackground';
+import { Back } from '@assets';
+import { GradientBackground } from '@components';
+import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import {
   NotificationStorage,
@@ -33,10 +32,7 @@ type FilterType = 'all' | 'sadhana' | 'festival' | 'wisdom';
 const NotificationScreen = () => {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
-  const { t, i18n } = useTranslation();
-  const currentLanguage = (i18n.language || 'en').substring(0, 2) as
-    | 'en'
-    | 'hi';
+  const { t, lang: currentLanguage } = useAppLanguage();
 
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');

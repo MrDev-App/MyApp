@@ -9,7 +9,6 @@ import {
   LayoutAnimation,
   Image,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -18,6 +17,7 @@ import Animated, {
   Easing,
   withSequence,
 } from 'react-native-reanimated';
+import { useAppLanguage } from '@hooks';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
@@ -44,17 +44,16 @@ import { Storage, STORAGE_KEYS } from '@services/storageService';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { RootNavigationProp } from '@navigation/types';
 import { triggerHaptic } from '@helper/helper';
-import BannerAdComponent from '@admob/Banneradcomponent';
-import { AD_UNITS } from '@admob/adConfig';
+import { BannerAdComponent } from '@admob';
 import { ResetIcon, ZapIcon, ChartBarIcon } from '@components/icons/SvgIcons';
+import TempleBell from '@components/TempleBell';
 
 const TOTAL_BEADS = 108;
 
 const JapScreen = () => {
   const navigation = useNavigation<RootNavigationProp>();
   const insets = useSafeAreaInsets();
-  const { t, i18n } = useTranslation();
-  const currentLanguage = (i18n.language || 'en') as 'en' | 'hi';
+  const { t, currentLanguage } = useAppLanguage();
 
   const [defaultMantras, setDefaultMantras] = useState<MantraSelectorItem[]>([
     DEFAULT_MANTRA,

@@ -5,11 +5,9 @@ import LinearGradient from 'react-native-linear-gradient';
 import colors from '@theme/colors';
 import { CoverFrontViewProps } from './FlipBookCover.types';
 import { styles } from './FlipBookCover.styles';
-import { getStrings } from './FlipBookCover.strings';
 
 export const CoverFrontView: React.FC<CoverFrontViewProps> = React.memo(
-  ({ story, title, subtitle, category, currentLang = 'hi', onOpenBook }) => {
-    const strings = getStrings(currentLang);
+  ({ story, title, subtitle, category, onOpenBook }) => {
     const coverImageSource = story?.image
       ? Array.isArray(story.image)
         ? story.image[0]

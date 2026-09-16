@@ -265,8 +265,8 @@ export const getFestivalData = async (): Promise<Festival[]> => {
 
     storage.set(FESTIVAL_DATA_CACHE_KEY, JSON.stringify(localList));
     return localList;
-  } catch (error) {
-    console.warn(
+  } catch {
+    console.log(
       'Notice: Firestore unavailable, using local festival data fallback',
     );
     return getLocalFestivalsFallback();

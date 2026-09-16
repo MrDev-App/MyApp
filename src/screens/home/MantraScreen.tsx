@@ -8,14 +8,11 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
-import BlurBackdrop from '@components/BlurBackdrop';
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import { Back } from '@assets/index';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
@@ -23,15 +20,16 @@ import { God, GodMantra } from '@services/godService';
 import {
   AutoScrollFlatList,
   AutoScrollItem,
-} from '@components/AutoScrollFlatList';
+  BlurBackdrop,
+  ScreenHeader,
+} from '@components';
+import { useAppLanguage } from '@hooks';
 
 const MantraScreen = () => {
   const insets = useSafeAreaInsets();
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { i18n } = useTranslation();
-  const currentLanguage = i18n.language || 'en';
-  const isHindi = currentLanguage.startsWith('hi');
+  const { isHindi } = useAppLanguage();
 
   const initialGod: God | undefined = route.params?.god;
   const allGods: God[] =
@@ -76,25 +74,15 @@ const MantraScreen = () => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.8}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Back width={scale(14)} height={scale(14)} stroke={colors.white} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle} numberOfLines={1}>
-            {godName
+        <ScreenHeader
+          title={
+            godName
               ? `${godName} ${isHindi ? 'मंत्र' : 'Mantras'}`
               : isHindi
               ? 'मंत्र संग्रह'
-              : 'Sacred Mantras'}
-          </Text>
-          <View style={{ width: scale(34) }} />
-        </View>
+              : 'Sacred Mantras'
+          }
+        />
 
         <ScrollView
           showsVerticalScrollIndicator={false}

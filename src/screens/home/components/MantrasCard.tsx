@@ -4,12 +4,11 @@ import {
   Text,
   View,
   Image,
-  FlatList,
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
+import { useAppLanguage } from '@hooks';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
@@ -19,9 +18,8 @@ import { triggerHaptic } from '@helper/helper';
 import AutoScrollFlatList from '@components/AutoScrollFlatList';
 
 const MantrasCard = () => {
-  const { t, i18n } = useTranslation();
+  const { t, currentLanguage } = useAppLanguage();
   const navigation = useNavigation<any>();
-  const currentLanguage = i18n.language || 'en';
 
   const [naamJapData, setNaamJapData] = useState<God[]>([]);
 

@@ -6,7 +6,6 @@ import {
   BOOK_WIDTH,
   BOOK_HEIGHT,
   GOLD_ACCENT,
-  GOLD_BORDER,
 } from './FlipBookCover.constants';
 
 export const styles = StyleSheet.create({

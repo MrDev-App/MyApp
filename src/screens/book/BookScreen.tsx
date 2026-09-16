@@ -11,8 +11,8 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useAppLanguage } from '@hooks';
 
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
@@ -24,21 +24,19 @@ import ComicShelf from './components/ComicShelf';
 import BookSkeleton from './components/BookSkeleton';
 import { SearchIcon } from '@components/icons/SvgIcons';
 import colors from '@theme/colors';
-import { useRewardedAd } from '@admob/Userewardedad';
-import { AD_UNITS } from '@admob/adConfig';
 import {
+  useRewardedAd,
+  AD_UNITS,
   isBookUnlockedToday,
   markBookUnlockedToday,
-} from '@admob/Bookunlockservice';
-
+  UnlockAdModal,
+} from '@admob';
 import { triggerHaptic } from '@helper/helper';
-import UnlockAdModal from '@admob/Unlockadmodal';
 import { RootNavigationProp } from '@navigation/types';
 
 const BookScreen = () => {
   const insets = useSafeAreaInsets();
-  const { t, i18n } = useTranslation();
-  const currentLang = (i18n.language === 'hi' ? 'hi' : 'en') as 'en' | 'hi';
+  const { t, currentLanguage: currentLang } = useAppLanguage();
   const navigation = useNavigation<RootNavigationProp>();
 
   const [loading, setLoading] = useState(true);

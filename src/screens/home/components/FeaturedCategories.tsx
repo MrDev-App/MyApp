@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, ActivityIndicator } from 'react-native';
-import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
+import { useAppLanguage } from '@hooks';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
@@ -16,9 +16,8 @@ import { RootNavigationProp } from '@navigation/types';
 const ALLOWED_CATEGORY_IDS = new Set(['aarti', 'aartis', 'shlok', 'shlokas']);
 
 const FeaturedCategories = () => {
-  const { t, i18n } = useTranslation();
+  const { t, currentLanguage } = useAppLanguage();
   const navigation = useNavigation<RootNavigationProp>();
-  const currentLanguage = i18n.language || 'en';
 
   const [categories, setCategories] = useState<Category[]>(() => {
     return (categoriesData as Category[]).filter(cat =>
@@ -45,6 +44,10 @@ const FeaturedCategories = () => {
           'Error fetching categories in FeaturedCategories:',
           error,
         );
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 

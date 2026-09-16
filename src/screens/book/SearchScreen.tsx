@@ -26,45 +26,20 @@ import { fs, scale } from '@theme/sizes';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 import { AllBooks } from '@constants/storiesData';
-import GradientBackground from '@components/GradientBackground';
+import { GradientBackground } from '@components';
 import { Translation } from '@i18n/language';
 import {
   SearchIcon,
   HeartIcon,
   BackIcon as Back,
 } from '@components/icons/SvgIcons';
-
-// Localization
-
-// Haptic feedback helper
-const triggerHaptic = (type: string = 'impactLight') => {
-  if (Platform.OS === 'android') {
-    try {
-      const HapticFeedback = require('native-haptic-feedback').default;
-      HapticFeedback.trigger(type, {
-        enableVibrateFallback: true,
-        ignoreAndroidSystemSettings: false,
-      });
-    } catch (e) {
-      console.log('Haptic error:', e);
-    }
-  } else {
-    // iOS vibration
-    if (type === 'impactHeavy') {
-      const Vibration = require('react-native').Vibration;
-      Vibration.vibrate(40);
-    } else {
-      const Vibration = require('react-native').Vibration;
-      Vibration.vibrate(10);
-    }
-  }
-};
+import { triggerHaptic } from '@utils';
+import { useAppLanguage } from '@hooks';
 
 const SearchScreen = () => {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
-  const { t, i18n } = useTranslation();
-  const currentLang = (i18n.language === 'hi' ? 'hi' : 'en') as 'en' | 'hi';
+  const { t, lang: currentLang } = useAppLanguage();
   const labels = {
     searchPlaceholder: t(Translation.BOOK_SEARCH_PLACEHOLDER),
     noResults: t(Translation.BOOK_NO_STORIES_FOUND),

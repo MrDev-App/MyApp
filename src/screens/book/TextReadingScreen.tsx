@@ -9,7 +9,7 @@ import {
 import { triggerHaptic } from '@helper/helper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { useAppLanguage } from '@hooks';
 
 import { findStoryById, TextBooks } from '@constants/storiesData';
 import { Storage } from '@services/storageService';
@@ -63,8 +63,7 @@ const THEME_CONFIGS = {
 export const TextReadingScreen = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { i18n } = useTranslation();
-  const currentLang = (i18n.language === 'hi' ? 'hi' : 'en') as 'en' | 'hi';
+  const { currentLanguage: currentLang } = useAppLanguage();
 
   const { storyId } = route.params || {};
   const story = useMemo(() => {
@@ -80,12 +79,9 @@ export const TextReadingScreen = () => {
     return 'dark';
   });
 
-  const [fontSize, setFontSize] = useState<number>(15);
-
+  const [fontSize] = useState<number>(15);
   const [isBookmarked, setIsBookmarked] = useState(false);
-
-  const [readingProgress, setReadingProgress] = useState(0);
-  const [pageInfo, setPageInfo] = useState<{ current: number; total: number }>({
+  const [_pageInfo, setPageInfo] = useState<{ current: number; total: number }>({
     current: 0,
     total: story?.pages?.length || 1,
   });

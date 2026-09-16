@@ -4,11 +4,16 @@
     "types": ["jest"],
     "baseUrl": ".",
     "paths": {
+      "@admob": ["src/admob/index"],
       "@admob/*": ["src/admob/*"],
+      "@assets": ["src/assets/index"],
       "@assets/*": ["src/assets/*"],
+      "@components": ["src/components/index"],
       "@components/*": ["src/components/*"],
       "@constants/*": ["src/constants/*"],
+      "@helper": ["src/helper/helper"],
       "@helper/*": ["src/helper/*"],
+      "@hooks": ["src/hooks/index"],
       "@hooks/*": ["src/hooks/*"],
       "@i18n/*": ["src/i18n/*"],
       "@navigation/*": ["src/navigation/*"],
@@ -16,6 +21,7 @@
       "@services/*": ["src/services/*"],
       "@theme/*": ["src/theme/*"],
       "@types/*": ["src/types/*"],
+      "@utils": ["src/utils/index"],
       "@utils/*": ["src/utils/*"]
     }
   },

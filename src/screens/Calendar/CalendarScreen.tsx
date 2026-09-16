@@ -9,7 +9,7 @@ import {
   Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { useAppLanguage } from '@hooks';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -38,7 +38,7 @@ import {
   dayNamesEn,
 } from '@constants/calendarData';
 
-LocaleConfig.locales['hi'] = {
+LocaleConfig.locales.hi = {
   monthNames: monthsHi,
   monthNamesShort: monthsHi,
   dayNames: dayNamesHi,
@@ -46,7 +46,7 @@ LocaleConfig.locales['hi'] = {
   today: 'आज',
 };
 
-LocaleConfig.locales['en'] = {
+LocaleConfig.locales.en = {
   monthNames: monthsEn,
   monthNamesShort: monthsEn,
   dayNames: dayNamesEn,
@@ -57,8 +57,7 @@ LocaleConfig.locales['en'] = {
 const CalendarScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
-  const { i18n } = useTranslation();
-  const currentLanguage = (i18n.language || 'en').substring(0, 2);
+  const { currentLanguage } = useAppLanguage();
 
   // Synchronously update the calendar locale configuration during the render phase
   LocaleConfig.defaultLocale = currentLanguage;
@@ -222,7 +221,7 @@ const CalendarScreen = () => {
                 {tithi ? (
                   <View style={styles.tithiRow}>
                     <Image
-                      source={imagePath.sakura}
+                      source={imagePath.lotus}
                       style={styles.sakuraIcon}
                     />
                     <Text style={styles.cardFestivalTithi} numberOfLines={1}>

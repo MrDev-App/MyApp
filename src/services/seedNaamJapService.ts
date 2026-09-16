@@ -4,7 +4,7 @@ import {
   writeBatch,
   Timestamp,
 } from '@react-native-firebase/firestore';
-import { naamJapData, NaamJapItem } from '@constants/naamJapData';
+import { naamJapData } from '@constants/naamJapData';
 import { clearNaamJapDataCache } from './godService';
 import { uploadLocalImage } from './seedService';
 

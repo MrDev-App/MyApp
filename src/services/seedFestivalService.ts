@@ -4,7 +4,7 @@ import {
   writeBatch,
   Timestamp,
 } from '@react-native-firebase/firestore';
-import { CALENDAR_2026, Festival2026 } from '@constants/Calendar_2026';
+import { CALENDAR_2026 } from '@constants/Calendar_2026';
 import { clearFestivalDataCache } from './festivalService';
 
 export interface SeedFestivalOptions {

@@ -9,14 +9,11 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
-import BlurBackdrop from '@components/BlurBackdrop';
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import { Back } from '@assets/index';
+import { useRoute } from '@react-navigation/native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
@@ -26,6 +23,8 @@ import {
   getCategoriesData,
 } from '@services/categoriesService';
 import { categoriesData } from '@constants/categoriesData';
+import { BlurBackdrop, ScreenHeader } from '@components';
+import { useAppLanguage } from '@hooks';
 
 const DEFAULT_SHLOK_CATEGORY: Category = (categoriesData.find(c =>
   c.id.toLowerCase().includes('shlok'),
@@ -36,10 +35,7 @@ const DEFAULT_SHLOK_CATEGORY: Category = (categoriesData.find(c =>
 const ShlokScreen = () => {
   const insets = useSafeAreaInsets();
   const route = useRoute<any>();
-  const navigation = useNavigation<any>();
-  const { i18n } = useTranslation();
-  const currentLanguage = i18n.language || 'en';
-  const isHindi = currentLanguage.startsWith('hi');
+  const { isHindi } = useAppLanguage();
 
   const initialCategory: Category =
     (route.params?.category as Category) || DEFAULT_SHLOK_CATEGORY;
@@ -58,7 +54,7 @@ const ShlokScreen = () => {
         if (freshShlok && isMounted) {
           setCategory(freshShlok);
         }
-      } catch (e) {
+      } catch {
         // Fallback
       }
     };
@@ -231,21 +227,7 @@ const ShlokScreen = () => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        {/* Top Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.8}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Back width={scale(14)} height={scale(14)} stroke={colors.white} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle} numberOfLines={1}>
-            {screenTitle}
-          </Text>
-          <View style={{ width: scale(34) }} />
-        </View>
+        <ScreenHeader title={screenTitle} />
 
         {/* Description Banner */}
         {screenDesc ? (
@@ -313,37 +295,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: scale(16),
-    paddingVertical: scale(12),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderSubtle,
-    backgroundColor: colors.primary,
-  },
-  backButton: {
-    width: scale(34),
-    height: scale(34),
-    borderRadius: scale(17),
-    backgroundColor: colors.ring,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  headerTitle: {
-    fontSize: fs(18),
-    fontFamily: fonts.TiroHindiRegular,
-    color: colors.secondary,
-    flex: 1,
-    textAlign: 'center',
-    marginHorizontal: scale(8),
   },
   descriptionBanner: {
     paddingHorizontal: scale(16),
@@ -493,27 +444,6 @@ const styles = StyleSheet.create({
     shadowRadius: 18,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
-  },
-  modalHeaderRow: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginBottom: scale(4),
-  },
-  modalCloseButton: {
-    width: scale(32),
-    height: scale(32),
-    borderRadius: scale(16),
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-  },
-  modalCloseText: {
-    fontSize: fs(14),
-    color: colors.secondary,
-    fontWeight: '600',
   },
   modalImageWrapper: {
     width: scale(100),

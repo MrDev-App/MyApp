@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { useAppLanguage } from '@hooks';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -27,8 +27,7 @@ import { navigate } from '@navigation/navigationRef';
 
 const HinduCalendarBanner: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { i18n } = useTranslation();
-  const isHi = (i18n.language || 'en').startsWith('hi');
+  const { isHindi: isHi } = useAppLanguage();
 
   // 1. Shimmer sweep animation across the card
   const shimmerProgress = useSharedValue(-1);

@@ -4,7 +4,7 @@ import { RootStackParamList } from '@navigation/types';
 import SplashScreen from '@screens/SplashScreen';
 import OnboardingScreen from '@screens/OnboardingScreen';
 import BottomNavigation from './BottomNavigation';
-import CalendarScreen from '@screens/Calendar/CalendarScreen';
+import CalendarScreen from '@screens/calendar/CalendarScreen';
 import '@i18n/index';
 import ReadingScreen from '@screens/book/ReadingScreen';
 import TextReadingScreen from '@screens/book/TextReadingScreen';

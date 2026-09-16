@@ -4,11 +4,10 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Vibration,
 } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { useTranslation } from 'react-i18next';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useAppLanguage } from '@hooks';
 import Skeleton from '@components/Skeleton';
 import { Translation } from '@i18n/language';
 import colors from '@theme/colors';
@@ -31,8 +30,7 @@ const isToday = (dateStr?: string): boolean => {
 const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
   loading: parentLoading,
 }) => {
-  const { t, i18n } = useTranslation();
-  const isHi = (i18n.language || 'en').startsWith('hi');
+  const { t, isHindi: isHi } = useAppLanguage();
   const navigation = useNavigation<any>();
   const [unreadCount, setUnreadCount] = useState(0);
 

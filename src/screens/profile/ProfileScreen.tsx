@@ -82,12 +82,10 @@ const ProfileScreen = () => {
   const insets = useSafeAreaInsets();
   const [showJapHistory, setShowJapHistory] = useState(false);
   const [isLangChanging, setIsLangChanging] = useState(false);
-  const [targetLang, setTargetLang] = useState<'en' | 'hi' | null>(null);
 
   const handleLanguageChange = useCallback(
     (newLang: 'en' | 'hi') => {
       if (newLang === currentLanguage || isLangChanging) return;
-      setTargetLang(newLang);
       setIsLangChanging(true);
 
       setTimeout(() => {
@@ -96,7 +94,6 @@ const ProfileScreen = () => {
 
       setTimeout(() => {
         setIsLangChanging(false);
-        setTargetLang(null);
       }, 2000);
     },
     [currentLanguage, isLangChanging, changeLanguage],

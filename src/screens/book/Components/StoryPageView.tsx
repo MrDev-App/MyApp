@@ -32,7 +32,7 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
     source,
     currentLang = 'hi',
     isInteractive,
-    totalPages,
+    totalPages: _totalPages,
   }) => {
     const strings = getStrings(currentLang);
     const insets = useSafeAreaInsets();
@@ -113,7 +113,6 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
     }, [pageContent]);
 
     const pageNumber = pageData?.page || 1;
-    const totalCount = totalPages || pageNumber;
 
     return (
       <View

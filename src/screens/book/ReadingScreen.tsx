@@ -7,11 +7,11 @@ import {
   NativeScrollEvent,
   useWindowDimensions,
   StatusBar,
-  Vibration,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { useAppLanguage } from '@hooks';
+import { triggerHaptic } from '@helper/helper';
 import { MahaBharatStories } from '@constants/storiesData';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
@@ -20,16 +20,9 @@ import ReadingHeader from './components/ReadingHeader';
 import ReadingFooter from './components/ReadingFooter';
 import ZoomableComicPage from './components/ZoomableImage';
 
-const triggerHaptic = (_type?: string) => {
-  try {
-    Vibration.vibrate(30);
-  } catch {}
-};
-
 const ReadingScreen = () => {
   const route = useRoute<any>();
-  const { i18n } = useTranslation();
-  const currentLang = (i18n.language === 'hi' ? 'hi' : 'en') as 'en' | 'hi';
+  const { currentLanguage: currentLang } = useAppLanguage();
   const { width: windowWidth } = useWindowDimensions();
 
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {

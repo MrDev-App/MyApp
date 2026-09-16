@@ -15,7 +15,7 @@ import ProfileScreen from '@screens/profile/ProfileScreen';
 
 import { BottomTabParamList } from '@navigation/types';
 import { CustomTabBar } from './BottomTabs';
-import CalendarScreen from '@screens/Calendar/CalendarScreen';
+import CalendarScreen from '@screens/calendar/CalendarScreen';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

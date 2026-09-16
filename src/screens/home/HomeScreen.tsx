@@ -20,7 +20,7 @@ import FeaturedCategories from './components/FeaturedCategories';
 import FestivalHighlights from './components/FestivalHighlights';
 import HinduCalendarBanner from './components/HinduCalendarBanner';
 import GradientOverlay from '@components/GradientOverlay';
-import BannerAdComponent from '@admob/Banneradcomponent';
+import { BannerAdComponent } from '@admob';
 
 export const HomeScreen = () => {
   const insets = useSafeAreaInsets();
