@@ -30,6 +30,7 @@
     "react-native-config": "^1.7.2",
     "react-native-gesture-handler": "^3.2.1",
     "react-native-google-mobile-ads": "^16.5.0",
+    "react-native-haptic-feedback": "^3.0.0",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-localize": "^3.7.0",
     "react-native-mmkv": "^4.3.2",

@@ -4,7 +4,6 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Vibration,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Back, Forward } from '@assets/index';
@@ -12,12 +11,7 @@ import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Translation } from '@i18n/language';
-
-const triggerHaptic = (_type?: string) => {
-  try {
-    Vibration.vibrate(30);
-  } catch {}
-};
+import { triggerHaptic } from '@helper/helper';
 
 interface ReadingFooterProps {
   currentPage: number; // 0 = cover, 1..n = comic pages

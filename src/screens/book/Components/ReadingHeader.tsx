@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Vibration,
-} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -25,12 +19,7 @@ import AnimatedButton from '@components/AnimatedButton';
 
 import { RootNavigationProp } from '@navigation/types';
 import { Translation } from '@i18n/language';
-
-const triggerHaptic = (_type?: string) => {
-  try {
-    Vibration.vibrate(30);
-  } catch {}
-};
+import { triggerHaptic } from '@helper/helper';
 
 interface ReadingHeaderProps {
   isDarkMode?: boolean;
@@ -101,11 +90,17 @@ const ReadingHeader = ({
           onPress={() => {
             if (storyId) {
               try {
-                const rawProgress = Storage.getString(STORAGE_KEYS.STORY_PROGRESS, '{}');
+                const rawProgress = Storage.getString(
+                  STORAGE_KEYS.STORY_PROGRESS,
+                  '{}',
+                );
                 const progressMap = JSON.parse(rawProgress) || {};
                 if (progressMap[storyId] !== undefined) {
                   delete progressMap[storyId];
-                  Storage.set(STORAGE_KEYS.STORY_PROGRESS, JSON.stringify(progressMap));
+                  Storage.set(
+                    STORAGE_KEYS.STORY_PROGRESS,
+                    JSON.stringify(progressMap),
+                  );
                 }
               } catch {}
             }

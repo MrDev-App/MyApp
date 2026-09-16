@@ -1,7 +1,11 @@
 export { default as BannerAdComponent } from './BannerAdComponent';
 export { default as UnlockAdModal } from './UnlockAdModal';
 export { useRewardedAd } from './useRewardedAd';
-export { useAppOpenAd } from './useAppOpenAd';
+export {
+  useAppOpenAd,
+  suppressNextAppOpenAd,
+  clearAppOpenAdSuppression,
+} from './useAppOpenAd';
 export {
   AD_UNITS,
   isAdMobEnabled,

@@ -5,7 +5,6 @@ import {
   Text,
   View,
   TouchableOpacity,
-  TouchableWithoutFeedback,
 } from 'react-native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
@@ -14,6 +13,7 @@ import { NotificationConfig } from '@services/notificationService';
 import { HOUR_ITEMS, MINUTE_ITEMS } from '@constants/notificationData';
 import { ScrollPicker } from '@screens/profile/components/ScrollPicker';
 import BlurBackdrop from '@components/BlurBackdrop';
+import { triggerHaptic } from '@helper/helper';
 
 interface NotificationScheduleModalProps {
   visible: boolean;
@@ -56,6 +56,7 @@ export default function NotificationScheduleModal({
   }, [visible, initialConfig]);
 
   const handleSave = () => {
+    triggerHaptic();
     onSchedule({
       type: 'daily',
       hour,
@@ -71,99 +72,119 @@ export default function NotificationScheduleModal({
       visible={visible}
       transparent
       animationType="fade"
+      statusBarTranslucent={true}
       onRequestClose={onClose}
     >
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.backdrop}>
-          <BlurBackdrop />
-          <TouchableWithoutFeedback>
-            <View style={styles.modalCard}>
-              <Text style={styles.modalTitle}>Schedule Sadhana</Text>
+      <View style={styles.modalOverlay}>
+        <BlurBackdrop />
+        <TouchableOpacity
+          style={StyleSheet.absoluteFill}
+          activeOpacity={1}
+          onPress={onClose}
+        />
+        <View style={styles.backdrop} pointerEvents="box-none">
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Schedule Sadhana</Text>
 
-              <View style={styles.scrollArea}>
-                <Text style={styles.sectionLabel}>Select Time</Text>
-                <View style={styles.timeSelectorContainer}>
-                  {/* Scrollable Hours */}
-                  <ScrollPicker
-                    items={HOUR_ITEMS}
-                    selectedValue={String(hour)}
-                    onValueChange={val => setHour(parseInt(val, 10))}
-                  />
+            <View style={styles.scrollArea}>
+              <Text style={styles.sectionLabel}>Select Time</Text>
+              <View style={styles.timeSelectorContainer}>
+                {/* Scrollable Hours */}
+                <ScrollPicker
+                  items={HOUR_ITEMS}
+                  selectedValue={String(hour)}
+                  onValueChange={val => setHour(parseInt(val, 10))}
+                />
 
-                  <Text style={styles.colon}>:</Text>
+                <Text style={styles.colon}>:</Text>
 
-                  {/* Scrollable Minutes */}
-                  <ScrollPicker
-                    items={MINUTE_ITEMS}
-                    selectedValue={String(minute).padStart(2, '0')}
-                    onValueChange={val => setMinute(parseInt(val, 10))}
-                  />
+                {/* Scrollable Minutes */}
+                <ScrollPicker
+                  items={MINUTE_ITEMS}
+                  selectedValue={String(minute).padStart(2, '0')}
+                  onValueChange={val => setMinute(parseInt(val, 10))}
+                />
 
-                  {/* AM/PM Toggle */}
-                  <View style={styles.ampmContainer}>
-                    <TouchableOpacity
-                      onPress={() => setIsPm(false)}
+                {/* AM/PM Toggle */}
+                <View style={styles.ampmContainer}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      triggerHaptic('selection');
+                      setIsPm(false);
+                    }}
+                    style={[
+                      styles.ampmButton,
+                      !isPm && styles.ampmActiveButton,
+                    ]}
+                    activeOpacity={0.8}
+                  >
+                    <Text
                       style={[
-                        styles.ampmButton,
-                        !isPm && styles.ampmActiveButton,
+                        styles.ampmText,
+                        !isPm && styles.ampmActiveText,
                       ]}
-                      activeOpacity={0.8}
                     >
-                      <Text
-                        style={[
-                          styles.ampmText,
-                          !isPm && styles.ampmActiveText,
-                        ]}
-                      >
-                        AM
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => setIsPm(true)}
-                      style={[
-                        styles.ampmButton,
-                        isPm && styles.ampmActiveButton,
-                      ]}
-                      activeOpacity={0.8}
+                      AM
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      triggerHaptic('selection');
+                      setIsPm(true);
+                    }}
+                    style={[
+                      styles.ampmButton,
+                      isPm && styles.ampmActiveButton,
+                    ]}
+                    activeOpacity={0.8}
+                  >
+                    <Text
+                      style={[styles.ampmText, isPm && styles.ampmActiveText]}
                     >
-                      <Text
-                        style={[styles.ampmText, isPm && styles.ampmActiveText]}
-                      >
-                        PM
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                      PM
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </View>
-
-              {/* Action Buttons */}
-              <View style={styles.actionsContainer}>
-                <TouchableOpacity
-                  onPress={onClose}
-                  style={styles.btnCancel}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.btnCancelText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={handleSave}
-                  style={styles.btnSave}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.btnSaveText}>Save Reminder</Text>
-                </TouchableOpacity>
-              </View>
             </View>
-          </TouchableWithoutFeedback>
+
+            {/* Action Buttons */}
+            <View style={styles.actionsContainer}>
+              <TouchableOpacity
+                onPress={() => {
+                  triggerHaptic();
+                  onClose();
+                }}
+                style={styles.btnCancel}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.btnCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleSave}
+                style={styles.btnSave}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.btnSaveText}>Save Reminder</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-      </TouchableWithoutFeedback>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  modalOverlay: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
   backdrop: {
     flex: 1,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: scale(24),

@@ -3640,6 +3640,28 @@ PODS:
     - RNNotifee/NotifeeCore (= 9.1.8)
   - RNNotifee/NotifeeCore (9.1.8):
     - React-Core
+  - RNReactNativeHapticFeedback (3.0.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - RNReanimated (4.5.3):
     - hermes-engine
     - RCTRequired
@@ -3996,6 +4018,7 @@ DEPENDENCIES:
   - RNGoogleMobileAds (from `../node_modules/react-native-google-mobile-ads`)
   - RNLocalize (from `../node_modules/react-native-localize`)
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
+  - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
@@ -4213,6 +4236,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-localize"
   RNNotifee:
     :path: "../node_modules/@notifee/react-native"
+  RNReactNativeHapticFeedback:
+    :path: "../node_modules/react-native-haptic-feedback"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
@@ -4341,6 +4366,7 @@ SPEC CHECKSUMS:
   RNGoogleMobileAds: bc162c787b68e2545b072b49295de46a97d29c97
   RNLocalize: 17bce0556e2d33fe1201c8cef53b3b7786e07612
   RNNotifee: 5e3b271e8ea7456a36eec994085543c9adca9168
+  RNReactNativeHapticFeedback: 9dc72312c12cb53ee240b5b7aae1e167f3d940a6
   RNReanimated: 41ad1a808a5860d14883872f68ed7cae2efc8635
   RNScreens: 5b4b260e28d8263d97fddcb53e59649515797bcc
   RNSVG: 394cfd0518613b144c65ffe69045f827b78a7a7c
@@ -4349,4 +4375,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 3d4b3092113762323756d9b3f2f5d5df2662411c
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.15.2

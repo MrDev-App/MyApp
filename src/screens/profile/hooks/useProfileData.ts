@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Vibration, Alert } from 'react-native';
+import { Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Translation } from '@i18n/language';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
@@ -20,13 +20,7 @@ import {
 import { OverlayModalHandle } from '@components/OverlayModal';
 import colors from '@theme/colors';
 import { suppressNextAppOpenAd } from '@admob/useAppOpenAd';
-
-/** Trigger haptic / vibration feedback safely. */
-const triggerHaptic = (style: 'light' | 'medium' | 'error') => {
-  try {
-    Vibration.vibrate(style === 'error' ? 200 : 30);
-  } catch {}
-};
+import { triggerHaptic } from '@helper/helper';
 
 export const useProfileData = () => {
   const { t, i18n } = useTranslation();
@@ -220,6 +214,7 @@ export const useProfileData = () => {
   // ─── Notification handlers ─────────────────────────────────────────────────
   const handleSaveSchedule = useCallback(
     async (config: NotificationConfig) => {
+      suppressNextAppOpenAd(60000);
       setScheduleModalVisible(false);
       setReminderConfig(config);
       Storage.set('REMINDER_CONFIG', JSON.stringify(config));
@@ -232,6 +227,8 @@ export const useProfileData = () => {
 
   const handleToggleNotifications = useCallback(
     async (value: boolean) => {
+      triggerHaptic('light');
+      suppressNextAppOpenAd(60000);
       if (value) {
         const granted = await initNotifications();
         if (granted) {

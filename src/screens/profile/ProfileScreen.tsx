@@ -19,6 +19,7 @@ import { Translation } from '@i18n/language';
 import GradientBackground from '@components/GradientBackground';
 import OverlayModal from '@components/OverlayModal';
 import NotificationScheduleModal from '@components/NotificationScheduleModal';
+import { suppressNextAppOpenAd } from '@admob';
 import imagePath from '@assets/index';
 import colors from '@theme/colors';
 import { ChevronRight, CameraIcon } from '@components/icons/SvgIcons';
@@ -255,6 +256,7 @@ const ProfileScreen = () => {
               activeOpacity={notificationsEnabled ? 0.7 : 1}
               onPress={() => {
                 if (notificationsEnabled) {
+                  suppressNextAppOpenAd(60000);
                   setScheduleModalVisible(true);
                 }
               }}

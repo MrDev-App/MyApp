@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  LayoutAnimation,
-  Image,
-} from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Image } from 'react-native';
 import { fs, scale, verticalScale } from '@theme/sizes';
 import colors from '@theme/colors';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
@@ -105,8 +99,7 @@ export const CustomTabBar = ({
   const onLayout = (event: any) => {
     const { width } = event.nativeEvent.layout;
 
-    buttonWidthShared.value =
-      (width - scale(20)) / (state.routes.length || 5);
+    buttonWidthShared.value = (width - scale(20)) / (state.routes.length || 5);
   };
 
   React.useEffect(() => {
@@ -148,9 +141,6 @@ export const CustomTabBar = ({
             });
 
             if (!isFocused && !event.defaultPrevented) {
-              LayoutAnimation.configureNext(
-                LayoutAnimation.Presets.easeInEaseOut,
-              );
               navigation.navigate(route.name);
             }
           };
