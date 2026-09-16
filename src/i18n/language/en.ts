@@ -17,7 +17,7 @@ export default {
   ALL: 'ALL',
   ALL_FESTIVALS: 'All Festivals',
   POWERFUL_MANTRAS: 'Powerful Mantras',
-  MANTRAS_BY_DEITIES: 'Pwerfull Mantras',
+  MANTRAS_BY_DEITIES: 'Powerful Mantras',
   FEATURED_CATEGORIES: 'Featured Categories',
   JAP_TITLE: "Today's Jap",
   JAP_TODAYS_COUNT: "TODAY'S COUNT",

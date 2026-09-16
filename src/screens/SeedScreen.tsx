@@ -18,6 +18,7 @@ import {
 import { ekadashi2026Data } from '@constants/ekadashiData';
 import { clearEkadashiDataCache } from '@services/ekadashiService';
 import { uploadNaamJapDataToFirestore } from '@services/seedNaamJapService';
+import { uploadCalendar2026ToFirestore } from '@services/seedFestivalService';
 import colors from '@theme/colors';
 
 export default function SeedScreen() {
@@ -95,7 +96,11 @@ export default function SeedScreen() {
     setLoading(true);
     setStatus([]);
     try {
-      log('ℹ️ Festivals collection is already seeded in Firestore.');
+      await uploadCalendar2026ToFirestore({
+        onProgress: log,
+      });
+    } catch (error: any) {
+      log(`❌ Error seeding festivals: ${error?.message || error}`);
     } finally {
       setLoading(false);
     }
