@@ -1,14 +1,13 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
-import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
-import { BlurView } from '@react-native-community/blur';
-import LottieView from 'lottie-react-native';
-import imagePath from '@assets/index';
+import Animated from 'react-native-reanimated';
 import { Story } from '@constants/storiesData';
 import { fs, scale } from '@theme/sizes';
 import fonts from '@theme/fonts';
 import colors from '@theme/colors';
 import AnimatedButton from '@components/AnimatedButton';
+import Loader from '@components/Loader';
+import { useAppLanguage } from '@hooks';
 
 interface ComicShelfProps {
   title: string;
@@ -22,9 +21,9 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
   title,
   data,
   onPressBook,
-  currentLang = 'en',
   loadingStoryId,
 }) => {
+  const { select } = useAppLanguage();
   if (!data || data.length === 0) {
     return null;
   }
@@ -55,44 +54,13 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
                   sharedTransitionTag={`story_image_${story.id}`}
                 />
 
-                {isLoadingThis && (
-                  <Animated.View
-                    style={styles.centerLoadingWrap}
-                    entering={FadeIn.duration(200)}
-                    exiting={FadeOut.duration(200)}
-                  >
-                    <BlurView
-                      style={StyleSheet.absoluteFill}
-                      blurType="dark"
-                      blurAmount={6}
-                      overlayColor="rgba(0, 0, 0, 0.35)"
-                      reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.35)"
-                    />
-                    <LottieView
-                      source={imagePath.loading}
-                      autoPlay
-                      loop
-                      style={styles.lottieLoading}
-                    />
-                    <Animated.Text
-                      style={styles.loadingText}
-                      entering={FadeInDown.duration(350)
-                        .springify()
-                        .damping(100)
-                        .stiffness(120)}
-                    >
-                      {currentLang === 'hi'
-                        ? 'कृपया प्रतीक्षा करें...'
-                        : 'Please wait...'}
-                    </Animated.Text>
-                  </Animated.View>
-                )}
+                <Loader visible={isLoadingThis} />
               </View>
               <Text style={styles.comicCardTitle} numberOfLines={1}>
-                {currentLang === 'hi' ? story.titleHi : story.titleEn}
+                {select(story.titleHi, story.titleEn)}
               </Text>
               <Text style={styles.comicCardMeta}>
-                {currentLang === 'hi' ? story.sourceHi : story.sourceEn}
+                {select(story.sourceHi, story.sourceEn)}
               </Text>
             </AnimatedButton>
           );
@@ -166,32 +134,6 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: fs(9),
     fontFamily: fonts.TiroHindiRegular,
-  },
-  centerLoadingWrap: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10,
-    overflow: 'hidden',
-    borderRadius: scale(14),
-  },
-  lottieLoading: {
-    width: scale(55),
-    height: scale(55),
-  },
-  loadingText: {
-    color: colors.white,
-    fontFamily: fonts.TiroHindiRegular,
-    fontSize: fs(9.5),
-    marginTop: scale(2),
-    textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.85)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
   },
 });
 

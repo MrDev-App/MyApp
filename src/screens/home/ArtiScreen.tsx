@@ -19,7 +19,7 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { useAppLanguage } from '@hooks';
 import MusicPlayer from '@components/MusicPlayer';
-import { TempleBell } from '@components';
+import { Loader, TempleBell } from '@components';
 
 type ArtiScreenRouteProp = RouteProp<RootStackParamList, 'ArtiScreen'>;
 
@@ -169,7 +169,14 @@ export const ArtiScreen: React.FC = () => {
                 resizeMode="cover"
               />
             </View>
-          ) : null}
+          ) : (
+            <Loader
+              visible={true}
+              lottieSize={scale(40)}
+              showText={false}
+              showBlur={false}
+            />
+          )}
 
           <Text style={styles.modalAartiTitle} numberOfLines={1}>
             {title}
@@ -376,13 +383,13 @@ const styles = StyleSheet.create({
   leftBell: {
     position: 'absolute',
     top: 0,
-    left: scale(8),
+    left: scale(22),
     zIndex: 1,
   },
   rightBell: {
     position: 'absolute',
     top: 0,
-    right: scale(8),
+    right: scale(4),
     zIndex: 1,
   },
 });

@@ -91,6 +91,7 @@ export default {
   BOOK_SHARE_TITLE: 'गुरुवाणी से दिव्य सुविचार',
   BOOK_WISDOM_CARD_HEADER: 'दिव्य सुविचार',
   BOOK_WISDOM_CLOSE: 'ठीक है',
+  BOOK_SACRED_SCRIPTURES: 'पवित्र धर्मग्रंथ',
   BOOK_ILLUSTRATED_COMICS: 'सचित्र चित्रकथाएं',
   BOOK_POPULAR_STORIES: 'लोकप्रिय कहानियां',
   BOOK_STORIES_FROM_MAHABHARAT: 'महाभारत की कहानियां',

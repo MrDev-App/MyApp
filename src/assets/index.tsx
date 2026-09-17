@@ -1,10 +1,8 @@
 import Back from './svg/Back.svg';
 import Forward from './svg/Forward.svg';
 import Bell from './svg/bell.svg';
-import Pin from './svg/Pin.svg';
+
 import FoldedHands from './svg/foldedhands.svg';
-import Location from './svg/location.svg';
-import Tag from './svg/tag.svg';
 
 const imagePath = {
   Back,
@@ -235,5 +233,5 @@ const imagePath = {
   artiDemo: require('./audio/ArtiDemo.mp3'),
 };
 
-export { Back, Forward, Bell, Pin, FoldedHands, Location, Tag };
+export { Back, Forward, Bell, FoldedHands };
 export default imagePath;

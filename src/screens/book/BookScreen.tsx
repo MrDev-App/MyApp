@@ -36,7 +36,7 @@ import { RootNavigationProp } from '@navigation/types';
 
 const BookScreen = () => {
   const insets = useSafeAreaInsets();
-  const { t, currentLanguage: currentLang } = useAppLanguage();
+  const { t, currentLanguage: currentLang, select } = useAppLanguage();
   const navigation = useNavigation<RootNavigationProp>();
 
   const [loading, setLoading] = useState(true);
@@ -117,38 +117,6 @@ const BookScreen = () => {
     }
   };
 
-  const labels = {
-    screenTitle: t(Translation.BOOK_SCREEN_TITLE),
-    screenSubtitle: t(Translation.BOOK_SCREEN_SUBTITLE),
-    searchPlaceholder: t(Translation.BOOK_SEARCH_PLACEHOLDER),
-    featuredTitle: t(Translation.BOOK_FEATURED_TITLE),
-    readNow: t(Translation.BOOK_READ_NOW),
-    myLibrary: t(Translation.BOOK_MY_LIBRARY),
-    recentProgress: t(Translation.BOOK_RECENT_PROGRESS),
-    allStories: t(Translation.BOOK_ALL_STORIES),
-    noStoriesFound: t(Translation.BOOK_NO_STORIES_FOUND),
-    moralLabel: t(Translation.BOOK_MORAL_LABEL),
-    sourceLabel: t(Translation.BOOK_SOURCE_LABEL),
-    difficultyLabel: t(Translation.BOOK_DIFFICULTY_LABEL),
-    readingTime: t(Translation.BOOK_READING_TIME),
-    bookmarkRemoved: t(Translation.BOOK_BOOKMARK_REMOVED),
-    bookmarkAdded: t(Translation.BOOK_BOOKMARK_ADDED),
-    parchmentTheme: t(Translation.BOOK_PARCHMENT_THEME),
-    midnightTheme: t(Translation.BOOK_MIDNIGHT_THEME),
-    classicTheme: t(Translation.BOOK_CLASSIC_THEME),
-    fontSizeLabel: t(Translation.BOOK_FONT_SIZE_LABEL),
-    shareWisdom: t(Translation.BOOK_SHARE_WISDOM),
-    closeReader: t(Translation.BOOK_CLOSE_READER),
-    copiedToClipboard: t(Translation.BOOK_COPIED_TO_CLIPBOARD),
-    shareTitle: t(Translation.BOOK_SHARE_TITLE),
-    wisdomCardHeader: t(Translation.BOOK_WISDOM_CARD_HEADER),
-    wisdomClose: t(Translation.BOOK_WISDOM_CLOSE),
-    illustratedComics: t(Translation.BOOK_ILLUSTRATED_COMICS),
-    popularStories: t(Translation.BOOK_POPULAR_STORIES),
-    storiesFromMahabharat: t(Translation.BOOK_STORIES_FROM_MAHABHARAT),
-    storiesFromRamayan: t(Translation.BOOK_STORIES_FROM_RAMAYAN),
-  };
-
   return (
     <GradientBackground style={styles.containerFull}>
       <StatusBar barStyle="dark-content" />
@@ -156,7 +124,9 @@ const BookScreen = () => {
         {/* Header Section */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.headerTitle}>{labels.screenTitle}</Text>
+            <Text style={styles.headerTitle}>
+              {t(Translation.BOOK_SCREEN_TITLE)}
+            </Text>
           </View>
         </View>
 
@@ -179,7 +149,7 @@ const BookScreen = () => {
                 },
               ]}
             >
-              {labels.searchPlaceholder}
+              {t(Translation.BOOK_SEARCH_PLACEHOLDER)}
             </Text>
           </View>
         </TouchableOpacity>
@@ -196,11 +166,7 @@ const BookScreen = () => {
           >
             {/* Sacred Scriptures (Text Books) */}
             <ComicShelf
-              title={
-                currentLang === 'hi'
-                  ? 'पवित्र धर्मग्रंथ एवं गाथाएं'
-                  : 'Sacred Scriptures & Books'
-              }
+              title={t(Translation.BOOK_SACRED_SCRIPTURES)}
               data={TextBooks}
               onPressBook={openStoryReader}
               currentLang={currentLang}
@@ -209,11 +175,7 @@ const BookScreen = () => {
 
             {/* Illustrated Comics Shelf List */}
             <ComicShelf
-              title={
-                currentLang === 'hi'
-                  ? 'सचित्र चित्रकथाएं (Comics)'
-                  : 'Illustrated Comics'
-              }
+              title={t(Translation.BOOK_ILLUSTRATED_COMICS)}
               data={MahaBharatStories}
               onPressBook={openStoryReader}
               currentLang={currentLang}
@@ -226,11 +188,7 @@ const BookScreen = () => {
       <UnlockAdModal
         visible={!!pendingStory}
         bookTitle={
-          pendingStory
-            ? currentLang === 'hi'
-              ? pendingStory.titleHi
-              : pendingStory.titleEn
-            : ''
+          pendingStory ? select(pendingStory.titleHi, pendingStory.titleEn) : ''
         }
         isAdLoading={!isRewardedLoaded}
         onCancel={handleCancelUnlock}

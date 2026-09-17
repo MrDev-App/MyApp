@@ -13,7 +13,8 @@ import { useTranslation } from 'react-i18next';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import imagePath, { Tag, Location, Pin, FoldedHands } from '@assets/index';
+import imagePath, { FoldedHands } from '@assets/index';
+import { TagIcon, LocationIcon, PinIcon } from '@components/icons/SvgIcons';
 import { Festival } from '@services/festivalService';
 import BlurBackdrop from './BlurBackdrop';
 
@@ -78,135 +79,112 @@ const FestivalModal: React.FC<FestivalModalProps> = ({
       <View style={styles.modalOverlay}>
         <BlurBackdrop blurAmount={25} blurRadius={22} />
 
-        <View
-          style={[
-            styles.modalBackdrop,
-            {
-              paddingBottom: insets.bottom + scale(10),
-            },
-          ]}
-          pointerEvents="box-none"
-        >
-          <View style={styles.modalSheet}>
-            <Image
-              source={festival.image || imagePath.greeting}
-              style={styles.modalImage}
-            />
-            <View style={styles.modalContent}>
-              <Text style={styles.modalFestivalName}>
-                {currentLanguage === 'hi'
-                  ? festival.hindiName
-                  : festival.englishName}
-              </Text>
+        <View style={styles.modalSheet}>
+          <Image
+            source={festival.image || imagePath.greeting}
+            style={styles.modalImage}
+          />
+          <View style={styles.modalContent}>
+            <Text style={styles.modalFestivalName}>
+              {currentLanguage === 'hi'
+                ? festival.hindiName
+                : festival.englishName}
+            </Text>
 
-              <View style={styles.modalMetaRow}>
+            <View style={styles.modalMetaRow}>
+              <View style={styles.metaBadge}>
+                <Image
+                  source={imagePath.calendar}
+                  style={styles.calendarIcon}
+                />
+                <Text style={styles.metaBadgeText}>
+                  {currentLanguage === 'hi'
+                    ? festival.dateStrHi
+                    : festival.dateStrEn}
+                </Text>
+              </View>
+              {categoryText ? (
                 <View style={styles.metaBadge}>
-                  <Image
-                    source={imagePath.calendar}
-                    style={styles.calendarIcon}
-                  />
-                  <Text style={styles.metaBadgeText}>
+                  <TagIcon size={scale(10)} color={colors.ring} />
+                  <Text style={styles.metaBadgeText}>{categoryText}</Text>
+                </View>
+              ) : null}
+            </View>
+
+            <ScrollView
+              style={styles.modalTextScroll}
+              showsVerticalScrollIndicator={false}
+            >
+              {tithiText ? (
+                <View style={styles.sectionRow}>
+                  <PinIcon size={scale(14)} color={colors.ring} />
+                  <Text style={styles.modalSectionLabel}>
                     {currentLanguage === 'hi'
-                      ? festival.dateStrHi
-                      : festival.dateStrEn}
+                      ? 'तिथि / नक्षत्र: '
+                      : 'Tithi / Astro: '}
+                    <Text style={styles.modalSectionValue}>{tithiText}</Text>
                   </Text>
                 </View>
-                {categoryText ? (
-                  <View style={styles.metaBadge}>
-                    <Tag width={scale(10)} height={scale(10)} />
-                    <Text style={styles.metaBadgeText}>{categoryText}</Text>
-                  </View>
-                ) : null}
-              </View>
+              ) : null}
 
-              <ScrollView
-                style={styles.modalTextScroll}
-                showsVerticalScrollIndicator={false}
-              >
-                {tithiText ? (
-                  <View style={styles.sectionRow}>
-                    <Pin
-                      width={scale(14)}
-                      height={scale(14)}
-                      fill={colors.ring}
-                    />
-                    <Text style={styles.modalSectionLabel}>
-                      {currentLanguage === 'hi'
-                        ? 'तिथि / नक्षत्र: '
-                        : 'Tithi / Astro: '}
-                      <Text style={styles.modalSectionValue}>{tithiText}</Text>
-                    </Text>
-                  </View>
-                ) : null}
+              {deityText ? (
+                <View style={styles.sectionRow}>
+                  <FoldedHands width={scale(14)} height={scale(14)} />
+                  <Text style={styles.modalSectionLabel}>
+                    {currentLanguage === 'hi'
+                      ? 'पूज्य देवता: '
+                      : 'Deities Worshipped: '}
+                    <Text style={styles.modalSectionValue}>{deityText}</Text>
+                  </Text>
+                </View>
+              ) : null}
 
-                {deityText ? (
-                  <View style={styles.sectionRow}>
-                    <FoldedHands width={scale(14)} height={scale(14)} />
-                    <Text style={styles.modalSectionLabel}>
-                      {currentLanguage === 'hi'
-                        ? 'पूज्य देवता: '
-                        : 'Deities Worshipped: '}
-                      <Text style={styles.modalSectionValue}>{deityText}</Text>
-                    </Text>
-                  </View>
-                ) : null}
+              {regionsText ? (
+                <View style={styles.sectionRow}>
+                  <LocationIcon size={scale(14)} color={colors.ring} />
+                  <Text style={styles.modalSectionLabel}>
+                    {currentLanguage === 'hi'
+                      ? 'प्रमुख क्षेत्र: '
+                      : 'Regions: '}
+                    <Text style={styles.modalSectionValue}>{regionsText}</Text>
+                  </Text>
+                </View>
+              ) : null}
 
-                {regionsText ? (
-                  <View style={styles.sectionRow}>
-                    <Location
-                      width={scale(14)}
-                      height={scale(14)}
-                      fill={colors.ring}
-                    />
-                    <Text style={styles.modalSectionLabel}>
-                      {currentLanguage === 'hi'
-                        ? 'प्रमुख क्षेत्र: '
-                        : 'Regions: '}
-                      <Text style={styles.modalSectionValue}>
-                        {regionsText}
-                      </Text>
-                    </Text>
-                  </View>
-                ) : null}
+              {descriptionText ? (
+                <>
+                  <Text
+                    style={[styles.modalSectionLabel, { marginTop: scale(8) }]}
+                  >
+                    {currentLanguage === 'hi' ? 'विवरण:' : 'Description:'}
+                  </Text>
+                  <Text style={styles.modalFestivalDesc}>
+                    {descriptionText}
+                  </Text>
+                </>
+              ) : null}
 
-                {descriptionText ? (
-                  <>
-                    <Text
-                      style={[
-                        styles.modalSectionLabel,
-                        { marginTop: scale(8) },
-                      ]}
-                    >
-                      {currentLanguage === 'hi' ? 'विवरण:' : 'Description:'}
-                    </Text>
-                    <Text style={styles.modalFestivalDesc}>
-                      {descriptionText}
-                    </Text>
-                  </>
-                ) : null}
+              {storyText ? (
+                <View style={styles.storyContainer}>
+                  <Text style={styles.storySectionTitle}>
+                    {currentLanguage === 'hi'
+                      ? 'पौराणिक कथा एवं इतिहास'
+                      : 'Story & Mythological Origin'}
+                  </Text>
+                  <Text style={styles.storyText}>{storyText}</Text>
+                </View>
+              ) : null}
+            </ScrollView>
 
-                {storyText ? (
-                  <View style={styles.storyContainer}>
-                    <Text style={styles.storySectionTitle}>
-                      {currentLanguage === 'hi'
-                        ? 'पौराणिक कथा एवं इतिहास'
-                        : 'Story & Mythological Origin'}
-                    </Text>
-                    <Text style={styles.storyText}>{storyText}</Text>
-                  </View>
-                ) : null}
-              </ScrollView>
-
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={onClose}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.closeButtonText}>
-                  {currentLanguage === 'hi' ? 'बंद करें' : 'Close'}
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={onClose}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.closeButtonText}>
+                {currentLanguage === 'hi' ? 'बंद करें' : 'Close'}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -225,6 +203,7 @@ const styles = StyleSheet.create({
   },
   modalSheet: {
     flex: 1,
+
     shadowColor: colors.black,
 
     shadowOpacity: 0.15,
@@ -232,7 +211,7 @@ const styles = StyleSheet.create({
   },
   modalImage: {
     width: '100%',
-    height: scale(200),
+    height: scale(300),
     borderBottomRightRadius: scale(12),
     borderBottomLeftRadius: scale(12),
     overflow: 'hidden',
@@ -240,7 +219,7 @@ const styles = StyleSheet.create({
   modalContent: {
     flex: 1,
     padding: scale(20),
-    paddingBottom: scale(24),
+
     flexShrink: 1,
   },
   modalFestivalName: {
@@ -272,7 +251,7 @@ const styles = StyleSheet.create({
   metaBadgeText: {
     fontSize: fs(10),
     fontFamily: fonts.TiroHindiRegular,
-    color: colors.ring,
+    color: colors.white,
   },
   modalTextScroll: {
     flexShrink: 1,
