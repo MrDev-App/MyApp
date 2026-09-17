@@ -250,4 +250,12 @@ export default {
   AARTI_SANGRAH_DEFAULT_DESC:
     'देवी-देवताओं की स्तुति और आशीर्वाद प्राप्त करने के लिए पावन आरतियां।',
   READ_AARTI_ACTION: 'आरती पढ़ें →',
+
+  // Festival Modal
+  FESTIVAL_TITHI_LABEL: 'तिथि / नक्षत्र: ',
+  FESTIVAL_DEITY_LABEL: 'पूज्य देवता: ',
+  FESTIVAL_REGIONS_LABEL: 'प्रमुख क्षेत्र: ',
+  FESTIVAL_DESCRIPTION_LABEL: 'विवरण:',
+  FESTIVAL_STORY_TITLE: 'पौराणिक कथा एवं इतिहास',
+  CLOSE_BTN: 'बंद करें',
 };

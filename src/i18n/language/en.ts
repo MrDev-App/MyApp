@@ -248,4 +248,12 @@ export default {
   AARTI_SANGRAH_DEFAULT_DESC:
     'Devotional prayers sung in praise of deities to invoke their blessings.',
   READ_AARTI_ACTION: 'Read Aarti →',
+
+  // Festival Modal
+  FESTIVAL_TITHI_LABEL: 'Tithi / Astro: ',
+  FESTIVAL_DEITY_LABEL: 'Deities Worshipped: ',
+  FESTIVAL_REGIONS_LABEL: 'Regions: ',
+  FESTIVAL_DESCRIPTION_LABEL: 'Description:',
+  FESTIVAL_STORY_TITLE: 'Story & Mythological Origin',
+  CLOSE_BTN: 'Close',
 };
