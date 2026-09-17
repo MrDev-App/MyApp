@@ -1,6 +1,9 @@
 export { default as AnimatedButton } from './AnimatedButton';
 export { AutoScrollFlatList, AutoScrollItem } from './AutoScrollFlatList';
-export type { AutoScrollItemProps, AutoScrollFlatListProps } from './AutoScrollFlatList';
+export type {
+  AutoScrollItemProps,
+  AutoScrollFlatListProps,
+} from './AutoScrollFlatList';
 export { default as BlurBackdrop } from './BlurBackdrop';
 export { default as ErrorBoundary } from './ErrorBoundary';
 export { default as ExpandableCard } from './ExpandableCard';
@@ -12,4 +15,6 @@ export { default as OverlayModal } from './OverlayModal';
 export { default as ScreenHeader } from './ScreenHeader';
 export { default as Skeleton } from './Skeleton';
 export { default as TempleBell } from './TempleBell';
+export { default as MusicPlayer } from './MusicPlayer';
+export type { MusicPlayerProps } from './MusicPlayer';
 export * from './icons/SvgIcons';

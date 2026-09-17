@@ -397,6 +397,55 @@ export const RepeatIcon = (props: SvgIconProps) => {
   );
 };
 
+export const ShuffleIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 18, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5" />
+    </Svg>
+  );
+};
+
+export const SkipBackIcon = (props: SvgIconProps) => {
+  const { size, color } = getIconProps(props, 20, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill={color}
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
+    </Svg>
+  );
+};
+
+export const SkipForwardIcon = (props: SvgIconProps) => {
+  const { size, color } = getIconProps(props, 20, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill={color}
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+    </Svg>
+  );
+};
+
 
 
 

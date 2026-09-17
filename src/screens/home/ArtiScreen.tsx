@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -18,14 +18,17 @@ import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { useAppLanguage } from '@hooks';
+import MusicPlayer from '@components/MusicPlayer';
 
 type ArtiScreenRouteProp = RouteProp<RootStackParamList, 'ArtiScreen'>;
 
 const MIN_FONT_SIZE = 12;
 const MAX_FONT_SIZE = 26;
 const DEFAULT_FONT_SIZE = 16;
+const FONT_BTN_HIT_SLOP = { top: 8, bottom: 8, left: 8, right: 8 };
+const CLOSE_BTN_HIT_SLOP = { top: 10, bottom: 10, left: 10, right: 10 };
 
-export const ArtiScreen = () => {
+export const ArtiScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const safeTop = insets.top > 0 ? insets.top : scale(44);
   const safeBottom = insets.bottom > 0 ? insets.bottom : scale(16);
@@ -33,6 +36,7 @@ export const ArtiScreen = () => {
   const route = useRoute<ArtiScreenRouteProp>();
   const navigation = useNavigation<any>();
   const { isHindi } = useAppLanguage();
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const selectedItem = route.params?.arti;
 
@@ -43,34 +47,70 @@ export const ArtiScreen = () => {
       : DEFAULT_FONT_SIZE;
   });
 
-  const handleBack = () => {
+  // Audio Playback State
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLooping, setIsLooping] = useState(false);
+  const [isShuffle, setIsShuffle] = useState(false);
+
+  const onTogglePlay = useCallback(() => {
     triggerHaptic();
+    setIsPlaying(prev => !prev);
+  }, []);
+
+  const handlePrevious = useCallback(() => {
+    triggerHaptic();
+  }, []);
+
+  const handleNext = useCallback(() => {
+    triggerHaptic();
+  }, []);
+
+  const handleToggleLoop = useCallback(() => {
+    triggerHaptic();
+    setIsLooping(prev => !prev);
+  }, []);
+
+  const handleToggleShuffle = useCallback(() => {
+    triggerHaptic();
+    setIsShuffle(prev => !prev);
+  }, []);
+
+  const handleBack = useCallback(() => {
+    triggerHaptic();
+    setIsPlaying(false);
     navigation.goBack();
-  };
+  }, [navigation]);
 
-  const increaseFontSize = () => {
+  const adjustFontSize = useCallback((delta: number) => {
     triggerHaptic();
     setFontSize(prev => {
-      const next = Math.min(MAX_FONT_SIZE, prev + 2);
+      const next = Math.min(
+        MAX_FONT_SIZE,
+        Math.max(MIN_FONT_SIZE, prev + delta),
+      );
       Storage.set(STORAGE_KEYS.AARTI_FONT_SIZE, next);
       return next;
     });
-  };
+  }, []);
 
-  const decreaseFontSize = () => {
-    triggerHaptic();
-    setFontSize(prev => {
-      const next = Math.max(MIN_FONT_SIZE, prev - 2);
-      Storage.set(STORAGE_KEYS.AARTI_FONT_SIZE, next);
-      return next;
-    });
-  };
+  const title = useMemo(() => {
+    if (!selectedItem) return '';
+    return isHindi
+      ? selectedItem.headerTitleHi || selectedItem.nameHi
+      : selectedItem.headerTitleEn || selectedItem.nameEn;
+  }, [selectedItem, isHindi]);
 
-  const resetFontSize = () => {
-    triggerHaptic();
-    setFontSize(DEFAULT_FONT_SIZE);
-    Storage.set(STORAGE_KEYS.AARTI_FONT_SIZE, DEFAULT_FONT_SIZE);
-  };
+  const subtitle = useMemo(() => {
+    if (!selectedItem) return '';
+    return isHindi
+      ? selectedItem.subtitleHi || selectedItem.nameHi
+      : selectedItem.subtitleEn || selectedItem.nameEn;
+  }, [selectedItem, isHindi]);
+
+  const lyrics = useMemo(() => {
+    if (!selectedItem) return '';
+    return selectedItem.textHi || selectedItem.textEn || '';
+  }, [selectedItem]);
 
   if (!selectedItem) {
     return (
@@ -79,6 +119,7 @@ export const ArtiScreen = () => {
           style={styles.modalHeaderCloseBtn}
           onPress={handleBack}
           activeOpacity={0.7}
+          hitSlop={CLOSE_BTN_HIT_SLOP}
         >
           <CloseIcon size={scale(16)} color={colors.white} strokeWidth={2.4} />
         </TouchableOpacity>
@@ -90,19 +131,19 @@ export const ArtiScreen = () => {
   return (
     <View style={[styles.container, { paddingTop: safeTop }]}>
       <View style={styles.modalBody}>
-        {/* Top Action Bar: Font Size Adjuster & Close Button */}
+        {/* Top Action Bar: Close Button */}
         <TouchableOpacity
           style={styles.modalHeaderCloseBtn}
           onPress={handleBack}
           activeOpacity={0.7}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          hitSlop={CLOSE_BTN_HIT_SLOP}
         >
           <CloseIcon size={scale(16)} color={colors.white} strokeWidth={2.4} />
         </TouchableOpacity>
 
         {/* Deity Showcase & Aarti Title Header */}
         <View style={styles.modalHeaderSection}>
-          {selectedItem.image && (
+          {selectedItem.image ? (
             <View style={styles.modalImageWrapper}>
               <Image
                 source={selectedItem.image}
@@ -110,31 +151,38 @@ export const ArtiScreen = () => {
                 resizeMode="cover"
               />
             </View>
-          )}
+          ) : null}
 
           <Text style={styles.modalAartiTitle} numberOfLines={1}>
-            {isHindi
-              ? selectedItem.headerTitleHi || selectedItem.nameHi
-              : selectedItem.headerTitleEn || selectedItem.nameEn}
+            {title}
           </Text>
 
-          {selectedItem.subtitleHi || selectedItem.subtitleEn ? (
+          {subtitle ? (
             <Text style={styles.modalAartiSubtitle} numberOfLines={1}>
-              {isHindi
-                ? selectedItem.subtitleHi || selectedItem.nameHi
-                : selectedItem.subtitleEn || selectedItem.nameEn}
+              {subtitle}
             </Text>
           ) : null}
         </View>
 
-        <View style={styles.modalTopBar}>
+        {/* Music Player & Font Size Control */}
+        <View style={styles.playerWithFontRow}>
+          <MusicPlayer
+            isPlaying={isPlaying}
+            onTogglePlay={onTogglePlay}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
+            isLooping={isLooping}
+            onToggleLoop={handleToggleLoop}
+            isShuffle={isShuffle}
+            onToggleShuffle={handleToggleShuffle}
+          />
           <View style={styles.fontSizeControlPill}>
             <TouchableOpacity
-              style={[styles.fontBtn]}
-              onPress={decreaseFontSize}
+              style={styles.fontBtn}
+              onPress={() => adjustFontSize(-2)}
               disabled={fontSize <= MIN_FONT_SIZE}
               activeOpacity={0.7}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              hitSlop={FONT_BTN_HIT_SLOP}
             >
               <MinusIcon
                 size={scale(16)}
@@ -152,10 +200,10 @@ export const ArtiScreen = () => {
                 styles.fontBtn,
                 fontSize >= MAX_FONT_SIZE && styles.fontBtnDisabled,
               ]}
-              onPress={increaseFontSize}
+              onPress={() => adjustFontSize(2)}
               disabled={fontSize >= MAX_FONT_SIZE}
               activeOpacity={0.7}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              hitSlop={FONT_BTN_HIT_SLOP}
             >
               <PlusIcon
                 size={scale(16)}
@@ -173,6 +221,7 @@ export const ArtiScreen = () => {
         {/* Scrollable Aarti Lyrics Card */}
         <View style={styles.lyricsCard}>
           <ScrollView
+            ref={scrollViewRef}
             style={styles.lyricsScrollView}
             contentContainerStyle={[
               styles.lyricsScrollContent,
@@ -189,7 +238,7 @@ export const ArtiScreen = () => {
                 },
               ]}
             >
-              {selectedItem.textHi || selectedItem.textEn}
+              {lyrics}
             </Text>
           </ScrollView>
         </View>
@@ -208,17 +257,15 @@ const styles = StyleSheet.create({
   modalBody: {
     flex: 1,
   },
-  modalTopBar: {
+  playerWithFontRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    paddingHorizontal: scale(16),
-    paddingTop: scale(4),
-    paddingBottom: scale(2),
+    marginBottom: scale(5),
+    gap: scale(15),
+    marginLeft: scale(45),
   },
   fontSizeControlPill: {
     alignItems: 'center',
-    gap: scale(8),
+    justifyContent: 'space-around',
   },
   fontBtn: {
     alignItems: 'center',
@@ -227,24 +274,6 @@ const styles = StyleSheet.create({
   fontBtnDisabled: {
     backgroundColor: 'transparent',
     opacity: 0.3,
-  },
-  fontSizeDisplayBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: scale(6),
-  },
-  fontSizeLabel: {
-    fontSize: fs(12),
-    fontFamily: fonts.TiroHindiRegular,
-    color: colors.ring,
-    fontWeight: '700',
-  },
-  fontSizeValue: {
-    fontSize: fs(10),
-    fontFamily: fonts.TiroHindiRegular,
-    color: colors.secondary,
-    fontWeight: '600',
-    marginLeft: scale(2),
   },
   modalHeaderCloseBtn: {
     position: 'absolute',
@@ -261,11 +290,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 3,
     elevation: 4,
+    zIndex: 10,
   },
   modalHeaderSection: {
     alignItems: 'center',
     paddingTop: scale(2),
-    paddingBottom: scale(8),
+    paddingBottom: scale(4),
     paddingHorizontal: scale(20),
   },
   modalImageWrapper: {
@@ -275,7 +305,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 2.5,
     borderColor: colors.ring,
-    marginBottom: scale(6),
     backgroundColor: colors.primary,
     shadowColor: colors.ring,
     shadowOffset: { width: 0, height: 3 },
@@ -293,12 +322,11 @@ const styles = StyleSheet.create({
     color: colors.secondary,
     textAlign: 'center',
     fontWeight: '700',
-    marginBottom: scale(2),
   },
   modalAartiSubtitle: {
     fontSize: fs(12),
     fontFamily: fonts.TiroHindiRegular,
-    color: colors.ring,
+    color: colors.black,
     textAlign: 'center',
   },
   lyricsCard: {
