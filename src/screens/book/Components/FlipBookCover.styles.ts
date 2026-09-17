@@ -307,20 +307,27 @@ export const styles = StyleSheet.create({
   },
   coverFaceContainer: {
     flex: 1,
+    borderRadius: scale(14),
+    overflow: 'hidden',
   },
   coverImage: {
+    ...StyleSheet.absoluteFill,
     width: '100%',
     height: '100%',
+    borderRadius: scale(14),
   },
   coverPlaceholder: {
+    ...StyleSheet.absoluteFill,
     width: '100%',
     height: '100%',
+    borderRadius: scale(14),
   },
   coverGradient: {
     ...StyleSheet.absoluteFill,
     justifyContent: 'space-between',
-    padding: scale(14),
-    paddingLeft: scale(20),
+
+    borderRadius: scale(14),
+    overflow: 'hidden',
   },
   topBadgeRow: {
     flexDirection: 'row',

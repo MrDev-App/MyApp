@@ -13,8 +13,10 @@ import NotificationScreen from '@screens/home/NotificationScreen';
 import SeedScreen from '@screens/SeedScreen';
 import ProgressScreen from '@screens/jap/ProgressScreen';
 import MantraScreen from '@screens/home/MantraScreen';
-import ArtiScreen from '@screens/home/ArtiScreen';
+
 import ShlokScreen from '@screens/home/ShlokScreen';
+import { AllArtiScreen } from '@screens/home/AllArtiScreen';
+import ArtiScreen from '@screens/home/ArtiScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -68,10 +70,17 @@ const StackNavigation = () => {
         component={MantraScreen}
         options={{ animation: 'slide_from_right' }}
       />
+
+      <Stack.Screen
+        name="AllArtiScreen"
+        component={AllArtiScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+
       <Stack.Screen
         name="ArtiScreen"
         component={ArtiScreen}
-        options={{ animation: 'slide_from_right' }}
+        options={{ animation: 'slide_from_bottom' }}
       />
       <Stack.Screen
         name="ShlokScreen"

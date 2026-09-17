@@ -58,14 +58,12 @@ const FeaturedCategories = () => {
   }, []);
 
   const handleCategoryPress = (category: Category) => {
-    console.log('clicked');
     const catId = category.id.toLowerCase();
     if (catId.includes('aarti') || catId.includes('arti')) {
-      navigation.navigate('ArtiScreen', { category });
-    } else if (catId.includes('shlok')) {
+      navigation.navigate('AllArtiScreen', { category });
+    }
+    if (catId.includes('shlok')) {
       navigation.navigate('ShlokScreen', { category });
-    } else {
-      navigation.navigate('ArtiScreen', { category });
     }
   };
 

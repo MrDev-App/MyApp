@@ -81,10 +81,12 @@ export const TextReadingScreen = () => {
 
   const [fontSize] = useState<number>(15);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [_pageInfo, setPageInfo] = useState<{ current: number; total: number }>({
-    current: 0,
-    total: story?.pages?.length || 1,
-  });
+  const [_pageInfo, setPageInfo] = useState<{ current: number; total: number }>(
+    {
+      current: 0,
+      total: story?.pages?.length || 1,
+    },
+  );
 
   const theme = THEME_CONFIGS[themeMode];
 

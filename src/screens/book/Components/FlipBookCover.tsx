@@ -319,7 +319,8 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
                 style={[
                   styles.dotLabel,
                   {
-                    color: displayPage === 0 ? colors.white : theme.textSecondary,
+                    color:
+                      displayPage === 0 ? colors.white : theme.textSecondary,
                   },
                 ]}
               >

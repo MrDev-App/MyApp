@@ -1,3 +1,4 @@
+import { CategoryItem } from '@constants/categoriesData';
 import { NavigatorScreenParams } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -18,7 +19,8 @@ export type RootStackParamList = {
   Seed?: undefined;
   ProgressScreen: undefined;
   MantraScreen: { god?: any; godId?: string; allGods?: any[] };
-  ArtiScreen: { category?: any };
+  ArtiScreen: { arti: CategoryItem };
+  AllArtiScreen: { category?: any };
   ShlokScreen: { category?: any };
 };
 

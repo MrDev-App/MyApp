@@ -19,8 +19,9 @@ interface BlurBackdropProps {
 
 const BlurBackdrop: React.FC<BlurBackdropProps> = ({
   blurType = 'dark',
-  blurAmount = 12,
+  blurAmount = 10,
   blurRadius = 8,
+
   overlayColor = 'rgba(0, 0, 0, 0.45)',
   fallbackColor = 'rgba(0, 0, 0, 0.65)',
   style,

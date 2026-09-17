@@ -66,6 +66,12 @@ export const uploadCalendar2026ToFirestore = async (
           tithiHi: item.tithiHi,
           description: item.description,
           descriptionHi: item.descriptionHi,
+          story: item.story || '',
+          storyHi: item.storyHi || '',
+          deity: item.deity || [],
+          deityHi: item.deityHi || [],
+          regions: item.regions || [],
+          regionsHi: item.regionsHi || [],
           category: item.category,
           categoryHi: item.categoryHi,
           imageUrl: item.imageUrl || '',
@@ -78,7 +84,9 @@ export const uploadCalendar2026ToFirestore = async (
       }
 
       log(
-        `💾 Committing batch ${Math.floor(i / BATCH_SIZE) + 1} (${chunk.length} items)...`,
+        `💾 Committing batch ${Math.floor(i / BATCH_SIZE) + 1} (${
+          chunk.length
+        } items)...`,
       );
       await batch.commit();
     }

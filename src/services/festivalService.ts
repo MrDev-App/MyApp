@@ -25,6 +25,8 @@ export interface Festival {
   tithiHi?: string;
   description: string;
   descriptionHi?: string;
+  story?: string;
+  storyHi?: string;
   regions: string[];
   regionsHi?: string[];
   icon?: string;
@@ -188,6 +190,8 @@ export const mapFestivalWithImage = (fest: any): Festival => {
     tithiHi: fest.tithiHi || '',
     description: fest.description || fest.descriptionEn || '',
     descriptionHi: fest.descriptionHi || '',
+    story: fest.story || '',
+    storyHi: fest.storyHi || '',
     regions: fest.regions || [],
     regionsHi: fest.regionsHi || [],
     icon: fest.icon || '',
@@ -205,16 +209,18 @@ export const getLocalFestivalsFallback = (): Festival[] => {
       day: item.day,
       dateStrEn: item.dateStrEn,
       dateStrHi: item.dateStrHi,
-      deity: [],
-      deityHi: [],
+      deity: item.deity || [],
+      deityHi: item.deityHi || [],
       category: item.category,
       categoryHi: item.categoryHi,
       tithi: item.tithi,
       tithiHi: item.tithiHi,
       description: item.description,
       descriptionHi: item.descriptionHi,
-      regions: [],
-      regionsHi: [],
+      story: item.story || '',
+      storyHi: item.storyHi || '',
+      regions: item.regions || [],
+      regionsHi: item.regionsHi || [],
       icon: '',
       imageUrl: item.imageUrl,
     }),

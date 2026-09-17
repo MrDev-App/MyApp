@@ -7,7 +7,7 @@ export interface CategoryItem {
   subtitleEn?: string;
   subtitleHi?: string;
   textEn?: string;
-  textHi: string;
+  textHi?: string;
   image: any;
   headerTitleEn?: string;
   headerTitleHi?: string;

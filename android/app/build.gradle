@@ -110,8 +110,8 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            // Production release signing configuration
-            signingConfig signingConfigs.release
+            // Production release signing if keystore properties are provided, fallback to debug for local builds
+            signingConfig (project.hasProperty('MYAPP_UPLOAD_STORE_FILE') ? signingConfigs.release : signingConfigs.debug)
             shrinkResources true  
             minifyEnabled true
             

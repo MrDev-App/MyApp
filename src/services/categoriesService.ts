@@ -5,33 +5,14 @@ import {
   getDocs,
 } from '@react-native-firebase/firestore';
 import imagePath from '@assets/index';
-import { categoriesData } from '@constants/categoriesData';
+import {
+  categoriesData,
+  Category,
+  CategoryItem,
+} from '@constants/categoriesData';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 
-export interface CategoryItem {
-  id: string;
-  nameEn: string;
-  nameHi: string;
-  subtitleEn?: string;
-  subtitleHi?: string;
-  textEn?: string;
-  textHi?: string;
-  image?: any;
-  headerTitleEn?: string;
-  headerTitleHi?: string;
-  isJyotirlinga?: boolean;
-}
-
-export interface Category {
-  id: string;
-  titleEn: string;
-  titleHi: string;
-  icon?: any;
-  coverImage?: any;
-  descriptionEn?: string;
-  descriptionHi?: string;
-  items: CategoryItem[];
-}
+export type { CategoryItem, Category };
 
 // Backward compatibility alias
 export type CategoryData = Category;
