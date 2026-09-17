@@ -4,15 +4,97 @@ import {
   collection,
   getDocs,
 } from '@react-native-firebase/firestore';
-import {
-  EkadashiItem,
-  EkadashiMonth,
-  ekadashi2026Data,
-} from '@constants/ekadashiData';
 import { STORAGE_KEYS } from '@constants/storageKeys';
+import { CALENDAR_2026 } from '@constants/Calendar_2026';
+import { getMonthName } from '@constants/calendarData';
 
-export type { EkadashiItem, EkadashiMonth };
-export { ekadashi2026Data };
+export interface EkadashiItem {
+  id?: string;
+  date: string;
+  day: number;
+  dayOfWeek: string;
+  dayOfWeekHi?: string;
+  paksha: string;
+  pakshaHi?: string;
+  name: string;
+  nameHi?: string;
+  shortMonth?: string;
+  shortMonthHi?: string;
+  month?: number;
+  monthName?: string;
+  monthNameHi?: string;
+  year?: number;
+}
+
+export interface EkadashiMonth {
+  month: number;
+  monthName: string;
+  monthNameHi?: string;
+  ekadashis: EkadashiItem[];
+}
+
+export interface EkadashiData {
+  collection: string;
+  year: number;
+  months: EkadashiMonth[];
+}
+
+const buildEkadashi2026Data = (): EkadashiData => {
+  const ekadashiFestivals = CALENDAR_2026.filter(
+    f =>
+      (f.category && f.category.toLowerCase().includes('ekadashi')) ||
+      (f.englishName && f.englishName.toLowerCase().includes('ekadashi')),
+  );
+
+  const months: EkadashiMonth[] = Array.from({ length: 12 }, (_, i) => {
+    const monthNum = i + 1;
+    const monthName = getMonthName(monthNum, 'en');
+    const monthNameHi = getMonthName(monthNum, 'hi');
+
+    const monthEkadashis: EkadashiItem[] = ekadashiFestivals
+      .filter(f => f.month === monthNum)
+      .sort((a, b) => a.day - b.day)
+      .map(f => {
+        const mm = String(f.month).padStart(2, '0');
+        const dd = String(f.day).padStart(2, '0');
+        const dateStr = `2026-${mm}-${dd}`;
+        const dateObj = new Date(2026, f.month - 1, f.day);
+        const dayOfWeek = dateObj.toLocaleDateString('en-US', {
+          weekday: 'long',
+        });
+
+        return {
+          id: f.id,
+          date: dateStr,
+          day: f.day,
+          dayOfWeek,
+          paksha: f.tithi || '',
+          pakshaHi: f.tithiHi || '',
+          name: f.englishName || f.name,
+          nameHi: f.hindiName || '',
+          month: f.month,
+          monthName,
+          monthNameHi,
+          year: 2026,
+        };
+      });
+
+    return {
+      month: monthNum,
+      monthName,
+      monthNameHi,
+      ekadashis: monthEkadashis,
+    };
+  });
+
+  return {
+    collection: 'ekadashi_2026',
+    year: 2026,
+    months,
+  };
+};
+
+export const ekadashi2026Data = buildEkadashi2026Data();
 
 const storage = createMMKV();
 
@@ -67,7 +149,10 @@ export const getEkadashiMonthsData = async (): Promise<EkadashiMonth[]> => {
 
     return ekadashi2026Data.months;
   } catch (error) {
-    console.warn('Notice: Firestore unavailable, using local Ekadashi data:', error);
+    console.warn(
+      'Notice: Firestore unavailable, using local Ekadashi data:',
+      error,
+    );
     return ekadashi2026Data.months;
   }
 };

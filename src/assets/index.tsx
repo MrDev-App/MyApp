@@ -55,7 +55,7 @@ const imagePath = {
     require('./png/OnBoarding2.webp'),
     require('./png/OnBoarding3.webp'),
   ],
-  bhaktiVideo: require('./video/bhakti.mp4'),
+
   MalaMoti: require('./png/MalaMoti.webp'),
   Diwali: require('./png/Diwali.webp'),
   Goripuja: require('./festivals/GauriPuja.jpg'),
@@ -229,6 +229,10 @@ const imagePath = {
   buildingSetuLanka: require('./png/ram_setu/building_setu_lanka.jpg'),
   loading: require('./lottie/loading.json'),
   lampLottie: require('./lottie/lamp.json'),
+
+  // audio and video
+  bhaktiVideo: require('./video/bhakti.mp4'),
+  artiDemo: require('./audio/ArtiDemo.mp3'),
 };
 
 export { Back, Forward, Bell, Pin, FoldedHands, Location, Tag };

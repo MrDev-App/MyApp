@@ -19,6 +19,7 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { useAppLanguage } from '@hooks';
 import MusicPlayer from '@components/MusicPlayer';
+import { TempleBell } from '@components';
 
 type ArtiScreenRouteProp = RouteProp<RootStackParamList, 'ArtiScreen'>;
 
@@ -130,6 +131,23 @@ export const ArtiScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, { paddingTop: safeTop }]}>
+      {/* Decorative Temple Bells (Left & Right) - swings smoothly when music is playing */}
+      <TempleBell
+        height={scale(170)}
+        swingAngle={12}
+        initialDirection="left"
+        isSwinging={isPlaying}
+        style={styles.leftBell}
+      />
+      <TempleBell
+        height={scale(170)}
+        swingAngle={12}
+        initialDirection="right"
+        delay={350}
+        isSwinging={isPlaying}
+        style={styles.rightBell}
+      />
+
       <View style={styles.modalBody}>
         {/* Top Action Bar: Close Button */}
         <TouchableOpacity
@@ -354,5 +372,17 @@ const styles = StyleSheet.create({
     fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
+  },
+  leftBell: {
+    position: 'absolute',
+    top: 0,
+    left: scale(8),
+    zIndex: 1,
+  },
+  rightBell: {
+    position: 'absolute',
+    top: 0,
+    right: scale(8),
+    zIndex: 1,
   },
 });

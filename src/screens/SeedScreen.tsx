@@ -15,8 +15,10 @@ import {
   getDocs,
   Timestamp,
 } from '@react-native-firebase/firestore';
-import { ekadashi2026Data } from '@constants/ekadashiData';
-import { clearEkadashiDataCache } from '@services/ekadashiService';
+import {
+  ekadashi2026Data,
+  clearEkadashiDataCache,
+} from '@services/ekadashiService';
 import { uploadNaamJapDataToFirestore } from '@services/seedNaamJapService';
 import { uploadCalendar2026ToFirestore } from '@services/seedFestivalService';
 import colors from '@theme/colors';

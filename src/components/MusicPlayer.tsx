@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -13,8 +13,8 @@ import { fs, scale } from '@theme/sizes';
 import {
   PlayIcon,
   PauseIcon,
-  SkipBackIcon,
-  SkipForwardIcon,
+  Rewind15Icon,
+  Forward15Icon,
   RepeatIcon,
   ShuffleIcon,
 } from '@components/icons/SvgIcons';
@@ -29,6 +29,8 @@ import Animated, {
   Easing,
   cancelAnimation,
 } from 'react-native-reanimated';
+import Video from 'react-native-video';
+import imagePath from '@assets';
 
 export interface MusicPlayerProps {
   isPlaying: boolean;
@@ -46,6 +48,7 @@ export interface MusicPlayerProps {
   subtitle?: string;
   style?: StyleProp<ViewStyle>;
   showTimers?: boolean;
+  audioUrl?: string;
 }
 
 const STATIC_BAR_HEIGHTS = [
@@ -156,8 +159,36 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
   subtitle,
   style,
   showTimers = true,
+  audioUrl,
 }) => {
-  const formattedDuration = useMemo(() => formatTime(duration), [duration]);
+  const videoRef = useRef<any>(null);
+  const [currentProgress, setCurrentProgress] = useState(0);
+  const [totalDuration, setTotalDuration] = useState(duration);
+
+  const formattedCurrent = useMemo(
+    () => formatTime(currentProgress),
+    [currentProgress],
+  );
+  const formattedDuration = useMemo(
+    () => formatTime(totalDuration),
+    [totalDuration],
+  );
+
+  const handleRewind15 = () => {
+    triggerHaptic();
+    const newTime = Math.max(0, currentProgress - 15);
+    videoRef.current?.seek(newTime);
+    setCurrentProgress(newTime);
+    onPrevious?.();
+  };
+
+  const handleForward15 = () => {
+    triggerHaptic();
+    const newTime = Math.min(totalDuration, currentProgress + 15);
+    videoRef.current?.seek(newTime);
+    setCurrentProgress(newTime);
+    onNext?.();
+  };
 
   return (
     <View style={[styles.playerContainer, style]}>
@@ -177,13 +208,13 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
         </View>
       )}
 
-      {/* Visual Equalizer Waveform */}
+      {/* Visual Equalizer Waveform & Live Timers */}
       <View style={styles.waveformWrapper}>
-        {showTimers && (
-          <View style={styles.timeRow}>
-            <Text style={styles.timeText}>0:00</Text>
-          </View>
-        )}
+        <View style={styles.timeRow}>
+          {showTimers && (
+            <Text style={styles.timeText}>{formattedCurrent}</Text>
+          )}
+        </View>
 
         <View style={styles.container}>
           {BAR_INDICES.map(i => (
@@ -191,25 +222,64 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
           ))}
         </View>
 
-        {showTimers && (
-          <View style={styles.timeRow}>
+        <View style={styles.timeRow}>
+          {showTimers && (
             <Text style={styles.timeText}>{formattedDuration}</Text>
-          </View>
-        )}
+          )}
+        </View>
       </View>
 
-      {/* 5-Button Audio Controls Row */}
+      <Video
+        ref={videoRef}
+        source={
+          audioUrl
+            ? {
+                uri: audioUrl.startsWith('file://')
+                  ? audioUrl
+                  : `file://${audioUrl}`,
+              }
+            : imagePath.artiDemo
+        }
+        paused={!isPlaying}
+        repeat={isLooping}
+        onProgress={data => {
+          setCurrentProgress(data.currentTime);
+        }}
+        onLoad={data => {
+          if (data.duration && data.duration > 0) {
+            setTotalDuration(data.duration);
+          }
+        }}
+        onEnd={() => {
+          if (!isLooping) {
+            onTogglePlay();
+            setCurrentProgress(0);
+            videoRef.current?.seek(0);
+          }
+        }}
+        style={styles.hiddenVideo}
+        ignoreSilentSwitch="ignore"
+        playInBackground={true}
+        playWhenInactive={true}
+      />
+
+      {/* 5-Button Audio Controls Row: Shuffle | 15s Rewind | Play/Pause | 15s Forward | Repeat */}
       <View style={styles.controlsRow}>
         <ControlButton onPress={onToggleShuffle} isActive={isShuffle}>
           <ShuffleIcon
             size={scale(20)}
             color={isShuffle ? colors.ring : colors.secondary}
-            strokeWidth={2.2}
+            strokeWidth={1.5}
           />
         </ControlButton>
 
-        <ControlButton onPress={onPrevious}>
-          <SkipBackIcon size={scale(22)} color={colors.secondary} />
+        {/* 15s Rewind */}
+        <ControlButton onPress={handleRewind15}>
+          <Rewind15Icon
+            size={scale(22)}
+            color={colors.secondary}
+            strokeWidth={1.5}
+          />
         </ControlButton>
 
         {/* Hero Play / Pause Button */}
@@ -232,19 +302,23 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
           </View>
         </TouchableOpacity>
 
-        <ControlButton onPress={onNext}>
-          <SkipForwardIcon size={scale(22)} color={colors.secondary} />
+        {/* 15s Forward */}
+        <ControlButton onPress={handleForward15}>
+          <Forward15Icon
+            size={scale(22)}
+            color={colors.secondary}
+            strokeWidth={1.5}
+          />
         </ControlButton>
 
-        {onToggleLoop && (
-          <ControlButton onPress={onToggleLoop} isActive={isLooping}>
-            <RepeatIcon
-              size={scale(20)}
-              color={isLooping ? colors.ring : colors.secondary}
-              strokeWidth={2.2}
-            />
-          </ControlButton>
-        )}
+        {/* Repeat / Loop */}
+        <ControlButton onPress={onToggleLoop} isActive={isLooping}>
+          <RepeatIcon
+            size={scale(20)}
+            color={isLooping ? colors.ring : colors.secondary}
+            strokeWidth={1.5}
+          />
+        </ControlButton>
       </View>
     </View>
   );
@@ -274,19 +348,18 @@ const styles = StyleSheet.create({
     height: scale(15),
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     gap: scale(4),
   },
   timeRow: {
-    flexDirection: 'row',
+    width: scale(34),
     alignItems: 'center',
-    paddingHorizontal: scale(2),
+    justifyContent: 'center',
   },
   timeText: {
-    fontSize: fs(10.5),
-    fontFamily: fonts.TiroHindiRegular,
+    fontSize: fs(11),
+    fontFamily: fonts.PoppinsMedium,
     color: colors.neutralDisabled,
-    fontWeight: '600',
   },
   controlsRow: {
     flexDirection: 'row',
@@ -340,5 +413,11 @@ const styles = StyleSheet.create({
     width: scale(2.2),
     backgroundColor: colors.ring,
     borderRadius: scale(1.1),
+  },
+  hiddenVideo: {
+    width: 0,
+    height: 0,
+    position: 'absolute',
+    opacity: 0,
   },
 });

@@ -30,36 +30,16 @@ import imagePath from '@assets/index';
 import FestivalModal from '@components/FestivalModal';
 import {
   getMonthName,
-  monthsHi,
-  weekdaysHi,
-  dayNamesHi,
-  monthsEn,
-  weekdaysEn,
-  dayNamesEn,
+  getCalendarLocaleConfig,
 } from '@constants/calendarData';
-
-LocaleConfig.locales.hi = {
-  monthNames: monthsHi,
-  monthNamesShort: monthsHi,
-  dayNames: dayNamesHi,
-  dayNamesShort: weekdaysHi,
-  today: 'आज',
-};
-
-LocaleConfig.locales.en = {
-  monthNames: monthsEn,
-  monthNamesShort: monthsEn,
-  dayNames: dayNamesEn,
-  dayNamesShort: weekdaysEn,
-  today: 'Today',
-};
 
 const CalendarScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const { currentLanguage } = useAppLanguage();
 
-  // Synchronously update the calendar locale configuration during the render phase
+  // Synchronously register and set locale for active language (en, hi, or any future language)
+  LocaleConfig.locales[currentLanguage] = getCalendarLocaleConfig(currentLanguage);
   LocaleConfig.defaultLocale = currentLanguage;
 
   // Initialize immediately with local CALENDAR_2026 data so cards are visible with 0ms delay
@@ -124,9 +104,7 @@ const CalendarScreen = () => {
   }, [currentMonthNum, currentYearNum, currentLanguage]);
 
   const monthOnlyName = React.useMemo(() => {
-    return currentLanguage === 'hi'
-      ? monthsHi[currentMonthNum - 1] || 'महीने'
-      : monthsEn[currentMonthNum - 1] || 'Month';
+    return getMonthName(currentMonthNum, currentLanguage);
   }, [currentMonthNum, currentLanguage]);
 
   // Festivals for the active month sorted by day

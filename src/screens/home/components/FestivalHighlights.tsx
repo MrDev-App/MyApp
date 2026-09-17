@@ -7,7 +7,6 @@ import {
   Pressable,
   ImageBackground,
   Platform,
-  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -26,11 +25,12 @@ import {
 import imagePath from '@assets/index';
 import AnimatedButton from '@components/AnimatedButton';
 import FestivalModal from '@components/FestivalModal';
+import Skeleton from '@components/Skeleton';
 
 const FestivalHighlights = ({ onPress }: any) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { t, currentLanguage } = useAppLanguage();
+  const { t, select } = useAppLanguage();
 
   const [festivals, setFestivals] = useState<Festival[]>(() =>
     getLocalFestivalsFallback(),
@@ -132,11 +132,29 @@ const FestivalHighlights = ({ onPress }: any) => {
       return null;
     }
     return (
-      <View style={styles.footerLoader}>
-        <ActivityIndicator size="small" color={colors.ring} />
+      <View style={styles.footerSkeleton}>
+        <Skeleton
+          width={scale(124)}
+          height={scale(105)}
+          borderRadius={scale(15)}
+        />
       </View>
     );
   };
+
+  const renderSkeleton = () => (
+    <View style={styles.skeletonContainer}>
+      {[1, 2, 3, 4].map(item => (
+        <View key={item} style={styles.skeletonCard}>
+          <Skeleton
+            width={scale(124)}
+            height={scale(105)}
+            borderRadius={scale(15)}
+          />
+        </View>
+      ))}
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -154,9 +172,7 @@ const FestivalHighlights = ({ onPress }: any) => {
       </View>
 
       {loading ? (
-        <View style={styles.loaderContainer}>
-          <ActivityIndicator size="small" color={colors.ring} />
-        </View>
+        renderSkeleton()
       ) : (
         <FlatList
           horizontal
@@ -173,10 +189,8 @@ const FestivalHighlights = ({ onPress }: any) => {
           onEndReachedThreshold={0.5}
           ListFooterComponent={renderFooter}
           renderItem={({ item }) => {
-            const name =
-              currentLanguage === 'hi' ? item.hindiName : item.englishName;
-            const dateStr =
-              currentLanguage === 'hi' ? item.dateStrHi : item.dateStrEn;
+            const name = select(item.hindiName, item.englishName);
+            const dateStr = select(item.dateStrHi, item.dateStrEn);
 
             const bgImage = item.image || imagePath.greeting;
 
@@ -244,15 +258,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(4),
     paddingBottom: scale(10),
   },
-  loaderContainer: {
-    height: scale(100),
-    justifyContent: 'center',
-    alignItems: 'center',
+  skeletonContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: scale(4),
+    paddingBottom: scale(10),
   },
-  footerLoader: {
-    width: scale(50),
-    justifyContent: 'center',
-    alignItems: 'center',
+  skeletonCard: {
+    marginRight: scale(12),
+  },
+  footerSkeleton: {
+    marginRight: scale(12),
   },
   cardContainer: {
     marginRight: scale(12),

@@ -22,20 +22,16 @@ export const CATEGORIES_DATA_CACHE_KEY = STORAGE_KEYS.CATEGORIES_CACHE;
 
 const categoryIconMap: Record<string, any> = {
   aarti: imagePath.lamp,
-  aartis: imagePath.lamp,
   shlok: imagePath.shlok,
-  shlokas: imagePath.shlok,
   stories: imagePath.books,
   temples: imagePath.temples,
 };
 
 const categoryCoverMap: Record<string, any> = {
-  aarti: imagePath.greeting,
-  aartis: imagePath.greeting,
-  shlok: imagePath.greeting,
-  shlokas: imagePath.greeting,
-  stories: imagePath.greeting,
-  temples: imagePath.greeting,
+  aarti: imagePath.Ganesha,
+  shlok: imagePath.Krishna,
+  stories: imagePath.Rama,
+  temples: imagePath.temples,
 };
 
 export const resolveCategoryItemImage = (item: any): any => {
@@ -111,6 +107,19 @@ export const resolveCategoryItemImage = (item: any): any => {
     hinName.includes('विश्वकर्मा')
   ) {
     return imagePath.Vishwakarma;
+  }
+
+  if (
+    cleanId.includes('kali') ||
+    cleanId.includes('kalika') ||
+    cleanId.includes('maakali') ||
+    cleanId.includes('kalima') ||
+    engName.includes('kali') ||
+    engName.includes('kalika') ||
+    hinName.includes('काली') ||
+    hinName.includes('कालिका')
+  ) {
+    return imagePath.Kalima;
   }
 
   if (
@@ -257,36 +266,7 @@ export const resolveCategoryIcon = (category: any): any => {
   }
 
   const catId = (category.id || '').toLowerCase().trim();
-  const cleanId = catId.replace(/[^a-z0-9]/g, '');
-
-  if (categoryIconMap[catId]) return categoryIconMap[catId];
-  if (categoryIconMap[cleanId]) return categoryIconMap[cleanId];
-
-  const title = (category.titleEn || '').toLowerCase();
-  const titleHi = category.titleHi || '';
-
-  if (
-    title.includes('aarti') ||
-    title.includes('arti') ||
-    titleHi.includes('आरती')
-  ) {
-    return imagePath.lamp;
-  }
-  if (title.includes('shlok') || titleHi.includes('श्लोक')) {
-    return imagePath.shlok;
-  }
-  if (
-    title.includes('stori') ||
-    title.includes('katha') ||
-    titleHi.includes('कथा')
-  ) {
-    return imagePath.books;
-  }
-  if (title.includes('temple') || titleHi.includes('मंदिर')) {
-    return imagePath.temples;
-  }
-
-  return category.icon || imagePath.lamp;
+  return categoryIconMap[catId] || category.icon || imagePath.lamp;
 };
 
 export const resolveCategoryCover = (category: any): any => {
@@ -299,12 +279,7 @@ export const resolveCategoryCover = (category: any): any => {
   }
 
   const catId = (category.id || '').toLowerCase().trim();
-  const cleanId = catId.replace(/[^a-z0-9]/g, '');
-
-  if (categoryCoverMap[catId]) return categoryCoverMap[catId];
-  if (categoryCoverMap[cleanId]) return categoryCoverMap[cleanId];
-
-  return category.coverImage || imagePath.greeting;
+  return categoryCoverMap[catId] || category.coverImage || imagePath.greeting;
 };
 
 export const mapCategoryWithImage = (category: any): Category => {

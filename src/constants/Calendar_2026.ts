@@ -1904,37 +1904,22 @@ export const CALENDAR_2026_BY_MONTH: CalendarMonth2026[] = MONTH_NAMES.map(
   },
 );
 
-/**
- * January 2026 festivals - derived from CALENDAR_2026
- */
 export const CALENDAR_JANUARY_2026: Festival2026[] =
   CALENDAR_2026_BY_MONTH[0].festivals;
 
-/**
- * Get all festivals for a specific month (1 - 12)
- */
 export const getFestivalsForMonth = (month: number): Festival2026[] => {
   const monthData = CALENDAR_2026_BY_MONTH[month - 1];
   return monthData ? monthData.festivals : [];
 };
 
-/**
- * Get all festivals occurring on a specific ISO date (YYYY-MM-DD)
- */
 export const getFestivalsForDate = (dateStr: string): Festival2026[] => {
   return CALENDAR_2026.filter(f => f.date === dateStr);
 };
 
-/**
- * Get a festival by its unique ID
- */
 export const getFestivalById = (id: string): Festival2026 | undefined => {
   return CALENDAR_2026.find(f => f.id === id);
 };
 
-/**
- * Search festivals by name in English or Hindi
- */
 export const searchFestivals = (
   query: string,
   lang: 'en' | 'hi' = 'en',
@@ -1959,9 +1944,6 @@ export const searchFestivals = (
   });
 };
 
-/**
- * Get localized festival name based on language code ('en' or 'hi')
- */
 export const getLocalizedFestivalName = (
   festival: Festival2026,
   lang: string,
@@ -1971,9 +1953,6 @@ export const getLocalizedFestivalName = (
     : festival.name;
 };
 
-/**
- * Get localized festival date string based on language code ('en' or 'hi')
- */
 export const getLocalizedDateStr = (
   festival: Festival2026,
   lang: string,
@@ -1995,9 +1974,6 @@ export const getLocalizedTithi = (
     : festival.tithi;
 };
 
-/**
- * Get localized category based on language code ('en' or 'hi')
- */
 export const getLocalizedCategory = (
   festival: Festival2026,
   lang: string,
@@ -2007,9 +1983,6 @@ export const getLocalizedCategory = (
     : festival.category;
 };
 
-/**
- * Get localized story/history based on language code ('en' or 'hi')
- */
 export const getLocalizedStory = (
   festival: Festival2026,
   lang: string,

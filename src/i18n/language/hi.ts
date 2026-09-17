@@ -188,4 +188,65 @@ export default {
   PROGRESS_BUTTON: 'प्रगति',
   TODAY: 'आज',
   EKADASHI_VRAT: 'एकादशी व्रत',
+
+  // Months
+  MONTH_JANUARY: 'जनवरी',
+  MONTH_FEBRUARY: 'फरवरी',
+  MONTH_MARCH: 'मार्च',
+  MONTH_APRIL: 'अप्रैल',
+  MONTH_MAY: 'मई',
+  MONTH_JUNE: 'जून',
+  MONTH_JULY: 'जुलाई',
+  MONTH_AUGUST: 'अगस्त',
+  MONTH_SEPTEMBER: 'सितंबर',
+  MONTH_OCTOBER: 'अक्टूबर',
+  MONTH_NOVEMBER: 'नवंबर',
+  MONTH_DECEMBER: 'दिसंबर',
+
+  // Months (Short)
+  MONTH_JAN_SHORT: 'जनवरी',
+  MONTH_FEB_SHORT: 'फरवरी',
+  MONTH_MAR_SHORT: 'मार्च',
+  MONTH_APR_SHORT: 'अप्रैल',
+  MONTH_MAY_SHORT: 'मई',
+  MONTH_JUN_SHORT: 'जून',
+  MONTH_JUL_SHORT: 'जुलाई',
+  MONTH_AUG_SHORT: 'अगस्त',
+  MONTH_SEP_SHORT: 'सितंबर',
+  MONTH_OCT_SHORT: 'अक्टूबर',
+  MONTH_NOV_SHORT: 'नवंबर',
+  MONTH_DEC_SHORT: 'दिसंबर',
+
+  // Weekdays (Short)
+  WEEKDAY_SUN_SHORT: 'रवि',
+  WEEKDAY_MON_SHORT: 'सोम',
+  WEEKDAY_TUE_SHORT: 'मंग',
+  WEEKDAY_WED_SHORT: 'बुध',
+  WEEKDAY_THU_SHORT: 'गुरु',
+  WEEKDAY_FRI_SHORT: 'शुक्र',
+  WEEKDAY_SAT_SHORT: 'शनि',
+
+  // Day Names (Full)
+  DAY_SUNDAY: 'रविवार',
+  DAY_MONDAY: 'सोमवार',
+  DAY_TUESDAY: 'मंगलवार',
+  DAY_WEDNESDAY: 'बुधवार',
+  DAY_THURSDAY: 'गुरुवार',
+  DAY_FRIDAY: 'शुक्रवार',
+  DAY_SATURDAY: 'शनिवार',
+
+  // Hindu Calendar Banner
+  SANATAN_HINDU_CALENDAR: 'सनातन हिंदू कैलेंडर',
+  CALENDAR_BANNER_TITLE: 'प्रमुख व्रत, पर्व एवं त्यौहार',
+  CALENDAR_BANNER_DESC: 'त्योहारों और वर्ष भर के संपूर्ण व्रत-पर्व',
+  CALENDAR_BANNER_MONTH_CHIP: 'मासिक कैलेंडर',
+  CALENDAR_BANNER_VRAT_CHIP: 'व्रत-पर्व',
+  CALENDAR_BANNER_FOOTER: 'संपूर्ण सनातन कैलेंडर एवं तिथियां देखें',
+  CALENDAR_BANNER_CTA: 'कैलेंडर देखें',
+
+  // Aarti Screen
+  AARTI_SANGRAH_TITLE: 'आरती संग्रह',
+  AARTI_SANGRAH_DEFAULT_DESC:
+    'देवी-देवताओं की स्तुति और आशीर्वाद प्राप्त करने के लिए पावन आरतियां।',
+  READ_AARTI_ACTION: 'आरती पढ़ें →',
 };

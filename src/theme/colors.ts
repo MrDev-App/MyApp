@@ -163,6 +163,35 @@ export const colors = {
   levelLockedBg: '#3C2C20',
   levelLockedBorder: 'rgba(183, 168, 151, 0.2)',
   goldAura: 'rgba(255, 215, 0, 0.35)',
+
+  // Hindu Calendar Banner & Shimmer Tokens
+  bannerBgIvory: '#FFFDF9',
+  bannerBgWarm: '#FFF7EA',
+  bannerBgSaffron: '#FEEED6',
+  bannerBorderOrange: 'rgba(251, 148, 55, 0.3)',
+  bannerBorderOrangeMedium: 'rgba(251, 148, 55, 0.35)',
+  bannerBorderOrangeLight: 'rgba(251, 148, 55, 0.18)',
+  bannerTagBg: 'rgba(251, 148, 55, 0.14)',
+  bannerChipBg: 'rgba(251, 148, 55, 0.1)',
+  bannerChipBorder: 'rgba(251, 148, 55, 0.25)',
+  bannerGlowAura: 'rgba(251, 148, 55, 0.2)',
+  bannerLivePillBg: 'rgba(42, 24, 16, 0.75)',
+  bannerLiveDot: '#34d399',
+  bannerLiveText: '#FFF8E7',
+  shimmerGoldTransparent: 'rgba(255, 215, 0, 0)',
+  shimmerGoldLight: 'rgba(255, 225, 120, 0.1)',
+  shimmerWhiteHighlight: 'rgba(255, 255, 255, 0.25)',
+};
+
+export const bannerGradients = {
+  calendarBanner: [colors.bannerBgIvory, colors.bannerBgWarm, colors.bannerBgSaffron],
+  calendarShimmer: [
+    colors.shimmerGoldTransparent,
+    colors.shimmerGoldLight,
+    colors.shimmerWhiteHighlight,
+    colors.shimmerGoldLight,
+    colors.shimmerGoldTransparent,
+  ],
 };
 
 export type ColorsType = typeof colors;

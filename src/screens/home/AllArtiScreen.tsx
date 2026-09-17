@@ -24,6 +24,7 @@ import {
 } from '@services/categoriesService';
 import { categoriesData } from '@constants/categoriesData';
 import { useAppLanguage } from '@hooks';
+import { Translation } from '@i18n/language';
 import { RootNavigationProp } from '@navigation/types';
 
 const DEFAULT_AARTI_CATEGORY: Category = (categoriesData.find(c =>
@@ -34,7 +35,7 @@ export const AllArtiScreen = () => {
   const insets = useSafeAreaInsets();
   const route = useRoute<any>();
   const navigation = useNavigation<RootNavigationProp>();
-  const { isHindi } = useAppLanguage();
+  const { t, select } = useAppLanguage();
   const { width: windowWidth } = useWindowDimensions();
 
   const initialCategory: Category =
@@ -68,12 +69,12 @@ export const AllArtiScreen = () => {
     navigation.navigate('ArtiScreen', { arti: item });
   };
 
-  const screenTitle = isHindi ? 'आरती संग्रह' : 'Aarti Sangrah';
-  const screenDesc = isHindi
-    ? category.descriptionHi ||
-      'देवी-देवताओं की स्तुति और आशीर्वाद प्राप्त करने के लिए पावन आरतियां।'
-    : category.descriptionEn ||
-      'Devotional prayers sung in praise of deities to invoke their blessings.';
+  const screenTitle =
+    select(category.titleHi, category.titleEn) ||
+    t(Translation.AARTI_SANGRAH_TITLE);
+  const screenDesc =
+    select(category.descriptionHi, category.descriptionEn) ||
+    t(Translation.AARTI_SANGRAH_DEFAULT_DESC);
 
   // Grid layout calculations for Aarti cards
   const padding = scale(16);
@@ -81,8 +82,8 @@ export const AllArtiScreen = () => {
   const cardWidth = (windowWidth - padding * 2 - gap) / 2;
 
   const renderAartiItem = ({ item }: { item: CategoryItem }) => {
-    const name = isHindi ? item.nameHi : item.nameEn;
-    const subtitle = isHindi ? item.subtitleHi : item.subtitleEn;
+    const name = select(item.nameHi, item.nameEn);
+    const subtitle = select(item.subtitleHi, item.subtitleEn);
 
     return (
       <TouchableOpacity
@@ -107,7 +108,7 @@ export const AllArtiScreen = () => {
         ) : null}
         <View style={styles.aartiCardAction}>
           <Text style={styles.aartiActionText}>
-            {isHindi ? 'आरती पढ़ें →' : 'Read Aarti →'}
+            {t(Translation.READ_AARTI_ACTION)}
           </Text>
         </View>
       </TouchableOpacity>
@@ -199,7 +200,7 @@ const styles = StyleSheet.create({
   descriptionBanner: {
     paddingHorizontal: scale(16),
     paddingVertical: scale(10),
-    backgroundColor: 'rgba(251, 148, 55, 0.08)',
+    backgroundColor: colors.accentOrangeLight,
     borderBottomWidth: 1,
     borderBottomColor: colors.borderSubtle,
   },

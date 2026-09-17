@@ -186,4 +186,65 @@ export default {
   PROGRESS_BUTTON: 'Progress',
   TODAY: 'TODAY',
   EKADASHI_VRAT: 'Ekadashi Vrat',
+
+  // Months
+  MONTH_JANUARY: 'January',
+  MONTH_FEBRUARY: 'February',
+  MONTH_MARCH: 'March',
+  MONTH_APRIL: 'April',
+  MONTH_MAY: 'May',
+  MONTH_JUNE: 'June',
+  MONTH_JULY: 'July',
+  MONTH_AUGUST: 'August',
+  MONTH_SEPTEMBER: 'September',
+  MONTH_OCTOBER: 'October',
+  MONTH_NOVEMBER: 'November',
+  MONTH_DECEMBER: 'December',
+
+  // Months (Short)
+  MONTH_JAN_SHORT: 'Jan',
+  MONTH_FEB_SHORT: 'Feb',
+  MONTH_MAR_SHORT: 'Mar',
+  MONTH_APR_SHORT: 'Apr',
+  MONTH_MAY_SHORT: 'May',
+  MONTH_JUN_SHORT: 'Jun',
+  MONTH_JUL_SHORT: 'Jul',
+  MONTH_AUG_SHORT: 'Aug',
+  MONTH_SEP_SHORT: 'Sep',
+  MONTH_OCT_SHORT: 'Oct',
+  MONTH_NOV_SHORT: 'Nov',
+  MONTH_DEC_SHORT: 'Dec',
+
+  // Weekdays (Short)
+  WEEKDAY_SUN_SHORT: 'Sun',
+  WEEKDAY_MON_SHORT: 'Mon',
+  WEEKDAY_TUE_SHORT: 'Tue',
+  WEEKDAY_WED_SHORT: 'Wed',
+  WEEKDAY_THU_SHORT: 'Thu',
+  WEEKDAY_FRI_SHORT: 'Fri',
+  WEEKDAY_SAT_SHORT: 'Sat',
+
+  // Day Names (Full)
+  DAY_SUNDAY: 'Sunday',
+  DAY_MONDAY: 'Monday',
+  DAY_TUESDAY: 'Tuesday',
+  DAY_WEDNESDAY: 'Wednesday',
+  DAY_THURSDAY: 'Thursday',
+  DAY_FRIDAY: 'Friday',
+  DAY_SATURDAY: 'Saturday',
+
+  // Hindu Calendar Banner
+  SANATAN_HINDU_CALENDAR: 'Sanatan Hindu Calendar',
+  CALENDAR_BANNER_TITLE: 'Sacred Festivals & Auspicious Vrat',
+  CALENDAR_BANNER_DESC: 'Festivals, & Year-round Auspicious Vrat & Festivals',
+  CALENDAR_BANNER_MONTH_CHIP: 'Month Calendar',
+  CALENDAR_BANNER_VRAT_CHIP: 'Vrat',
+  CALENDAR_BANNER_FOOTER: 'Explore Complete Hindu Calendar',
+  CALENDAR_BANNER_CTA: 'View Calendar',
+
+  // Aarti Screen
+  AARTI_SANGRAH_TITLE: 'Aarti Sangrah',
+  AARTI_SANGRAH_DEFAULT_DESC:
+    'Devotional prayers sung in praise of deities to invoke their blessings.',
+  READ_AARTI_ACTION: 'Read Aarti →',
 };

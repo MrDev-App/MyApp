@@ -5,7 +5,7 @@ import {
   getDocs,
 } from '@react-native-firebase/firestore';
 import imagePath from '@assets/index';
-import { monthsHi } from '@constants/calendarData';
+import { getMonthName } from '@constants/calendarData';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 import { CALENDAR_2026 } from '@constants/Calendar_2026';
 
@@ -170,7 +170,7 @@ export const mapFestivalWithImage = (fest: any): Festival => {
   const dateStrEn =
     fest.dateStrEn || `${shortMonthsEn[month - 1] || 'Jan'} ${day}`;
   const dateStrHi =
-    fest.dateStrHi || `${day} ${monthsHi[month - 1] || 'जनवरी'}`;
+    fest.dateStrHi || `${day} ${getMonthName(month, 'hi') || 'जनवरी'}`;
 
   const image = resolveFestivalImage(fest);
 

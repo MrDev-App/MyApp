@@ -1,5 +1,5 @@
 import React from 'react';
-import Svg, { Path, Circle } from 'react-native-svg';
+import Svg, { Path, Circle, Text as SvgText } from 'react-native-svg';
 import colors from '@theme/colors';
 
 export interface SvgIconProps {
@@ -352,6 +352,17 @@ export const Rewind15Icon = (props: SvgIconProps) => {
       style={{ backgroundColor: 'transparent' }}
     >
       <Path d="M3.05 11a9 9 0 11.5 4m-.5-4v-5m0 5h5" />
+      <SvgText
+        x="12"
+        y="14.5"
+        textAnchor="middle"
+        fontSize="6.5"
+        fontWeight="bold"
+        fill={color}
+        stroke="none"
+      >
+        15
+      </SvgText>
     </Svg>
   );
 };
@@ -371,6 +382,17 @@ export const Forward15Icon = (props: SvgIconProps) => {
       style={{ backgroundColor: 'transparent' }}
     >
       <Path d="M20.95 11a9 9 0 10-.5 4m.5-4v-5m0 5h-5" />
+      <SvgText
+        x="12"
+        y="14.5"
+        textAnchor="middle"
+        fontSize="6.5"
+        fontWeight="bold"
+        fill={color}
+        stroke="none"
+      >
+        15
+      </SvgText>
     </Svg>
   );
 };

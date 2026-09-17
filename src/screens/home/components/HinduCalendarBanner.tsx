@@ -19,15 +19,17 @@ import Animated, {
   Easing,
   interpolate,
 } from 'react-native-reanimated';
-import colors from '@theme/colors';
+import colors, { bannerGradients } from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import imagePath, { Forward } from '@assets/index';
 import { navigate } from '@navigation/navigationRef';
+import { getMonthName, getMonthShortName } from '@constants/calendarData';
+import { Translation } from '@i18n/language';
 
 const HinduCalendarBanner: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { isHindi: isHi } = useAppLanguage();
+  const { isHindi: isHi, currentLanguage, t } = useAppLanguage();
 
   // 1. Shimmer sweep animation across the card
   const shimmerProgress = useSharedValue(-1);
@@ -123,38 +125,11 @@ const HinduCalendarBanner: React.FC = () => {
   const todayDateStr = useMemo(() => {
     const d = new Date();
     const day = d.getDate();
-    const monthsHi = [
-      'जनवरी',
-      'फ़रवरी',
-      'मार्च',
-      'अप्रैल',
-      'मई',
-      'जून',
-      'जुलाई',
-      'अगस्त',
-      'सितंबर',
-      'अक्टूबर',
-      'नवंबर',
-      'दिसंबर',
-    ];
-    const monthsEn = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
+    const month = d.getMonth() + 1;
     return isHi
-      ? `${day} ${monthsHi[d.getMonth()]}`
-      : `${monthsEn[d.getMonth()]} ${day}`;
-  }, [isHi]);
+      ? `${day} ${getMonthName(month, currentLanguage)}`
+      : `${getMonthShortName(month, currentLanguage)} ${day}`;
+  }, [isHi, currentLanguage]);
 
   const handlePress = () => {
     try {
@@ -179,7 +154,7 @@ const HinduCalendarBanner: React.FC = () => {
         <View style={styles.cardContainer}>
           {/* Base Rich Saffron-Ivory Gradient */}
           <LinearGradient
-            colors={['#FFFDF9', '#FFF7EA', '#FEEED6']}
+            colors={bannerGradients.calendarBanner}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.gradientBg}
@@ -188,14 +163,14 @@ const HinduCalendarBanner: React.FC = () => {
             <View style={styles.headerRow}>
               <View style={styles.auspiciousTag}>
                 <Text style={styles.auspiciousTagText}>
-                  {isHi ? 'सनातन हिंदू कैलेंडर' : 'Sanatan Hindu Calendar'}
+                  {t(Translation.SANATAN_HINDU_CALENDAR)}
                 </Text>
               </View>
 
               <View style={styles.liveDateContainer}>
                 <Animated.View style={[styles.liveDot, dotStyle]} />
                 <Text style={styles.liveDateText}>
-                  {isHi ? `आज: ${todayDateStr}` : `Today: ${todayDateStr}`}
+                  {`${t(Translation.TODAY)}: ${todayDateStr}`}
                 </Text>
               </View>
             </View>
@@ -205,15 +180,11 @@ const HinduCalendarBanner: React.FC = () => {
               {/* Left Details */}
               <View style={styles.textColumn}>
                 <Text style={styles.titleText}>
-                  {isHi
-                    ? 'दैनिक पंचांग एवं व्रत त्यौहार'
-                    : 'Daily Panchang & Festivals'}
+                  {t(Translation.CALENDAR_BANNER_TITLE)}
                 </Text>
 
                 <Text style={styles.descriptionText}>
-                  {isHi
-                    ? ' तिथि, एवं वर्ष भर के संपूर्ण व्रत-पर्व'
-                    : 'Tithi, & Year-round Auspicious Vrat & Festivals'}
+                  {t(Translation.CALENDAR_BANNER_DESC)}
                 </Text>
 
                 {/* Feature Chips */}
@@ -225,7 +196,7 @@ const HinduCalendarBanner: React.FC = () => {
                       resizeMode="contain"
                     />
                     <Text style={styles.chipText}>
-                      {isHi ? 'मासिक पंचांग' : 'Panchang'}
+                      {t(Translation.CALENDAR_BANNER_MONTH_CHIP)}
                     </Text>
                   </View>
                   <View style={styles.chip}>
@@ -235,7 +206,7 @@ const HinduCalendarBanner: React.FC = () => {
                       resizeMode="contain"
                     />
                     <Text style={styles.chipText}>
-                      {isHi ? 'व्रत-पर्व' : 'Vrat'}
+                      {t(Translation.CALENDAR_BANNER_VRAT_CHIP)}
                     </Text>
                   </View>
                 </View>
@@ -266,9 +237,7 @@ const HinduCalendarBanner: React.FC = () => {
             {/* Bottom CTA Action Strip */}
             <View style={styles.footerStrip}>
               <Text style={styles.footerPrompt} numberOfLines={1}>
-                {isHi
-                  ? 'संपूर्ण सनातन कैलेंडर एवं तिथियां देखें'
-                  : 'Explore Complete Hindu Calendar'}
+                {t(Translation.CALENDAR_BANNER_FOOTER)}
               </Text>
 
               <TouchableOpacity
@@ -278,7 +247,7 @@ const HinduCalendarBanner: React.FC = () => {
                 onPress={handlePress}
               >
                 <Text style={styles.ctaButtonText}>
-                  {isHi ? 'कैलेंडर देखें' : 'View Calendar'}
+                  {t(Translation.CALENDAR_BANNER_CTA)}
                 </Text>
                 <Animated.View style={arrowStyle}>
                   <Forward
@@ -298,13 +267,7 @@ const HinduCalendarBanner: React.FC = () => {
               >
                 <LinearGradient
                   pointerEvents="none"
-                  colors={[
-                    'rgba(255, 215, 0, 0)',
-                    'rgba(255, 225, 120, 0.1)',
-                    'rgba(255, 255, 255, 0.25)',
-                    'rgba(255, 225, 120, 0.1)',
-                    'rgba(255, 215, 0, 0)',
-                  ]}
+                  colors={bannerGradients.calendarShimmer}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.shimmerGradient}
@@ -328,10 +291,9 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     borderRadius: scale(14),
-    backgroundColor: '#FFFDF9',
-
+    backgroundColor: colors.bannerBgIvory,
     borderWidth: 1,
-    borderColor: 'rgba(251, 148, 55, 0.3)',
+    borderColor: colors.bannerBorderOrange,
     ...Platform.select({
       ios: {
         shadowColor: colors.ring,
@@ -357,13 +319,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   auspiciousTag: {
-    backgroundColor: 'rgba(251, 148, 55, 0.14)',
+    backgroundColor: colors.bannerTagBg,
     paddingHorizontal: scale(9),
     paddingVertical: scale(3),
-
     borderRadius: scale(7),
     borderWidth: 1,
-    borderColor: 'rgba(251, 148, 55, 0.35)',
+    borderColor: colors.bannerBorderOrangeMedium,
   },
   auspiciousTagText: {
     color: colors.secondary,
@@ -374,7 +335,7 @@ const styles = StyleSheet.create({
   liveDateContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(42, 24, 16, 0.75)',
+    backgroundColor: colors.bannerLivePillBg,
     paddingHorizontal: scale(8),
     paddingVertical: scale(3),
     borderRadius: scale(8),
@@ -384,10 +345,10 @@ const styles = StyleSheet.create({
     width: scale(6),
     height: scale(6),
     borderRadius: scale(3),
-    backgroundColor: '#34d399',
+    backgroundColor: colors.bannerLiveDot,
   },
   liveDateText: {
-    color: '#FFF8E7',
+    color: colors.bannerLiveText,
     fontSize: fs(10),
     fontFamily: fonts.TiroHindiRegular,
   },
@@ -413,7 +374,6 @@ const styles = StyleSheet.create({
     fontSize: fs(11),
     fontFamily: fonts.TiroHindiRegular,
     lineHeight: fs(15.5),
-
     opacity: 0.85,
     marginBottom: scale(8),
   },
@@ -421,16 +381,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
-
     gap: scale(6),
   },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(4),
-    backgroundColor: 'rgba(251, 148, 55, 0.1)',
+    backgroundColor: colors.bannerChipBg,
     borderWidth: 1,
-    borderColor: 'rgba(251, 148, 55, 0.25)',
+    borderColor: colors.bannerChipBorder,
     paddingHorizontal: scale(7),
     paddingVertical: scale(2.5),
     borderRadius: scale(6),
@@ -457,7 +416,7 @@ const styles = StyleSheet.create({
     width: scale(64),
     height: scale(64),
     borderRadius: scale(32),
-    backgroundColor: 'rgba(251, 148, 55, 0.2)',
+    backgroundColor: colors.bannerGlowAura,
   },
   iconWrapper: {
     alignItems: 'center',
@@ -483,7 +442,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     paddingHorizontal: scale(10),
     paddingBottom: scale(10),
-    borderTopColor: 'rgba(251, 148, 55, 0.18)',
+    borderTopColor: colors.bannerBorderOrangeLight,
   },
   footerPrompt: {
     color: colors.secondary,

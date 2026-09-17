@@ -10,6 +10,11 @@ export interface AppLanguageState {
   t: (key: string, options?: any) => string;
   i18n: any;
   changeLanguage: (lng: SupportedLanguage) => Promise<void>;
+  /**
+   * Helper to select value based on current active language with automatic fallback
+   * @example select(item.hindiName, item.englishName)
+   */
+  select: <T>(hiVal: T, enVal: T) => T;
 }
 
 /**
@@ -27,6 +32,13 @@ export const useAppLanguage = (): AppLanguageState => {
     await i18n.changeLanguage(newLng);
   };
 
+  const select = <T>(hiVal: T, enVal: T): T => {
+    if (isHindi) {
+      return (hiVal !== undefined && hiVal !== null && hiVal !== '' ? hiVal : enVal) as T;
+    }
+    return (enVal !== undefined && enVal !== null && enVal !== '' ? enVal : hiVal) as T;
+  };
+
   return {
     currentLanguage,
     lang,
@@ -35,6 +47,7 @@ export const useAppLanguage = (): AppLanguageState => {
     t,
     i18n,
     changeLanguage,
+    select,
   };
 };
 
