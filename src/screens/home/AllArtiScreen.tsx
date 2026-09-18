@@ -17,15 +17,18 @@ import { Back } from '@assets/index';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import {
-  Category,
-  CategoryItem,
-  getCategoriesData,
-} from '@services/categoriesService';
 import { categoriesData } from '@constants/categoriesData';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import { RootNavigationProp } from '@navigation/types';
+import {
+  useAppDispatch,
+  useAppSelector,
+  fetchCategories,
+  RootState,
+  Category,
+  CategoryItem,
+} from '../../redux';
 
 const DEFAULT_AARTI_CATEGORY: Category = (categoriesData.find(c =>
   c.id.toLowerCase().includes('aarti'),
@@ -37,33 +40,33 @@ export const AllArtiScreen = () => {
   const navigation = useNavigation<RootNavigationProp>();
   const { t, select } = useAppLanguage();
   const { width: windowWidth } = useWindowDimensions();
+  const dispatch = useAppDispatch();
+
+  // Read categories from Redux
+  const { categories: reduxCategories } = useAppSelector(
+    (state: RootState) => state.categories,
+  );
 
   const initialCategory: Category =
     (route.params?.category as Category) || DEFAULT_AARTI_CATEGORY;
 
-  const [category, setCategory] = useState<Category>(initialCategory);
+  const [category, setCategory] = useState<Category>(() => {
+    const found = reduxCategories.find(c => c.id.toLowerCase().includes('aarti'));
+    return found || initialCategory;
+  });
 
-  // Load fresh categories from service if available
   useEffect(() => {
-    let isMounted = true;
-    const loadFreshCategory = async () => {
-      try {
-        const freshData = await getCategoriesData();
-        const freshAarti = freshData.find(c =>
-          c.id.toLowerCase().includes('aarti'),
-        );
-        if (freshAarti && isMounted) {
-          setCategory(freshAarti);
-        }
-      } catch {
-        // Fallback to initial category
+    if (!reduxCategories || reduxCategories.length === 0) {
+      dispatch(fetchCategories());
+    } else {
+      const freshAarti = reduxCategories.find(c =>
+        c.id.toLowerCase().includes('aarti'),
+      );
+      if (freshAarti) {
+        setCategory(freshAarti);
       }
-    };
-    loadFreshCategory();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    }
+  }, [dispatch, reduxCategories]);
 
   const handleOpenAarti = (item: CategoryItem) => {
     navigation.navigate('ArtiScreen', { arti: item });

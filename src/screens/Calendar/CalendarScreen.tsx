@@ -19,57 +19,41 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import GradientBackground from '@components/GradientBackground';
 import {
-  getFestivalData,
-  getLocalFestivalsFallback,
+  useAppDispatch,
+  useAppSelector,
+  fetchFestivals,
+  RootState,
   Festival,
-} from '@services/festivalService';
+} from '../../redux';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { Back } from '@assets/index';
 import AnimatedButton from '@components/AnimatedButton';
 import imagePath from '@assets/index';
 import FestivalModal from '@components/FestivalModal';
-import {
-  getMonthName,
-  getCalendarLocaleConfig,
-} from '@constants/calendarData';
+import { getMonthName, getCalendarLocaleConfig } from '@constants/calendarData';
 
 const CalendarScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const { currentLanguage } = useAppLanguage();
+  const dispatch = useAppDispatch();
+
+  // Read festivals directly from Redux
+  const { festivals, loading: _loading } = useAppSelector(
+    (state: RootState) => state.festival,
+  );
 
   // Synchronously register and set locale for active language (en, hi, or any future language)
-  LocaleConfig.locales[currentLanguage] = getCalendarLocaleConfig(currentLanguage);
+  LocaleConfig.locales[currentLanguage] =
+    getCalendarLocaleConfig(currentLanguage);
   LocaleConfig.defaultLocale = currentLanguage;
 
-  // Initialize immediately with local CALENDAR_2026 data so cards are visible with 0ms delay
-  const [festivals, setFestivals] = React.useState<Festival[]>(() =>
-    getLocalFestivalsFallback(),
-  );
-  const [_loading, setLoading] = React.useState(false);
-
   React.useEffect(() => {
-    let isMounted = true;
-    const fetchFestivals = async () => {
-      try {
-        const data = await getFestivalData();
-        if (isMounted && data.length > 0) {
-          setFestivals(data);
-        }
-      } catch (error) {
-        console.error('Error fetching festivals in CalendarScreen:', error);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
+    if (!festivals || festivals.length === 0) {
+      dispatch(fetchFestivals());
+    }
+  }, [dispatch, festivals]);
 
-    fetchFestivals();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const getTodayString = () => {
     const d = new Date();
@@ -109,9 +93,9 @@ const CalendarScreen = () => {
 
   // Festivals for the active month sorted by day
   const monthFestivals = React.useMemo(() => {
-    return festivals
-      .filter(f => f.month === currentMonthNum)
-      .sort((a, b) => a.day - b.day);
+    return (festivals || [])
+      .filter((f: Festival) => f.month === currentMonthNum)
+      .sort((a: Festival, b: Festival) => a.day - b.day);
   }, [festivals, currentMonthNum]);
 
   // Festivals on the specifically selected day (if any)
@@ -121,14 +105,14 @@ const CalendarScreen = () => {
     const m = parseInt(parts[1], 10);
     const d = parseInt(parts[2], 10);
     if (m !== currentMonthNum) return [];
-    return monthFestivals.filter(f => f.day === d);
+    return monthFestivals.filter((f: Festival) => f.day === d);
   }, [selectedDate, currentMonthNum, monthFestivals]);
 
   // Compute marked dates for the calendar
   const calendarMarkedDates = React.useMemo(() => {
     const marks: { [date: string]: any } = {};
 
-    festivals.forEach(fest => {
+    (festivals || []).forEach((fest: Festival) => {
       const mm = String(fest.month).padStart(2, '0');
       const dd = String(fest.day).padStart(2, '0');
       const dateString = `${currentYearNum}-${mm}-${dd}`;
@@ -149,7 +133,7 @@ const CalendarScreen = () => {
     }
 
     return marks;
-  }, [festivals, selectedDate, currentYearNum]);
+  }, [festivals, currentYearNum, selectedDate]);
 
   const renderFestivalCard = (item: Festival) => {
     const name = currentLanguage === 'hi' ? item.hindiName : item.englishName;
@@ -198,10 +182,7 @@ const CalendarScreen = () => {
                 </Text>
                 {tithi ? (
                   <View style={styles.tithiRow}>
-                    <Image
-                      source={imagePath.lotus}
-                      style={styles.sakuraIcon}
-                    />
+                    <Image source={imagePath.lotus} style={styles.sakuraIcon} />
                     <Text style={styles.cardFestivalTithi} numberOfLines={1}>
                       {tithi}
                     </Text>

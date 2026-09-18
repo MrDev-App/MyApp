@@ -1,7 +1,15 @@
-import { StatusBar, LogBox } from 'react-native';
+import { StatusBar } from 'react-native';
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Provider } from 'react-redux';
+import {
+  store,
+  fetchFestivals,
+  fetchGodMantras,
+  fetchJapMantras,
+  fetchCategories,
+} from './src/redux';
 import StackNavigation from '@navigation/StackNavigation';
 import mobileAds from 'react-native-google-mobile-ads';
 import notifee, { EventType } from '@notifee/react-native';
@@ -18,23 +26,7 @@ import { useAppOpenAd } from '@admob/useAppOpenAd';
 import { isAdMobEnabled } from '@admob/adConfig';
 import colors from '@theme/colors';
 
-// LogBox.ignoreLogs([
-//   'Sending `onAnimatedValueUpdate` with no listeners registered.',
-// ]);
-
-// const originalWarn = console.warn;
-// console.warn = (...args: any[]) => {
-//   if (
-//     typeof args[0] === 'string' &&
-//     args[0].includes('onAnimatedValueUpdate')
-//   ) {
-//     return;
-//   }
-//   originalWarn(...args);
-// };
-
-const App = () => {
-  // Handles foreground ads with cooldown and auto-suppression during image picker
+const MainApp = () => {
   useAppOpenAd(isAdMobEnabled());
 
   useEffect(() => {
@@ -51,6 +43,12 @@ const App = () => {
 
     initNotifications();
     getUserJoinedDate();
+
+    // Fetch all Firestore collections on initial startup into Redux (pure in-memory, no disk persistence)
+    store.dispatch(fetchFestivals());
+    store.dispatch(fetchGodMantras());
+    store.dispatch(fetchJapMantras());
+    store.dispatch(fetchCategories());
 
     notifee.getInitialNotification().then(initial => {
       if (initial && initial.notification) {
@@ -88,4 +86,14 @@ const App = () => {
     </GestureHandlerRootView>
   );
 };
+
+const App = () => {
+  return (
+    <Provider store={store}>
+      <MainApp />
+    </Provider>
+  );
+};
+
 export default App;
+

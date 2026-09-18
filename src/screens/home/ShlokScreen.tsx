@@ -17,14 +17,17 @@ import { useRoute } from '@react-navigation/native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import {
-  Category,
-  CategoryItem,
-  getCategoriesData,
-} from '@services/categoriesService';
 import { categoriesData } from '@constants/categoriesData';
 import { BlurBackdrop, ScreenHeader } from '@components';
 import { useAppLanguage } from '@hooks';
+import {
+  useAppDispatch,
+  useAppSelector,
+  fetchCategories,
+  RootState,
+  Category,
+  CategoryItem,
+} from '../../redux';
 
 const DEFAULT_SHLOK_CATEGORY: Category = (categoriesData.find(c =>
   c.id.toLowerCase().includes('shlok'),
@@ -36,33 +39,34 @@ const ShlokScreen = () => {
   const insets = useSafeAreaInsets();
   const route = useRoute<any>();
   const { isHindi } = useAppLanguage();
+  const dispatch = useAppDispatch();
+
+  // Read categories from Redux
+  const { categories: reduxCategories } = useAppSelector(
+    (state: RootState) => state.categories,
+  );
 
   const initialCategory: Category =
     (route.params?.category as Category) || DEFAULT_SHLOK_CATEGORY;
 
-  const [category, setCategory] = useState<Category>(initialCategory);
+  const [category, setCategory] = useState<Category>(() => {
+    const found = reduxCategories.find(c => c.id.toLowerCase().includes('shlok'));
+    return found || initialCategory;
+  });
   const [selectedItem, setSelectedItem] = useState<CategoryItem | null>(null);
 
   useEffect(() => {
-    let isMounted = true;
-    const loadFreshCategory = async () => {
-      try {
-        const freshData = await getCategoriesData();
-        const freshShlok = freshData.find(c =>
-          c.id.toLowerCase().includes('shlok'),
-        );
-        if (freshShlok && isMounted) {
-          setCategory(freshShlok);
-        }
-      } catch {
-        // Fallback
+    if (!reduxCategories || reduxCategories.length === 0) {
+      dispatch(fetchCategories());
+    } else {
+      const freshShlok = reduxCategories.find(c =>
+        c.id.toLowerCase().includes('shlok'),
+      );
+      if (freshShlok) {
+        setCategory(freshShlok);
       }
-    };
-    loadFreshCategory();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    }
+  }, [dispatch, reduxCategories]);
 
   const screenTitle = isHindi ? 'श्लोक संग्रह' : 'Sacred Shlokas';
   const screenDesc = isHindi

@@ -5,57 +5,46 @@ import { useAppLanguage } from '@hooks';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { getCategoriesData, Category } from '@services/categoriesService';
 import { categoriesData } from '@constants/categoriesData';
 import { Translation } from '@i18n/language';
 import AnimatedButton from '@components/AnimatedButton';
 import LottieView from 'lottie-react-native';
 import imagePath from '@assets/index';
 import { RootNavigationProp } from '@navigation/types';
+import Skeleton from '@components/Skeleton';
+import {
+  useAppDispatch,
+  useAppSelector,
+  fetchCategories,
+  RootState,
+  Category,
+} from '../../../redux';
 
 const ALLOWED_CATEGORY_IDS = new Set(['aarti', 'aartis', 'shlok', 'shlokas']);
 
 const FeaturedCategories = () => {
   const { t, currentLanguage } = useAppLanguage();
   const navigation = useNavigation<RootNavigationProp>();
+  const dispatch = useAppDispatch();
 
-  const [categories, setCategories] = useState<Category[]>(() => {
-    return (categoriesData as Category[]).filter(cat =>
-      ALLOWED_CATEGORY_IDS.has(cat.id.toLowerCase()),
-    );
-  });
-  const [loading, setLoading] = useState(false);
+  // Read categories from Redux
+  const { categories: reduxCategories, loading } = useAppSelector(
+    (state: RootState) => state.categories,
+  );
 
   useEffect(() => {
-    let isMounted = true;
-    const fetchCategories = async () => {
-      try {
-        const data = await getCategoriesData();
-        if (isMounted) {
-          let filtered = data.filter(cat =>
-            ALLOWED_CATEGORY_IDS.has(cat.id.toLowerCase()),
-          );
-          if (filtered.length > 0) {
-            setCategories(filtered);
-          }
-        }
-      } catch (error) {
-        console.error(
-          'Error fetching categories in FeaturedCategories:',
-          error,
-        );
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
+    if (!reduxCategories || reduxCategories.length === 0) {
+      dispatch(fetchCategories());
+    }
+  }, [dispatch, reduxCategories]);
 
-    fetchCategories();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  const categories = React.useMemo(() => {
+    const list =
+      reduxCategories.length > 0
+        ? reduxCategories
+        : (categoriesData as Category[]);
+    return list.filter(cat => ALLOWED_CATEGORY_IDS.has(cat.id.toLowerCase()));
+  }, [reduxCategories]);
 
   const handleCategoryPress = (category: Category) => {
     const catId = category.id.toLowerCase();
@@ -67,14 +56,31 @@ const FeaturedCategories = () => {
     }
   };
 
+  const renderSkeleton = () => (
+    <View style={styles.gridContainer}>
+      <View style={styles.skeletonWrapper}>
+        <Skeleton
+          width="100%"
+          height={scale(120)}
+          borderRadius={scale(15)}
+        />
+      </View>
+      <View style={styles.skeletonWrapper}>
+        <Skeleton
+          width="100%"
+          height={scale(120)}
+          borderRadius={scale(15)}
+        />
+      </View>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{t(Translation.FEATURED_CATEGORIES)}</Text>
 
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color={colors.ring} />
-        </View>
+      {loading && reduxCategories.length === 0 ? (
+        renderSkeleton()
       ) : (
         <View style={styles.gridContainer}>
           {categories.map(category => {
@@ -88,17 +94,24 @@ const FeaturedCategories = () => {
                 onPress={() => handleCategoryPress(category)}
               >
                 <View style={styles.iconContainer} pointerEvents="none">
-                  {category.id.toLowerCase() === 'aarti' ||
-                  category.id.toLowerCase() === 'aartis' ? (
+                  {category.id.toLowerCase().includes('aarti') ||
+                  category.id.toLowerCase().includes('arti') ? (
                     <LottieView
                       source={imagePath.lampLottie}
                       autoPlay
                       loop
+                      resizeMode="contain"
                       style={{ height: scale(65), width: scale(65) }}
+                    />
+                  ) : category.id.toLowerCase().includes('shlok') ? (
+                    <Image
+                      source={imagePath.shlok}
+                      style={{ height: scale(60), width: scale(60) }}
+                      resizeMode="contain"
                     />
                   ) : (
                     <Image
-                      source={category.icon}
+                      source={category.icon || imagePath.lamp}
                       style={{ height: scale(60), width: scale(60) }}
                       resizeMode="contain"
                     />
@@ -140,6 +153,10 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     paddingHorizontal: scale(4),
+  },
+  skeletonWrapper: {
+    width: '48%',
+    marginBottom: scale(14),
   },
   card: {
     width: '48%',

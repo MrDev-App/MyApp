@@ -1,10 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useAppLanguage } from '@hooks';
@@ -15,10 +10,26 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Bell } from '@assets/index';
 import { NotificationStorage } from '@services/notificationService';
-import { getEkadashiMonthsData, EkadashiItem } from '@services/ekadashiService';
+import { useAppSelector, RootState, Festival } from '../../../redux';
+import { getMonthShortName } from '@constants/calendarData';
 
 interface HomeGreetingHeaderProps {
   loading: boolean;
+}
+
+interface EkadashiDisplayItem {
+  id: string;
+  name: string;
+  nameHi: string;
+  date: string;
+  day: number;
+  month: number;
+  shortMonth: string;
+  shortMonthHi: string;
+  dayOfWeek: string;
+  dayOfWeekHi: string;
+  paksha: string;
+  pakshaHi: string;
 }
 
 const isToday = (dateStr?: string): boolean => {
@@ -34,8 +45,10 @@ const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
   const navigation = useNavigation<any>();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const [ekadashis, setEkadashis] = useState<EkadashiItem[]>([]);
-  const [vratsLoading, setVratsLoading] = useState(true);
+  // Read festivals from Redux
+  const { festivals, loading: festivalsLoading } = useAppSelector(
+    (state: RootState) => state.festival,
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -43,46 +56,46 @@ const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
     }, []),
   );
 
-  useEffect(() => {
-    let isMounted = true;
+  const ekadashis: EkadashiDisplayItem[] = React.useMemo(() => {
+    const currentMonthNumber = new Date().getMonth() + 1;
+    const allEkadashis = (festivals || []).filter(
+      (f: Festival) =>
+        f.id.toLowerCase().includes('ekadashi') ||
+        f.englishName.toLowerCase().includes('ekadashi') ||
+        (f.category || '').toLowerCase().includes('ekadashi'),
+    );
 
-    const fetchCurrentMonthVrats = async () => {
-      try {
-        const currentMonthNumber = new Date().getMonth() + 1;
-        const monthsData = await getEkadashiMonthsData();
+    let thisMonth = allEkadashis.filter(
+      (f: Festival) => f.month === currentMonthNumber,
+    );
+    if (thisMonth.length === 0 && allEkadashis.length > 0) {
+      thisMonth = allEkadashis.slice(0, 2);
+    }
 
-        let targetMonth = monthsData.find(m => m.month === currentMonthNumber);
-
-        if (!targetMonth?.ekadashis?.length) {
-          targetMonth = monthsData[0];
-        }
-
-        if (isMounted && targetMonth) {
-          setEkadashis(targetMonth.ekadashis || []);
-        }
-      } catch (error) {
-        console.error(
-          'Error loading month vrats in HomeGreetingHeader:',
-          error,
-        );
-      } finally {
-        if (isMounted) {
-          setVratsLoading(false);
-        }
-      }
-    };
-
-    fetchCurrentMonthVrats();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    return thisMonth.map(
+      (f: Festival): EkadashiDisplayItem => ({
+        id: f.id,
+        name: f.englishName || f.name,
+        nameHi: f.hindiName || f.nameHi || f.name,
+        date: f.date,
+        day: f.day,
+        month: f.month,
+        shortMonth: getMonthShortName(f.month, 'en'),
+        shortMonthHi: getMonthShortName(f.month, 'hi'),
+        dayOfWeek: f.dayOfWeek,
+        dayOfWeekHi: f.dayOfWeekHi || f.dayOfWeek,
+        paksha: f.tithi || 'Ekadashi',
+        pakshaHi: f.tithiHi || 'एकादशी',
+      }),
+    );
+  }, [festivals]);
 
   const handlePressBell = useCallback(() => {
     navigation.navigate('Notification');
   }, [navigation]);
 
-  const isLoading = vratsLoading || parentLoading;
+  const isLoading =
+    (festivalsLoading && ekadashis.length === 0) || parentLoading;
 
   return (
     <View style={styles.mainView}>

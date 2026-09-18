@@ -16,7 +16,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { God, GodMantra } from '@services/godService';
+import { God, GodMantra } from '../../redux';
 import {
   AutoScrollFlatList,
   AutoScrollItem,

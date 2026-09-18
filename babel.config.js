@@ -15,6 +15,7 @@ module.exports = {
           '@hooks': './src/hooks',
           '@i18n': './src/i18n',
           '@navigation': './src/navigation',
+          '@redux': './src/redux',
           '@screens': './src/screens',
           '@services': './src/services',
           '@theme': './src/theme',

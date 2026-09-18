@@ -13,34 +13,34 @@ import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Translation } from '@i18n/language';
-import { getNaamJapData, God } from '@services/godService';
 import { triggerHaptic } from '@helper/helper';
 import AutoScrollFlatList from '@components/AutoScrollFlatList';
+import {
+  useAppDispatch,
+  useAppSelector,
+  fetchGodMantras,
+  RootState,
+  God,
+} from '../../../redux';
 
 const MantrasCard = () => {
   const { t, currentLanguage } = useAppLanguage();
   const navigation = useNavigation<any>();
+  const dispatch = useAppDispatch();
 
-  const [naamJapData, setNaamJapData] = useState<God[]>([]);
+  // Read gods from Redux
+  const { gods: reduxGods } = useAppSelector(
+    (state: RootState) => state.gods,
+  );
 
   useEffect(() => {
-    let isMounted = true;
-    const fetchNaamJapData = async () => {
-      try {
-        const data = await getNaamJapData();
-        if (isMounted) {
-          setNaamJapData(data);
-        }
-      } catch (error) {
-        console.error('Error fetching naamJapData in MantrasCard:', error);
-      }
-    };
+    if (!reduxGods || reduxGods.length === 0) {
+      dispatch(fetchGodMantras());
+    }
+  }, [dispatch, reduxGods]);
 
-    fetchNaamJapData();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  const naamJapData = reduxGods || [];
+
 
   const pairedGods = React.useMemo(() => {
     const pairs = [];

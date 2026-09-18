@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import {
   SafeAreaView,
@@ -8,6 +8,7 @@ import GradientBackground from '@components/GradientBackground';
 import globalStyles from '@theme/globalStyles';
 import { scale } from '@theme/sizes';
 import colors from '@theme/colors';
+import { useAppDispatch, useAppSelector, fetchFestivals, RootState } from '../../redux';
 
 // Sub-components
 import HomeHeaderMedia from './components/HomeHeaderMedia';
@@ -28,6 +29,15 @@ export const HomeScreen = () => {
 
   const imageLoadedRef = useRef(false);
   const videoErrorRef = useRef(false);
+  const dispatch = useAppDispatch();
+  const { lastFetched } = useAppSelector((state: RootState) => state.festival);
+
+  // Prefetch festivals as soon as HomeScreen mounts (before FestivalHighlights renders)
+  useEffect(() => {
+    if (!lastFetched) {
+      dispatch(fetchFestivals());
+    }
+  }, [dispatch, lastFetched]);
 
   // Safety fallback: ensure screen is visible quickly even if video decoder buffers or lags
   React.useEffect(() => {

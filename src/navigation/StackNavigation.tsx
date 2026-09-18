@@ -10,7 +10,7 @@ import ReadingScreen from '@screens/book/ReadingScreen';
 import TextReadingScreen from '@screens/book/TextReadingScreen';
 import SearchScreen from '@screens/book/SearchScreen';
 import NotificationScreen from '@screens/home/NotificationScreen';
-import SeedScreen from '@screens/SeedScreen';
+// import SeedScreen from '@screens/SeedScreen';
 import ProgressScreen from '@screens/jap/ProgressScreen';
 import MantraScreen from '@screens/home/MantraScreen';
 
@@ -55,11 +55,11 @@ const StackNavigation = () => {
         component={NotificationScreen}
         options={{ animation: 'slide_from_right' }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="SeedScreen"
         component={SeedScreen}
         options={{ animation: 'slide_from_right' }}
-      />
+      /> */}
       <Stack.Screen
         name="ProgressScreen"
         component={ProgressScreen}

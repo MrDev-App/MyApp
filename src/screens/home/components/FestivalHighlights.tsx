@@ -8,6 +8,7 @@ import {
   ImageBackground,
   Platform,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAppLanguage } from '@hooks';
@@ -18,10 +19,12 @@ import { Translation } from '@i18n/language';
 import { RootStackParamList } from '@navigation/types';
 import { navigate } from '@navigation/navigationRef';
 import {
-  getFestivalData,
-  getLocalFestivalsFallback,
+  useAppDispatch,
+  useAppSelector,
+  fetchFestivals,
+  RootState,
   Festival,
-} from '@services/festivalService';
+} from '../../../redux';
 import imagePath from '@assets/index';
 import AnimatedButton from '@components/AnimatedButton';
 import FestivalModal from '@components/FestivalModal';
@@ -31,43 +34,18 @@ const FestivalHighlights = ({ onPress }: any) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t, select } = useAppLanguage();
+  const dispatch = useAppDispatch();
 
-  const [festivals, setFestivals] = useState<Festival[]>(() =>
-    getLocalFestivalsFallback(),
+  // Read festivals and loading state from Redux
+  const { festivals, loading } = useAppSelector(
+    (state: RootState) => state.festival,
   );
-  const [loading, setLoading] = useState(false);
-  const PAGE_SIZE = 10;
-  const [page, setPage] = useState(1);
+
+  console.log('fetivalssssssASk :', festivals);
+
   const [selectedFestival, setSelectedFestival] = useState<Festival | null>(
     null,
   );
-
-  useEffect(() => {
-    let isMounted = true;
-    const loadData = async () => {
-      try {
-        const data = await getFestivalData();
-        if (isMounted && data.length > 0) {
-          setFestivals(data);
-        }
-      } catch (error) {
-        console.error('Error fetching festivals in FestivalHighlights:', error);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    loadData();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    setPage(1);
-  }, [festivals]);
 
   const { today, todayStart } = useMemo(() => {
     const tDate = new Date();
@@ -76,44 +54,36 @@ const FestivalHighlights = ({ onPress }: any) => {
   }, []);
 
   const filteredFestivals = useMemo(() => {
-    const upcoming = festivals
-      .filter(item => {
-        const festivalDateThisYear = new Date(
-          today.getFullYear(),
-          item.month - 1,
-          item.day,
-        );
-        return festivalDateThisYear.getTime() >= todayStart.getTime();
-      })
-      .sort((a, b) => {
-        if (a.month !== b.month) {
-          return a.month - b.month;
-        }
-        return a.day - b.day;
-      });
+    const todayNum = todayStart.getTime();
 
-    if (upcoming.length > 0) {
-      return upcoming;
+    const toDate = (item: Festival) =>
+      new Date(today.getFullYear(), item.month - 1, item.day).getTime();
+
+    // 1. Upcoming festivals from today onwards (sorted chronologically)
+    const upcoming = (festivals || [])
+      .filter((item: Festival) => toDate(item) >= todayNum)
+      .sort((a, b) =>
+        a.month !== b.month ? a.month - b.month : a.day - b.day,
+      );
+
+    if (upcoming.length >= 10) {
+      return upcoming.slice(0, 10);
     }
 
-    // Fallback if no upcoming festivals left in current year: wrap around
-    return [...festivals].sort((a, b) => {
-      if (a.month !== b.month) {
-        return a.month - b.month;
-      }
-      return a.day - b.day;
-    });
+    // 2. Wrap-around earlier festivals in the year to ensure 10 items if available
+    const earlier = (festivals || [])
+      .filter((item: Festival) => toDate(item) < todayNum)
+      .sort((a, b) =>
+        a.month !== b.month ? a.month - b.month : a.day - b.day,
+      );
+
+    return [...upcoming, ...earlier].slice(0, 10);
   }, [festivals, today, todayStart]);
 
-  const paginatedFestivals = useMemo(() => {
-    return filteredFestivals.slice(0, page * PAGE_SIZE);
-  }, [filteredFestivals, page]);
+  // Already sliced to 10 in filteredFestivals — direct display
+  const paginatedFestivals = filteredFestivals;
 
-  const handleEndReached = () => {
-    if (paginatedFestivals.length < filteredFestivals.length) {
-      setPage(prev => prev + 1);
-    }
-  };
+  console.log('paginatedFestivals', paginatedFestivals);
 
   const handlePressAll = () => {
     try {
@@ -128,18 +98,8 @@ const FestivalHighlights = ({ onPress }: any) => {
   };
 
   const renderFooter = () => {
-    if (paginatedFestivals.length >= filteredFestivals.length) {
-      return null;
-    }
-    return (
-      <View style={styles.footerSkeleton}>
-        <Skeleton
-          width={scale(124)}
-          height={scale(105)}
-          borderRadius={scale(15)}
-        />
-      </View>
-    );
+    // Hard cap at 10 on home screen — no load-more footer needed
+    return null;
   };
 
   const renderSkeleton = () => (
@@ -165,13 +125,11 @@ const FestivalHighlights = ({ onPress }: any) => {
           style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
           onPress={handlePressAll}
         >
-          <Text style={styles.allText} pointerEvents="none">
-            {t(Translation.ALL)}
-          </Text>
+          <Text style={styles.allText}>{t(Translation.ALL)}</Text>
         </Pressable>
       </View>
 
-      {loading ? (
+      {loading || !festivals || festivals.length === 0 ? (
         renderSkeleton()
       ) : (
         <FlatList
@@ -185,14 +143,42 @@ const FestivalHighlights = ({ onPress }: any) => {
           windowSize={5}
           removeClippedSubviews={Platform.OS === 'android'}
           contentContainerStyle={styles.listContent}
-          onEndReached={handleEndReached}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={renderFooter}
           renderItem={({ item }) => {
             const name = select(item.hindiName, item.englishName);
             const dateStr = select(item.dateStrHi, item.dateStrEn);
 
             const bgImage = item.image || imagePath.greeting;
+
+            // 🔍 COMPARISON: Firestore url / imageUrl vs what's actually being rendered
+            const rawFirestoreUrl = item.url || item.imageUrl || '';
+            console.log(
+              `\n📸 [FestivalHighlights] ===== ${item.englishName} =====`,
+            );
+            console.log(`   💾 Firestore url      : ${item.url || '(none)'}`);
+            console.log(
+              `   💾 Firestore imageUrl : ${item.imageUrl || '(none)'}`,
+            );
+            console.log(
+              `   🎨 Resolved image    : ${
+                typeof bgImage === 'number'
+                  ? '✅ local-require (' + bgImage + ')'
+                  : bgImage && bgImage.uri
+                  ? `🌐 uri: ${bgImage.uri}`
+                  : JSON.stringify(bgImage)
+              }`,
+            );
+            console.log(
+              `   ${
+                rawFirestoreUrl &&
+                bgImage &&
+                bgImage.uri &&
+                bgImage.uri === rawFirestoreUrl
+                  ? '✅ MATCH (using Firestore url)'
+                  : typeof bgImage === 'number'
+                  ? '🟡 Using local bundled image'
+                  : '❌ MISMATCH or missing url'
+              }`,
+            );
 
             return (
               <AnimatedButton
@@ -203,19 +189,23 @@ const FestivalHighlights = ({ onPress }: any) => {
                   if (onPress) onPress(item);
                 }}
               >
-                <View style={{ flex: 1 }}>
-                  <ImageBackground
-                    source={bgImage}
-                    style={styles.card}
-                    imageStyle={styles.cardImageStyle}
-                    fadeDuration={0}
+                <ImageBackground
+                  source={bgImage}
+                  style={styles.card}
+                  imageStyle={styles.cardImageStyle}
+                  fadeDuration={0}
+                >
+                  {/* Gradient overlay pinned to bottom */}
+                  <LinearGradient
+                    colors={['transparent', 'rgba(0,0,0,0.78)']}
+                    style={styles.cardOverlay}
                   >
-                    <View style={styles.cardOverlay}>
-                      <Text style={styles.name}>{name}</Text>
-                      <Text style={styles.date}>{dateStr}</Text>
-                    </View>
-                  </ImageBackground>
-                </View>
+                    <Text style={styles.name} numberOfLines={1}>
+                      {name}
+                    </Text>
+                    <Text style={styles.date}>{dateStr}</Text>
+                  </LinearGradient>
+                </ImageBackground>
               </AnimatedButton>
             );
           }}
@@ -272,6 +262,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     marginRight: scale(12),
     width: scale(124),
+    height: scale(105),
     borderRadius: scale(15),
     borderWidth: 1,
     borderColor: colors.borderSubtle,
@@ -281,30 +272,37 @@ const styles = StyleSheet.create({
     shadowRadius: scale(8),
     elevation: 3,
     backgroundColor: colors.white,
+    overflow: 'hidden',
   },
   card: {
-    flex: 1,
-    borderRadius: scale(14),
-    overflow: 'hidden',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'flex-end',
   },
   cardImageStyle: {
     borderRadius: scale(14),
   },
   cardOverlay: {
-    paddingHorizontal: scale(12),
-    paddingVertical: scale(12),
-    height: '100%',
-    minHeight: scale(105),
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: scale(10),
+    paddingTop: scale(18),
+    paddingBottom: scale(10),
+    borderBottomLeftRadius: scale(14),
+    borderBottomRightRadius: scale(14),
   },
   name: {
     fontSize: fs(12),
     fontFamily: fonts.TiroHindiRegular,
-    color: colors.black,
+    color: colors.white,
   },
   date: {
     fontSize: fs(9.5),
     fontFamily: fonts.TiroHindiRegular,
-    color: colors.black,
+    color: colors.white,
+    opacity: 0.85,
   },
   countdown: {
     fontSize: fs(9.5),
