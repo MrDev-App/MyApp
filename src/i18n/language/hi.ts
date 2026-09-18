@@ -251,11 +251,23 @@ export default {
     'देवी-देवताओं की स्तुति और आशीर्वाद प्राप्त करने के लिए पावन आरतियां।',
   READ_AARTI_ACTION: 'आरती पढ़ें →',
 
-  // Festival Modal
+  // Festival Modal & Details
   FESTIVAL_TITHI_LABEL: 'तिथि / नक्षत्र: ',
   FESTIVAL_DEITY_LABEL: 'पूज्य देवता: ',
   FESTIVAL_REGIONS_LABEL: 'प्रमुख क्षेत्र: ',
   FESTIVAL_DESCRIPTION_LABEL: 'विवरण:',
   FESTIVAL_STORY_TITLE: 'पौराणिक कथा एवं इतिहास',
+  FESTIVAL_PARAN_TIME_LABEL: 'पारण समय: ',
+  FESTIVAL_FASTING_RULE_LABEL: 'व्रत नियम: ',
   CLOSE_BTN: 'बंद करें',
+
+  // Regions
+  REGION_ALL_INDIA: 'संपूर्ण भारत',
+  REGION_NORTH_INDIA: 'उत्तर भारत',
+  REGION_SOUTH_INDIA: 'दक्षिण भारत',
+  REGION_EAST_INDIA: 'पूर्वी भारत',
+  REGION_WEST_INDIA: 'पश्चिम भारत',
+  REGION_GUJARAT: 'गुजरात',
+  REGION_MAHARASHTRA: 'महाराष्ट्र',
+  REGION_WORLDWIDE: 'विश्वभर',
 };

@@ -24,7 +24,9 @@ import { triggerHaptic } from '@helper/helper';
 
 export const useProfileData = () => {
   const { t, i18n } = useTranslation();
-  const currentLanguage = (i18n.language || 'en') as 'en' | 'hi';
+  const currentLanguage = (
+    i18n.language?.startsWith('en') ? 'en' : 'hi'
+  ) as 'en' | 'hi';
   const navigation = useNavigation<any>();
   const isFocused = useIsFocused();
 
@@ -456,7 +458,10 @@ export const useProfileData = () => {
     // i18n
     t,
     currentLanguage,
-    changeLanguage: (lng: string) => i18n.changeLanguage(lng),
+    changeLanguage: async (lng: string) => {
+      Storage.set(STORAGE_KEYS.APP_LANGUAGE, lng);
+      await i18n.changeLanguage(lng);
+    },
     // refs
     overlayRef,
     customMantrasModalRef,

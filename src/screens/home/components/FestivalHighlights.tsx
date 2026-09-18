@@ -193,6 +193,7 @@ const FestivalHighlights = ({ onPress }: any) => {
                   source={bgImage}
                   style={styles.card}
                   imageStyle={styles.cardImageStyle}
+                  resizeMode="cover"
                   fadeDuration={0}
                 >
                   {/* Gradient overlay pinned to bottom */}

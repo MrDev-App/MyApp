@@ -249,11 +249,23 @@ export default {
     'Devotional prayers sung in praise of deities to invoke their blessings.',
   READ_AARTI_ACTION: 'Read Aarti →',
 
-  // Festival Modal
+  // Festival Modal & Details
   FESTIVAL_TITHI_LABEL: 'Tithi / Astro: ',
   FESTIVAL_DEITY_LABEL: 'Deities Worshipped: ',
   FESTIVAL_REGIONS_LABEL: 'Regions: ',
   FESTIVAL_DESCRIPTION_LABEL: 'Description:',
   FESTIVAL_STORY_TITLE: 'Story & Mythological Origin',
+  FESTIVAL_PARAN_TIME_LABEL: 'Paran Time: ',
+  FESTIVAL_FASTING_RULE_LABEL: 'Fasting Rule: ',
   CLOSE_BTN: 'Close',
+
+  // Regions
+  REGION_ALL_INDIA: 'All India',
+  REGION_NORTH_INDIA: 'North India',
+  REGION_SOUTH_INDIA: 'South India',
+  REGION_EAST_INDIA: 'East India',
+  REGION_WEST_INDIA: 'West India',
+  REGION_GUJARAT: 'Gujarat',
+  REGION_MAHARASHTRA: 'Maharashtra',
+  REGION_WORLDWIDE: 'Worldwide',
 };

@@ -170,6 +170,28 @@ const FestivalModal: React.FC<FestivalModalProps> = ({
             </View>
           ) : null}
 
+          {festival.vratDetails?.paranTime ? (
+            <View style={styles.sectionRow}>
+              <Text style={styles.modalSectionLabel}>
+                {t(Translation.FESTIVAL_PARAN_TIME_LABEL)}
+                <Text style={styles.modalSectionValue}>
+                  {festival.vratDetails.paranTime}
+                </Text>
+              </Text>
+            </View>
+          ) : null}
+
+          {festival.vratDetails?.fastingRule ? (
+            <View style={styles.sectionRow}>
+              <Text style={styles.modalSectionLabel}>
+                {t(Translation.FESTIVAL_FASTING_RULE_LABEL)}
+                <Text style={styles.modalSectionValue}>
+                  {festival.vratDetails.fastingRule}
+                </Text>
+              </Text>
+            </View>
+          ) : null}
+
           {descriptionText ? (
             <>
               <Text style={[styles.modalSectionLabel, { marginTop: scale(8) }]}>

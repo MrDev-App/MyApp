@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Storage, STORAGE_KEYS } from '@services/storageService';
 
 export type SupportedLanguage = 'en' | 'hi';
 
@@ -23,12 +24,14 @@ export interface AppLanguageState {
  */
 export const useAppLanguage = (): AppLanguageState => {
   const { t, i18n } = useTranslation();
-  const rawLanguage = i18n.language || 'en';
+  const rawLanguage =
+    i18n.language || Storage.getString(STORAGE_KEYS.APP_LANGUAGE, 'hi') || 'hi';
   const isHindi = rawLanguage.startsWith('hi');
   const currentLanguage: SupportedLanguage = isHindi ? 'hi' : 'en';
   const lang = currentLanguage;
 
   const changeLanguage = async (newLng: SupportedLanguage) => {
+    Storage.set(STORAGE_KEYS.APP_LANGUAGE, newLng);
     await i18n.changeLanguage(newLng);
   };
 

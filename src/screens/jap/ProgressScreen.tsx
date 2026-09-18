@@ -25,7 +25,9 @@ export const ProgressScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
-  const currentLanguage = (i18n.language || 'en') as 'en' | 'hi';
+  const currentLanguage = (
+    i18n.language?.startsWith('en') ? 'en' : 'hi'
+  ) as 'en' | 'hi';
 
   const scrollViewRef = useRef<ScrollView>(null);
   const hasScrolledRef = useRef(false);
