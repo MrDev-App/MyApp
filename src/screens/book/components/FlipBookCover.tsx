@@ -33,9 +33,9 @@ import BackFaceView from './BackFaceView';
 export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
   story,
   currentLang = 'hi',
-  theme,
   fontSize = 15,
   onPageChange,
+  onCoverImageLoaded,
 }) => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const { bookWidth, bookHeight } = useMemo(
@@ -125,33 +125,40 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
         category={category}
         currentLang={currentLang}
         onOpenBook={handleNextPage}
+        onCoverImageLoaded={onCoverImageLoaded}
       />
     ),
-    [story, title, subtitle, category, currentLang, handleNextPage],
+    [
+      story,
+      title,
+      subtitle,
+      category,
+      currentLang,
+      handleNextPage,
+      onCoverImageLoaded,
+    ],
   );
 
   const coverBackElement = useMemo(
     () => (
       <BackFaceView
         isCoverBack={true}
-        theme={theme}
         source={source}
         currentLang={currentLang}
       />
     ),
-    [theme, source, currentLang],
+    [source, currentLang],
   );
 
   const pageBackElement = useMemo(
     () => (
       <BackFaceView
         isCoverBack={false}
-        theme={theme}
         source={source}
         currentLang={currentLang}
       />
     ),
-    [theme, source, currentLang],
+    [source, currentLang],
   );
 
   const lastPageData = pages[totalPages - 1] || pages[0];
@@ -173,8 +180,6 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
               {
                 width: bookWidth,
                 height: bookHeight,
-                backgroundColor: theme.surfaceSubtle,
-                borderColor: theme.cardBorder,
               },
             ]}
           />
@@ -184,8 +189,6 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
               {
                 width: bookWidth,
                 height: bookHeight,
-                backgroundColor: theme.surfaceSubtle,
-                borderColor: theme.cardBorder,
               },
             ]}
           />
@@ -193,7 +196,6 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
           {/* BASE UNDERNEATH PAGE: Last Page in stack */}
           <StoryPageView
             pageData={lastPageData}
-            theme={theme}
             fontSize={fontSize}
             category={category}
             source={source}
@@ -234,7 +236,6 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
                   isWithinWindow ? (
                     <StoryPageView
                       pageData={pageItem}
-                      theme={theme}
                       fontSize={fontSize}
                       category={category}
                       source={source}
@@ -310,18 +311,13 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
               disabled={isFlipping}
               style={[
                 styles.pageDot,
-                displayPage === 0
-                  ? [styles.pageDotActive, { backgroundColor: colors.ring }]
-                  : { backgroundColor: theme.surfaceSubtle },
+                displayPage === 0 && styles.pageDotActive,
               ]}
             >
               <Text
                 style={[
                   styles.dotLabel,
-                  {
-                    color:
-                      displayPage === 0 ? colors.white : theme.textSecondary,
-                  },
+                  displayPage === 0 && styles.dotLabelActive,
                 ]}
               >
                 {strings.cover}
@@ -336,18 +332,10 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
                   key={`dot-${pageNum}`}
                   onPress={() => handleJumpToPage(pageNum)}
                   disabled={isFlipping}
-                  style={[
-                    styles.pageDot,
-                    isActive
-                      ? [styles.pageDotActive, { backgroundColor: colors.ring }]
-                      : { backgroundColor: theme.surfaceSubtle },
-                  ]}
+                  style={[styles.pageDot, isActive && styles.pageDotActive]}
                 >
                   <Text
-                    style={[
-                      styles.dotLabel,
-                      { color: isActive ? colors.white : theme.textSecondary },
-                    ]}
+                    style={[styles.dotLabel, isActive && styles.dotLabelActive]}
                   >
                     {formatPageNumber(pageNum, currentLang)}
                   </Text>

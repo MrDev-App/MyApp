@@ -329,6 +329,7 @@ const ReminderScreen: React.FC = () => {
             {/* ── Custom Message Inputs ── */}
             <View style={styles.inputSection}>
               <TextField
+                testID="reminder-title-input"
                 label={t(Translation.PROFILE_REMINDER_TITLE_LABEL)}
                 isRequired={true}
                 error={titleError}
@@ -343,6 +344,7 @@ const ReminderScreen: React.FC = () => {
               />
 
               <TextField
+                testID="reminder-subtitle-input"
                 label={t(Translation.PROFILE_REMINDER_MSG_LABEL)}
                 isRequired={true}
                 error={subtitleError}
@@ -362,6 +364,7 @@ const ReminderScreen: React.FC = () => {
             {/* ── Add This Time Button ── */}
             {reminders.length < MAX_REMINDERS ? (
               <TouchableOpacity
+                testID="set-reminder-btn"
                 style={styles.addBtn}
                 onPress={() => handleAddReminder(selectedTime)}
                 activeOpacity={0.8}
@@ -478,6 +481,7 @@ const ReminderScreen: React.FC = () => {
                   {/* Right: Toggle & Delete */}
                   <View style={styles.itemRightActions}>
                     <Switch
+                      testID={`reminder-switch-${item.id}`}
                       trackColor={{
                         false: colors.switchTrackFalse,
                         true: colors.ring,
@@ -489,6 +493,7 @@ const ReminderScreen: React.FC = () => {
                       value={item.enabled}
                     />
                     <TouchableOpacity
+                      testID={`reminder-delete-${item.id}`}
                       onPress={() => handleDeleteItem(item.id)}
                       style={styles.deleteBtn}
                       activeOpacity={0.7}

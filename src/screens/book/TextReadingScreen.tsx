@@ -5,7 +5,9 @@ import {
   Text,
   TouchableOpacity,
   StatusBar,
+  Image,
 } from 'react-native';
+import LottieView from 'lottie-react-native';
 import { triggerHaptic } from '@helper/helper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -17,48 +19,10 @@ import { STORAGE_KEYS } from '@constants/storageKeys';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import {
-  HeartIcon,
-  SunIcon,
-  MoonIcon,
-  BackIcon as Back,
-} from '@components/icons/SvgIcons';
+import imagePath from '@assets/index';
+import { HeartIcon, BackIcon as Back } from '@components/icons/SvgIcons';
 import FlipBookCover from './components/FlipBookCover';
-
-type ReaderTheme = 'dark' | 'light';
-
-const THEME_CONFIGS = {
-  dark: {
-    bg: '#121215',
-    surface: '#1A1A20',
-    surfaceSubtle: '#22222A',
-    text: '#F1F1F5',
-    textSecondary: '#A0A0B2',
-    accent: '#F59E0B',
-    border: '#2C2C36',
-    cardBorder: '#3A3A48',
-    tagBg: '#2A2A36',
-    tagText: '#FBBF24',
-    statusBar: 'light-content' as const,
-    ring: colors.primary,
-    white: colors.white,
-  },
-  light: {
-    bg: '#FFFFFF',
-    surface: '#F8F9FA',
-    surfaceSubtle: '#F1F3F5',
-    text: '#1A1D20',
-    textSecondary: '#6C757D',
-    accent: '#D97706',
-    border: '#E9ECEF',
-    cardBorder: '#DEE2E6',
-    tagBg: '#FEF3C7',
-    tagText: '#92400E',
-    statusBar: 'dark-content' as const,
-    ring: colors.primary,
-    white: colors.white,
-  },
-};
+import { GradientBackground } from '@components';
 
 export const TextReadingScreen = () => {
   const route = useRoute<any>();
@@ -70,15 +34,7 @@ export const TextReadingScreen = () => {
     return findStoryById(storyId) || TextBooks[0];
   }, [storyId]);
 
-  // Theme State (dark <-> light)
-  const [themeMode, setThemeMode] = useState<ReaderTheme>(() => {
-    const saved = Storage.getString(STORAGE_KEYS.TEXT_READER_THEME, 'dark');
-    if (saved === 'dark' || saved === 'light') {
-      return saved;
-    }
-    return 'dark';
-  });
-
+  const [isCoverReady, setIsCoverReady] = useState<boolean>(false);
   const [fontSize] = useState<number>(15);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [_pageInfo, setPageInfo] = useState<{ current: number; total: number }>(
@@ -88,7 +44,21 @@ export const TextReadingScreen = () => {
     },
   );
 
-  const theme = THEME_CONFIGS[themeMode];
+  const handleCoverLoaded = useCallback(() => {
+    setIsCoverReady(true);
+  }, []);
+
+  useEffect(() => {
+    setIsCoverReady(false);
+    // Fallback safety timeout so user is never stuck if image takes unusually long
+    const timer = setTimeout(() => {
+      setIsCoverReady(true);
+    }, 2500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [story?.id]);
 
   useEffect(() => {
     if (!story?.id) return;
@@ -103,14 +73,6 @@ export const TextReadingScreen = () => {
       }
     } catch {}
   }, [story?.id]);
-
-  // Toggle Theme between dark and light
-  const cycleTheme = () => {
-    triggerHaptic();
-    const next: ReaderTheme = themeMode === 'dark' ? 'light' : 'dark';
-    setThemeMode(next);
-    Storage.set(STORAGE_KEYS.TEXT_READER_THEME, next);
-  };
 
   // Toggle Bookmark
   const toggleBookmark = () => {
@@ -149,79 +111,71 @@ export const TextReadingScreen = () => {
     [story?.id],
   );
 
-  if (!story) {
-    return null;
-  }
-
-  const title = currentLang === 'hi' ? story.titleHi : story.titleEn;
+  const title = story
+    ? currentLang === 'hi'
+      ? story.titleHi
+      : story.titleEn
+    : '';
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.bg }]}
-      edges={['top', 'bottom']}
-    >
-      <StatusBar
-        barStyle={theme.statusBar}
-        backgroundColor={theme.bg}
-        animated={true}
-      />
-
-      {/* Top Header Controls Bar */}
-      <View style={[styles.headerBar, { borderBottomColor: theme.border }]}>
-        <TouchableOpacity
-          style={[styles.iconButton, { backgroundColor: colors.ring }]}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
-        >
-          <Back width={scale(14)} height={scale(14)} stroke={colors.white} />
-        </TouchableOpacity>
-
-        <View style={styles.headerTitleWrap}>
-          <Text
-            style={[styles.headerTitleText, { color: theme.text }]}
-            numberOfLines={1}
-          >
-            {title}
-          </Text>
-        </View>
-
-        <View style={styles.headerRightActions}>
-          {/* Theme Switcher Button */}
+    <GradientBackground>
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+        {/* Top Header Controls Bar */}
+        <View style={[styles.headerBar, { borderBottomColor: colors.ring }]}>
           <TouchableOpacity
-            style={[styles.iconButton, { backgroundColor: theme.surface }]}
-            onPress={cycleTheme}
+            style={[styles.iconButton, { backgroundColor: colors.ring }]}
+            onPress={() => navigation.goBack()}
             activeOpacity={0.7}
           >
-            {themeMode === 'dark' ? (
-              <SunIcon size={scale(16)} color={theme.accent} />
-            ) : (
-              <MoonIcon size={scale(16)} color={theme.accent} />
-            )}
+            <Back width={scale(14)} height={scale(14)} stroke={colors.white} />
           </TouchableOpacity>
+
+          <View style={styles.headerTitleWrap}>
+            <Text style={styles.headerTitleText} numberOfLines={1}>
+              {title}
+            </Text>
+          </View>
 
           {/* Bookmark Toggle Button */}
           <TouchableOpacity
-            style={[styles.iconButton, { backgroundColor: theme.surface }]}
+            style={styles.iconButton}
             onPress={toggleBookmark}
             activeOpacity={0.7}
           >
             <HeartIcon
               size={scale(16)}
-              color={isBookmarked ? colors.ring : theme.textSecondary}
+              color={isBookmarked ? colors.ring : ''}
               filled={isBookmarked}
+              stroke={colors.ring}
             />
           </TouchableOpacity>
         </View>
-      </View>
 
-      <FlipBookCover
-        story={story}
-        currentLang={currentLang}
-        theme={theme}
-        fontSize={fontSize}
-        onPageChange={handlePageChange}
-      />
-    </SafeAreaView>
+        {/* Book Area with synchronous cover mount & Lottie loader overlay */}
+        <View style={styles.bookContentArea}>
+          {story ? (
+            <FlipBookCover
+              story={story}
+              currentLang={currentLang}
+              fontSize={fontSize}
+              onPageChange={handlePageChange}
+              onCoverImageLoaded={handleCoverLoaded}
+            />
+          ) : null}
+
+          {(!isCoverReady || !story) && (
+            <View style={styles.centerLoaderOverlay} pointerEvents="none">
+              <LottieView
+                source={imagePath.loading}
+                autoPlay
+                loop
+                style={styles.screenLottie}
+              />
+            </View>
+          )}
+        </View>
+      </SafeAreaView>
+    </GradientBackground>
   );
 };
 
@@ -236,15 +190,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: scale(14),
     paddingVertical: scale(8),
-    borderBottomWidth: 1,
+
     gap: scale(10),
   },
   iconButton: {
-    width: scale(34),
-    height: scale(34),
+    width: scale(32),
+    height: scale(32),
     borderRadius: scale(17),
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.ring,
   },
   miniButton: {
     paddingHorizontal: scale(8),
@@ -264,6 +221,7 @@ const styles = StyleSheet.create({
   headerTitleText: {
     fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(13),
+    color: colors.black,
   },
   headerProgressText: {
     fontFamily: fonts.TiroHindiRegular,
@@ -272,7 +230,6 @@ const styles = StyleSheet.create({
   headerRightActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: scale(6),
   },
   progressTrack: {
     width: '100%',
@@ -280,5 +237,19 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: '100%',
+  },
+  bookContentArea: {
+    flex: 1,
+    position: 'relative',
+  },
+  centerLoaderOverlay: {
+    ...StyleSheet.absoluteFill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 99,
+  },
+  screenLottie: {
+    width: scale(80),
+    height: scale(80),
   },
 });

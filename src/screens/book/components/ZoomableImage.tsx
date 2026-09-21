@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -13,6 +13,9 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { runOnJS } from 'react-native-worklets';
+import LottieView from 'lottie-react-native';
+import imagePath from '@assets/index';
+import { scale } from '@theme/sizes';
 
 export interface ZoomableImageProps {
   source: ImageSourcePropType;
@@ -41,6 +44,8 @@ export const ZoomableImage: React.FC<ZoomableImageProps> = ({
   isZoomed = false,
   onZoomStateChange,
 }) => {
+  const [isLoading, setIsLoading] = useState(true);
+
   const containerWidth = useSharedValue(0);
   const containerHeight = useSharedValue(0);
 
@@ -91,6 +96,7 @@ export const ZoomableImage: React.FC<ZoomableImageProps> = ({
 
   // Reset zoom whenever source changes (e.g. page flip in comic reader)
   useEffect(() => {
+    setIsLoading(true);
     scale.value = 1;
     savedScale.value = 1;
     translateX.value = 0;
@@ -247,11 +253,25 @@ export const ZoomableImage: React.FC<ZoomableImageProps> = ({
 
   return (
     <View style={[styles.container, { width, height }]} onLayout={onLayout}>
+      {isLoading && (
+        <View style={styles.loaderContainer} pointerEvents="none">
+          <LottieView
+            source={imagePath.loading}
+            autoPlay
+            loop
+            style={styles.lottieLoader}
+          />
+        </View>
+      )}
       <GestureDetector gesture={composedGesture}>
         <Animated.Image
           source={resolvedSource}
           style={[styles.image, animatedStyle]}
           resizeMode="contain"
+          onLoadStart={() => setIsLoading(true)}
+          onLoad={() => setIsLoading(false)}
+          onLoadEnd={() => setIsLoading(false)}
+          onError={() => setIsLoading(false)}
         />
       </GestureDetector>
     </View>
@@ -263,10 +283,25 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
   },
   image: {
     width: '100%',
     height: '100%',
+  },
+  loaderContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  lottieLoader: {
+    width: scale(65),
+    height: scale(65),
   },
 });
 

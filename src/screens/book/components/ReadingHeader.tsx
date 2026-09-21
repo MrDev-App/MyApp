@@ -14,7 +14,7 @@ import {
 } from '@components/icons/SvgIcons';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
-import { MahaBharatStories } from '@constants/storiesData';
+import { findStoryById } from '@constants/storiesData';
 import AnimatedButton from '@components/AnimatedButton';
 
 import { RootNavigationProp } from '@navigation/types';
@@ -36,7 +36,7 @@ const ReadingHeader = ({
   const currentLang = (i18n.language === 'hi' ? 'hi' : 'en') as 'en' | 'hi';
 
   const { storyId } = route.params || {};
-  const story = MahaBharatStories.find(s => s.id === storyId);
+  const story = findStoryById(storyId);
 
   const [isFav, setIsFav] = useState(false);
 
@@ -86,7 +86,7 @@ const ReadingHeader = ({
     <View style={styles.headerRow}>
       <View style={styles.leftRow}>
         <TouchableOpacity
-          style={styles.ringButton}
+          style={[styles.ringButton, { backgroundColor: colors.ring }]}
           onPress={() => {
             if (storyId) {
               try {
@@ -108,7 +108,7 @@ const ReadingHeader = ({
           }}
           activeOpacity={0.8}
         >
-          <Back width={scale(12)} height={scale(12)} stroke={colors.ring} />
+          <Back width={scale(12)} height={scale(12)} stroke={colors.white} />
         </TouchableOpacity>
 
         <View style={styles.titleContainer}>
@@ -125,19 +125,6 @@ const ReadingHeader = ({
       </View>
 
       <View style={styles.actionRow}>
-        {onToggleTheme && (
-          <AnimatedButton
-            style={[styles.ringButton, styles.themeToggleBtn]}
-            onPress={onToggleTheme}
-          >
-            {isDarkMode ? (
-              <SunIcon size={scale(16)} color={colors.white} />
-            ) : (
-              <MoonIcon size={scale(16)} color={colors.black} />
-            )}
-          </AnimatedButton>
-        )}
-
         <View style={styles.ringButton}>
           <AnimatedButton
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -145,9 +132,8 @@ const ReadingHeader = ({
           >
             <HeartIcon
               size={scale(16)}
-              color={
-                isFav ? colors.ring : isDarkMode ? colors.white : colors.black
-              }
+              color={isFav ? colors.ring : ''}
+              stroke={colors.ring}
               filled={isFav}
             />
           </AnimatedButton>

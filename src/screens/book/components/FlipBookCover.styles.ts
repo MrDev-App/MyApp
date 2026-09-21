@@ -36,6 +36,8 @@ export const styles = StyleSheet.create({
     height: BOOK_HEIGHT,
     borderRadius: scale(14),
     borderWidth: 1,
+    backgroundColor: colors.bannerBgWarm,
+    borderColor: colors.borderLight,
     zIndex: 1,
   },
   paperPageLayer2: {
@@ -46,6 +48,8 @@ export const styles = StyleSheet.create({
     height: BOOK_HEIGHT,
     borderRadius: scale(14),
     borderWidth: 1,
+    backgroundColor: colors.bannerBgWarm,
+    borderColor: colors.borderLight,
     zIndex: 0,
   },
 
@@ -58,6 +62,8 @@ export const styles = StyleSheet.create({
     height: BOOK_HEIGHT,
     borderRadius: scale(14),
     borderWidth: 1.5,
+    backgroundColor: colors.primary,
+    borderColor: colors.borderLight,
     padding: scale(10),
     paddingLeft: scale(14),
     zIndex: 2,
@@ -136,6 +142,7 @@ export const styles = StyleSheet.create({
     fontSize: fs(11),
     letterSpacing: 0.3,
     flex: 1,
+    color: colors.ring,
   },
 
   // Divine Speech / Quote Callout Card
@@ -145,6 +152,8 @@ export const styles = StyleSheet.create({
     paddingVertical: scale(8),
     borderRadius: scale(8),
     borderLeftWidth: 3.5,
+    borderLeftColor: colors.ring,
+    backgroundColor: '#FFFBF2',
     position: 'relative',
     overflow: 'hidden',
   },
@@ -157,6 +166,7 @@ export const styles = StyleSheet.create({
   quoteIconText: {
     fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(24),
+    color: colors.ring,
   },
   quoteTagText: {
     fontFamily: fonts.TiroHindiRegular,
@@ -164,12 +174,14 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.8,
     marginBottom: scale(3),
     textTransform: 'uppercase',
+    color: colors.ring,
   },
   quoteParagraphText: {
     fontFamily: fonts.TiroHindiRegular,
     fontStyle: 'italic',
     letterSpacing: 0,
     textAlign: 'left',
+    color: colors.black,
   },
 
   // Decorative Page Ending Flourish
@@ -185,12 +197,14 @@ export const styles = StyleSheet.create({
     width: scale(13),
     height: scale(13),
     opacity: 0.85,
+    tintColor: colors.ring,
   },
   flourishLineText: {
     fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(9),
     letterSpacing: 2,
     opacity: 0.55,
+    color: colors.ring,
   },
 
   pageScrollView: {
@@ -210,7 +224,7 @@ export const styles = StyleSheet.create({
   pageImageCard: {
     width: '100%',
     height: scale(160),
-    borderColor: '#EDE2CC',
+    borderColor: colors.borderLight,
     borderRadius: scale(10),
     overflow: 'hidden',
     borderWidth: 1,
@@ -225,6 +239,8 @@ export const styles = StyleSheet.create({
     padding: scale(10),
     borderRadius: scale(8),
     borderWidth: 1,
+    backgroundColor: '#F9F5EC',
+    borderColor: colors.borderLight,
   },
   shlokaHeaderPill: {
     alignItems: 'center',
@@ -234,15 +250,18 @@ export const styles = StyleSheet.create({
     fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(9),
     letterSpacing: 1,
+    color: colors.ring,
   },
   shlokaVerseText: {
     fontFamily: fonts.TiroHindiRegular,
     lineHeight: fs(21),
     textAlign: 'center',
     fontStyle: 'italic',
+    color: colors.black,
   },
   shlokaDivider: {
     borderTopWidth: 0.8,
+    borderTopColor: colors.borderLight,
     marginTop: scale(6),
     paddingTop: scale(4),
   },
@@ -250,6 +269,7 @@ export const styles = StyleSheet.create({
     fontFamily: fonts.TiroHindiRegular,
     lineHeight: fs(16),
     textAlign: 'center',
+    color: colors.secondary,
   },
 
   narrativeParagraph: {
@@ -257,6 +277,7 @@ export const styles = StyleSheet.create({
     marginBottom: scale(10),
     letterSpacing: 0,
     textAlign: 'left',
+    color: colors.black,
   },
 
   moralCard: {
@@ -264,17 +285,21 @@ export const styles = StyleSheet.create({
     padding: scale(10),
     borderRadius: scale(8),
     borderWidth: 1,
+    backgroundColor: '#FEF9EE',
+    borderColor: colors.ring,
   },
   moralCardHeader: {
     fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(10),
     marginBottom: scale(3),
     textAlign: 'center',
+    color: colors.ring,
   },
   moralCardText: {
     fontFamily: fonts.TiroHindiRegular,
     fontStyle: 'italic',
     textAlign: 'center',
+    color: colors.black,
   },
 
   insideFooterRow: {
@@ -304,11 +329,13 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
     borderColor: '#1E1E1E',
     borderLeftWidth: 6,
+    backgroundColor: '#1c110b',
   },
   coverFaceContainer: {
     flex: 1,
     borderRadius: scale(14),
     overflow: 'hidden',
+    backgroundColor: '#1c110b',
   },
   coverImage: {
     ...StyleSheet.absoluteFill,
@@ -321,6 +348,7 @@ export const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: scale(14),
+    backgroundColor: '#1c110b',
   },
   coverGradient: {
     ...StyleSheet.absoluteFill,
@@ -434,6 +462,7 @@ export const styles = StyleSheet.create({
     transform: [{ scaleX: -1 }],
     borderWidth: 1.5,
     borderColor: colors.borderLight,
+    backgroundColor: '#FBF8F2',
     justifyContent: 'center',
   },
   backFaceInnerBorder: {
@@ -443,6 +472,7 @@ export const styles = StyleSheet.create({
     padding: scale(12),
     alignItems: 'center',
     justifyContent: 'center',
+    borderColor: 'rgba(218, 165, 32, 0.45)',
   },
   backFaceOm: {
     fontSize: fs(24),
@@ -455,6 +485,7 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.8,
     marginTop: scale(3),
     textAlign: 'center',
+    color: colors.ring,
   },
   backFaceDivider: {
     width: scale(70),
@@ -467,6 +498,7 @@ export const styles = StyleSheet.create({
     fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(12),
     textAlign: 'center',
+    color: colors.black,
   },
   backFaceDedicationBody: {
     fontFamily: fonts.TiroHindiRegular,
@@ -474,12 +506,14 @@ export const styles = StyleSheet.create({
     lineHeight: fs(14),
     textAlign: 'center',
     marginTop: scale(3),
+    color: colors.secondary,
   },
   backFaceSourceNote: {
     fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(8.5),
     fontStyle: 'italic',
     textAlign: 'center',
+    color: colors.secondary,
   },
 
   // Bottom Nav Bar
@@ -537,13 +571,19 @@ export const styles = StyleSheet.create({
     minWidth: scale(26),
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: colors.bannerBgWarm,
   },
   pageDotActive: {
     borderRadius: scale(8),
+    backgroundColor: colors.ring,
   },
   dotLabel: {
     fontFamily: fonts.TiroHindiRegular,
     fontSize: fs(9.5),
+    color: colors.secondary,
+  },
+  dotLabelActive: {
+    color: colors.white,
   },
 
   // Loading Status Pill Overlay
@@ -584,16 +624,9 @@ export const styles = StyleSheet.create({
     width: scale(28),
     height: scale(28),
     borderRadius: scale(14),
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.35)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 4,
   },
   imageZoomIcon: {
     color: colors.ring,
@@ -683,7 +716,7 @@ export const styles = StyleSheet.create({
     right: scale(12),
   },
   fullscreenNavBtnText: {
-    color: '#FFF',
+    color: colors.black,
     fontSize: fs(24),
     fontFamily: fonts.TiroHindiRegular,
     lineHeight: fs(26),

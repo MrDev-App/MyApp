@@ -1,7 +1,26 @@
 /* eslint-disable no-undef */
 import 'react-native-gesture-handler/jestSetup';
 
-// Mock react-native-worklets and react-native-reanimated
+// Mock @react-navigation/native
+jest.mock('@react-navigation/native', () => {
+  const actualNav = jest.requireActual('@react-navigation/native');
+  return {
+    ...actualNav,
+    useNavigation: () => ({
+      navigate: jest.fn(),
+      goBack: jest.fn(),
+      dispatch: jest.fn(),
+      jumpTo: jest.fn(),
+    }),
+    useIsFocused: () => true,
+    createNavigationContainerRef: () => ({
+      isReady: () => true,
+      navigate: jest.fn(),
+      dispatch: jest.fn(),
+      reset: jest.fn(),
+    }),
+  };
+});
 jest.mock('react-native-worklets', () => require('react-native-worklets/lib/module/mock'));
 jest.mock('react-native-reanimated', () => {
   const reanimated = require('react-native-reanimated/mock');
@@ -146,8 +165,11 @@ jest.mock('react-native-google-mobile-ads', () => {
 
 // Mock @notifee/react-native
 jest.mock('@notifee/react-native', () => ({
-  displayNotification: jest.fn(),
-  createChannel: jest.fn(),
+  displayNotification: jest.fn(() => Promise.resolve()),
+  createChannel: jest.fn(() => Promise.resolve()),
+  requestPermission: jest.fn(() => Promise.resolve({ authorizationStatus: 1 })),
+  createTriggerNotification: jest.fn(() => Promise.resolve()),
+  cancelTriggerNotification: jest.fn(() => Promise.resolve()),
   getInitialNotification: jest.fn(() => Promise.resolve(null)),
   onForegroundEvent: jest.fn(() => jest.fn()),
   onBackgroundEvent: jest.fn(),
@@ -158,6 +180,22 @@ jest.mock('@notifee/react-native', () => ({
   AndroidImportance: {
     HIGH: 4,
     DEFAULT: 3,
+  },
+  AuthorizationStatus: {
+    NOT_DETERMINED: -1,
+    DENIED: 0,
+    AUTHORIZED: 1,
+    PROVISIONAL: 2,
+  },
+  TriggerType: {
+    TIMESTAMP: 0,
+    INTERVAL: 1,
+  },
+  RepeatFrequency: {
+    HOURLY: 0,
+    DAILY: 1,
+    WEEKLY: 2,
+    NONE: -1,
   },
 }));
 
@@ -194,4 +232,31 @@ jest.mock('@react-native-firebase/storage', () => ({
 // Mock react-native-config
 jest.mock('react-native-config', () => ({
   default: {},
+}));
+
+// Mock react-native-safe-area-context
+jest.mock('react-native-safe-area-context', () => {
+  const React = require('react');
+  const insets = { top: 0, left: 0, right: 0, bottom: 0 };
+  return {
+    SafeAreaProvider: ({ children }) => children,
+    SafeAreaConsumer: ({ children }) => children(insets),
+    SafeAreaView: ({ children, style }) => React.createElement('SafeAreaView', { style }, children),
+    useSafeAreaInsets: () => insets,
+    useSafeAreaFrame: () => ({ x: 0, y: 0, width: 390, height: 844 }),
+  };
+});
+
+// Mock react-native-haptic-feedback
+jest.mock('react-native-haptic-feedback', () => ({
+  trigger: jest.fn(),
+  HapticFeedbackTypes: {
+    selection: 'selection',
+    impactLight: 'impactLight',
+    impactMedium: 'impactMedium',
+    impactHeavy: 'impactHeavy',
+    notificationSuccess: 'notificationSuccess',
+    notificationWarning: 'notificationWarning',
+    notificationError: 'notificationError',
+  },
 }));

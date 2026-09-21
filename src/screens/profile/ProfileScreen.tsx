@@ -36,7 +36,7 @@ import {
   getUserJoinedDate,
 } from '@services/storageService';
 import { pickImage } from '@services/imagePickerService';
-import { MahaBharatStories, Story } from '@constants/storiesData';
+import { AllBooks, findStoryById, Story } from '@constants/storiesData';
 import { getJapMantrasData, MantraSelectorItem } from '@services/japService';
 import {
   scheduleMultipleReminders,
@@ -267,11 +267,11 @@ const ProfileScreen = () => {
 
     try {
       const bookmarkedIds: string[] = JSON.parse(
-        Storage.getString('STORY_BOOKMARKS', '[]'),
+        Storage.getString(STORAGE_KEYS.STORY_BOOKMARKS, '[]'),
       );
       setFavoriteStories(
         Array.isArray(bookmarkedIds)
-          ? MahaBharatStories.filter(s => bookmarkedIds.includes(s.id))
+          ? AllBooks.filter(s => bookmarkedIds.includes(s.id))
           : [],
       );
     } catch {
@@ -287,11 +287,11 @@ const ProfileScreen = () => {
   const handleRemoveFavorite = useCallback((storyId: string) => {
     triggerHaptic('light');
     try {
-      const raw = Storage.getString('STORY_BOOKMARKS', '[]');
+      const raw = Storage.getString(STORAGE_KEYS.STORY_BOOKMARKS, '[]');
       let list: string[] = JSON.parse(raw);
       if (Array.isArray(list)) {
         list = list.filter(id => id !== storyId);
-        Storage.set('STORY_BOOKMARKS', JSON.stringify(list));
+        Storage.set(STORAGE_KEYS.STORY_BOOKMARKS, JSON.stringify(list));
         setFavoriteStories(prev => prev.filter(s => s.id !== storyId));
       }
     } catch {}
@@ -452,9 +452,15 @@ const ProfileScreen = () => {
             stories={favoriteStories}
             currentLanguage={currentLanguage}
             onRemove={handleRemoveFavorite}
-            onPress={storyId =>
-              navigation.navigate('ReadingScreen', { storyId })
-            }
+            onPress={storyId => {
+              triggerHaptic('light');
+              const book = findStoryById(storyId);
+              if (book?.type === 'text') {
+                navigation.navigate('TextReadingScreen', { storyId });
+              } else {
+                navigation.navigate('ReadingScreen', { storyId });
+              }
+            }}
           />
 
           {/* ── Settings Card ─────────────────────────────────────── */}

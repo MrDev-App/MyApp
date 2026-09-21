@@ -19,6 +19,10 @@ import colors from '@theme/colors';
 import ReadingHeader from './components/ReadingHeader';
 import ReadingFooter from './components/ReadingFooter';
 import ZoomableComicPage from './components/ZoomableImage';
+import { GradientBackground } from '@components';
+import LottieView from 'lottie-react-native';
+import imagePath from '@assets/index';
+import { scale } from '@theme/sizes';
 
 const ReadingScreen = () => {
   const route = useRoute<any>();
@@ -95,74 +99,78 @@ const ReadingScreen = () => {
   const bgColor = isDarkMode ? colors.readerDarkBg : colors.readerLightBg;
 
   return (
-    <SafeAreaView
-      style={[styles.safeAreaContainer, { backgroundColor: bgColor }]}
-      edges={['top', 'bottom']}
-    >
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={bgColor}
-        animated={true}
-      />
+    <GradientBackground>
+      <SafeAreaView style={styles.safeAreaContainer} edges={['top', 'bottom']}>
+        <ReadingHeader isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
 
-      <ReadingHeader isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
-
-      <View
-        style={styles.contentArea}
-        onLayout={e => {
-          const w = e.nativeEvent.layout.width;
-          if (w > 0 && Math.abs(w - containerWidth) > 1) {
-            setContainerWidth(w);
-          }
-        }}
-      >
-        <FlatList
-          ref={flatListRef}
-          data={pages}
-          horizontal
-          pagingEnabled
-          scrollEnabled={!isZoomed}
-          showsHorizontalScrollIndicator={false}
-          bounces={false}
-          initialNumToRender={3}
-          maxToRenderPerBatch={3}
-          windowSize={5}
-          removeClippedSubviews={true}
-          keyExtractor={(_, index) => `comic_page_${index}`}
-          getItemLayout={(_, index) => ({
-            length: containerWidth,
-            offset: containerWidth * index,
-            index,
-          })}
-          onMomentumScrollEnd={handleScrollEnd}
-          renderItem={({ item }) => (
-            <View
-              style={[
-                styles.slideContainer,
-                { width: containerWidth > 0 ? containerWidth : windowWidth },
-              ]}
-            >
-              <ZoomableComicPage
-                source={item}
-                width={containerWidth > 0 ? containerWidth : windowWidth}
-                height="100%"
-                isZoomed={isZoomed}
-                onZoomStateChange={setIsZoomed}
+        <View
+          style={styles.contentArea}
+          onLayout={e => {
+            const w = e.nativeEvent.layout.width;
+            if (w > 0 && Math.abs(w - containerWidth) > 1) {
+              setContainerWidth(w);
+            }
+          }}
+        >
+          {pages.length === 0 ? (
+            <View style={styles.centerLoader}>
+              <LottieView
+                source={imagePath.loading}
+                autoPlay
+                loop
+                style={styles.screenLottie}
               />
             </View>
+          ) : (
+            <FlatList
+              ref={flatListRef}
+              data={pages}
+              horizontal
+              pagingEnabled
+              scrollEnabled={!isZoomed}
+              showsHorizontalScrollIndicator={false}
+              bounces={false}
+              initialNumToRender={3}
+              maxToRenderPerBatch={3}
+              windowSize={5}
+              removeClippedSubviews={true}
+              keyExtractor={(_, index) => `comic_page_${index}`}
+              getItemLayout={(_, index) => ({
+                length: containerWidth,
+                offset: containerWidth * index,
+                index,
+              })}
+              onMomentumScrollEnd={handleScrollEnd}
+              renderItem={({ item }) => (
+                <View
+                  style={[
+                    styles.slideContainer,
+                    { width: containerWidth > 0 ? containerWidth : windowWidth },
+                  ]}
+                >
+                  <ZoomableComicPage
+                    source={item}
+                    width={containerWidth > 0 ? containerWidth : windowWidth}
+                    height="100%"
+                    isZoomed={isZoomed}
+                    onZoomStateChange={setIsZoomed}
+                  />
+                </View>
+              )}
+            />
           )}
-        />
-      </View>
+        </View>
 
-      <ReadingFooter
-        currentPage={currentPageIndex}
-        totalPages={totalComicPages}
-        onPrev={handlePrevPage}
-        onNext={handleNextPage}
-        currentLang={currentLang}
-        isDarkMode={isDarkMode}
-      />
-    </SafeAreaView>
+        <ReadingFooter
+          currentPage={currentPageIndex}
+          totalPages={totalComicPages}
+          onPrev={handlePrevPage}
+          onNext={handleNextPage}
+          currentLang={currentLang}
+          isDarkMode={isDarkMode}
+        />
+      </SafeAreaView>
+    </GradientBackground>
   );
 };
 
@@ -186,5 +194,14 @@ const styles = StyleSheet.create({
   comicPageImage: {
     width: '100%',
     height: '100%',
+  },
+  centerLoader: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  screenLottie: {
+    width: scale(80),
+    height: scale(80),
   },
 });

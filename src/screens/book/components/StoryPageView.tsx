@@ -26,7 +26,6 @@ import { ExpandIcon } from '@components/icons/SvgIcons';
 export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
   ({
     pageData,
-    theme,
     fontSize,
     category,
     source,
@@ -41,11 +40,6 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
       null,
     );
     const [isZoomed, setIsZoomed] = useState<boolean>(false);
-
-    const isDark =
-      theme.bg === '#121215' ||
-      theme.bg === colors.black ||
-      theme.statusBar === 'light-content';
 
     const isEn = currentLang === 'en';
     const pageSource = isEn
@@ -115,29 +109,21 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
     const pageNumber = pageData?.page || 1;
 
     return (
-      <View
-        style={[
-          styles.insidePageContainer,
-          {
-            backgroundColor: isDark ? '#1A1D27' : '#FFFDF9',
-            borderColor: theme.cardBorder,
-          },
-        ]}
-      >
+      <View style={styles.insidePageContainer}>
         {/* Ornate Golden Inner Margin Frame */}
         <View style={[styles.ornateBorder, { borderColor: GOLD_BORDER }]}>
           {/* Page Top Header Bar */}
           <View style={styles.insideHeaderBar}>
             <View
-              style={[styles.pageSourceBadge, { backgroundColor: theme.tagBg }]}
+              style={[styles.pageSourceBadge, { backgroundColor: colors.ring }]}
             >
               <Image
                 source={imagePath.lotus}
-                style={[styles.headerBadgeIcon, { tintColor: theme.tagText }]}
+                style={[styles.headerBadgeIcon, { tintColor: colors.white }]}
                 resizeMode="contain"
               />
               <Text
-                style={[styles.pageSourceText, { color: theme.tagText }]}
+                style={[styles.pageSourceText, { color: colors.white }]}
                 numberOfLines={1}
               >
                 {pageSource || category}
@@ -159,10 +145,7 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                 {allPageImages.map((imgSrc: any, imgIdx: number) => (
                   <TouchableOpacity
                     key={`page-img-${imgIdx}`}
-                    style={[
-                      styles.pageImageCard,
-                      { borderColor: theme.cardBorder },
-                    ]}
+                    style={styles.pageImageCard}
                     activeOpacity={0.88}
                     disabled={!isInteractive}
                     onPress={() => handleOpenFullscreen(imgIdx)}
@@ -172,20 +155,10 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                       style={styles.pageImage}
                       resizeMode="contain"
                     />
-                    <View
-                      style={[
-                        styles.imageZoomBadge,
-                        {
-                          backgroundColor: isDark
-                            ? 'rgba(20, 20, 26, 0.75)'
-                            : 'rgba(255, 255, 255, 0.88)',
-                          borderColor: theme.cardBorder,
-                        },
-                      ]}
-                    >
+                    <View style={styles.imageZoomBadge}>
                       <ExpandIcon
                         size={scale(13)}
-                        color={theme.accent || theme.ring || colors.ring}
+                        color={colors.ring}
                         strokeWidth={2.4}
                       />
                     </View>
@@ -196,17 +169,9 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
 
             {/* Holy Shloka Card */}
             {pageShloka ? (
-              <View
-                style={[
-                  styles.shlokaBox,
-                  {
-                    backgroundColor: isDark ? '#222533' : '#F9F5EC',
-                    borderColor: theme.cardBorder,
-                  },
-                ]}
-              >
+              <View style={styles.shlokaBox}>
                 <View style={styles.shlokaHeaderPill}>
-                  <Text style={[styles.shlokaTagText, { color: theme.accent }]}>
+                  <Text style={styles.shlokaTagText}>
                     ✦ {strings.shlokaTranslationHeader} ✦
                   </Text>
                 </View>
@@ -214,7 +179,6 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                   style={[
                     styles.shlokaVerseText,
                     {
-                      color: theme.text,
                       fontSize: fs(fontSize + 0.5),
                     },
                   ]}
@@ -223,17 +187,11 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                 </Text>
 
                 {pageShlokaTrans ? (
-                  <View
-                    style={[
-                      styles.shlokaDivider,
-                      { borderTopColor: theme.cardBorder },
-                    ]}
-                  >
+                  <View style={styles.shlokaDivider}>
                     <Text
                       style={[
                         styles.shlokaMeaningText,
                         {
-                          color: theme.textSecondary,
                           fontSize: fs(fontSize - 1.5),
                         },
                       ]}
@@ -261,13 +219,12 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                 return (
                   <View
                     key={`para-header-${pIdx}`}
-                    style={[styles.sectionHeaderCard]}
+                    style={styles.sectionHeaderCard}
                   >
                     <Text
                       style={[
                         styles.sectionHeaderText,
                         {
-                          color: theme.accent,
                           fontSize: fs(fontSize),
                           lineHeight: fs(fontSize * 1.45),
                         },
@@ -289,24 +246,12 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                 return (
                   <View
                     key={`para-quote-${pIdx}`}
-                    style={[
-                      styles.quoteCalloutCard,
-                      {
-                        backgroundColor: isDark ? '#24222E' : '#FFFBF2',
-                        borderLeftColor: theme.accent,
-                      },
-                    ]}
+                    style={styles.quoteCalloutCard}
                   >
                     <View style={styles.quoteIconWrap}>
-                      <Text
-                        style={[styles.quoteIconText, { color: theme.accent }]}
-                      >
-                        ❝
-                      </Text>
+                      <Text style={styles.quoteIconText}>❝</Text>
                     </View>
-                    <Text
-                      style={[styles.quoteTagText, { color: theme.accent }]}
-                    >
+                    <Text style={styles.quoteTagText}>
                       ⚜ {isEn ? 'DIVINE SPEECH / PROPHECY' : 'दिव्य वाणी / कथन'}{' '}
                       ⚜
                     </Text>
@@ -314,7 +259,6 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                       style={[
                         styles.quoteParagraphText,
                         {
-                          color: theme.text,
                           fontSize: fs(fontSize + 0.2),
                           lineHeight: fs((fontSize + 0.2) * 1.68),
                         },
@@ -332,7 +276,6 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                   style={[
                     styles.narrativeParagraph,
                     {
-                      color: theme.text,
                       fontSize: fs(fontSize),
                       lineHeight: fs(fontSize * 1.68),
                     },
@@ -345,23 +288,14 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
 
             {/* Moral / Education Box */}
             {pageMoral ? (
-              <View
-                style={[
-                  styles.moralCard,
-                  {
-                    backgroundColor: isDark ? '#262018' : '#FEF9EE',
-                    borderColor: theme.accent,
-                  },
-                ]}
-              >
-                <Text style={[styles.moralCardHeader, { color: theme.accent }]}>
+              <View style={styles.moralCard}>
+                <Text style={styles.moralCardHeader}>
                   ⚜ {strings.moralHeader} ⚜
                 </Text>
                 <Text
                   style={[
                     styles.moralCardText,
                     {
-                      color: theme.text,
                       fontSize: fs(fontSize - 1),
                       lineHeight: fs((fontSize - 1) * 1.5),
                     },
@@ -374,17 +308,13 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
 
             {/* Decorative Page End Flourish */}
             <View style={styles.pageEndFlourish}>
-              <Text style={[styles.flourishLineText, { color: theme.accent }]}>
-                ─────────
-              </Text>
+              <Text style={styles.flourishLineText}>─────────</Text>
               <Image
                 source={imagePath.lotus}
-                style={[styles.flourishMiniIcon, { tintColor: theme.accent }]}
+                style={styles.flourishMiniIcon}
                 resizeMode="contain"
               />
-              <Text style={[styles.flourishLineText, { color: theme.accent }]}>
-                ─────────
-              </Text>
+              <Text style={styles.flourishLineText}>─────────</Text>
             </View>
           </ScrollView>
 
@@ -400,11 +330,6 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
           onRequestClose={handleCloseFullscreen}
         >
           <GestureHandlerRootView style={styles.fullscreenModalRoot}>
-            <StatusBar
-              barStyle="light-content"
-              backgroundColor="transparent"
-              translucent={true}
-            />
             <View style={styles.fullscreenModalBackdrop}>
               {/* Header Bar with Title and Close Button */}
               <View
