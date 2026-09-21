@@ -1,4 +1,4 @@
-import { StatusBar } from 'react-native';
+import { StatusBar, LogBox } from 'react-native';
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -25,6 +25,8 @@ import { getUserJoinedDate } from '@services/storageService';
 import { useAppOpenAd } from '@admob/useAppOpenAd';
 import { isAdMobEnabled } from '@admob/adConfig';
 import colors from '@theme/colors';
+
+LogBox.ignoreAllLogs();
 
 const MainApp = () => {
   useAppOpenAd(isAdMobEnabled());

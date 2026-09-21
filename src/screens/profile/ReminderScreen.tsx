@@ -270,9 +270,11 @@ const ReminderScreen: React.FC = () => {
         >
           {/* ── 1. Time Wheel & Custom Message Card ── */}
           <View style={styles.card}>
-            <Text style={styles.sectionLabel}>
-              {t(Translation.PROFILE_REMINDER_SELECT_TIME)}
-            </Text>
+            {Platform.OS !== 'ios' && (
+              <Text style={styles.sectionLabel}>
+                {t(Translation.PROFILE_REMINDER_SELECT_TIME)}
+              </Text>
+            )}
 
             {Platform.OS === 'ios' ? (
               <View style={styles.pickerWrapper}>
@@ -491,6 +493,11 @@ const ReminderScreen: React.FC = () => {
                       }
                       onValueChange={v => handleToggleItem(item.id, v)}
                       value={item.enabled}
+                      style={{
+                        transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
+
+                        alignSelf: 'center',
+                      }}
                     />
                     <TouchableOpacity
                       testID={`reminder-delete-${item.id}`}
@@ -797,10 +804,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: scale(6),
+
+    justifyContent: 'center',
   },
   deleteBtn: {
-    width: scale(30),
-    height: scale(30),
+    width: scale(34),
+    height: scale(34),
+
     borderRadius: scale(15),
     backgroundColor: 'rgba(239, 68, 68, 0.12)',
     justifyContent: 'center',

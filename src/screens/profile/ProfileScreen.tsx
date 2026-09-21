@@ -26,7 +26,7 @@ import { Translation } from '@i18n/language';
 import GradientBackground from '@components/GradientBackground';
 import { OverlayModalHandle } from '@components/OverlayModal';
 import { suppressNextAppOpenAd } from '@admob/useAppOpenAd';
-import imagePath from '@assets/index';
+import imagePath, { Bell } from '@assets/index';
 import colors from '@theme/colors';
 import { CameraIcon, ChevronRight } from '@components/icons/SvgIcons';
 import { scale } from '@theme/sizes';
@@ -548,14 +548,7 @@ const ProfileScreen = () => {
                     gap: scale(4),
                   }}
                 >
-                  <Image
-                    source={imagePath.clock}
-                    style={{
-                      width: scale(13),
-                      height: scale(13),
-                      resizeMode: 'contain',
-                    }}
-                  />
+                  <Bell width={scale(13)} height={scale(13)} />
                   <Text
                     style={[
                       profileStyles.settingSubLabel,
