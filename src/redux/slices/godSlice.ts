@@ -46,9 +46,6 @@ export const godSlice = createSlice({
 
 export const { setGods, setGodsLoading, setGodsError } = godSlice.actions;
 
-/**
- * Async thunk to fetch deities and mantras from Firestore
- */
 export const fetchGodMantras = () => {
   return async (dispatch: any) => {
     dispatch(setGodsLoading(true));

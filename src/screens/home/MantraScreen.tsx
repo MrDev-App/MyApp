@@ -24,12 +24,13 @@ import {
   ScreenHeader,
 } from '@components';
 import { useAppLanguage } from '@hooks';
+import { Translation } from '@i18n/language';
 
 const MantraScreen = () => {
   const insets = useSafeAreaInsets();
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { isHindi } = useAppLanguage();
+  const { isHindi, t } = useAppLanguage();
 
   const initialGod: God | undefined = route.params?.god;
   const allGods: God[] =
@@ -77,10 +78,8 @@ const MantraScreen = () => {
         <ScreenHeader
           title={
             godName
-              ? `${godName} ${isHindi ? 'मंत्र' : 'Mantras'}`
-              : isHindi
-              ? 'मंत्र संग्रह'
-              : 'Sacred Mantras'
+              ? `${godName} ${t(Translation.MANTRA_HEADER_SUFFIX)}`
+              : t(Translation.MANTRA_COLLECTION_TITLE)
           }
         />
 
@@ -111,9 +110,7 @@ const MantraScreen = () => {
               ) : null}
               <View style={styles.badgeContainer}>
                 <Text style={styles.badgeText}>
-                  {`${mantras.length} ${
-                    isHindi ? 'पवित्र मंत्र' : 'Sacred Mantras'
-                  }`}
+                  {`${mantras.length} ${t(Translation.SACRED_MANTRAS_COUNT)}`}
                 </Text>
               </View>
             </View>
@@ -123,7 +120,7 @@ const MantraScreen = () => {
           {allGods.length > 1 && (
             <View style={styles.deitiesSelectorSection}>
               <Text style={styles.sectionSubtitle}>
-                {isHindi ? 'अन्य देवी-देवता चुनें' : 'Select Deity'}
+                {t(Translation.MANTRA_SELECT_DEITY)}
               </Text>
               <AutoScrollFlatList
                 data={allGods}
@@ -168,12 +165,10 @@ const MantraScreen = () => {
           {/* Mantras Section Header */}
           <View style={styles.mantrasHeaderRow}>
             <Text style={styles.mantrasSectionTitle}>
-              {isHindi ? 'मंत्र सूची' : 'Mantra Collection'}
+              {t(Translation.MANTRA_LIST_TITLE)}
             </Text>
             <Text style={styles.mantrasCountText}>
-              {isHindi
-                ? 'पढ़ने के लिए कार्ड पर टैप करें'
-                : 'Tap to read & chant'}
+              {t(Translation.MANTRA_TAP_TO_READ)}
             </Text>
           </View>
 
@@ -207,7 +202,7 @@ const MantraScreen = () => {
                   onPress={() => setSelectedMantra(m)}
                 >
                   <Text style={styles.viewMoreText}>
-                    {isHindi ? 'पूर्ण मंत्र देखें →' : 'View Full Mantra →'}
+                    {t(Translation.VIEW_FULL_MANTRA)}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -284,23 +279,11 @@ const MantraScreen = () => {
                   <View style={styles.modalActionsRow}>
                     <TouchableOpacity
                       style={styles.startJapBtn}
-                      activeOpacity={0.8}
-                      onPress={() => handleStartJap(selectedMantra)}
-                    >
-                      <Text style={styles.startJapBtnText}>
-                        {isHindi
-                          ? '📿 इस मंत्र से जाप करें'
-                          : '📿 Start Jap with this Mantra'}
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.dismissBtn}
                       activeOpacity={0.7}
                       onPress={() => setSelectedMantra(null)}
                     >
                       <Text style={styles.dismissBtnText}>
-                        {isHindi ? 'बंद करें' : 'Close'}
+                        {t(Translation.CLOSE_BTN)}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -685,8 +668,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dismissBtnText: {
-    fontSize: fs(13),
+    fontSize: fs(14),
     fontFamily: fonts.TiroHindiRegular,
-    color: colors.mutedForeground,
+    color: colors.white,
   },
 });

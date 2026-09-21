@@ -4,7 +4,7 @@ import { RootStackParamList } from '@navigation/types';
 import SplashScreen from '@screens/SplashScreen';
 import OnboardingScreen from '@screens/OnboardingScreen';
 import BottomNavigation from './BottomNavigation';
-import CalendarScreen from '@screens/calendar/CalendarScreen';
+
 import '@i18n/index';
 import ReadingScreen from '@screens/book/ReadingScreen';
 import TextReadingScreen from '@screens/book/TextReadingScreen';
@@ -17,6 +17,8 @@ import MantraScreen from '@screens/home/MantraScreen';
 import ShlokScreen from '@screens/home/ShlokScreen';
 import { AllArtiScreen } from '@screens/home/AllArtiScreen';
 import ArtiScreen from '@screens/home/ArtiScreen';
+import CalendarScreen from '@screens/calendar/CalendarScreen';
+import ReminderScreen from '@screens/profile/ReminderScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -85,6 +87,11 @@ const StackNavigation = () => {
       <Stack.Screen
         name="ShlokScreen"
         component={ShlokScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="ReminderScreen"
+        component={ReminderScreen}
         options={{ animation: 'slide_from_right' }}
       />
     </Stack.Navigator>

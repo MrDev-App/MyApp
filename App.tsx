@@ -44,7 +44,6 @@ const MainApp = () => {
     initNotifications();
     getUserJoinedDate();
 
-    // Fetch all Firestore collections on initial startup into Redux (pure in-memory, no disk persistence)
     store.dispatch(fetchFestivals());
     store.dispatch(fetchGodMantras());
     store.dispatch(fetchJapMantras());
@@ -71,14 +70,14 @@ const MainApp = () => {
     <GestureHandlerRootView
       style={{ flex: 1, backgroundColor: colors.primary }}
     >
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent
+      />
       <ErrorBoundary>
         <SafeAreaProvider>
           <NavigationContainer ref={navigationRef}>
-            <StatusBar
-              barStyle="dark-content"
-              backgroundColor="transparent"
-              translucent
-            />
             <StackNavigation />
           </NavigationContainer>
         </SafeAreaProvider>
@@ -96,4 +95,3 @@ const App = () => {
 };
 
 export default App;
-

@@ -17,14 +17,18 @@ class MainActivity : ReactActivity() {
     @Suppress("DEPRECATION") window.navigationBarColor = Color.WHITE
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      val flags = WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS or WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
       window.insetsController?.setSystemBarsAppearance(
-              WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
-              WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+              flags,
+              flags
       )
-    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
       @Suppress("DEPRECATION")
-      window.decorView.systemUiVisibility =
-              window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+      var flags = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        flags = flags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+      }
+      window.decorView.systemUiVisibility = flags
     }
   }
 

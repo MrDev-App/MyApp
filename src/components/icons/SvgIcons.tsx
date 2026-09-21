@@ -307,6 +307,25 @@ export const MinusIcon = (props: SvgIconProps) => {
   );
 };
 
+export const TrashIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 16, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" />
+    </Svg>
+  );
+};
+
 export const PlayIcon = (props: SvgIconProps) => {
   const { size, color } = getIconProps(props, 20, 2);
   return (
@@ -524,12 +543,3 @@ export const TagIcon = (props: SvgIconProps) => {
     </Svg>
   );
 };
-
-
-
-
-
-
-
-
-

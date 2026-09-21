@@ -3469,6 +3469,28 @@ PODS:
     - React-utils (= 0.86.2)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.86.2)
+  - RNDateTimePicker (9.2.1):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - RNFBApp (26.3.3):
     - Firebase/CoreOnly (= 12.18.0)
     - hermes-engine
@@ -4010,6 +4032,7 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios/ReactCodegen`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
+  - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBFirestore (from `../node_modules/@react-native-firebase/firestore`)"
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
@@ -4220,6 +4243,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativeDependencies:
     :podspec: "../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec"
+  RNDateTimePicker:
+    :path: "../node_modules/@react-native-community/datetimepicker"
   RNFBApp:
     :path: "../node_modules/@react-native-firebase/app"
   RNFBFirestore:
@@ -4358,6 +4383,7 @@ SPEC CHECKSUMS:
   ReactCodegen: a33d73c0829068d80ebdfff4d74248e3a63b5431
   ReactCommon: 9002f006f571256348994183f7d4387aa7cf84e8
   ReactNativeDependencies: 2bd6854ade79bf1b60586d1ab7813a389df1b6bf
+  RNDateTimePicker: 59657c6f6ad620b34ab1f92ff3ebdc471684985a
   RNFBApp: 87b0cc2bbdde8a92ff39d08d42fa1a798fdf86ca
   RNFBFirestore: 11ebf453cb9a0a7dbe7d6ecd6794a4aa289338d5
   RNFBMessaging: 3323f6cba6b5d372344d34863dbef03220dafec3
@@ -4375,4 +4401,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 3d4b3092113762323756d9b3f2f5d5df2662411c
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.15.2

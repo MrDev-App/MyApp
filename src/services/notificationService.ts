@@ -32,14 +32,26 @@ export interface NotificationConfig {
   weekdays?: number[];
 }
 
+export interface ReminderItem {
+  id: string;
+  hour: number;
+  minute: number;
+  isPm: boolean;
+  enabled: boolean;
+  title?: string;
+  subtitle?: string;
+}
+
 export const DEFAULT_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'notif_1',
     type: 'sadhana',
     titleEn: 'Morning Sadhana Time 🌅',
     titleHi: 'प्रातः साधना का समय 🌅',
-    messageEn: 'Begin your day with peaceful chanting and connect with the divine.',
-    messageHi: 'शांतिपूर्ण नाम जप के साथ अपने दिन की शुरुआत करें और प्रभु से जुड़ें।',
+    messageEn:
+      'Begin your day with peaceful chanting and connect with the divine.',
+    messageHi:
+      'शांतिपूर्ण नाम जप के साथ अपने दिन की शुरुआत करें और प्रभु से जुड़ें।',
     timestamp: Date.now() - 2 * 60 * 60 * 1000,
     isRead: false,
     actionRoute: 'Jap',
@@ -49,8 +61,10 @@ export const DEFAULT_NOTIFICATIONS: AppNotification[] = [
     type: 'festival',
     titleEn: 'Upcoming Festival: Maha Shivratri 🔱',
     titleHi: 'आगामी पर्व: महाशिवरात्रि 🔱',
-    messageEn: 'Prepare for the auspicious night of Lord Shiva. Check tithi and timings in the calendar.',
-    messageHi: 'भगवान शिव की पावन रात्रि की तैयारी करें। त्योहार कैलेंडर में शुभ मुहूर्त देखें।',
+    messageEn:
+      'Prepare for the auspicious night of Lord Shiva. Check tithi and timings in the calendar.',
+    messageHi:
+      'भगवान शिव की पावन रात्रि की तैयारी करें। त्योहार कैलेंडर में शुभ मुहूर्त देखें।',
     timestamp: Date.now() - 22 * 60 * 60 * 1000,
     isRead: false,
     actionRoute: 'AllFestivals',
@@ -60,8 +74,10 @@ export const DEFAULT_NOTIFICATIONS: AppNotification[] = [
     type: 'milestone',
     titleEn: 'Daily Sadhana Streak Active 🔥',
     titleHi: 'दैनिक साधना क्रम जारी 🔥',
-    messageEn: "You've maintained your devotion consistently! Keep your Jap momentum going today.",
-    messageHi: 'आपने निरंतर अपनी साधना बनाए रखी है! आज भी अपना नाम जप पूर्ण करें।',
+    messageEn:
+      "You've maintained your devotion consistently! Keep your Jap momentum going today.",
+    messageHi:
+      'आपने निरंतर अपनी साधना बनाए रखी है! आज भी अपना नाम जप पूर्ण करें।',
     timestamp: Date.now() - 48 * 60 * 60 * 1000,
     isRead: true,
     actionRoute: 'Jap',
@@ -71,8 +87,10 @@ export const DEFAULT_NOTIFICATIONS: AppNotification[] = [
     type: 'wisdom',
     titleEn: 'New Sacred Story Available 📜',
     titleHi: 'नई पावन कथा उपलब्ध 📜',
-    messageEn: 'Read the inspiring wisdom of the Mahabharat and sacred epics in the illustrated reader.',
-    messageHi: 'सचित्र कॉमिक रीडर में महाभारत एवं पावन गाथाओं का दिव्य संदेश पढ़ें।',
+    messageEn:
+      'Read the inspiring wisdom of the Mahabharat and sacred epics in the illustrated reader.',
+    messageHi:
+      'सचित्र कॉमिक रीडर में महाभारत एवं पावन गाथाओं का दिव्य संदेश पढ़ें।',
     timestamp: Date.now() - 72 * 60 * 60 * 1000,
     isRead: true,
     actionRoute: 'Book',
@@ -84,7 +102,10 @@ export const NotificationStorage = {
     try {
       const raw = Storage.getString(STORAGE_KEYS.APP_NOTIFICATION_LIST, '');
       if (!raw) {
-        Storage.set(STORAGE_KEYS.APP_NOTIFICATION_LIST, JSON.stringify(DEFAULT_NOTIFICATIONS));
+        Storage.set(
+          STORAGE_KEYS.APP_NOTIFICATION_LIST,
+          JSON.stringify(DEFAULT_NOTIFICATIONS),
+        );
         return DEFAULT_NOTIFICATIONS;
       }
       const parsed = JSON.parse(raw);
@@ -308,6 +329,54 @@ export async function cancelAllReminders() {
   await notifee.cancelTriggerNotification('daily_sadhana_date');
   for (let i = 0; i < 7; i++) {
     await notifee.cancelTriggerNotification(`daily_sadhana_weekly_${i}`);
+  }
+  for (let i = 0; i < 10; i++) {
+    await notifee.cancelTriggerNotification(`daily_reminder_${i}`);
+  }
+}
+
+export async function scheduleMultipleReminders(
+  reminders: ReminderItem[],
+  currentLanguage: 'en' | 'hi' = 'en',
+) {
+  await cancelAllReminders();
+
+  const defaultTitle =
+    currentLanguage === 'hi' ? 'साधना रिमाइंडर' : 'Sadhana Reminder';
+  const defaultBody =
+    currentLanguage === 'hi'
+      ? 'आपके दैनिक साधना का समय हो गया है। आइए जप करें!'
+      : "It's time for your daily sadhana. Let's do some chanting!";
+
+  for (let i = 0; i < Math.min(reminders.length, 10); i++) {
+    const item = reminders[i];
+    if (!item.enabled) continue;
+
+    let triggerHour = item.hour;
+    if (item.isPm && triggerHour < 12) {
+      triggerHour += 12;
+    } else if (!item.isPm && triggerHour === 12) {
+      triggerHour = 0;
+    }
+
+    const reminderDate = new Date();
+    reminderDate.setHours(triggerHour, item.minute, 0, 0);
+    if (reminderDate.getTime() <= Date.now()) {
+      reminderDate.setDate(reminderDate.getDate() + 1);
+    }
+
+    const itemTitle = item.title?.trim() || defaultTitle;
+    const itemBody = item.subtitle?.trim() || defaultBody;
+
+    await scheduleReminder({
+      id: `daily_reminder_${i}`,
+      title: itemTitle,
+      body: itemBody,
+      date: reminderDate,
+      repeatFrequency: RepeatFrequency.DAILY,
+      actionRoute: 'Jap',
+      type: 'sadhana',
+    });
   }
 }
 

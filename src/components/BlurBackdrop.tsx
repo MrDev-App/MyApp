@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
+import colors from '@theme/colors';
 
 interface BlurBackdropProps {
   /** Blur type: 'dark', 'light', 'xlight', etc. Default: 'dark' */
@@ -9,9 +10,9 @@ interface BlurBackdropProps {
   blurAmount?: number;
   /** Blur radius (Android). Default: 8 */
   blurRadius?: number;
-  /** Overlay color. Default: 'rgba(0, 0, 0, 0.45)' */
+  /** Overlay color. Default: colors.overlayModalBackdrop */
   overlayColor?: string;
-  /** Fallback color when reduced transparency is on. Default: 'rgba(0, 0, 0, 0.65)' */
+  /** Fallback color when reduced transparency is on. Default: colors.overlayDarkMedium */
   fallbackColor?: string;
   /** Optional extra style */
   style?: StyleProp<ViewStyle>;
@@ -21,9 +22,8 @@ const BlurBackdrop: React.FC<BlurBackdropProps> = ({
   blurType = 'dark',
   blurAmount = 10,
   blurRadius = 8,
-
-  overlayColor = 'rgba(0, 0, 0, 0.45)',
-  fallbackColor = 'rgba(0, 0, 0, 0.65)',
+  overlayColor = colors.overlayModalBackdrop,
+  fallbackColor = colors.overlayDarkMedium,
   style,
 }) => (
   <BlurView

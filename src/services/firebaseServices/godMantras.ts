@@ -33,14 +33,35 @@ export const resolveGodImage = (god: any): any => {
 
   // Check common deity keywords
   const deityKeywords = [
-    'shiva', 'shiv', 'bhole', 'bholenath', 'mahadev',
-    'vishnu', 'narayan',
-    'krishna', 'kanha', 'radha',
-    'rama', 'ram', 'shriram',
-    'hanuman', 'bajrangbali',
-    'ganesha', 'ganesh', 'ganpati',
-    'durga', 'kali', 'laxmi', 'lakshmi', 'saraswati', 'gayatri',
-    'surya', 'brahma', 'shani', 'kubera', 'kuber',
+    'shiva',
+    'shiv',
+    'bhole',
+    'bholenath',
+    'mahadev',
+    'vishnu',
+    'narayan',
+    'krishna',
+    'kanha',
+    'radha',
+    'rama',
+    'ram',
+    'shriram',
+    'hanuman',
+    'bajrangbali',
+    'ganesha',
+    'ganesh',
+    'ganpati',
+    'durga',
+    'kali',
+    'laxmi',
+    'lakshmi',
+    'saraswati',
+    'gayatri',
+    'surya',
+    'brahma',
+    'shani',
+    'kubera',
+    'kuber',
   ];
 
   for (const keyword of deityKeywords) {
@@ -78,29 +99,32 @@ export const mapGodWithImage = (god: any): God => {
     id: godId,
     englishName: god.nameEn || god.englishName || '',
     hindiName: god.nameHi || god.hindiName || '',
-    mantra: god.primaryMantra || god.mantra || (mantras[0]?.mantra || ''),
+    mantra: god.primaryMantra || god.mantra || mantras[0]?.mantra || '',
     image,
     mantras,
   };
 };
 
-/**
- * Fetches deities and mantras from Firestore collection 'GodMantras'.
- */
 export const getGodData = async (): Promise<God[]> => {
   console.log('----------------------------------------------------');
-  console.log('🔱 [GodService] Starting fetch for GodMantras from Firestore...');
+  console.log(
+    '🔱 [GodService] Starting fetch for GodMantras from Firestore...',
+  );
   try {
     const db = getFirestore();
 
     // 1. Primary collection: 'GodMantras'
     console.log('🔍 [GodService] Querying collection "GodMantras"...');
     let snapshot = await getDocs(collection(db, 'GodMantras'));
-    console.log(`📄 [GodService] 'GodMantras' collection returned ${snapshot.size} document(s).`);
+    console.log(
+      `📄 [GodService] 'GodMantras' collection returned ${snapshot.size} document(s).`,
+    );
 
     // 2. Fallbacks if GodMantras is empty
     if (snapshot.empty) {
-      console.log('⚠️ [GodService] "GodMantras" was empty, trying fallback "japMantras"...');
+      console.log(
+        '⚠️ [GodService] "GodMantras" was empty, trying fallback "japMantras"...',
+      );
       snapshot = await getDocs(collection(db, 'japMantras'));
     }
 
@@ -108,7 +132,11 @@ export const getGodData = async (): Promise<God[]> => {
     if (!snapshot.empty) {
       rawList = snapshot.docs.map(docSnap => {
         const docData = docSnap.data();
-        console.log(`📌 [GodService] Doc [${docSnap.id}] -> ${docData.nameEn || docData.englishName} (${(docData.mantras || []).length} mantras)`);
+        console.log(
+          `📌 [GodService] Doc [${docSnap.id}] -> ${
+            docData.nameEn || docData.englishName
+          } (${(docData.mantras || []).length} mantras)`,
+        );
         return {
           id: docSnap.id,
           ...docData,
@@ -121,12 +149,16 @@ export const getGodData = async (): Promise<God[]> => {
       rawList.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
 
       const mappedList = rawList.map(mapGodWithImage);
-      console.log(`✅ [GodService] Successfully mapped ${mappedList.length} deities from Firestore.`);
+      console.log(
+        `✅ [GodService] Successfully mapped ${mappedList.length} deities from Firestore.`,
+      );
       console.log('----------------------------------------------------');
       return mappedList;
     }
 
-    console.warn('⚠️ [GodService] No documents found in Firestore, falling back to local bundled naamJapData.');
+    console.warn(
+      '⚠️ [GodService] No documents found in Firestore, falling back to local bundled naamJapData.',
+    );
     console.log('----------------------------------------------------');
     return naamJapData;
   } catch (error) {

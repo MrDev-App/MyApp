@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -38,22 +38,19 @@ const CalendarScreen = () => {
   const { currentLanguage } = useAppLanguage();
   const dispatch = useAppDispatch();
 
-  // Read festivals directly from Redux
   const { festivals, loading: _loading } = useAppSelector(
     (state: RootState) => state.festival,
   );
 
-  // Synchronously register and set locale for active language (en, hi, or any future language)
   LocaleConfig.locales[currentLanguage] =
     getCalendarLocaleConfig(currentLanguage);
   LocaleConfig.defaultLocale = currentLanguage;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!festivals || festivals.length === 0) {
       dispatch(fetchFestivals());
     }
   }, [dispatch, festivals]);
-
 
   const getTodayString = () => {
     const d = new Date();
@@ -91,14 +88,12 @@ const CalendarScreen = () => {
     return getMonthName(currentMonthNum, currentLanguage);
   }, [currentMonthNum, currentLanguage]);
 
-  // Festivals for the active month sorted by day
   const monthFestivals = React.useMemo(() => {
     return (festivals || [])
       .filter((f: Festival) => f.month === currentMonthNum)
       .sort((a: Festival, b: Festival) => a.day - b.day);
   }, [festivals, currentMonthNum]);
 
-  // Festivals on the specifically selected day (if any)
   const selectedDayFestivals = React.useMemo(() => {
     if (!selectedDate) return [];
     const parts = selectedDate.split('-');

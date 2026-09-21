@@ -22,6 +22,7 @@ export type RootStackParamList = {
   ArtiScreen: { arti: CategoryItem };
   AllArtiScreen: { category?: any };
   ShlokScreen: { category?: any };
+  ReminderScreen: undefined;
 };
 
 export type BottomTabParamList = {

@@ -1,103 +1,369 @@
-import React, { useState, useCallback } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import {
   Text,
   View,
   TouchableOpacity,
   ScrollView,
   Image,
-  Switch,
   Modal,
+  Alert,
+  Platform,
 } from 'react-native';
-import LottieView from 'lottie-react-native';
-import { BlurView } from '@react-native-community/blur';
+
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { Translation } from '@i18n/language';
 import GradientBackground from '@components/GradientBackground';
-import OverlayModal from '@components/OverlayModal';
-import NotificationScheduleModal from '@components/NotificationScheduleModal';
-import { suppressNextAppOpenAd } from '@admob';
+import { OverlayModalHandle } from '@components/OverlayModal';
+import { suppressNextAppOpenAd } from '@admob/useAppOpenAd';
 import imagePath from '@assets/index';
 import colors from '@theme/colors';
-import { ChevronRight, CameraIcon } from '@components/icons/SvgIcons';
+import { CameraIcon, ChevronRight } from '@components/icons/SvgIcons';
 import { scale } from '@theme/sizes';
+import {
+  Storage,
+  STORAGE_KEYS,
+  getUserJoinedDate,
+} from '@services/storageService';
+import { pickImage } from '@services/imagePickerService';
+import { MahaBharatStories, Story } from '@constants/storiesData';
+import { getJapMantrasData, MantraSelectorItem } from '@services/japService';
+import {
+  scheduleMultipleReminders,
+  cancelAllReminders,
+  ReminderItem,
+} from '@services/notificationService';
+import { triggerHaptic } from '@helper/helper';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
-import { useProfileData } from './hooks/useProfileData';
 import profileStyles from './styles/profileStyles';
 import StatsCard from './components/StatsCard';
 import FavoriteStoriesSection from './components/FavoriteStoriesSection';
 import ResetModal from './components/ResetModal';
 import SadhanaCalendarCard from './components/SadhanaCalendarCard';
 import SelectedDayBreakdownCard from './components/SelectedDayBreakdownCard';
-import ManageCustomMantrasModal from './components/ManageCustomMantrasModal';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import LanguageLoadingModal from './components/LanguageLoadingModal';
+import ComingSoonModal from './components/ComingSoonModal';
 
 const ProfileScreen = () => {
+  const { t, i18n } = useTranslation();
+  const currentLanguage = (i18n.language?.startsWith('en') ? 'en' : 'hi') as
+    | 'en'
+    | 'hi';
   const navigation = useNavigation<any>();
-  const {
-    t,
-    currentLanguage,
-    changeLanguage,
-    overlayRef,
-    customMantrasModalRef,
-    resetModalRef,
-    notificationsEnabled,
-    scheduleModalVisible,
-    setScheduleModalVisible,
-    reminderConfig,
-    handleSaveSchedule,
-    handleToggleNotifications,
-    totalCount,
-    totalMala,
-    todayCount,
-    challengeStarted,
-    challengeTotalDays,
-    userJoinedDate,
-    profileImageUri,
-    handlePickProfileImage,
-    selectedDate,
-    setSelectedDate,
-    customMantras,
-    markedDates,
-    selectedDayRecord,
-    getMantraName,
-    favoriteStories,
-    handleRemoveFavorite,
-    handleGiveUpChallenge,
-    handleDeleteCustomMantra,
-    checkedChants,
-    setCheckedChants,
-    checkedChallenge,
-    setCheckedChallenge,
-    resetCode,
-    setResetCode,
-    isResetEnabled,
-    handleOpenResetModal,
-    handleCloseResetModal,
-    handleExecuteReset,
-  } = useProfileData();
-
+  const isFocused = useIsFocused();
   const insets = useSafeAreaInsets();
+
+  // ─── Refs ─────────────────────────────────────────────────────────────────
+  const overlayRef = useRef<OverlayModalHandle>(null);
+  const customMantrasModalRef = useRef<OverlayModalHandle>(null);
+  const resetModalRef = useRef<OverlayModalHandle>(null);
+
+  // ──────────────────────────────────────────────
+  // MULTIPLE DAILY REMINDERS
+  // ──────────────────────────────────────────────
+  const [reminders, setReminders] = useState<ReminderItem[]>(() => {
+    try {
+      const rawList = Storage.getString(STORAGE_KEYS.DAILY_REMINDERS_LIST, '');
+      if (rawList) {
+        const parsed = JSON.parse(rawList);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+      }
+    } catch {}
+    return [];
+  });
+
+  const formattedReminderSummary = useMemo(() => {
+    const activeReminders = reminders.filter(r => r.enabled);
+    if (activeReminders.length === 0) {
+      return currentLanguage === 'hi' ? 'कोई सक्रिय नहीं' : 'None active';
+    }
+    if (activeReminders.length === 1) {
+      const r = activeReminders[0];
+      const h12 = r.hour % 12 || 12;
+      return `${String(h12).padStart(2, '0')}:${String(r.minute).padStart(
+        2,
+        '0',
+      )} ${r.isPm ? 'PM' : 'AM'}`;
+    }
+    return currentLanguage === 'hi'
+      ? `${activeReminders.length} सक्रिय रिमाइंडर`
+      : `${activeReminders.length} Reminders active`;
+  }, [reminders, currentLanguage]);
+
+  // ─── UI & Local State ─────────────────────────────────────────────────────
   const [showJapHistory, setShowJapHistory] = useState(false);
   const [isLangChanging, setIsLangChanging] = useState(false);
 
+  // ─── Statistics state ─────────────────────────────────────────────────────
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalMala, setTotalMala] = useState(0);
+  const [todayCount, setTodayCount] = useState(0);
+  const [challengeStarted, setChallengeStarted] = useState(false);
+  const [challengeTotalDays, setChallengeTotalDays] = useState(21);
+
+  // ─── Profile image ────────────────────────────────────────────────────────
+  const [profileImageUri, setProfileImageUri] = useState<string | null>(() => {
+    return Storage.getString(STORAGE_KEYS.PROFILE_IMAGE_URI, '') || null;
+  });
+
+  const handlePickProfileImage = useCallback(async () => {
+    triggerHaptic('light');
+    suppressNextAppOpenAd();
+    const uri = await pickImage();
+    if (uri) {
+      setProfileImageUri(uri);
+      Storage.set(STORAGE_KEYS.PROFILE_IMAGE_URI, uri);
+    }
+  }, []);
+
+  // ─── Joined date ──────────────────────────────────────────────────────────
+  const userJoinedDate = useMemo(() => {
+    const rawDate = getUserJoinedDate();
+    const date = new Date(rawDate);
+    return date.toLocaleDateString(
+      currentLanguage === 'hi' ? 'hi-IN' : 'en-US',
+      {
+        month: 'short',
+        year: 'numeric',
+      },
+    );
+  }, [currentLanguage]);
+
+  // ─── Calendar / history state ─────────────────────────────────────────────
+  const [selectedDate, setSelectedDate] = useState<string>(
+    () => new Date().toISOString().split('T')[0],
+  );
+  const [defaultMantras, setDefaultMantras] = useState<MantraSelectorItem[]>(
+    [],
+  );
+  const [customMantras, setCustomMantras] = useState<any[]>([]);
+  const [japaHistory, setJapaHistory] = useState<any>(() => {
+    try {
+      return JSON.parse(Storage.getString(STORAGE_KEYS.JAP_HISTORY, '{}'));
+    } catch {
+      return {};
+    }
+  });
+  const [favoriteStories, setFavoriteStories] = useState<Story[]>([]);
+
+  // ─── Reset modal state ────────────────────────────────────────────────────
+  const [checkedChants, setCheckedChants] = useState(false);
+  const [checkedChallenge, setCheckedChallenge] = useState(false);
+  const [resetCode, setResetCode] = useState('');
+
+  // ─── Derived values ───────────────────────────────────────────────────────
+  const isResetEnabled =
+    checkedChants &&
+    checkedChallenge &&
+    resetCode.trim().toUpperCase() === 'RESET';
+
+  const markedDates = useMemo(() => {
+    try {
+      const marked: any = {};
+      Object.keys(japaHistory).forEach(dateKey => {
+        if (japaHistory[dateKey]?.totalCount > 0) {
+          marked[dateKey] = { marked: true, dotColor: colors.ring };
+        }
+      });
+      if (selectedDate) {
+        marked[selectedDate] = {
+          ...marked[selectedDate],
+          selected: true,
+          selectedColor: colors.ring,
+          selectedTextColor: colors.white,
+        };
+      }
+      return marked;
+    } catch {
+      return {};
+    }
+  }, [selectedDate, japaHistory]);
+
+  const selectedDayRecord = useMemo(
+    () => japaHistory[selectedDate] || null,
+    [selectedDate, japaHistory],
+  );
+
+  const getMantraName = useCallback(
+    (id: string) => {
+      const defaultMantra = defaultMantras.find(m => m.id === id);
+      if (defaultMantra) {
+        return currentLanguage === 'hi'
+          ? defaultMantra.nameHi
+          : defaultMantra.nameEn;
+      }
+      return id;
+    },
+    [defaultMantras, currentLanguage],
+  );
+
+  // ─── Load data on focus ───────────────────────────────────────────────────
+  useEffect(() => {
+    if (!isFocused) {
+      return;
+    }
+
+    let isMounted = true;
+    getJapMantrasData().then(data => {
+      if (isMounted) {
+        setDefaultMantras(data);
+      }
+    });
+
+    Storage.checkAndResetTodayStats();
+    setTotalCount(Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_COUNT, 0));
+    setTotalMala(Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_MALA, 0));
+    setTodayCount(Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0));
+    setChallengeStarted(Storage.getBoolean('CHALLENGE_STARTED', false));
+    setChallengeTotalDays(Storage.getNumber('CHALLENGE_TOTAL_DAYS', 21));
+
+    try {
+      setJapaHistory(
+        JSON.parse(Storage.getString(STORAGE_KEYS.JAP_HISTORY, '{}')),
+      );
+    } catch {
+      setJapaHistory({});
+    }
+
+    try {
+      setCustomMantras(
+        JSON.parse(Storage.getString(STORAGE_KEYS.CUSTOM_MANTRAS, '[]')),
+      );
+    } catch {
+      setCustomMantras([]);
+    }
+
+    try {
+      const rawReminders = Storage.getString(
+        STORAGE_KEYS.DAILY_REMINDERS_LIST,
+        '',
+      );
+      if (rawReminders) {
+        const parsedReminders = JSON.parse(rawReminders);
+        if (Array.isArray(parsedReminders)) {
+          setReminders(parsedReminders);
+        } else {
+          setReminders([]);
+        }
+      } else {
+        setReminders([]);
+      }
+    } catch {
+      setReminders([]);
+    }
+
+    try {
+      const bookmarkedIds: string[] = JSON.parse(
+        Storage.getString('STORY_BOOKMARKS', '[]'),
+      );
+      setFavoriteStories(
+        Array.isArray(bookmarkedIds)
+          ? MahaBharatStories.filter(s => bookmarkedIds.includes(s.id))
+          : [],
+      );
+    } catch {
+      setFavoriteStories([]);
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isFocused]);
+
+  // ─── Favourite story handlers ─────────────────────────────────────────────
+  const handleRemoveFavorite = useCallback((storyId: string) => {
+    triggerHaptic('light');
+    try {
+      const raw = Storage.getString('STORY_BOOKMARKS', '[]');
+      let list: string[] = JSON.parse(raw);
+      if (Array.isArray(list)) {
+        list = list.filter(id => id !== storyId);
+        Storage.set('STORY_BOOKMARKS', JSON.stringify(list));
+        setFavoriteStories(prev => prev.filter(s => s.id !== storyId));
+      }
+    } catch {}
+  }, []);
+
+  // ─── Challenge handlers ───────────────────────────────────────────────────
+  const handleGiveUpChallenge = useCallback(() => {
+    Alert.alert(
+      t(Translation.CHALLENGE_ABANDON_ALERT_TITLE),
+      t(Translation.CHALLENGE_ABANDON_ALERT_MSG),
+      [
+        { text: t(Translation.CANCEL_LABEL), style: 'cancel' },
+        {
+          text: t(Translation.CHALLENGE_ABANDON_CONFIRM),
+          style: 'destructive',
+          onPress: () => {
+            Storage.delete('CHALLENGE_STARTED');
+            Storage.delete('CHALLENGE_PROGRESS_DAYS');
+            Storage.delete('CHALLENGE_STREAK');
+            Storage.delete('CHALLENGE_DAILY_TARGET');
+            Storage.delete('CHALLENGE_TOTAL_DAYS');
+            Storage.delete('CHALLENGE_BASE_CHANTS');
+            Storage.delete('CHALLENGE_BASE_DATE');
+            setChallengeStarted(false);
+            setChallengeTotalDays(21);
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  }, [t]);
+
+  // ─── Reset modal handlers ─────────────────────────────────────────────────
+  const handleOpenResetModal = useCallback(() => {
+    setCheckedChants(false);
+    setCheckedChallenge(false);
+    setResetCode('');
+    resetModalRef.current?.open();
+  }, []);
+
+  const handleCloseResetModal = useCallback(() => {
+    resetModalRef.current?.close();
+  }, []);
+
+  const handleExecuteReset = useCallback(() => {
+    triggerHaptic('error');
+    Storage.clearAll();
+    setTotalCount(0);
+    setTotalMala(0);
+    setTodayCount(0);
+    setChallengeStarted(false);
+    setChallengeTotalDays(21);
+    handleCloseResetModal();
+    navigation.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
+  }, [handleCloseResetModal, navigation]);
+
+  // ─── Language change handler ──────────────────────────────────────────────
   const handleLanguageChange = useCallback(
     (newLang: 'en' | 'hi') => {
       if (newLang === currentLanguage || isLangChanging) return;
       setIsLangChanging(true);
 
       setTimeout(() => {
-        changeLanguage(newLang);
+        Storage.set(STORAGE_KEYS.APP_LANGUAGE, newLang);
+        i18n.changeLanguage(newLang);
       }, 500);
 
       setTimeout(() => {
         setIsLangChanging(false);
       }, 2000);
     },
-    [currentLanguage, isLangChanging, changeLanguage],
+    [currentLanguage, isLangChanging, i18n],
   );
 
   return (
@@ -251,16 +517,14 @@ const ProfileScreen = () => {
 
             <View style={profileStyles.separator} />
 
-            {/* Notifications row */}
+            {/* Reminder row */}
             <TouchableOpacity
-              activeOpacity={notificationsEnabled ? 0.7 : 1}
-              onPress={() => {
-                if (notificationsEnabled) {
-                  suppressNextAppOpenAd(60000);
-                  setScheduleModalVisible(true);
-                }
-              }}
               style={profileStyles.settingRow}
+              onPress={() => {
+                triggerHaptic('light');
+                navigation.navigate('ReminderScreen');
+              }}
+              activeOpacity={0.7}
             >
               <View style={profileStyles.settingInfo}>
                 <Text style={profileStyles.settingLabel}>
@@ -269,73 +533,42 @@ const ProfileScreen = () => {
                 <Text style={profileStyles.settingSubLabel}>
                   {t(Translation.PROFILE_DAILY_SADHANA_REMINDERS)}
                 </Text>
-                {notificationsEnabled && (
-                  <View
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginTop: scale(4),
+                    gap: scale(4),
+                  }}
+                >
+                  <Image
+                    source={imagePath.clock}
                     style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      marginTop: scale(3),
-                      gap: scale(4),
+                      width: scale(13),
+                      height: scale(13),
+                      resizeMode: 'contain',
                     }}
+                  />
+                  <Text
+                    style={[
+                      profileStyles.settingSubLabel,
+                      { color: colors.ring, fontWeight: '600' },
+                    ]}
                   >
-                    <Image
-                      source={imagePath.clock}
-                      style={{
-                        width: scale(13),
-                        height: scale(13),
-                        resizeMode: 'contain',
-                      }}
-                    />
-                    <Text
-                      style={[
-                        profileStyles.settingSubLabel,
-                        { color: colors.ring },
-                      ]}
-                    >
-                      {reminderConfig
-                        ? `${String(reminderConfig.hour).padStart(
-                            2,
-                            '0',
-                          )}:${String(reminderConfig.minute).padStart(
-                            2,
-                            '0',
-                          )} ${reminderConfig.isPm ? 'PM' : 'AM'}`
-                        : '06:00 AM'}
-                    </Text>
-                  </View>
-                )}
+                    {formattedReminderSummary}
+                  </Text>
+                </View>
               </View>
-              <Switch
-                trackColor={{
-                  false: colors.switchTrackFalse,
-                  true: colors.ring,
-                }}
-                thumbColor={
-                  notificationsEnabled ? colors.white : colors.switchThumbFalse
-                }
-                onValueChange={handleToggleNotifications}
-                value={notificationsEnabled}
+
+              <ChevronRight
+                size={scale(18)}
+                color={colors.ring}
+                strokeWidth={2.5}
               />
             </TouchableOpacity>
 
             <View style={profileStyles.separator} />
-
-            {/* Manage custom mantras row */}
-            <TouchableOpacity
-              style={profileStyles.settingRow}
-              onPress={() => customMantrasModalRef.current?.open()}
-              activeOpacity={0.8}
-            >
-              <View style={profileStyles.settingInfo}>
-                <Text style={profileStyles.settingLabel}>
-                  {t(Translation.PROFILE_DELETE_CUSTOM_MANTRAS)}
-                </Text>
-                <Text style={profileStyles.settingSubLabel}>
-                  {t(Translation.PROFILE_DELETE_CUSTOM_MANTRAS_DESC)}
-                </Text>
-              </View>
-              <ChevronRight size={scale(16)} color={colors.ring} />
-            </TouchableOpacity>
 
             {challengeStarted && (
               <>
@@ -397,45 +630,8 @@ const ProfileScreen = () => {
         </ScrollView>
       </SafeAreaView>
 
-      {/* ── Notification Schedule Modal ──────────────────────────── */}
-      <NotificationScheduleModal
-        visible={scheduleModalVisible}
-        onClose={() => setScheduleModalVisible(false)}
-        onSchedule={handleSaveSchedule}
-        initialConfig={reminderConfig}
-      />
-
       {/* ── Coming Soon Modal ────────────────────────────────────── */}
-      <OverlayModal ref={overlayRef} closeOnBackdropPress={true}>
-        <View style={profileStyles.modalCenterContainer}>
-          <View style={profileStyles.modalCard}>
-            <Text style={profileStyles.modalIcon}>✨</Text>
-            <Text style={profileStyles.modalTitle}>
-              {t(Translation.PROFILE_COMING_SOON)}
-            </Text>
-            <Text style={profileStyles.modalMessage}>
-              {t(Translation.PROFILE_COMING_SOON_DESC)}
-            </Text>
-            <TouchableOpacity
-              style={profileStyles.modalButton}
-              onPress={() => overlayRef.current?.close()}
-              activeOpacity={0.8}
-            >
-              <Text style={profileStyles.modalButtonText}>
-                {t(Translation.PROFILE_OKAY)}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </OverlayModal>
-
-      {/* ── Manage Custom Mantras Modal ──────────────────────────── */}
-      <ManageCustomMantrasModal
-        modalRef={customMantrasModalRef}
-        customMantras={customMantras}
-        onDeleteCustomMantra={handleDeleteCustomMantra}
-        currentLanguage={currentLanguage}
-      />
+      <ComingSoonModal modalRef={overlayRef} />
 
       {/* ── Destructive Reset Modal ──────────────────────────────── */}
       <ResetModal
@@ -452,27 +648,7 @@ const ProfileScreen = () => {
       />
 
       {/* ── Language Change Dim Loading Overlay ── */}
-      <Modal
-        visible={isLangChanging}
-        transparent={true}
-        animationType="fade"
-        statusBarTranslucent={true}
-      >
-        <BlurView
-          style={profileStyles.langLoadingBackdrop}
-          blurType="dark"
-          blurAmount={8}
-          overlayColor="rgba(0, 0, 0, 0.35)"
-          reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.35)"
-        >
-          <LottieView
-            source={imagePath.loading}
-            autoPlay
-            loop
-            style={profileStyles.lottieLoading}
-          />
-        </BlurView>
-      </Modal>
+      <LanguageLoadingModal visible={isLangChanging} />
     </GradientBackground>
   );
 };

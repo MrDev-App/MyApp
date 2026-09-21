@@ -194,5 +194,13 @@ export const bannerGradients = {
   ],
 };
 
+export const cardGradients = {
+  festivalCard: [
+    'transparent',
+    'rgba(0, 0, 0, 0.5)',
+    'rgba(0, 0, 0, 0.92)',
+  ],
+};
+
 export type ColorsType = typeof colors;
 export default colors;

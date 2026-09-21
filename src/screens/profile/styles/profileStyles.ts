@@ -260,7 +260,7 @@ const profileStyles = StyleSheet.create({
   },
   modalCard: {
     width: '100%',
-    backgroundColor: colors.white,
+    backgroundColor: colors.primary,
     borderRadius: scale(20),
     padding: scale(24),
     alignItems: 'center',

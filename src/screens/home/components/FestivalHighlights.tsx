@@ -12,7 +12,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAppLanguage } from '@hooks';
-import colors from '@theme/colors';
+import colors, { cardGradients } from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Translation } from '@i18n/language';
@@ -107,8 +107,8 @@ const FestivalHighlights = ({ onPress }: any) => {
       {[1, 2, 3, 4].map(item => (
         <View key={item} style={styles.skeletonCard}>
           <Skeleton
-            width={scale(124)}
-            height={scale(105)}
+            width={scale(130)}
+            height={scale(120)}
             borderRadius={scale(15)}
           />
         </View>
@@ -149,37 +149,6 @@ const FestivalHighlights = ({ onPress }: any) => {
 
             const bgImage = item.image || imagePath.greeting;
 
-            // 🔍 COMPARISON: Firestore url / imageUrl vs what's actually being rendered
-            const rawFirestoreUrl = item.url || item.imageUrl || '';
-            console.log(
-              `\n📸 [FestivalHighlights] ===== ${item.englishName} =====`,
-            );
-            console.log(`   💾 Firestore url      : ${item.url || '(none)'}`);
-            console.log(
-              `   💾 Firestore imageUrl : ${item.imageUrl || '(none)'}`,
-            );
-            console.log(
-              `   🎨 Resolved image    : ${
-                typeof bgImage === 'number'
-                  ? '✅ local-require (' + bgImage + ')'
-                  : bgImage && bgImage.uri
-                  ? `🌐 uri: ${bgImage.uri}`
-                  : JSON.stringify(bgImage)
-              }`,
-            );
-            console.log(
-              `   ${
-                rawFirestoreUrl &&
-                bgImage &&
-                bgImage.uri &&
-                bgImage.uri === rawFirestoreUrl
-                  ? '✅ MATCH (using Firestore url)'
-                  : typeof bgImage === 'number'
-                  ? '🟡 Using local bundled image'
-                  : '❌ MISMATCH or missing url'
-              }`,
-            );
-
             return (
               <AnimatedButton
                 style={styles.cardContainer}
@@ -198,13 +167,27 @@ const FestivalHighlights = ({ onPress }: any) => {
                 >
                   {/* Gradient overlay pinned to bottom */}
                   <LinearGradient
-                    colors={['transparent', 'rgba(0,0,0,0.78)']}
+                    colors={cardGradients.festivalCard}
                     style={styles.cardOverlay}
                   >
-                    <Text style={styles.name} numberOfLines={1}>
-                      {name}
-                    </Text>
-                    <Text style={styles.date}>{dateStr}</Text>
+                    <View style={styles.contentWrapper}>
+                      <Text
+                        style={styles.name}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {name}
+                      </Text>
+                      {dateStr ? (
+                        <Text
+                          style={styles.date}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {dateStr}
+                        </Text>
+                      ) : null}
+                    </View>
                   </LinearGradient>
                 </ImageBackground>
               </AnimatedButton>
@@ -262,8 +245,8 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     marginRight: scale(12),
-    width: scale(124),
-    height: scale(105),
+    width: scale(130),
+    height: scale(120),
     borderRadius: scale(15),
     borderWidth: 1,
     borderColor: colors.borderSubtle,
@@ -284,15 +267,12 @@ const styles = StyleSheet.create({
     borderRadius: scale(14),
   },
   cardOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: scale(10),
-    paddingTop: scale(18),
-    paddingBottom: scale(10),
-    borderBottomLeftRadius: scale(14),
-    borderBottomRightRadius: scale(14),
+    flex: 1,
+    overflow: 'hidden',
+    justifyContent: 'flex-end',
+  },
+  contentWrapper: {
+    padding: scale(10),
   },
   name: {
     fontSize: fs(12),
@@ -300,10 +280,11 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   date: {
-    fontSize: fs(9.5),
+    fontSize: fs(10),
     fontFamily: fonts.TiroHindiRegular,
     color: colors.white,
-    opacity: 0.85,
+    opacity: 0.88,
+    marginTop: scale(2),
   },
   countdown: {
     fontSize: fs(9.5),

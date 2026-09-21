@@ -19,4 +19,6 @@ export { default as MusicPlayer } from './MusicPlayer';
 export type { MusicPlayerProps } from './MusicPlayer';
 export { default as Loader } from './Loader';
 export type { LoaderProps } from './Loader';
+export { default as TextField } from './TextField';
+export type { TextFieldProps } from './TextField';
 export * from './icons/SvgIcons';
