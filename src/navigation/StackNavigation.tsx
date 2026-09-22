@@ -15,6 +15,7 @@ import ProgressScreen from '@screens/jap/ProgressScreen';
 import MantraScreen from '@screens/home/MantraScreen';
 
 import ShlokScreen from '@screens/home/ShlokScreen';
+import TempleScreen from '@screens/home/TempleScreen';
 import { AllArtiScreen } from '@screens/home/AllArtiScreen';
 import ArtiScreen from '@screens/home/ArtiScreen';
 import CalendarScreen from '@screens/calendar/CalendarScreen';
@@ -87,6 +88,11 @@ const StackNavigation = () => {
       <Stack.Screen
         name="ShlokScreen"
         component={ShlokScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="TempleScreen"
+        component={TempleScreen}
         options={{ animation: 'slide_from_right' }}
       />
       <Stack.Screen

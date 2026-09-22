@@ -5,6 +5,8 @@ import {
   query,
   orderBy,
 } from '@react-native-firebase/firestore';
+import { Storage } from '@services/storageService';
+import { STORAGE_KEYS } from '@constants/storageKeys';
 import imagePath from '@assets/index';
 import i18n from '@i18n/index';
 import { Translation } from '@i18n/language';
@@ -71,6 +73,24 @@ export interface Festival {
 
 // In-memory cache to prevent redundant Firestore queries
 let festivalCache: Festival[] | null = null;
+
+/**
+ * Gets cached Festival data from local MMKV storage if available.
+ */
+export const getCachedFestivalData = (): Festival[] | null => {
+  try {
+    const rawCache = Storage.getString(STORAGE_KEYS.FESTIVALS_CACHE, '');
+    if (rawCache) {
+      const parsed = JSON.parse(rawCache);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map(item => mapFestivalDoc(item));
+      }
+    }
+  } catch (err) {
+    console.error('❌ [FestivalService] Error reading cached Festivals:', err);
+  }
+  return null;
+};
 
 const REGION_TRANSLATION_KEYS: Record<string, string> = {
   ALL_INDIA: Translation.REGION_ALL_INDIA,
@@ -313,20 +333,31 @@ export const clearFestivalDataCache = (): void => {
 export const getFestivalData = async (
   forceRefresh: boolean = false,
 ): Promise<Festival[]> => {
-  console.log('----------------------------------------------------');
-  console.log(
-    `🎉 [FestivalService] Fetching festivals (forceRefresh: ${forceRefresh})...`,
-  );
-
-  try {
-    if (!forceRefresh && festivalCache && festivalCache.length > 0) {
+  // If not forcing refresh, check in-memory cache first, then local MMKV storage
+  if (!forceRefresh) {
+    if (festivalCache && festivalCache.length > 0) {
       console.log(
         `⚡ [FestivalService] Returning ${festivalCache.length} festivals from memory cache.`,
       );
-      console.log('----------------------------------------------------');
       return festivalCache;
     }
 
+    const localCache = getCachedFestivalData();
+    if (localCache && localCache.length > 0) {
+      festivalCache = localCache;
+      console.log(
+        `⚡ [FestivalService] Returning ${localCache.length} festivals from local persistent storage.`,
+      );
+      return localCache;
+    }
+  }
+
+  console.log('----------------------------------------------------');
+  console.log(
+    `🎉 [FestivalService] Fetching festivals from Firestore (forceRefresh: ${forceRefresh})...`,
+  );
+
+  try {
     const db = getFirestore();
     const festivalsRef = collection(db, 'festivals');
 
@@ -356,27 +387,31 @@ export const getFestivalData = async (
       console.warn(
         '⚠️ [FestivalService] No festival documents found in Firestore.',
       );
+      const localCache = getCachedFestivalData();
+      if (localCache && localCache.length > 0) {
+        festivalCache = localCache;
+        return localCache;
+      }
       console.log('----------------------------------------------------');
       return [];
     }
 
-    const festivals: Festival[] = snapshot.docs.map(docSnap => {
-      const docData = docSnap.data();
-      const mapped = mapFestivalDoc({ id: docSnap.id, ...docData });
-      // Full raw data from Firestore
+    const rawList = snapshot.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...docSnap.data(),
+    }));
+
+    // Persist to local MMKV storage
+    try {
+      Storage.set(STORAGE_KEYS.FESTIVALS_CACHE, JSON.stringify(rawList));
       console.log(
-        `📌 [FestivalService] Raw Doc [${docSnap.id}]`,
-        JSON.stringify({
-          id: docSnap.id,
-          url: docData.url || '❌ EMPTY',
-          imageUrl: docData.imageUrl || '❌ EMPTY',
-          englishName: docData.englishName || docData.name,
-          date: docData.date,
-          resolvedImage: mapped.image,
-        }),
+        '💾 [FestivalService] Saved Festivals to local persistent storage (MMKV).',
       );
-      return mapped;
-    });
+    } catch (saveErr) {
+      console.error('❌ [FestivalService] Error saving to storage:', saveErr);
+    }
+
+    const festivals: Festival[] = rawList.map(item => mapFestivalDoc(item));
 
     // Ensure sorted chronologically (by month, then day)
     festivals.sort((a, b) => {
@@ -390,28 +425,18 @@ export const getFestivalData = async (
     console.log(
       `✅ [FestivalService] Successfully loaded & sorted ${festivals.length} festivals into memory.`,
     );
-    // Summary table: id -> imageUrl
-    console.log('📋 [FestivalService] ALL festival imageUrls:');
-    festivals.forEach(f => {
-      console.log(
-        `  [${f.id}] imageUrl=${
-          f.imageUrl || '❌ EMPTY'
-        } | resolvedImage type=${
-          typeof f.image === 'number'
-            ? 'local-require'
-            : f.image && f.image.uri
-            ? `uri:${f.image.uri}`
-            : 'unknown'
-        }`,
-      );
-    });
     console.log('----------------------------------------------------');
     return festivals;
   } catch (error) {
     console.error(
-      '❌ [FestivalService] Error fetching festival data from Firebase Firestore:',
+      '❌ [FestivalService] Error fetching festival data from Firebase Firestore! Checking local cache:',
       error,
     );
+    const localCache = getCachedFestivalData();
+    if (localCache && localCache.length > 0) {
+      festivalCache = localCache;
+      return localCache;
+    }
     console.log('----------------------------------------------------');
     return festivalCache || [];
   }

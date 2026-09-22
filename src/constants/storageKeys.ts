@@ -41,6 +41,7 @@ export const STORAGE_KEYS = {
   NAAM_JAP_DATA_CACHE: 'naam_jap_data_cache',
   FESTIVALS_CACHE: 'festivals_data_cache_v4',
   CATEGORIES_CACHE: 'categories_data_cache',
+  AARTI_DATA_CACHE: 'aarti_data_cache_v1',
 } as const;
 
 export type StorageKey = keyof typeof STORAGE_KEYS;

@@ -5,17 +5,45 @@ import {
   query,
   orderBy,
 } from '@react-native-firebase/firestore';
+import { Storage } from '@services/storageService';
+import { STORAGE_KEYS } from '@constants/storageKeys';
 import imagePath from '@assets/index';
-import {
-  naamJapData,
-  godData,
-  NaamJapItem,
-  God,
-  GodMantra,
-} from '@constants/naamJapData';
 
-export type { NaamJapItem, God, GodMantra };
-export { naamJapData, godData };
+export interface GodMantra {
+  nameEn: string;
+  nameHi: string;
+  mantra: string;
+}
+
+export interface NaamJapItem {
+  id: string;
+  englishName: string;
+  hindiName: string;
+  mantra: string;
+  image?: any;
+  imageUrl?: string;
+  mantras: GodMantra[];
+}
+
+export type God = NaamJapItem;
+
+/**
+ * Gets cached GodMantras data from local MMKV storage if available.
+ */
+export const getCachedGodData = (): God[] | null => {
+  try {
+    const rawCache = Storage.getString(STORAGE_KEYS.GOD_DATA_CACHE, '');
+    if (rawCache) {
+      const parsed = JSON.parse(rawCache);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map(mapGodWithImage);
+      }
+    }
+  } catch (err) {
+    console.error('❌ [GodService] Error reading cached GodMantras:', err);
+  }
+  return null;
+};
 
 /**
  * Resolves local image from imagePath based on deity name / id.
@@ -105,7 +133,20 @@ export const mapGodWithImage = (god: any): God => {
   };
 };
 
-export const getGodData = async (): Promise<God[]> => {
+export const getGodData = async (
+  forceRefresh: boolean = false,
+): Promise<God[]> => {
+  // If not forcing refresh, check local MMKV storage first
+  if (!forceRefresh) {
+    const cached = getCachedGodData();
+    if (cached && cached.length > 0) {
+      console.log(
+        `⚡ [GodService] Returning ${cached.length} GodMantras from local persistent storage.`,
+      );
+      return cached;
+    }
+  }
+
   console.log('----------------------------------------------------');
   console.log(
     '🔱 [GodService] Starting fetch for GodMantras from Firestore...',
@@ -148,6 +189,16 @@ export const getGodData = async (): Promise<God[]> => {
       // Sort by order field if available
       rawList.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
 
+      // Persist raw list to local MMKV storage
+      try {
+        Storage.set(STORAGE_KEYS.GOD_DATA_CACHE, JSON.stringify(rawList));
+        console.log(
+          '💾 [GodService] Saved GodMantras to local persistent storage (MMKV).',
+        );
+      } catch (saveErr) {
+        console.error('❌ [GodService] Error saving to storage:', saveErr);
+      }
+
       const mappedList = rawList.map(mapGodWithImage);
       console.log(
         `✅ [GodService] Successfully mapped ${mappedList.length} deities from Firestore.`,
@@ -156,18 +207,28 @@ export const getGodData = async (): Promise<God[]> => {
       return mappedList;
     }
 
+    // If Firestore empty, try local persistent cache before static data
+    const localCache = getCachedGodData();
+    if (localCache && localCache.length > 0) {
+      return localCache;
+    }
+
     console.warn(
-      '⚠️ [GodService] No documents found in Firestore, falling back to local bundled naamJapData.',
+      '⚠️ [GodService] No documents found in Firestore.',
     );
     console.log('----------------------------------------------------');
-    return naamJapData;
+    return [];
   } catch (error) {
     console.error(
-      '❌ [GodService] Firestore fetch failed! Falling back to local bundled naamJapData:',
+      '❌ [GodService] Firestore fetch failed! Checking local persistent cache:',
       error,
     );
+    const localCache = getCachedGodData();
+    if (localCache && localCache.length > 0) {
+      return localCache;
+    }
     console.log('----------------------------------------------------');
-    return naamJapData;
+    return [];
   }
 };
 

@@ -7,13 +7,9 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
-import { scale } from '@theme/sizes';
-
-const TAB_BAR_HEIGHT = Platform.select({
-  ios: scale(85),
-  android: scale(115),
-  default: scale(100),
-});
+import { scale, fs } from '@theme/sizes';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
 
 const NetworkBanner = () => {
   const insets = useSafeAreaInsets();
@@ -22,7 +18,7 @@ const NetworkBanner = () => {
   const isOffline =
     netInfo.isConnected === false || netInfo.isInternetReachable === false;
 
-  const translateY = useSharedValue(20);
+  const translateY = useSharedValue(-90);
   const opacity = useSharedValue(0);
 
   useEffect(() => {
@@ -30,7 +26,7 @@ const NetworkBanner = () => {
       translateY.value = withTiming(0, { duration: 300 });
       opacity.value = withTiming(1, { duration: 300 });
     } else {
-      translateY.value = withTiming(20, { duration: 300 });
+      translateY.value = withTiming(-60, { duration: 300 });
       opacity.value = withTiming(0, { duration: 300 });
     }
   }, [isOffline, translateY, opacity]);
@@ -43,11 +39,7 @@ const NetworkBanner = () => {
   return (
     <Animated.View
       pointerEvents={isOffline ? 'auto' : 'none'}
-      style={[
-        styles.banner,
-        { bottom: TAB_BAR_HEIGHT + insets.bottom },
-        animatedStyle,
-      ]}
+      style={[styles.banner, { top: insets.top }, animatedStyle]}
     >
       <Text style={styles.text}>No Internet Connection</Text>
     </Animated.View>
@@ -61,10 +53,20 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    backgroundColor: '#d32f2f',
-    paddingVertical: 8,
+    backgroundColor: colors.ring,
+    paddingVertical: scale(8),
     alignItems: 'center',
-    zIndex: 999,
+    justifyContent: 'center',
+    zIndex: 9999,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
-  text: { color: '#fff', fontWeight: '600' },
+  text: {
+    color: '#fff',
+    fontSize: fs(13),
+    fontFamily: fonts.TiroHindiRegular,
+  },
 });

@@ -1,4 +1,4 @@
-import { CategoryItem } from '@constants/categoriesData';
+import { CategoryItem } from '@services/firebaseServices/categoriesService';
 import { NavigatorScreenParams } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -22,6 +22,7 @@ export type RootStackParamList = {
   ArtiScreen: { arti: CategoryItem };
   AllArtiScreen: { category?: any };
   ShlokScreen: { category?: any };
+  TempleScreen: undefined;
   ReminderScreen: undefined;
 };
 

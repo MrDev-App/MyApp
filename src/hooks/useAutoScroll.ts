@@ -20,17 +20,6 @@ export interface UseAutoScrollOptions {
   isExternalPaused?: boolean;
 }
 
-/**
- * Transform-based UI-Thread Auto-Scrolling Hook using Reanimated & Gesture Handler.
- *
- * Why this fixes iOS button blocking:
- * - On iOS, native UIScrollView puts UIKit into a "scroll-tracking" mode that intercepts
- *   and drops touches across the entire window while contentOffset is changing.
- * - By animating `translateX` on an Animated.View instead of scrolling a UIScrollView,
- *   iOS UIKit never enters scroll-tracking mode. All modal buttons, cards, and screen
- *   buttons receive taps on the first touch with zero delay.
- * - Integrates withDecay and PanGesture for full 120Hz native momentum fling and rubber-band physics.
- */
 export const useAutoScroll = ({
   contentWidth,
   containerWidth,

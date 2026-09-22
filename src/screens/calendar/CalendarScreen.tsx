@@ -19,12 +19,10 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import GradientBackground from '@components/GradientBackground';
 import {
-  useAppDispatch,
-  useAppSelector,
-  fetchFestivals,
-  RootState,
+  getFestivalData,
+  getCachedFestivalData,
   Festival,
-} from '../../redux';
+} from '@services/firebaseServices/getFestivalData';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { Back } from '@assets/index';
 import AnimatedButton from '@components/AnimatedButton';
@@ -36,21 +34,22 @@ const CalendarScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const { currentLanguage } = useAppLanguage();
-  const dispatch = useAppDispatch();
 
-  const { festivals, loading: _loading } = useAppSelector(
-    (state: RootState) => state.festival,
-  );
+  const [festivals, setFestivals] = React.useState<Festival[]>(() => {
+    return getCachedFestivalData() || [];
+  });
 
   LocaleConfig.locales[currentLanguage] =
     getCalendarLocaleConfig(currentLanguage);
   LocaleConfig.defaultLocale = currentLanguage;
 
   useEffect(() => {
-    if (!festivals || festivals.length === 0) {
-      dispatch(fetchFestivals());
-    }
-  }, [dispatch, festivals]);
+    getFestivalData().then(data => {
+      if (data && data.length > 0) {
+        setFestivals(data);
+      }
+    });
+  }, []);
 
   const getTodayString = () => {
     const d = new Date();

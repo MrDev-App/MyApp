@@ -19,12 +19,10 @@ import { Translation } from '@i18n/language';
 import { RootStackParamList } from '@navigation/types';
 import { navigate } from '@navigation/navigationRef';
 import {
-  useAppDispatch,
-  useAppSelector,
-  fetchFestivals,
-  RootState,
+  getFestivalData,
+  getCachedFestivalData,
   Festival,
-} from '../../../redux';
+} from '@services/firebaseServices/getFestivalData';
 import imagePath from '@assets/index';
 import AnimatedButton from '@components/AnimatedButton';
 import FestivalModal from '@components/FestivalModal';
@@ -34,14 +32,24 @@ const FestivalHighlights = ({ onPress }: any) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t, select } = useAppLanguage();
-  const dispatch = useAppDispatch();
 
-  // Read festivals and loading state from Redux
-  const { festivals, loading } = useAppSelector(
-    (state: RootState) => state.festival,
-  );
+  const [festivals, setFestivals] = useState<Festival[]>(() => {
+    return getCachedFestivalData() || [];
+  });
+  const [loading, setLoading] = useState<boolean>(festivals.length === 0);
 
-  console.log('fetivalssssssASk :', festivals);
+  useEffect(() => {
+    getFestivalData()
+      .then(data => {
+        if (data && data.length > 0) {
+          setFestivals(data);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, []);
 
   const [selectedFestival, setSelectedFestival] = useState<Festival | null>(
     null,

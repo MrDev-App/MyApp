@@ -7,6 +7,9 @@ import {
 } from 'react-native-google-mobile-ads';
 
 import { isAdMobEnabled, AD_UNITS } from './adConfig';
+import { navigationRef } from '@navigation/navigationRef';
+import { Storage } from '@services/storageService';
+import { STORAGE_KEYS } from '@constants/storageKeys';
 
 const AD_UNIT_ID = AD_UNITS.APP_OPEN;
 
@@ -92,6 +95,24 @@ export const useAppOpenAd = (enabled: boolean = true) => {
       appState.current = nextAppState;
 
       if (!isComingFromBackground) return;
+
+      const isOnboardingDone = Storage.getBoolean(
+        STORAGE_KEYS.ONBOARDING_COMPLETED,
+        false,
+      );
+      if (!isOnboardingDone) {
+        return;
+      }
+
+      if (navigationRef.isReady()) {
+        const currentRouteName = navigationRef.getCurrentRoute()?.name;
+        if (
+          currentRouteName === 'Splash' ||
+          currentRouteName === 'Onboarding'
+        ) {
+          return;
+        }
+      }
 
       // 1. Check if suppressed by ImagePicker or native activities
       if (Date.now() < suppressedUntil) {

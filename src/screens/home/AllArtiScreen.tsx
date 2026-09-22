@@ -17,22 +17,16 @@ import { Back } from '@assets/index';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { categoriesData } from '@constants/categoriesData';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import { RootNavigationProp } from '@navigation/types';
+import Skeleton from '@components/Skeleton';
 import {
-  useAppDispatch,
-  useAppSelector,
-  fetchCategories,
-  RootState,
+  getCategoriesData,
+  getCachedAartiCategory,
   Category,
   CategoryItem,
-} from '../../redux';
-
-const DEFAULT_AARTI_CATEGORY: Category = (categoriesData.find(c =>
-  c.id.toLowerCase().includes('aarti'),
-) || categoriesData[0]) as unknown as Category;
+} from '@services/firebaseServices/categoriesService';
 
 export const AllArtiScreen = () => {
   const insets = useSafeAreaInsets();
@@ -40,44 +34,48 @@ export const AllArtiScreen = () => {
   const navigation = useNavigation<RootNavigationProp>();
   const { t, select } = useAppLanguage();
   const { width: windowWidth } = useWindowDimensions();
-  const dispatch = useAppDispatch();
 
-  // Read categories from Redux
-  const { categories: reduxCategories } = useAppSelector(
-    (state: RootState) => state.categories,
-  );
-
-  const initialCategory: Category =
-    (route.params?.category as Category) || DEFAULT_AARTI_CATEGORY;
-
-  const [category, setCategory] = useState<Category>(() => {
-    const found = reduxCategories.find(c => c.id.toLowerCase().includes('aarti'));
-    return found || initialCategory;
+  const [category, setCategory] = useState<Category | null>(() => {
+    return (
+      (route.params?.category as Category) ||
+      getCachedAartiCategory() ||
+      null
+    );
   });
+  const [loading, setLoading] = useState<boolean>(!category || !category.items || category.items.length === 0);
 
   useEffect(() => {
-    if (!reduxCategories || reduxCategories.length === 0) {
-      dispatch(fetchCategories());
-    } else {
-      const freshAarti = reduxCategories.find(c =>
+    getCategoriesData().then(categories => {
+      const freshAarti = categories.find(c =>
         c.id.toLowerCase().includes('aarti'),
       );
       if (freshAarti) {
         setCategory(freshAarti);
       }
-    }
-  }, [dispatch, reduxCategories]);
+      setLoading(false);
+    }).catch(() => {
+      setLoading(false);
+    });
+  }, []);
+
+  const isLoading =
+    loading ||
+    !category ||
+    !category.items ||
+    category.items.length === 0;
 
   const handleOpenAarti = (item: CategoryItem) => {
     navigation.navigate('ArtiScreen', { arti: item });
   };
 
   const screenTitle =
-    select(category.titleHi, category.titleEn) ||
-    t(Translation.AARTI_SANGRAH_TITLE);
+    category && (category.titleHi || category.titleEn)
+      ? select(category.titleHi, category.titleEn)
+      : t(Translation.AARTI_SANGRAH_TITLE);
   const screenDesc =
-    select(category.descriptionHi, category.descriptionEn) ||
-    t(Translation.AARTI_SANGRAH_DEFAULT_DESC);
+    category && (category.descriptionHi || category.descriptionEn)
+      ? select(category.descriptionHi, category.descriptionEn)
+      : t(Translation.AARTI_SANGRAH_DEFAULT_DESC);
 
   // Grid layout calculations for Aarti cards
   const padding = scale(16);
@@ -118,6 +116,48 @@ export const AllArtiScreen = () => {
     );
   };
 
+  const renderSkeletonGrid = () => {
+    const skeletonItems = [1, 2, 3, 4, 5, 6];
+    return (
+      <View style={styles.skeletonContainer}>
+        <View style={styles.skeletonColumnWrapper}>
+          {skeletonItems.map(item => (
+            <View
+              key={`skeleton_${item}`}
+              style={[
+                styles.aartiCard,
+                styles.skeletonCard,
+                { width: cardWidth },
+              ]}
+            >
+              <View style={styles.skeletonImageWrapper}>
+                <Skeleton circle width={scale(88)} height={scale(88)} />
+              </View>
+              <Skeleton
+                width="75%"
+                height={fs(14)}
+                borderRadius={scale(4)}
+                style={styles.skeletonName}
+              />
+              <Skeleton
+                width="50%"
+                height={fs(10.5)}
+                borderRadius={scale(4)}
+                style={styles.skeletonSubtitle}
+              />
+              <Skeleton
+                width="60%"
+                height={fs(12)}
+                borderRadius={scale(4)}
+                style={styles.skeletonAction}
+              />
+            </View>
+          ))}
+        </View>
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       {/* Top Header */}
@@ -145,18 +185,22 @@ export const AllArtiScreen = () => {
 
       {/* Aarti Items 2-Column Grid */}
       <View style={styles.contentContainer}>
-        <FlatList
-          data={category.items || []}
-          renderItem={renderAartiItem}
-          keyExtractor={item => item.id}
-          numColumns={2}
-          columnWrapperStyle={styles.columnWrapper}
-          contentContainerStyle={[
-            styles.listContent,
-            { paddingBottom: insets.bottom + scale(24) },
-          ]}
-          showsVerticalScrollIndicator={false}
-        />
+        {isLoading ? (
+          renderSkeletonGrid()
+        ) : (
+          <FlatList
+            data={category?.items || []}
+            renderItem={renderAartiItem}
+            keyExtractor={item => item.id}
+            numColumns={2}
+            columnWrapperStyle={styles.columnWrapper}
+            contentContainerStyle={[
+              styles.listContent,
+              { paddingBottom: insets.bottom + scale(24) },
+            ]}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </View>
     </SafeAreaView>
   );
@@ -275,5 +319,33 @@ const styles = StyleSheet.create({
     fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     fontWeight: '700',
+  },
+  skeletonContainer: {
+    padding: scale(16),
+  },
+  skeletonColumnWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  skeletonCard: {
+    marginBottom: scale(14),
+  },
+  skeletonImageWrapper: {
+    width: scale(92),
+    height: scale(92),
+    borderRadius: scale(46),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: scale(8),
+  },
+  skeletonName: {
+    marginBottom: scale(6),
+  },
+  skeletonSubtitle: {
+    marginBottom: scale(8),
+  },
+  skeletonAction: {
+    marginTop: scale(4),
   },
 });

@@ -16,30 +16,28 @@ import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
 import AutoScrollFlatList from '@components/AutoScrollFlatList';
 import {
-  useAppDispatch,
-  useAppSelector,
-  fetchGodMantras,
-  RootState,
+  getGodData,
+  getCachedGodData,
   God,
-} from '../../../redux';
+} from '@services/firebaseServices/godMantras';
 
 const MantrasCard = () => {
   const { t, currentLanguage } = useAppLanguage();
   const navigation = useNavigation<any>();
-  const dispatch = useAppDispatch();
 
-  // Read gods from Redux
-  const { gods: reduxGods } = useAppSelector(
-    (state: RootState) => state.gods,
-  );
+  const [gods, setGods] = useState<God[]>(() => {
+    return getCachedGodData() || [];
+  });
 
   useEffect(() => {
-    if (!reduxGods || reduxGods.length === 0) {
-      dispatch(fetchGodMantras());
-    }
-  }, [dispatch, reduxGods]);
+    getGodData().then(data => {
+      if (data && data.length > 0) {
+        setGods(data);
+      }
+    });
+  }, []);
 
-  const naamJapData = reduxGods || [];
+  const naamJapData = gods || [];
 
 
   const pairedGods = React.useMemo(() => {

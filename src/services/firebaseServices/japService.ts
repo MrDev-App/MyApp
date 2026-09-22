@@ -3,6 +3,8 @@ import {
   collection,
   getDocs,
 } from '@react-native-firebase/firestore';
+import { Storage } from '@services/storageService';
+import { STORAGE_KEYS } from '@constants/storageKeys';
 import imagePath from '@assets/index';
 
 export interface JapMantraItem {
@@ -15,6 +17,24 @@ export interface JapMantraItem {
   isCustom: boolean;
   image?: any;
 }
+
+/**
+ * Gets cached Jap Mantras from local MMKV storage if available.
+ */
+export const getCachedJapMantrasData = (): JapMantraItem[] | null => {
+  try {
+    const rawCache = Storage.getString(STORAGE_KEYS.JAP_MANTRAS_CACHE, '');
+    if (rawCache) {
+      const parsed = JSON.parse(rawCache);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map(item => mapJapMantraDoc(item.id, item));
+      }
+    }
+  } catch (err) {
+    console.error('❌ [JapService] Error reading cached JapMantras:', err);
+  }
+  return null;
+};
 
 /**
  * Resolves local image from imagePath for Jap Mantras.
@@ -77,7 +97,20 @@ export const mapJapMantraDoc = (docId: string, data: any): JapMantraItem => {
 /**
  * Fetches all Jap Mantras from Firestore collection 'japMantras'.
  */
-export const getJapMantrasData = async (): Promise<JapMantraItem[]> => {
+export const getJapMantrasData = async (
+  forceRefresh: boolean = false,
+): Promise<JapMantraItem[]> => {
+  // If not forcing refresh, return local MMKV cache immediately
+  if (!forceRefresh) {
+    const cached = getCachedJapMantrasData();
+    if (cached && cached.length > 0) {
+      console.log(
+        `⚡ [JapService] Returning ${cached.length} JapMantras from local persistent storage.`,
+      );
+      return cached;
+    }
+  }
+
   console.log('----------------------------------------------------');
   console.log('📿 [JapService] Fetching Jap Mantras from Firestore...');
 
@@ -87,17 +120,30 @@ export const getJapMantrasData = async (): Promise<JapMantraItem[]> => {
 
     if (!snapshot || snapshot.empty) {
       console.warn('⚠️ [JapService] No japMantras found in Firestore.');
+      const localCache = getCachedJapMantrasData();
+      if (localCache && localCache.length > 0) return localCache;
       console.log('----------------------------------------------------');
       return [];
     }
 
-    const list: JapMantraItem[] = snapshot.docs.map(docSnap => {
-      const mapped = mapJapMantraDoc(docSnap.id, docSnap.data());
+    const rawList = snapshot.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...docSnap.data(),
+    }));
+
+    // Persist to local MMKV storage
+    try {
+      Storage.set(STORAGE_KEYS.JAP_MANTRAS_CACHE, JSON.stringify(rawList));
       console.log(
-        `📌 [JapService] Doc [${docSnap.id}] -> ${mapped.nameEn} | ${mapped.textHi}`,
+        '💾 [JapService] Saved JapMantras to local persistent storage (MMKV).',
       );
-      return mapped;
-    });
+    } catch (saveErr) {
+      console.error('❌ [JapService] Error saving to storage:', saveErr);
+    }
+
+    const list: JapMantraItem[] = rawList.map(item =>
+      mapJapMantraDoc(item.id, item),
+    );
 
     list.sort((a, b) => a.order - b.order);
 
@@ -108,9 +154,13 @@ export const getJapMantrasData = async (): Promise<JapMantraItem[]> => {
     return list;
   } catch (error) {
     console.error(
-      '❌ [JapService] Error fetching japMantras from Firestore:',
+      '❌ [JapService] Error fetching japMantras from Firestore! Checking local cache:',
       error,
     );
+    const localCache = getCachedJapMantrasData();
+    if (localCache && localCache.length > 0) {
+      return localCache;
+    }
     console.log('----------------------------------------------------');
     return [];
   }

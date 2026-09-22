@@ -543,3 +543,45 @@ export const TagIcon = (props: SvgIconProps) => {
     </Svg>
   );
 };
+
+export const ShareIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 16, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Circle cx="18" cy="5" r="3" />
+      <Circle cx="6" cy="12" r="3" />
+      <Circle cx="18" cy="19" r="3" />
+      <Path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
+    </Svg>
+  );
+};
+
+export const CopyIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 16, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+      <Path d="M15 2H9a1 1 0 00-1 1v2a1 1 0 001 1h6a1 1 0 001-1V3a1 1 0 00-1-1z" />
+    </Svg>
+  );
+};

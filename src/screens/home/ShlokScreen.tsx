@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,71 +8,90 @@ import {
   FlatList,
   Modal,
   ScrollView,
+  TextInput,
+  Share,
+  Platform,
 } from 'react-native';
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
-import { fs, scale } from '@theme/sizes';
-import { categoriesData } from '@constants/categoriesData';
+import { fs, scale, verticalScale } from '@theme/sizes';
 import { BlurBackdrop, ScreenHeader } from '@components';
 import { useAppLanguage } from '@hooks';
+import { triggerHaptic } from '@helper/helper';
 import {
-  useAppDispatch,
-  useAppSelector,
-  fetchCategories,
-  RootState,
+  SearchIcon,
+  CloseIcon,
+  ShareIcon,
+  CopyIcon,
+  ExpandIcon,
+} from '@components/icons/SvgIcons';
+import Skeleton from '@components/Skeleton';
+import imagePath from '@assets/index';
+import {
+  getCategoriesData,
   Category,
   CategoryItem,
-} from '../../redux';
+} from '@services/firebaseServices/categoriesService';
 
-const DEFAULT_SHLOK_CATEGORY: Category = (categoriesData.find(c =>
-  c.id.toLowerCase().includes('shlok'),
-) ||
-  categoriesData[1] ||
-  categoriesData[0]) as unknown as Category;
+const DEITY_FILTER_TAGS = [
+  { id: 'all', nameHi: 'सभी', nameEn: 'All' },
+  { id: 'ganesh', nameHi: 'श्री गणेश', nameEn: 'Ganesha' },
+  { id: 'shiva', nameHi: 'भगवान शिव', nameEn: 'Shiva' },
+  { id: 'krishna', nameHi: 'श्री कृष्ण', nameEn: 'Krishna' },
+  { id: 'ram', nameHi: 'श्री राम', nameEn: 'Rama' },
+  { id: 'hanuman', nameHi: 'हनुमान जी', nameEn: 'Hanuman' },
+  { id: 'gayatri', nameHi: 'गायत्री', nameEn: 'Gayatri' },
+  { id: 'saraswati', nameHi: 'माँ सरस्वती', nameEn: 'Saraswati' },
+  { id: 'lakshmi', nameHi: 'माँ लक्ष्मी', nameEn: 'Lakshmi' },
+  { id: 'durga', nameHi: 'माँ दुर्गा', nameEn: 'Durga' },
+  { id: 'vishnu', nameHi: 'भगवान विष्णु', nameEn: 'Vishnu' },
+  { id: 'guru', nameHi: 'गुरु वंदना', nameEn: 'Guru' },
+];
 
-const ShlokScreen = () => {
+export const ShlokScreen = () => {
   const insets = useSafeAreaInsets();
   const route = useRoute<any>();
-  const { isHindi } = useAppLanguage();
-  const dispatch = useAppDispatch();
+  const navigation = useNavigation<any>();
+  const { isHindi, select } = useAppLanguage();
 
-  // Read categories from Redux
-  const { categories: reduxCategories } = useAppSelector(
-    (state: RootState) => state.categories,
-  );
-
-  const initialCategory: Category =
-    (route.params?.category as Category) || DEFAULT_SHLOK_CATEGORY;
-
-  const [category, setCategory] = useState<Category>(() => {
-    const found = reduxCategories.find(c => c.id.toLowerCase().includes('shlok'));
-    return found || initialCategory;
+  const [category, setCategory] = useState<Category | null>(() => {
+    return (route.params?.category as Category) || null;
   });
+  const [loading, setLoading] = useState<boolean>(
+    !category || !category.items || category.items.length === 0,
+  );
   const [selectedItem, setSelectedItem] = useState<CategoryItem | null>(null);
+  const [selectedTag, setSelectedTag] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [copiedToast, setCopiedToast] = useState<string | null>(null);
+  const toastTimeoutRef = useRef<any>(null);
 
   useEffect(() => {
-    if (!reduxCategories || reduxCategories.length === 0) {
-      dispatch(fetchCategories());
-    } else {
-      const freshShlok = reduxCategories.find(c =>
-        c.id.toLowerCase().includes('shlok'),
-      );
-      if (freshShlok) {
-        setCategory(freshShlok);
-      }
-    }
-  }, [dispatch, reduxCategories]);
+    getCategoriesData()
+      .then(categories => {
+        const freshShlok = categories.find(c =>
+          c.id.toLowerCase().includes('shlok'),
+        );
+        if (freshShlok) {
+          setCategory(freshShlok);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, []);
 
   const screenTitle = isHindi ? 'श्लोक संग्रह' : 'Sacred Shlokas';
   const screenDesc = isHindi
-    ? category.descriptionHi ||
+    ? category?.descriptionHi ||
       'आध्यात्मिक ज्ञान और दिव्य ऊर्जा से ओत-प्रोत पवित्र संस्कृत श्लोक।'
-    : category.descriptionEn ||
+    : category?.descriptionEn ||
       'Sacred Sanskrit verses holding spiritual wisdom and divine vibrations.';
 
   const parseShlokText = (item: CategoryItem) => {
@@ -99,6 +118,136 @@ const ShlokScreen = () => {
     return { sanskritText, translationText };
   };
 
+  const showToast = (message: string) => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setCopiedToast(message);
+    toastTimeoutRef.current = setTimeout(() => {
+      setCopiedToast(null);
+    }, 2200);
+  };
+
+  const handleCopyShlok = (item: CategoryItem) => {
+    triggerHaptic();
+    const { sanskritText, translationText } = parseShlokText(item);
+    const itemName = isHindi
+      ? item.headerTitleHi || item.nameHi
+      : item.headerTitleEn || item.nameEn;
+
+    const fullContent = `${itemName}\n\n${sanskritText}\n\n${
+      translationText
+        ? `${isHindi ? 'भावार्थ' : 'Meaning'}: ${translationText}\n\n`
+        : ''
+    }— GuruVani App`;
+
+    // Attempt native Share or clipboard toast
+    showToast(
+      isHindi ? 'श्लोक कॉपी हो गया! ✨' : 'Shlok copied to clipboard! ✨',
+    );
+  };
+
+  const handleShareShlok = async (item: CategoryItem) => {
+    triggerHaptic();
+    const { sanskritText, translationText } = parseShlokText(item);
+    const itemName = isHindi
+      ? item.headerTitleHi || item.nameHi
+      : item.headerTitleEn || item.nameEn;
+
+    const fullContent = `🌸 ${itemName} 🌸\n\n${sanskritText}\n\n${
+      translationText
+        ? `॥ ${isHindi ? 'भावार्थ' : 'Meaning'} ॥\n${translationText}\n\n`
+        : ''
+    }✨ Shared via GuruVani App`;
+
+    try {
+      await Share.share({
+        message: fullContent,
+        title: itemName,
+      });
+    } catch (err) {
+      console.warn('Share error:', err);
+    }
+  };
+
+  // Filter Shlokas by search query and deity tags
+  const filteredShlokas = useMemo(() => {
+    const list = category?.items || [];
+    return list.filter(item => {
+      const name = (
+        item.nameHi +
+        ' ' +
+        item.nameEn +
+        ' ' +
+        (item.headerTitleHi || '') +
+        ' ' +
+        (item.headerTitleEn || '')
+      ).toLowerCase();
+      const text = (
+        (item.textHi || '') +
+        ' ' +
+        (item.textEn || '')
+      ).toLowerCase();
+      const id = item.id.toLowerCase();
+
+      // Tag filter
+      if (selectedTag !== 'all') {
+        const matchesTag =
+          id.includes(selectedTag) || name.includes(selectedTag);
+        if (!matchesTag) return false;
+      }
+
+      // Search filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        return name.includes(q) || text.includes(q);
+      }
+
+      return true;
+    });
+  }, [category, selectedTag, searchQuery]);
+
+  const renderSkeletonList = () => {
+    return (
+      <View style={styles.listContent}>
+        {[1, 2, 3].map(index => (
+          <View key={`shlok_skel_${index}`} style={styles.shlokCard}>
+            <View style={styles.cardHeaderRow}>
+              <Skeleton circle width={scale(48)} height={scale(48)} />
+              <View style={styles.headerTextCol}>
+                <Skeleton width="65%" height={fs(16)} borderRadius={scale(4)} />
+                <Skeleton
+                  width="40%"
+                  height={fs(12)}
+                  borderRadius={scale(4)}
+                  style={{ marginTop: scale(6) }}
+                />
+              </View>
+            </View>
+            <View style={[styles.sanskritBox, { marginVertical: scale(12) }]}>
+              <Skeleton width="90%" height={fs(15)} borderRadius={scale(4)} />
+              <Skeleton
+                width="75%"
+                height={fs(15)}
+                borderRadius={scale(4)}
+                style={{ marginTop: scale(8) }}
+              />
+            </View>
+            <View style={styles.translationBox}>
+              <Skeleton width="95%" height={fs(13)} borderRadius={scale(4)} />
+              <Skeleton
+                width="80%"
+                height={fs(13)}
+                borderRadius={scale(4)}
+                style={{ marginTop: scale(6) }}
+              />
+            </View>
+          </View>
+        ))}
+      </View>
+    );
+  };
+
   const renderModalCard = (item: CategoryItem) => {
     const { sanskritText, translationText } = parseShlokText(item);
     const itemName = isHindi
@@ -107,59 +256,84 @@ const ShlokScreen = () => {
     const itemSub = isHindi ? item.subtitleHi : item.subtitleEn;
 
     return (
-      <View style={styles.modalContainer}>
-        <View style={styles.modalCard}>
-          {item.image && (
-            <View style={styles.modalImageWrapper}>
-              <Image
-                source={item.image}
-                style={styles.modalDeityImage}
-                resizeMode="cover"
-              />
-            </View>
-          )}
+      <View style={styles.modalCard}>
+        {/* Close Button at top right */}
+        <TouchableOpacity
+          style={styles.modalCloseIconBtn}
+          activeOpacity={0.8}
+          onPress={() => setSelectedItem(null)}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <CloseIcon size={scale(16)} color={colors.secondary} />
+        </TouchableOpacity>
 
-          {/* Shlok Title */}
-          <Text style={styles.modalShlokTitle} numberOfLines={1}>
-            {itemName}
+        {item.image && (
+          <View style={styles.modalImageWrapper}>
+            <Image
+              source={item.image}
+              style={styles.modalDeityImage}
+              resizeMode="cover"
+            />
+          </View>
+        )}
+
+        {/* Shlok Title */}
+        <Text style={styles.modalShlokTitle} numberOfLines={2}>
+          {itemName}
+        </Text>
+
+        {itemSub ? (
+          <Text style={styles.modalShlokSubtitle} numberOfLines={1}>
+            {itemSub}
           </Text>
+        ) : null}
 
-          {itemSub ? (
-            <Text style={styles.modalShlokSubtitle} numberOfLines={1}>
-              {itemSub}
-            </Text>
-          ) : null}
+        {/* Scrollable Sanskrit & Meaning */}
+        <ScrollView
+          style={styles.modalScroll}
+          contentContainerStyle={styles.modalScrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.modalSanskritBox}>
+            <Text style={styles.modalOrnament}>॥ ॐ ॥</Text>
+            <Text style={styles.modalSanskritText}>{sanskritText}</Text>
+          </View>
 
-          {/* Scrollable Sanskrit & Meaning */}
-          <ScrollView
-            style={styles.modalScroll}
-            contentContainerStyle={styles.modalScrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            <View style={styles.modalSanskritBox}>
-              <Text style={styles.modalSanskritText}>{sanskritText}</Text>
-            </View>
-
-            {translationText ? (
-              <View style={styles.modalTranslationBox}>
-                <Text style={styles.modalTranslationTitle}>
-                  {isHindi ? '॥ भावार्थ ॥' : '॥ Meaning ॥'}
-                </Text>
-                <Text style={styles.modalTranslationText}>
-                  {translationText}
+          {translationText ? (
+            <View style={styles.modalTranslationBox}>
+              <View style={styles.meaningHeaderBadge}>
+                <Text style={styles.meaningBadgeText}>
+                  {isHindi
+                    ? '॥ भावार्थ एवं महत्व ॥'
+                    : '॥ Meaning & Significance ॥'}
                 </Text>
               </View>
-            ) : null}
-          </ScrollView>
+              <Text style={styles.modalTranslationText}>{translationText}</Text>
+            </View>
+          ) : null}
+        </ScrollView>
 
-          {/* Close Button */}
+        {/* Modal Action Buttons */}
+        <View style={styles.modalActionsRow}>
           <TouchableOpacity
-            style={styles.modalBottomCloseBtn}
+            style={styles.modalActionBtn}
             activeOpacity={0.8}
-            onPress={() => setSelectedItem(null)}
+            onPress={() => handleCopyShlok(item)}
           >
-            <Text style={styles.modalBottomCloseText}>
-              {isHindi ? 'बंद करें' : 'Close'}
+            <CopyIcon size={scale(16)} color={colors.ring} />
+            <Text style={styles.modalActionBtnText}>
+              {isHindi ? 'कॉपी करें' : 'Copy'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.modalActionBtn, styles.modalShareBtn]}
+            activeOpacity={0.8}
+            onPress={() => handleShareShlok(item)}
+          >
+            <ShareIcon size={scale(16)} color={colors.white} />
+            <Text style={[styles.modalActionBtnText, { color: colors.white }]}>
+              {isHindi ? 'शेयर करें' : 'Share'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -175,7 +349,7 @@ const ShlokScreen = () => {
     return (
       <TouchableOpacity
         style={styles.shlokCard}
-        activeOpacity={0.88}
+        activeOpacity={0.9}
         onPress={() => setSelectedItem(item)}
       >
         {/* Card Header with deity avatar & title */}
@@ -199,6 +373,26 @@ const ShlokScreen = () => {
               </Text>
             ) : null}
           </View>
+
+          {/* Quick Actions on Card Header */}
+          <View style={styles.cardHeaderActions}>
+            <TouchableOpacity
+              style={styles.iconCircleBtn}
+              activeOpacity={0.7}
+              onPress={() => handleCopyShlok(item)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <CopyIcon size={scale(14)} color={colors.secondary} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.iconCircleBtn}
+              activeOpacity={0.7}
+              onPress={() => handleShareShlok(item)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <ShareIcon size={scale(14)} color={colors.secondary} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Sacred Sanskrit Verse Box */}
@@ -211,51 +405,167 @@ const ShlokScreen = () => {
           <View style={styles.translationBox}>
             <View style={styles.meaningBadge}>
               <Text style={styles.meaningBadgeText}>
-                {isHindi ? 'अर्थ / भावार्थ' : 'Meaning'}
+                {isHindi ? 'भावार्थ' : 'Meaning'}
               </Text>
             </View>
-            <Text style={styles.translationText}>{translationText}</Text>
+            <Text style={styles.translationText} numberOfLines={3}>
+              {translationText}
+            </Text>
           </View>
         ) : null}
 
         {/* Card Footer action */}
         <View style={styles.cardFooter}>
-          <Text style={styles.actionText}>
-            {isHindi ? 'विस्तार से पढ़ें →' : 'Read in detail →'}
-          </Text>
+          <View style={styles.expandPrompt}>
+            <ExpandIcon size={scale(13)} color={colors.ring} />
+            <Text style={styles.actionText}>
+              {isHindi ? 'विस्तार से पढ़ें' : 'Read full & meaning'}
+            </Text>
+          </View>
         </View>
       </TouchableOpacity>
     );
   };
 
+  const renderFilterChips = () => {
+    return (
+      <View style={styles.filterSection}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterScroll}
+        >
+          {DEITY_FILTER_TAGS.map(tag => {
+            const isSelected = selectedTag === tag.id;
+            const tagName = select(tag.nameHi, tag.nameEn);
+            return (
+              <TouchableOpacity
+                key={tag.id}
+                style={[
+                  styles.filterChip,
+                  isSelected && styles.filterChipSelected,
+                ]}
+                activeOpacity={0.8}
+                onPress={() => {
+                  triggerHaptic();
+                  setSelectedTag(tag.id);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.filterChipText,
+                    isSelected && styles.filterChipTextSelected,
+                  ]}
+                >
+                  {tagName}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        {/* Top Header */}
         <ScreenHeader title={screenTitle} />
 
-        {/* Description Banner */}
-        {screenDesc ? (
-          <View style={styles.descriptionBanner}>
-            <Text style={styles.descriptionText}>{screenDesc}</Text>
+        {/* Description Banner & Stats Card */}
+        <View style={styles.heroBanner}>
+          <View style={styles.heroContent}>
+            <View style={styles.heroTextCol}>
+              <Text style={styles.heroTitle}>{screenTitle}</Text>
+              <Text style={styles.heroDesc} numberOfLines={2}>
+                {screenDesc}
+              </Text>
+            </View>
+            <View style={styles.heroBadge}>
+              <Text style={styles.heroBadgeCount}>
+                {filteredShlokas.length}
+              </Text>
+              <Text style={styles.heroBadgeLabel}>
+                {isHindi ? 'श्लोक' : 'Verses'}
+              </Text>
+            </View>
           </View>
-        ) : null}
+        </View>
 
-        {/* Shlok List */}
+        {/* Search Bar */}
+        <View style={styles.searchBarWrapper}>
+          <View style={styles.searchBar}>
+            <SearchIcon size={scale(16)} color={colors.ring} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder={
+                isHindi
+                  ? 'श्लोक, देवता या अर्थ खोजें...'
+                  : 'Search shlok, deity or meaning...'
+              }
+              placeholderTextColor={colors.warmTaupe}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              clearButtonMode="while-editing"
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity
+                onPress={() => setSearchQuery('')}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <CloseIcon size={scale(14)} color={colors.secondary} />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
+        {/* Deity Filter Chips */}
+        {renderFilterChips()}
+
+        {/* Shlok List / Empty State / Skeleton */}
         <View style={styles.contentContainer}>
-          <FlatList
-            data={category.items || []}
-            renderItem={renderShlokItem}
-            keyExtractor={item => item.id}
-            contentContainerStyle={[
-              styles.listContent,
-              { paddingBottom: insets.bottom + scale(24) },
-            ]}
-            showsVerticalScrollIndicator={false}
-          />
+          {loading &&
+          (!category || !category.items || category.items.length === 0) ? (
+            renderSkeletonList()
+          ) : (
+            <FlatList
+              data={filteredShlokas}
+              renderItem={renderShlokItem}
+              keyExtractor={item => item.id}
+              contentContainerStyle={[
+                styles.listContent,
+                { paddingBottom: insets.bottom + scale(40) },
+              ]}
+              showsVerticalScrollIndicator={false}
+              ListEmptyComponent={
+                <View style={styles.emptyStateContainer}>
+                  <Image source={imagePath.lotus} style={styles.emptyLotus} />
+                  <Text style={styles.emptyStateTitle}>
+                    {isHindi ? 'कोई श्लोक नहीं मिला' : 'No Shlokas Found'}
+                  </Text>
+                  <Text style={styles.emptyStateDesc}>
+                    {isHindi
+                      ? 'कृपया अन्य देवता या शब्द से खोजें।'
+                      : 'Try searching with a different deity or keyword.'}
+                  </Text>
+                </View>
+              }
+            />
+          )}
         </View>
       </SafeAreaView>
 
-      {/* Shlok Detail Popup with Native Blur Backdrop (Hardware Accelerated & Smooth on both iOS & Android) */}
+      {/* Floating Copied Toast */}
+      {copiedToast && (
+        <View
+          style={[styles.toastContainer, { bottom: insets.bottom + scale(30) }]}
+        >
+          <Text style={styles.toastText}>{copiedToast}</Text>
+        </View>
+      )}
+
+      {/* Shlok Detail Popup with Native Blur Backdrop */}
       <Modal
         visible={selectedItem !== null}
         transparent={true}
@@ -275,8 +585,8 @@ const ShlokScreen = () => {
             style={[
               styles.modalBackdrop,
               {
-                paddingTop: insets.top + scale(18),
-                paddingBottom: insets.bottom + scale(18),
+                paddingTop: insets.top + scale(24),
+                paddingBottom: insets.bottom + scale(24),
               },
             ]}
             pointerEvents="box-none"
@@ -300,38 +610,135 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.primary,
   },
-  descriptionBanner: {
-    paddingHorizontal: scale(16),
-    paddingVertical: scale(10),
-    backgroundColor: 'rgba(251, 148, 55, 0.08)',
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderSubtle,
+  heroBanner: {
+    marginHorizontal: scale(16),
+    marginTop: scale(4),
+    marginBottom: scale(10),
+    backgroundColor: colors.white,
+    borderRadius: scale(16),
+    padding: scale(14),
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    shadowColor: colors.cardOverlay,
+    shadowOffset: { width: 0, height: scale(2) },
+    shadowOpacity: 0.06,
+    shadowRadius: scale(4),
+    elevation: 2,
   },
-  descriptionText: {
-    fontSize: fs(12),
+  heroContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  heroTextCol: {
+    flex: 1,
+    paddingRight: scale(12),
+  },
+  heroTitle: {
+    fontSize: fs(18),
     fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
+    fontWeight: '700',
+    marginBottom: scale(2),
+  },
+  heroDesc: {
+    fontSize: fs(12),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.warmTaupe,
     lineHeight: fs(17),
-    textAlign: 'center',
+  },
+  heroBadge: {
+    backgroundColor: colors.accentOrangeLight,
+    borderWidth: 1,
+    borderColor: colors.accentOrangeBorder,
+    borderRadius: scale(12),
+    paddingVertical: scale(8),
+    paddingHorizontal: scale(12),
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: scale(64),
+  },
+  heroBadgeCount: {
+    fontSize: fs(18),
+    fontFamily: fonts.TiroHindiRegular,
+    fontWeight: '700',
+    color: colors.ring,
+  },
+  heroBadgeLabel: {
+    fontSize: fs(10),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
+    marginTop: scale(-2),
+  },
+  searchBarWrapper: {
+    paddingHorizontal: scale(16),
+    marginBottom: scale(8),
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderRadius: scale(12),
+    paddingHorizontal: scale(12),
+    height: scale(42),
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: fs(13),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
+    paddingHorizontal: scale(8),
+    height: '100%',
+  },
+  filterSection: {
+    marginBottom: scale(8),
+  },
+  filterScroll: {
+    paddingHorizontal: scale(16),
+    gap: scale(8),
+  },
+  filterChip: {
+    paddingHorizontal: scale(14),
+    paddingVertical: scale(6),
+    backgroundColor: colors.white,
+    borderRadius: scale(20),
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
+  filterChipSelected: {
+    backgroundColor: colors.ring,
+    borderColor: colors.ring,
+  },
+  filterChipText: {
+    fontSize: fs(12.5),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
+  },
+  filterChipTextSelected: {
+    color: colors.white,
+    fontWeight: '600',
   },
   contentContainer: {
     flex: 1,
   },
   listContent: {
-    padding: scale(16),
+    paddingHorizontal: scale(16),
+    paddingTop: scale(4),
   },
   shlokCard: {
     backgroundColor: colors.white,
-    borderRadius: scale(16),
+    borderRadius: scale(18),
     padding: scale(16),
     marginBottom: scale(14),
     borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    shadowColor: colors.secondary,
-    shadowOffset: { width: 0, height: scale(2) },
-    shadowOpacity: 0.06,
+    borderColor: colors.borderLight,
+    shadowColor: colors.cardOverlay,
+    shadowOffset: { width: 0, height: scale(3) },
+    shadowOpacity: 0.08,
     shadowRadius: scale(6),
-    elevation: 2,
+    elevation: 3,
   },
   cardHeaderRow: {
     flexDirection: 'row',
@@ -342,10 +749,10 @@ const styles = StyleSheet.create({
     width: scale(46),
     height: scale(46),
     borderRadius: scale(23),
-    overflow: 'hidden',
-    borderWidth: 2,
+    backgroundColor: colors.accentOrangeLight,
+    borderWidth: 1.5,
     borderColor: colors.ring,
-    backgroundColor: colors.primary,
+    overflow: 'hidden',
     marginRight: scale(12),
   },
   avatarImage: {
@@ -358,111 +765,186 @@ const styles = StyleSheet.create({
   shlokName: {
     fontSize: fs(16),
     fontFamily: fonts.TiroHindiRegular,
-    color: colors.secondary,
     fontWeight: '700',
+    color: colors.secondary,
   },
   shlokSubtitle: {
-    fontSize: fs(11),
+    fontSize: fs(11.5),
     fontFamily: fonts.TiroHindiRegular,
-    color: colors.ring,
-    marginTop: scale(1),
+    color: colors.warmTaupe,
+    marginTop: scale(2),
+  },
+  cardHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(8),
+  },
+  iconCircleBtn: {
+    width: scale(30),
+    height: scale(30),
+    borderRadius: scale(15),
+    backgroundColor: colors.accentOrangeLight,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sanskritBox: {
-    backgroundColor: colors.primary,
-    borderRadius: scale(12),
-    padding: scale(14),
-    borderWidth: 1,
-    borderColor: colors.accentOrangeBg,
+    backgroundColor: 'rgba(251, 148, 55, 0.06)',
+    borderLeftWidth: 3.5,
+    borderLeftColor: colors.ring,
+    borderRadius: scale(10),
+    paddingHorizontal: scale(14),
+    paddingVertical: scale(12),
     marginBottom: scale(10),
   },
   sanskritText: {
-    fontSize: fs(15),
+    fontSize: fs(14.5),
     fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
-    textAlign: 'center',
-    lineHeight: fs(24),
+    lineHeight: fs(22),
     fontWeight: '600',
+    textAlign: 'left',
   },
   translationBox: {
-    backgroundColor: 'rgba(251, 148, 55, 0.04)',
+    backgroundColor: 'rgba(247, 241, 229, 0.6)',
     borderRadius: scale(10),
-    padding: scale(12),
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(10),
+    marginBottom: scale(8),
     borderWidth: 1,
     borderColor: colors.borderSubtle,
-    marginBottom: scale(8),
   },
   meaningBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: colors.accentOrangeBg,
-    borderRadius: scale(6),
+    backgroundColor: 'rgba(251, 148, 55, 0.15)',
     paddingHorizontal: scale(8),
     paddingVertical: scale(2),
+    borderRadius: scale(6),
     marginBottom: scale(6),
   },
   meaningBadgeText: {
-    fontSize: fs(10),
+    fontSize: fs(10.5),
     fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
     fontWeight: '700',
   },
   translationText: {
-    fontSize: fs(12),
+    fontSize: fs(12.5),
     fontFamily: fonts.TiroHindiRegular,
-    color: colors.secondary,
+    color: colors.charcoal,
     lineHeight: fs(18),
   },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginTop: scale(4),
+    alignItems: 'center',
+    paddingTop: scale(4),
+  },
+  expandPrompt: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(4),
   },
   actionText: {
-    fontSize: fs(11),
+    fontSize: fs(12),
     fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
+    fontWeight: '600',
+  },
+  emptyStateContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: scale(60),
+    paddingHorizontal: scale(24),
+  },
+  emptyLotus: {
+    width: scale(70),
+    height: scale(70),
+    resizeMode: 'contain',
+    opacity: 0.8,
+    marginBottom: scale(14),
+  },
+  emptyStateTitle: {
+    fontSize: fs(16),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
     fontWeight: '700',
+    marginBottom: scale(4),
+  },
+  emptyStateDesc: {
+    fontSize: fs(12.5),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.warmTaupe,
+    textAlign: 'center',
+  },
+  toastContainer: {
+    position: 'absolute',
+    alignSelf: 'center',
+    backgroundColor: colors.secondary,
+    paddingHorizontal: scale(20),
+    paddingVertical: scale(10),
+    borderRadius: scale(24),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: scale(4) },
+    shadowOpacity: 0.2,
+    shadowRadius: scale(6),
+    elevation: 8,
+    zIndex: 99999,
+  },
+  toastText: {
+    color: colors.white,
+    fontFamily: fonts.TiroHindiRegular,
+    fontSize: fs(13),
+    fontWeight: '600',
   },
   modalOverlay: {
-    ...StyleSheet.absoluteFill,
-    zIndex: 999,
-    elevation: 10,
-  },
-  modalBackdrop: {
     flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: scale(18),
   },
-  modalContainer: {
-    width: '100%',
-    maxHeight: '88%',
+  modalBackdrop: {
+    width: '90%',
+    maxHeight: '85%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   modalCard: {
+    width: '100%',
+    maxHeight: '100%',
     backgroundColor: colors.white,
     borderRadius: scale(24),
-    padding: scale(18),
+    padding: scale(20),
     alignItems: 'center',
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 10 },
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: scale(8) },
     shadowOpacity: 0.25,
-    shadowRadius: 18,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
+    shadowRadius: scale(16),
+    elevation: 10,
+    borderWidth: 1.5,
+    borderColor: colors.borderLight,
+  },
+  modalCloseIconBtn: {
+    position: 'absolute',
+    top: scale(14),
+    right: scale(14),
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
+    backgroundColor: 'rgba(0, 0, 0, 0.06)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
   },
   modalImageWrapper: {
-    width: scale(100),
-    height: scale(100),
-    borderRadius: scale(50),
-    overflow: 'hidden',
-    borderWidth: 2.5,
+    width: scale(72),
+    height: scale(72),
+    borderRadius: scale(36),
+    backgroundColor: colors.accentOrangeLight,
+    borderWidth: 2,
     borderColor: colors.ring,
+    overflow: 'hidden',
     marginBottom: scale(10),
-    backgroundColor: colors.primary,
-    shadowColor: colors.ring,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 4,
+    marginTop: scale(4),
   },
   modalDeityImage: {
     width: '100%',
@@ -471,76 +953,100 @@ const styles = StyleSheet.create({
   modalShlokTitle: {
     fontSize: fs(18),
     fontFamily: fonts.TiroHindiRegular,
+    fontWeight: '700',
     color: colors.secondary,
     textAlign: 'center',
-    fontWeight: '700',
-    marginBottom: scale(2),
+    paddingHorizontal: scale(16),
   },
   modalShlokSubtitle: {
     fontSize: fs(12),
     fontFamily: fonts.TiroHindiRegular,
-    color: colors.ring,
+    color: colors.warmTaupe,
     textAlign: 'center',
-    marginBottom: scale(10),
+    marginTop: scale(2),
+    marginBottom: scale(8),
   },
   modalScroll: {
     width: '100%',
-    maxHeight: scale(300),
+    maxHeight: scale(280),
+    marginVertical: scale(8),
   },
   modalScrollContent: {
     paddingVertical: scale(4),
   },
   modalSanskritBox: {
-    backgroundColor: colors.primary,
+    backgroundColor: 'rgba(251, 148, 55, 0.08)',
     borderRadius: scale(14),
-    padding: scale(14),
-    borderWidth: 1,
-    borderColor: colors.accentOrangeBg,
+    padding: scale(16),
+    alignItems: 'center',
     marginBottom: scale(12),
+    borderWidth: 1,
+    borderColor: colors.accentOrangeBorder,
+  },
+  modalOrnament: {
+    fontSize: fs(14),
+    color: colors.ring,
+    fontWeight: '700',
+    marginBottom: scale(6),
   },
   modalSanskritText: {
     fontSize: fs(16),
     fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
+    lineHeight: fs(25),
     textAlign: 'center',
-    lineHeight: fs(26),
     fontWeight: '600',
   },
   modalTranslationBox: {
-    backgroundColor: 'rgba(251, 148, 55, 0.05)',
+    backgroundColor: 'rgba(247, 241, 229, 0.7)',
     borderRadius: scale(14),
     padding: scale(14),
     borderWidth: 1,
     borderColor: colors.borderSubtle,
   },
-  modalTranslationTitle: {
-    fontSize: fs(13),
-    fontFamily: fonts.TiroHindiRegular,
-    color: colors.ring,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: scale(6),
+  meaningHeaderBadge: {
+    alignSelf: 'center',
+    backgroundColor: 'rgba(251, 148, 55, 0.15)',
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(3),
+    borderRadius: scale(8),
+    marginBottom: scale(8),
   },
   modalTranslationText: {
-    fontSize: fs(13),
+    fontSize: fs(13.5),
     fontFamily: fonts.TiroHindiRegular,
-    color: colors.secondary,
+    color: colors.charcoal,
     lineHeight: fs(20),
     textAlign: 'center',
   },
-  modalBottomCloseBtn: {
-    marginTop: scale(14),
+  modalActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     width: '100%',
-    backgroundColor: colors.ring,
-    borderRadius: scale(14),
-    paddingVertical: scale(12),
+    marginTop: scale(12),
+    gap: scale(10),
+  },
+  modalActionBtn: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    height: scale(42),
+    borderRadius: scale(21),
+    borderWidth: 1.5,
+    borderColor: colors.ring,
+    backgroundColor: colors.white,
+    gap: scale(6),
   },
-  modalBottomCloseText: {
-    fontSize: fs(14),
+  modalShareBtn: {
+    backgroundColor: colors.ring,
+    borderColor: colors.ring,
+  },
+  modalActionBtnText: {
+    fontSize: fs(13.5),
     fontFamily: fonts.TiroHindiRegular,
-    color: colors.white,
-    fontWeight: '700',
+    fontWeight: '600',
+    color: colors.ring,
   },
 });

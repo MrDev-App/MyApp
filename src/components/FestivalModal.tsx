@@ -19,7 +19,7 @@ import {
   PinIcon,
   CloseIcon,
 } from '@components/icons/SvgIcons';
-import { Festival } from '../redux';
+import { Festival } from '@services/firebaseServices/getFestivalData';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import BlurBackdrop from './BlurBackdrop';

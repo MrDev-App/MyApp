@@ -10,7 +10,11 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Bell } from '@assets/index';
 import { NotificationStorage } from '@services/notificationService';
-import { useAppSelector, RootState, Festival } from '../../../redux';
+import {
+  getFestivalData,
+  getCachedFestivalData,
+  Festival,
+} from '@services/firebaseServices/getFestivalData';
 import { getMonthShortName } from '@constants/calendarData';
 
 interface HomeGreetingHeaderProps {
@@ -45,10 +49,23 @@ const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
   const navigation = useNavigation<any>();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Read festivals from Redux
-  const { festivals, loading: festivalsLoading } = useAppSelector(
-    (state: RootState) => state.festival,
-  );
+  const [festivals, setFestivals] = useState<Festival[]>(() => {
+    return getCachedFestivalData() || [];
+  });
+  const [festivalsLoading, setFestivalsLoading] = useState<boolean>(festivals.length === 0);
+
+  useEffect(() => {
+    getFestivalData()
+      .then(data => {
+        if (data && data.length > 0) {
+          setFestivals(data);
+        }
+        setFestivalsLoading(false);
+      })
+      .catch(() => {
+        setFestivalsLoading(false);
+      });
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
