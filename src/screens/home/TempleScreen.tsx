@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   StyleSheet,
   Text,
@@ -20,6 +20,7 @@ import fonts from '@theme/fonts';
 import { fs, scale, verticalScale } from '@theme/sizes';
 import { BlurBackdrop, ScreenHeader } from '@components';
 import { useAppLanguage } from '@hooks';
+import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
 import {
   SearchIcon,
@@ -27,35 +28,50 @@ import {
   LocationIcon,
   TagIcon,
 } from '@components/icons/SvgIcons';
+import Skeleton from '@components/Skeleton';
 import imagePath from '@assets/index';
 import { templesData, TempleItem } from '@constants/templesData';
 
 const TEMPLE_CATEGORY_TAGS = [
-  { id: 'all', nameHi: 'सभी मंदिर', nameEn: 'All Temples' },
-  { id: 'chardham', nameHi: 'चार धाम', nameEn: 'Char Dham' },
-  { id: 'jyotirlinga', nameHi: 'ज्योतिर्लिंग', nameEn: 'Jyotirlinga' },
-  { id: 'shaktipeeth', nameHi: 'शक्तिपीठ', nameEn: 'Shakti Peeth' },
-  { id: 'major', nameHi: 'प्रमुख तीर्थ', nameEn: 'Major Shrines' },
+  { id: 'all', key: Translation.TEMPLE_CATEGORY_ALL },
+  { id: 'chardham', key: Translation.TEMPLE_CATEGORY_CHARDHAM },
+  { id: 'jyotirlinga', key: Translation.TEMPLE_CATEGORY_JYOTIRLINGA },
+  { id: 'shaktipeeth', key: Translation.TEMPLE_CATEGORY_SHAKTIPEETH },
+  { id: 'major', key: Translation.TEMPLE_CATEGORY_MAJOR },
 ];
 
 export const TempleScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
-  const { isHindi, select } = useAppLanguage();
+  const { t, isHindi, select } = useAppLanguage();
 
+  const [loading, setLoading] = useState<boolean>(true);
   const [selectedItem, setSelectedItem] = useState<TempleItem | null>(null);
   const [selectedTag, setSelectedTag] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const screenTitle = isHindi ? 'भारत के प्रमुख मंदिर' : 'Sacred Temples of India';
-  const screenDesc = isHindi
-    ? 'सनातन धर्म के पावन तीर्थ, दिव्य धाम एवं अलौकिक ज्योर्तिलिंगों का परिचय।'
-    : 'Sacred pilgrimage sites, divine abodes, and revered temples across India.';
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 450);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const screenTitle = t(Translation.TEMPLE_SCREEN_TITLE);
+  const screenDesc = t(Translation.TEMPLE_SCREEN_DESC);
 
   const filteredTemples = useMemo(() => {
     return templesData.filter(item => {
       const name = (item.nameHi + ' ' + item.nameEn).toLowerCase();
-      const location = (item.locationHi + ' ' + item.locationEn + ' ' + item.stateHi + ' ' + item.stateEn).toLowerCase();
+      const location = (
+        item.locationHi +
+        ' ' +
+        item.locationEn +
+        ' ' +
+        item.stateHi +
+        ' ' +
+        item.stateEn
+      ).toLowerCase();
       const deity = (item.deityHi + ' ' + item.deityEn).toLowerCase();
 
       // Tag filter
@@ -119,7 +135,7 @@ export const TempleScreen = () => {
           {/* Main Deity Section */}
           <View style={styles.modalInfoBox}>
             <Text style={styles.modalInfoLabel}>
-              {isHindi ? 'मुख्य देवता / स्वरूप:' : 'Presiding Deity:'}
+              {t(Translation.TEMPLE_PRESIDING_DEITY_LABEL)}
             </Text>
             <Text style={styles.modalInfoValue}>{deity}</Text>
           </View>
@@ -127,7 +143,7 @@ export const TempleScreen = () => {
           {/* Significance */}
           <View style={styles.modalInfoBox}>
             <Text style={styles.modalInfoLabel}>
-              {isHindi ? 'धार्मिक महत्व:' : 'Spiritual Significance:'}
+              {t(Translation.TEMPLE_SIGNIFICANCE_LABEL)}
             </Text>
             <Text style={styles.modalInfoValue}>{significance}</Text>
           </View>
@@ -135,7 +151,7 @@ export const TempleScreen = () => {
           {/* Darshan Timings */}
           <View style={styles.modalInfoBox}>
             <Text style={styles.modalInfoLabel}>
-              {isHindi ? 'दर्शन समय:' : 'Darshan Timings:'}
+              {t(Translation.TEMPLE_DARSHAN_TIMINGS_LABEL)}
             </Text>
             <Text style={styles.modalInfoValue}>{timing}</Text>
           </View>
@@ -144,7 +160,7 @@ export const TempleScreen = () => {
           {description ? (
             <View style={[styles.modalInfoBox, { borderBottomWidth: 0 }]}>
               <Text style={styles.modalInfoLabel}>
-                {isHindi ? 'परिचय एवं इतिहास:' : 'About & History:'}
+                {t(Translation.TEMPLE_ABOUT_HISTORY_LABEL)}
               </Text>
               <Text style={styles.modalDescText}>{description}</Text>
             </View>
@@ -157,7 +173,7 @@ export const TempleScreen = () => {
           onPress={() => setSelectedItem(null)}
         >
           <Text style={styles.modalDoneBtnText}>
-            {isHindi ? 'बंद करें' : 'Close'}
+            {t(Translation.TEMPLE_MODAL_CLOSE)}
           </Text>
         </TouchableOpacity>
       </View>
@@ -205,8 +221,10 @@ export const TempleScreen = () => {
 
         <View style={styles.deityTagRow}>
           <Text style={styles.deityTagText}>
-            {isHindi ? 'देवता: ' : 'Deity: '}
-            <Text style={{ color: colors.secondary, fontWeight: '700' }}>{deity}</Text>
+            {t(Translation.TEMPLE_DEITY_LABEL)}
+            <Text style={{ color: colors.secondary, fontWeight: '700' }}>
+              {deity}
+            </Text>
           </Text>
         </View>
 
@@ -218,10 +236,51 @@ export const TempleScreen = () => {
 
         <View style={styles.cardFooter}>
           <Text style={styles.cardFooterText}>
-            {isHindi ? 'दर्शन विवरण एवं समय देखें →' : 'View Timings & Details →'}
+            {t(Translation.TEMPLE_VIEW_DETAILS_ACTION)}
           </Text>
         </View>
       </TouchableOpacity>
+    );
+  };
+
+  const renderSkeletonList = () => {
+    return (
+      <View style={styles.listContent}>
+        {[1, 2, 3].map(index => (
+          <View key={`temple_skel_${index}`} style={styles.templeCard}>
+            <View style={styles.cardHeaderRow}>
+              <Skeleton circle width={scale(48)} height={scale(48)} />
+              <View style={styles.headerTextCol}>
+                <Skeleton width="65%" height={fs(16)} borderRadius={scale(4)} />
+                <Skeleton
+                  width="45%"
+                  height={fs(12)}
+                  borderRadius={scale(4)}
+                  style={{ marginTop: scale(6) }}
+                />
+              </View>
+            </View>
+            <Skeleton
+              width={scale(110)}
+              height={fs(18)}
+              borderRadius={scale(8)}
+              style={{ marginBottom: scale(10) }}
+            />
+            <View style={styles.significanceBox}>
+              <Skeleton width="96%" height={fs(13)} borderRadius={scale(4)} />
+              <Skeleton
+                width="80%"
+                height={fs(13)}
+                borderRadius={scale(4)}
+                style={{ marginTop: scale(6) }}
+              />
+            </View>
+            <View style={styles.cardFooter}>
+              <Skeleton width="45%" height={fs(12)} borderRadius={scale(4)} />
+            </View>
+          </View>
+        ))}
+      </View>
     );
   };
 
@@ -234,7 +293,7 @@ export const TempleScreen = () => {
       >
         {TEMPLE_CATEGORY_TAGS.map(tag => {
           const isSelected = selectedTag === tag.id;
-          const tagName = select(tag.nameHi, tag.nameEn);
+          const tagName = t(tag.key);
           return (
             <TouchableOpacity
               key={tag.id}
@@ -269,35 +328,13 @@ export const TempleScreen = () => {
         {/* Top Header */}
         <ScreenHeader title={screenTitle} />
 
-        {/* Hero Banner */}
-        <View style={styles.heroBanner}>
-          <View style={styles.heroContent}>
-            <View style={styles.heroTextCol}>
-              <Text style={styles.heroTitle}>{screenTitle}</Text>
-              <Text style={styles.heroDesc} numberOfLines={2}>
-                {screenDesc}
-              </Text>
-            </View>
-            <View style={styles.heroBadge}>
-              <Text style={styles.heroBadgeCount}>{filteredTemples.length}</Text>
-              <Text style={styles.heroBadgeLabel}>
-                {isHindi ? 'मंदिर' : 'Temples'}
-              </Text>
-            </View>
-          </View>
-        </View>
-
         {/* Search Bar */}
         <View style={styles.searchBarWrapper}>
           <View style={styles.searchBar}>
             <SearchIcon size={scale(16)} color={colors.ring} />
             <TextInput
               style={styles.searchInput}
-              placeholder={
-                isHindi
-                  ? 'मंदिर, स्थान या देवता खोजें...'
-                  : 'Search temple, location or deity...'
-              }
+              placeholder={t(Translation.TEMPLE_SEARCH_PLACEHOLDER)}
               placeholderTextColor={colors.warmTaupe}
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -317,31 +354,53 @@ export const TempleScreen = () => {
         {/* Filter Chips */}
         {renderFilterChips()}
 
-        {/* Temples List */}
+        {/* Temples List / Skeleton */}
         <View style={styles.contentContainer}>
-          <FlatList
-            data={filteredTemples}
-            renderItem={renderTempleCard}
-            keyExtractor={item => item.id}
-            contentContainerStyle={[
-              styles.listContent,
-              { paddingBottom: insets.bottom + scale(40) },
-            ]}
-            showsVerticalScrollIndicator={false}
-            ListEmptyComponent={
-              <View style={styles.emptyContainer}>
-                <Image source={imagePath.lotus} style={styles.emptyImage} />
-                <Text style={styles.emptyTitle}>
-                  {isHindi ? 'कोई मंदिर नहीं मिला' : 'No Temples Found'}
-                </Text>
-                <Text style={styles.emptyDesc}>
-                  {isHindi
-                    ? 'कृपया अन्य स्थान या नाम से खोजें।'
-                    : 'Try searching with another location or deity.'}
-                </Text>
-              </View>
-            }
-          />
+          {loading ? (
+            renderSkeletonList()
+          ) : (
+            <FlatList
+              data={filteredTemples}
+              renderItem={renderTempleCard}
+              keyExtractor={item => item.id}
+              ListHeaderComponent={
+                <View style={styles.heroBanner}>
+                  <View style={styles.heroContent}>
+                    <View style={styles.heroTextCol}>
+                      <Text style={styles.heroTitle}>{screenTitle}</Text>
+                      <Text style={styles.heroDesc} numberOfLines={2}>
+                        {screenDesc}
+                      </Text>
+                    </View>
+                    <View style={styles.heroBadge}>
+                      <Text style={styles.heroBadgeCount}>
+                        {filteredTemples.length}
+                      </Text>
+                      <Text style={styles.heroBadgeLabel}>
+                        {t(Translation.TEMPLE_COUNT_LABEL)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              }
+              contentContainerStyle={[
+                styles.listContent,
+                { paddingBottom: insets.bottom + scale(40) },
+              ]}
+              showsVerticalScrollIndicator={false}
+              ListEmptyComponent={
+                <View style={styles.emptyContainer}>
+                  <Image source={imagePath.lotus} style={styles.emptyImage} />
+                  <Text style={styles.emptyTitle}>
+                    {t(Translation.TEMPLE_NO_FOUND_TITLE)}
+                  </Text>
+                  <Text style={styles.emptyDesc}>
+                    {t(Translation.TEMPLE_NO_FOUND_DESC)}
+                  </Text>
+                </View>
+              }
+            />
+          )}
         </View>
       </SafeAreaView>
 
@@ -391,9 +450,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   heroBanner: {
-    marginHorizontal: scale(16),
-    marginTop: scale(4),
-    marginBottom: scale(10),
+    marginTop: scale(2),
+    marginBottom: scale(14),
     backgroundColor: colors.white,
     borderRadius: scale(16),
     padding: scale(14),

@@ -22,7 +22,7 @@ import { Translation } from '@i18n/language';
 import { RootNavigationProp } from '@navigation/types';
 import Skeleton from '@components/Skeleton';
 import {
-  getCategoriesData,
+  getAartiCategoryData,
   getCachedAartiCategory,
   Category,
   CategoryItem,
@@ -37,32 +37,41 @@ export const AllArtiScreen = () => {
 
   const [category, setCategory] = useState<Category | null>(() => {
     return (
-      (route.params?.category as Category) ||
-      getCachedAartiCategory() ||
-      null
+      (route.params?.category as Category) || getCachedAartiCategory() || null
     );
   });
-  const [loading, setLoading] = useState<boolean>(!category || !category.items || category.items.length === 0);
+  const [loading, setLoading] = useState<boolean>(() => {
+    const cached =
+      (route.params?.category as Category) || getCachedAartiCategory();
+    return !cached || !cached.items || cached.items.length === 0;
+  });
 
   useEffect(() => {
-    getCategoriesData().then(categories => {
-      const freshAarti = categories.find(c =>
-        c.id.toLowerCase().includes('aarti'),
-      );
-      if (freshAarti) {
-        setCategory(freshAarti);
-      }
-      setLoading(false);
-    }).catch(() => {
-      setLoading(false);
-    });
+    let isMounted = true;
+    getAartiCategoryData()
+      .then(freshAarti => {
+        if (!isMounted) return;
+        if (freshAarti) {
+          setCategory(freshAarti);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.warn(
+          '[AllArtiScreen] Error fetching Aarti document from Firestore:',
+          err,
+        );
+        if (!isMounted) return;
+        setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const isLoading =
-    loading ||
-    !category ||
-    !category.items ||
-    category.items.length === 0;
+    loading || !category || !category.items || category.items.length === 0;
 
   const handleOpenAarti = (item: CategoryItem) => {
     navigation.navigate('ArtiScreen', { arti: item });

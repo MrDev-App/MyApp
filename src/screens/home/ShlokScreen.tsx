@@ -22,6 +22,7 @@ import fonts from '@theme/fonts';
 import { fs, scale, verticalScale } from '@theme/sizes';
 import { BlurBackdrop, ScreenHeader } from '@components';
 import { useAppLanguage } from '@hooks';
+import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
 import {
   SearchIcon,
@@ -37,34 +38,45 @@ import {
   Category,
   CategoryItem,
 } from '@services/firebaseServices/categoriesService';
+import { shlokData } from '@constants/shlokData';
+
+const DEFAULT_SHLOK_CATEGORY: Category = {
+  id: 'shlok',
+  titleHi: 'श्लोक संग्रह',
+  titleEn: 'Sacred Shlokas',
+  icon: imagePath.shlok,
+  descriptionHi:
+    'आध्यात्मिक ज्ञान और दिव्य ऊर्जा से ओत-प्रोत पवित्र संस्कृत श्लोक।',
+  descriptionEn:
+    'Sacred Sanskrit verses holding spiritual wisdom and divine vibrations.',
+  items: shlokData,
+};
 
 const DEITY_FILTER_TAGS = [
-  { id: 'all', nameHi: 'सभी', nameEn: 'All' },
-  { id: 'ganesh', nameHi: 'श्री गणेश', nameEn: 'Ganesha' },
-  { id: 'shiva', nameHi: 'भगवान शिव', nameEn: 'Shiva' },
-  { id: 'krishna', nameHi: 'श्री कृष्ण', nameEn: 'Krishna' },
-  { id: 'ram', nameHi: 'श्री राम', nameEn: 'Rama' },
-  { id: 'hanuman', nameHi: 'हनुमान जी', nameEn: 'Hanuman' },
-  { id: 'gayatri', nameHi: 'गायत्री', nameEn: 'Gayatri' },
-  { id: 'saraswati', nameHi: 'माँ सरस्वती', nameEn: 'Saraswati' },
-  { id: 'lakshmi', nameHi: 'माँ लक्ष्मी', nameEn: 'Lakshmi' },
-  { id: 'durga', nameHi: 'माँ दुर्गा', nameEn: 'Durga' },
-  { id: 'vishnu', nameHi: 'भगवान विष्णु', nameEn: 'Vishnu' },
-  { id: 'guru', nameHi: 'गुरु वंदना', nameEn: 'Guru' },
+  { id: 'all', key: Translation.DEITY_TAG_ALL },
+  { id: 'ganesh', key: Translation.DEITY_TAG_GANESH },
+  { id: 'shiva', key: Translation.DEITY_TAG_SHIVA },
+  { id: 'krishna', key: Translation.DEITY_TAG_KRISHNA },
+  { id: 'ram', key: Translation.DEITY_TAG_RAM },
+  { id: 'hanuman', key: Translation.DEITY_TAG_HANUMAN },
+  { id: 'gayatri', key: Translation.DEITY_TAG_GAYATRI },
+  { id: 'saraswati', key: Translation.DEITY_TAG_SARASWATI },
+  { id: 'lakshmi', key: Translation.DEITY_TAG_LAKSHMI },
+  { id: 'durga', key: Translation.DEITY_TAG_DURGA },
+  { id: 'vishnu', key: Translation.DEITY_TAG_VISHNU },
+  { id: 'guru', key: Translation.DEITY_TAG_GURU },
 ];
 
 export const ShlokScreen = () => {
   const insets = useSafeAreaInsets();
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { isHindi, select } = useAppLanguage();
+  const { t, isHindi, select } = useAppLanguage();
 
-  const [category, setCategory] = useState<Category | null>(() => {
-    return (route.params?.category as Category) || null;
+  const [category, setCategory] = useState<Category>(() => {
+    return (route.params?.category as Category) || DEFAULT_SHLOK_CATEGORY;
   });
-  const [loading, setLoading] = useState<boolean>(
-    !category || !category.items || category.items.length === 0,
-  );
+  const [loading, setLoading] = useState<boolean>(true);
   const [selectedItem, setSelectedItem] = useState<CategoryItem | null>(null);
   const [selectedTag, setSelectedTag] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -87,12 +99,11 @@ export const ShlokScreen = () => {
       });
   }, []);
 
-  const screenTitle = isHindi ? 'श्लोक संग्रह' : 'Sacred Shlokas';
-  const screenDesc = isHindi
-    ? category?.descriptionHi ||
-      'आध्यात्मिक ज्ञान और दिव्य ऊर्जा से ओत-प्रोत पवित्र संस्कृत श्लोक।'
-    : category?.descriptionEn ||
-      'Sacred Sanskrit verses holding spiritual wisdom and divine vibrations.';
+  const screenTitle = t(Translation.SHLOK_SCREEN_TITLE);
+  const screenDesc =
+    category && (category.descriptionHi || category.descriptionEn)
+      ? select(category.descriptionHi, category.descriptionEn)
+      : t(Translation.SHLOK_SCREEN_DEFAULT_DESC);
 
   const parseShlokText = (item: CategoryItem) => {
     const rawText = (isHindi ? item.textHi : item.textEn) || item.textHi || '';
@@ -137,14 +148,12 @@ export const ShlokScreen = () => {
 
     const fullContent = `${itemName}\n\n${sanskritText}\n\n${
       translationText
-        ? `${isHindi ? 'भावार्थ' : 'Meaning'}: ${translationText}\n\n`
+        ? `${t(Translation.SHLOK_MEANING_LABEL)}: ${translationText}\n\n`
         : ''
     }— GuruVani App`;
 
     // Attempt native Share or clipboard toast
-    showToast(
-      isHindi ? 'श्लोक कॉपी हो गया! ✨' : 'Shlok copied to clipboard! ✨',
-    );
+    showToast(t(Translation.SHLOK_COPIED_TOAST));
   };
 
   const handleShareShlok = async (item: CategoryItem) => {
@@ -156,7 +165,7 @@ export const ShlokScreen = () => {
 
     const fullContent = `🌸 ${itemName} 🌸\n\n${sanskritText}\n\n${
       translationText
-        ? `॥ ${isHindi ? 'भावार्थ' : 'Meaning'} ॥\n${translationText}\n\n`
+        ? `॥ ${t(Translation.SHLOK_MEANING_LABEL)} ॥\n${translationText}\n\n`
         : ''
     }✨ Shared via GuruVani App`;
 
@@ -172,7 +181,8 @@ export const ShlokScreen = () => {
 
   // Filter Shlokas by search query and deity tags
   const filteredShlokas = useMemo(() => {
-    const list = category?.items || [];
+    const list =
+      category?.items && category.items.length > 0 ? category.items : shlokData;
     return list.filter(item => {
       const name = (
         item.nameHi +
@@ -303,9 +313,7 @@ export const ShlokScreen = () => {
             <View style={styles.modalTranslationBox}>
               <View style={styles.meaningHeaderBadge}>
                 <Text style={styles.meaningBadgeText}>
-                  {isHindi
-                    ? '॥ भावार्थ एवं महत्व ॥'
-                    : '॥ Meaning & Significance ॥'}
+                  {t(Translation.SHLOK_MEANING_SIGNIFICANCE_TITLE)}
                 </Text>
               </View>
               <Text style={styles.modalTranslationText}>{translationText}</Text>
@@ -322,7 +330,7 @@ export const ShlokScreen = () => {
           >
             <CopyIcon size={scale(16)} color={colors.ring} />
             <Text style={styles.modalActionBtnText}>
-              {isHindi ? 'कॉपी करें' : 'Copy'}
+              {t(Translation.SHLOK_COPY_ACTION)}
             </Text>
           </TouchableOpacity>
 
@@ -333,7 +341,7 @@ export const ShlokScreen = () => {
           >
             <ShareIcon size={scale(16)} color={colors.white} />
             <Text style={[styles.modalActionBtnText, { color: colors.white }]}>
-              {isHindi ? 'शेयर करें' : 'Share'}
+              {t(Translation.SHLOK_SHARE_ACTION)}
             </Text>
           </TouchableOpacity>
         </View>
@@ -405,7 +413,7 @@ export const ShlokScreen = () => {
           <View style={styles.translationBox}>
             <View style={styles.meaningBadge}>
               <Text style={styles.meaningBadgeText}>
-                {isHindi ? 'भावार्थ' : 'Meaning'}
+                {t(Translation.SHLOK_MEANING_LABEL)}
               </Text>
             </View>
             <Text style={styles.translationText} numberOfLines={3}>
@@ -419,7 +427,7 @@ export const ShlokScreen = () => {
           <View style={styles.expandPrompt}>
             <ExpandIcon size={scale(13)} color={colors.ring} />
             <Text style={styles.actionText}>
-              {isHindi ? 'विस्तार से पढ़ें' : 'Read full & meaning'}
+              {t(Translation.SHLOK_READ_FULL_ACTION)}
             </Text>
           </View>
         </View>
@@ -437,7 +445,7 @@ export const ShlokScreen = () => {
         >
           {DEITY_FILTER_TAGS.map(tag => {
             const isSelected = selectedTag === tag.id;
-            const tagName = select(tag.nameHi, tag.nameEn);
+            const tagName = t(tag.key);
             return (
               <TouchableOpacity
                 key={tag.id}
@@ -473,37 +481,13 @@ export const ShlokScreen = () => {
         {/* Top Header */}
         <ScreenHeader title={screenTitle} />
 
-        {/* Description Banner & Stats Card */}
-        <View style={styles.heroBanner}>
-          <View style={styles.heroContent}>
-            <View style={styles.heroTextCol}>
-              <Text style={styles.heroTitle}>{screenTitle}</Text>
-              <Text style={styles.heroDesc} numberOfLines={2}>
-                {screenDesc}
-              </Text>
-            </View>
-            <View style={styles.heroBadge}>
-              <Text style={styles.heroBadgeCount}>
-                {filteredShlokas.length}
-              </Text>
-              <Text style={styles.heroBadgeLabel}>
-                {isHindi ? 'श्लोक' : 'Verses'}
-              </Text>
-            </View>
-          </View>
-        </View>
-
         {/* Search Bar */}
         <View style={styles.searchBarWrapper}>
           <View style={styles.searchBar}>
             <SearchIcon size={scale(16)} color={colors.ring} />
             <TextInput
               style={styles.searchInput}
-              placeholder={
-                isHindi
-                  ? 'श्लोक, देवता या अर्थ खोजें...'
-                  : 'Search shlok, deity or meaning...'
-              }
+              placeholder={t(Translation.SHLOK_SEARCH_PLACEHOLDER)}
               placeholderTextColor={colors.warmTaupe}
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -525,14 +509,33 @@ export const ShlokScreen = () => {
 
         {/* Shlok List / Empty State / Skeleton */}
         <View style={styles.contentContainer}>
-          {loading &&
-          (!category || !category.items || category.items.length === 0) ? (
+          {loading ? (
             renderSkeletonList()
           ) : (
             <FlatList
               data={filteredShlokas}
               renderItem={renderShlokItem}
               keyExtractor={item => item.id}
+              ListHeaderComponent={
+                <View style={styles.heroBanner}>
+                  <View style={styles.heroContent}>
+                    <View style={styles.heroTextCol}>
+                      <Text style={styles.heroTitle}>{screenTitle}</Text>
+                      <Text style={styles.heroDesc} numberOfLines={2}>
+                        {screenDesc}
+                      </Text>
+                    </View>
+                    <View style={styles.heroBadge}>
+                      <Text style={styles.heroBadgeCount}>
+                        {filteredShlokas.length}
+                      </Text>
+                      <Text style={styles.heroBadgeLabel}>
+                        {t(Translation.SHLOK_COUNT_LABEL)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              }
               contentContainerStyle={[
                 styles.listContent,
                 { paddingBottom: insets.bottom + scale(40) },
@@ -542,12 +545,10 @@ export const ShlokScreen = () => {
                 <View style={styles.emptyStateContainer}>
                   <Image source={imagePath.lotus} style={styles.emptyLotus} />
                   <Text style={styles.emptyStateTitle}>
-                    {isHindi ? 'कोई श्लोक नहीं मिला' : 'No Shlokas Found'}
+                    {t(Translation.SHLOK_NO_FOUND_TITLE)}
                   </Text>
                   <Text style={styles.emptyStateDesc}>
-                    {isHindi
-                      ? 'कृपया अन्य देवता या शब्द से खोजें।'
-                      : 'Try searching with a different deity or keyword.'}
+                    {t(Translation.SHLOK_NO_FOUND_DESC)}
                   </Text>
                 </View>
               }
@@ -611,9 +612,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   heroBanner: {
-    marginHorizontal: scale(16),
-    marginTop: scale(4),
-    marginBottom: scale(10),
+    marginTop: scale(2),
+    marginBottom: scale(14),
     backgroundColor: colors.white,
     borderRadius: scale(16),
     padding: scale(14),

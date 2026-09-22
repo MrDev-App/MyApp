@@ -20,8 +20,6 @@ import colors from '@theme/colors';
 import NetworkBanner from '@components/NetworkBanner';
 import { getFestivalData } from '@services/firebaseServices/getFestivalData';
 import { getGodData } from '@services/firebaseServices/godMantras';
-import { getJapMantrasData } from '@services/firebaseServices/japService';
-import { getCategoriesData } from '@services/firebaseServices/categoriesService';
 
 LogBox.ignoreAllLogs();
 
@@ -47,8 +45,6 @@ const App = () => {
     const interactionPromise = InteractionManager.runAfterInteractions(() => {
       getFestivalData();
       getGodData();
-      getJapMantrasData();
-      getCategoriesData();
     });
 
     notifee.getInitialNotification().then(initial => {

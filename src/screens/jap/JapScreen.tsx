@@ -28,6 +28,7 @@ import {
 } from 'react-native-safe-area-context';
 import {
   getJapMantrasData,
+  getCachedJapMantrasData,
   MantraSelectorItem,
   DEFAULT_MANTRA,
   logChant,
@@ -35,6 +36,7 @@ import {
 } from '@services/japService';
 import { Translation } from '@i18n/language';
 import imagePath from '@assets/index';
+import Skeleton from '@components/Skeleton';
 
 import SwitchMantraModal from './components/SwitchMantraModal';
 import MalaRing from './components/MalaRing';
@@ -55,13 +57,28 @@ const JapScreen = () => {
   const insets = useSafeAreaInsets();
   const { t, currentLanguage } = useAppLanguage();
 
-  const [defaultMantras, setDefaultMantras] = useState<MantraSelectorItem[]>([
-    DEFAULT_MANTRA,
-  ]);
-  const [selectedMantra, setSelectedMantra] =
-    useState<MantraSelectorItem>(DEFAULT_MANTRA);
-  const [displayedMantra, setDisplayedMantra] =
-    useState<MantraSelectorItem>(DEFAULT_MANTRA);
+  const [defaultMantras, setDefaultMantras] = useState<MantraSelectorItem[]>(
+    () => {
+      const cached = getCachedJapMantrasData();
+      return cached && cached.length > 0 ? cached : [DEFAULT_MANTRA];
+    },
+  );
+  const [loading, setLoading] = useState<boolean>(() => {
+    const cached = getCachedJapMantrasData();
+    return !cached || cached.length === 0;
+  });
+  const [selectedMantra, setSelectedMantra] = useState<MantraSelectorItem>(
+    () => {
+      const cached = getCachedJapMantrasData();
+      return cached && cached.length > 0 ? cached[0] : DEFAULT_MANTRA;
+    },
+  );
+  const [displayedMantra, setDisplayedMantra] = useState<MantraSelectorItem>(
+    () => {
+      const cached = getCachedJapMantrasData();
+      return cached && cached.length > 0 ? cached[0] : DEFAULT_MANTRA;
+    },
+  );
   const [count, setCount] = useState(0);
   const countRef = useRef(0);
   const [rounds, setRounds] = useState(0);
@@ -117,6 +134,10 @@ const JapScreen = () => {
           }
         } catch (e) {
           console.error('Failed to load mantras in JapScreen', e);
+        } finally {
+          if (isMounted) {
+            setLoading(false);
+          }
         }
       };
 
@@ -442,37 +463,53 @@ const JapScreen = () => {
           ]}
         >
           <View style={styles.selectorSection}>
-            <FlatList
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              data={[...defaultMantras, ...customMantras]}
-              keyExtractor={item => item.id}
-              contentContainerStyle={styles.selectorList}
-              renderItem={({ item }) => {
-                const isSelected = selectedMantra.id === item.id;
-                const name =
-                  currentLanguage === 'hi' ? item.nameHi : item.nameEn;
-                return (
-                  <TouchableOpacity
-                    style={[
-                      styles.selectorItem,
-                      isSelected && styles.selectorItemSelected,
-                    ]}
-                    onPress={() => handleMantraSelect(item)}
-                    activeOpacity={0.8}
-                  >
-                    <Text
+            {loading ? (
+              <View style={styles.skeletonSelectorRow}>
+                {[scale(95), scale(120), scale(105), scale(115)].map(
+                  (w, idx) => (
+                    <Skeleton
+                      key={`jap_skel_${idx}`}
+                      width={w}
+                      height={scale(32)}
+                      borderRadius={scale(16)}
+                      style={styles.skeletonSelectorItem}
+                    />
+                  ),
+                )}
+              </View>
+            ) : (
+              <FlatList
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                data={[...defaultMantras, ...customMantras]}
+                keyExtractor={item => item.id}
+                contentContainerStyle={styles.selectorList}
+                renderItem={({ item }) => {
+                  const isSelected = selectedMantra.id === item.id;
+                  const name =
+                    currentLanguage === 'hi' ? item.nameHi : item.nameEn;
+                  return (
+                    <TouchableOpacity
                       style={[
-                        styles.selectorText,
-                        isSelected && styles.selectorTextSelected,
+                        styles.selectorItem,
+                        isSelected && styles.selectorItemSelected,
                       ]}
+                      onPress={() => handleMantraSelect(item)}
+                      activeOpacity={0.8}
                     >
-                      {name}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              }}
-            />
+                      <Text
+                        style={[
+                          styles.selectorText,
+                          isSelected && styles.selectorTextSelected,
+                        ]}
+                      >
+                        {name}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            )}
           </View>
 
           {/* Stats Bar: TODAY JAP | TOTAL MALA | TOTAL CHANTS */}
@@ -526,11 +563,22 @@ const JapScreen = () => {
           {/*  Mantra Text Card */}
           <View style={styles.mantraCard}>
             <View style={styles.mantraAccentBar} />
-            <Animated.Text
-              style={[styles.mantraDisplayText, animatedTextStyle]}
-            >
-              {mantraText}
-            </Animated.Text>
+            {loading ? (
+              <View style={styles.skeletonMantraWrapper}>
+                <Skeleton
+                  width={scale(180)}
+                  height={scale(20)}
+                  borderRadius={scale(4)}
+                  style={styles.skeletonMantraLine}
+                />
+              </View>
+            ) : (
+              <Animated.Text
+                style={[styles.mantraDisplayText, animatedTextStyle]}
+              >
+                {mantraText}
+              </Animated.Text>
+            )}
           </View>
 
           {/* ── Mala Circle + Tap Sphere ── */}
@@ -657,6 +705,13 @@ const styles = StyleSheet.create({
   // Selector
   selectorSection: { width: '100%', marginTop: scale(14) },
   selectorList: { paddingHorizontal: scale(16) },
+  skeletonSelectorRow: {
+    flexDirection: 'row',
+    paddingHorizontal: scale(16),
+  },
+  skeletonSelectorItem: {
+    marginRight: scale(8),
+  },
   selectorItem: {
     paddingHorizontal: scale(14),
     paddingVertical: scale(5),
@@ -743,6 +798,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+  },
+  skeletonMantraWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  skeletonMantraLine: {
+    marginVertical: scale(4),
   },
   mantraAccentBar: {
     width: 4,

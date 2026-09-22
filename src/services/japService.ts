@@ -40,15 +40,51 @@ export const mapMantraItem = (item: any, index = 0): MantraSelectorItem => {
   };
 };
 
-export const getJapMantrasData = async (): Promise<MantraSelectorItem[]> => {
+// In-memory session flag: ensures Jap Mantras collection is fetched at most once per app launch session
+let hasFetchedJapMantrasThisSession = false;
+
+/**
+ * Gets cached Jap Mantras from local MMKV storage if available.
+ */
+export const getCachedJapMantrasData = (): MantraSelectorItem[] | null => {
   try {
     const cachedData = storage.getString(JAP_MANTRAS_CACHE_KEY);
-
     if (cachedData) {
       const parsed: any[] = JSON.parse(cachedData);
-      return parsed.map(mapMantraItem);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const list = parsed.map(mapMantraItem);
+        list.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        return list;
+      }
     }
+  } catch (err) {
+    console.error('❌ [JapService] Error reading cached JapMantras:', err);
+  }
+  return null;
+};
 
+/**
+ * Fetches all Jap Mantras from Firestore collection 'japMantras' once per app session.
+ * Future visits in the same session use local MMKV cache with 0 network calls.
+ */
+export const getJapMantrasData = async (
+  forceRefresh: boolean = false,
+): Promise<MantraSelectorItem[]> => {
+  // If already fetched in this session and not explicitly forcing, return cached data
+  if (!forceRefresh && hasFetchedJapMantrasThisSession) {
+    const cached = getCachedJapMantrasData();
+    if (cached && cached.length > 0) {
+      console.log(
+        '⚡ [JapService] Jap Mantras already fetched in this session. Using local MMKV cache (0 network calls).',
+      );
+      return cached;
+    }
+  }
+
+  console.log('----------------------------------------------------');
+  console.log('📿 [JapService] Fetching Jap Mantras from Firestore...');
+
+  try {
     const db = getFirestore();
     const snapshot = await getDocs(collection(db, 'japMantras'));
 
@@ -61,12 +97,35 @@ export const getJapMantrasData = async (): Promise<MantraSelectorItem[]> => {
     }
 
     if (rawList.length > 0) {
-      storage.set(JAP_MANTRAS_CACHE_KEY, JSON.stringify(rawList));
+      try {
+        storage.set(JAP_MANTRAS_CACHE_KEY, JSON.stringify(rawList));
+        console.log(
+          '💾 [JapService] Saved JapMantras to local persistent storage (MMKV).',
+        );
+      } catch (saveErr) {
+        console.error('❌ [JapService] Error saving to MMKV:', saveErr);
+      }
+
+      hasFetchedJapMantrasThisSession = true;
+      const list = rawList.map(mapMantraItem);
+      list.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      console.log(
+        `✅ [JapService] Successfully loaded ${list.length} jap mantras from Firestore.`,
+      );
+      console.log('----------------------------------------------------');
+      return list;
     }
 
-    return rawList.map(mapMantraItem);
+    const cached = getCachedJapMantrasData();
+    if (cached && cached.length > 0) return cached;
+    return [DEFAULT_MANTRA];
   } catch (error) {
-    console.warn('Notice: Firestore unavailable, using local jap data:', error);
+    console.warn('⚠️ [JapService] Firestore unavailable, using local jap data:', error);
+    const cached = getCachedJapMantrasData();
+    if (cached && cached.length > 0) {
+      return cached;
+    }
+    console.log('----------------------------------------------------');
     return [DEFAULT_MANTRA];
   }
 };

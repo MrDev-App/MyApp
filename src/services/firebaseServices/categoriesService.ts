@@ -1,5 +1,7 @@
 import {
   getFirestore,
+  doc,
+  getDoc,
   collection,
   getDocs,
   query,
@@ -8,6 +10,7 @@ import {
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 import imagePath from '@assets/index';
+import { shlokData } from '@constants/shlokData';
 
 export interface CategoryItem {
   id: string;
@@ -33,6 +36,19 @@ export interface Category {
   descriptionHi: string;
   items: CategoryItem[];
 }
+
+export const STATIC_SHLOK_CATEGORY: Category = {
+  id: 'shlok',
+  titleHi: 'श्लोक संग्रह',
+  titleEn: 'Sacred Shlokas',
+  icon: imagePath.shlok,
+  coverImage: imagePath.Vishnu,
+  descriptionHi:
+    'आध्यात्मिक ज्ञान और दिव्य ऊर्जा से ओत-प्रोत पवित्र संस्कृत श्लोक।',
+  descriptionEn:
+    'Sacred Sanskrit verses holding spiritual wisdom and divine vibrations.',
+  items: shlokData,
+};
 
 export const getCachedAartiCategory = (): Category | null => {
   try {
@@ -185,9 +201,9 @@ export const getCategoriesData = async (
     const cachedAarti = getCachedAartiCategory();
     if (cachedAarti) {
       console.log(
-        '⚡ [CategoriesService] Returning cached Aarti from local persistent storage.',
+        '⚡ [CategoriesService] Returning cached Aarti + static Shlok from local storage.',
       );
-      return [cachedAarti];
+      return [cachedAarti, STATIC_SHLOK_CATEGORY];
     }
   }
 
@@ -206,13 +222,10 @@ export const getCategoriesData = async (
       );
       const cachedAarti = getCachedAartiCategory();
       if (cachedAarti) {
-        console.log(
-          '⚡ [CategoriesService] Using cached Aarti from local storage.',
-        );
-        return [cachedAarti];
+        return [cachedAarti, STATIC_SHLOK_CATEGORY];
       }
       console.log('----------------------------------------------------');
-      return [];
+      return [STATIC_SHLOK_CATEGORY];
     }
 
     const categories: Category[] = snapshot.docs.map(docSnap => {
@@ -242,6 +255,12 @@ export const getCategoriesData = async (
       return mapped;
     });
 
+    // Ensure shlok category exists in return list if Firestore doesn't have it
+    const hasShlok = categories.some(c => c.id.toLowerCase().includes('shlok'));
+    if (!hasShlok) {
+      categories.push(STATIC_SHLOK_CATEGORY);
+    }
+
     console.log(
       `✅ [CategoriesService] Successfully loaded ${categories.length} categories.`,
     );
@@ -252,16 +271,112 @@ export const getCategoriesData = async (
       '❌ [CategoriesService] Firestore fetch failed! Checking local persistent cache:',
       error,
     );
-    const cachedAarti = getCachedAartiCategory();
-    if (cachedAarti) {
+    console.log('----------------------------------------------------');
+    return [STATIC_SHLOK_CATEGORY];
+  }
+};
+
+/**
+ * Fetches a single category document by ID (e.g. 'aarti') from Firestore 'categories' collection.
+ * Automatically saves the document into local MMKV storage for offline use.
+ */
+export const getCategoryById = async (
+  categoryId: string,
+  forceRefresh: boolean = true,
+): Promise<Category | null> => {
+  const normalizedId = categoryId.toLowerCase();
+
+  // If Aarti and not forcing refresh, check local MMKV storage first
+  if (!forceRefresh && normalizedId.includes('aarti')) {
+    const cached = getCachedAartiCategory();
+    if (cached) return cached;
+  }
+
+  console.log('----------------------------------------------------');
+  console.log(
+    `🌸 [CategoriesService] Fetching category "${normalizedId}" document from Firestore...`,
+  );
+
+  try {
+    const db = getFirestore();
+    const docRef = doc(db, 'categories', normalizedId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap && docSnap.exists()) {
+      const docData = docSnap.data();
+
+      // Persist Aarti document directly to MMKV storage
+      if (normalizedId.includes('aarti')) {
+        try {
+          Storage.set(
+            STORAGE_KEYS.AARTI_DATA_CACHE,
+            JSON.stringify({ ...docData, id: docSnap.id }),
+          );
+          console.log(
+            '💾 [CategoriesService] Saved Aarti document to local persistent storage (MMKV).',
+          );
+        } catch (saveErr) {
+          console.error(
+            '❌ [CategoriesService] Failed to save Aarti document to storage:',
+            saveErr,
+          );
+        }
+      }
+
+      const mapped = mapCategoryDoc(docSnap.id, docData);
       console.log(
-        '⚡ [CategoriesService] Returning cached Aarti from local storage.',
+        `✅ [CategoriesService] Loaded category "${mapped.id}" (${mapped.items.length} items).`,
       );
-      return [cachedAarti];
+      console.log('----------------------------------------------------');
+      return mapped;
+    } else {
+      console.warn(
+        `⚠️ [CategoriesService] Document "${normalizedId}" not found in Firestore "categories".`,
+      );
+      if (normalizedId.includes('aarti')) {
+        return getCachedAartiCategory();
+      }
+      return null;
+    }
+  } catch (error) {
+    console.error(
+      `❌ [CategoriesService] Fetch for category "${normalizedId}" failed:`,
+      error,
+    );
+    if (normalizedId.includes('aarti')) {
+      return getCachedAartiCategory();
     }
     console.log('----------------------------------------------------');
-    return [];
+    return null;
   }
+};
+
+// In-memory session flag: ensures Aarti document is fetched at most once per app launch session
+let hasFetchedAartiThisSession = false;
+
+/**
+ * Specifically fetches the 'aarti' document from Firestore once per app session.
+ * Future visits in the same session use local MMKV cache with 0 network calls.
+ */
+export const getAartiCategoryData = async (
+  forceRefresh: boolean = false,
+): Promise<Category | null> => {
+  // If already fetched in this session and not explicitly forcing, return cached data
+  if (!forceRefresh && hasFetchedAartiThisSession) {
+    const cached = getCachedAartiCategory();
+    if (cached) {
+      console.log(
+        '⚡ [CategoriesService] Aarti already fetched in this session. Using local MMKV cache (0 network calls).',
+      );
+      return cached;
+    }
+  }
+
+  const freshAarti = await getCategoryById('aarti', true);
+  if (freshAarti) {
+    hasFetchedAartiThisSession = true;
+  }
+  return freshAarti;
 };
 
 export default getCategoriesData;

@@ -13,8 +13,7 @@ import { RootNavigationProp } from '@navigation/types';
 
 interface FeaturedCategoryItem {
   id: string;
-  titleHi: string;
-  titleEn: string;
+  titleKey: string;
   type: 'lottie' | 'image';
   icon: any;
   route: 'AllArtiScreen' | 'ShlokScreen' | 'TempleScreen';
@@ -23,24 +22,21 @@ interface FeaturedCategoryItem {
 const FEATURED_ITEMS: FeaturedCategoryItem[] = [
   {
     id: 'aarti',
-    titleHi: 'आरती संग्रह',
-    titleEn: 'Aarti Sangrah',
+    titleKey: Translation.FEATURED_AARTI_TITLE,
     type: 'lottie',
     icon: imagePath.lampLottie,
     route: 'AllArtiScreen',
   },
   {
     id: 'shlok',
-    titleHi: 'श्लोक संग्रह',
-    titleEn: 'Sacred Shlokas',
+    titleKey: Translation.FEATURED_SHLOK_TITLE,
     type: 'image',
     icon: imagePath.shlok,
     route: 'ShlokScreen',
   },
   {
     id: 'temples',
-    titleHi: 'प्रमुख मंदिर',
-    titleEn: "India's Temples",
+    titleKey: Translation.FEATURED_TEMPLES_TITLE,
     type: 'image',
     icon: imagePath.temples,
     route: 'TempleScreen',
@@ -48,7 +44,7 @@ const FEATURED_ITEMS: FeaturedCategoryItem[] = [
 ];
 
 const FeaturedCategories = () => {
-  const { t, currentLanguage } = useAppLanguage();
+  const { t } = useAppLanguage();
   const navigation = useNavigation<RootNavigationProp>();
 
   const handleCardPress = (item: FeaturedCategoryItem) => {
@@ -65,7 +61,7 @@ const FeaturedCategories = () => {
         contentContainerStyle={styles.scrollContent}
       >
         {FEATURED_ITEMS.map(item => {
-          const title = currentLanguage === 'hi' ? item.titleHi : item.titleEn;
+          const title = t(item.titleKey);
 
           return (
             <AnimatedButton
@@ -124,16 +120,17 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: scale(4),
     paddingRight: scale(16),
-    paddingVertical: scale(10),
+    paddingVertical: scale(6),
+    gap: scale(10),
   },
   card: {
-    width: scale(155),
+    width: scale(108),
     backgroundColor: 'transparent',
     borderRadius: scale(14),
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: scale(14),
-    paddingHorizontal: scale(8),
+    paddingVertical: scale(12),
+    paddingHorizontal: scale(4),
   },
   iconContainer: {
     width: scale(56),
@@ -144,7 +141,7 @@ const styles = StyleSheet.create({
     marginBottom: scale(5),
   },
   cardTitle: {
-    fontSize: fs(13),
+    fontSize: fs(12.5),
     fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',

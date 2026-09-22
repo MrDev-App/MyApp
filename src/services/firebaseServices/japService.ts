@@ -94,12 +94,26 @@ export const mapJapMantraDoc = (docId: string, data: any): JapMantraItem => {
   };
 };
 
+// In-memory session flag: ensures Jap Mantras collection is fetched at most once per app launch session
+let hasFetchedJapMantrasThisSession = false;
+
 /**
  * Fetches all Jap Mantras from Firestore collection 'japMantras'.
  */
 export const getJapMantrasData = async (
   forceRefresh: boolean = false,
 ): Promise<JapMantraItem[]> => {
+  // If already fetched in this session and not explicitly forcing, return cached data
+  if (!forceRefresh && hasFetchedJapMantrasThisSession) {
+    const cached = getCachedJapMantrasData();
+    if (cached && cached.length > 0) {
+      console.log(
+        '⚡ [JapService] Jap Mantras already fetched in this session. Using local MMKV cache (0 network calls).',
+      );
+      return cached;
+    }
+  }
+
   // If not forcing refresh, return local MMKV cache immediately
   if (!forceRefresh) {
     const cached = getCachedJapMantrasData();
