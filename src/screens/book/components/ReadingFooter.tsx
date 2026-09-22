@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Back, Forward } from '@assets/index';
 import colors from '@theme/colors';
@@ -38,40 +33,20 @@ const ReadingFooter = ({
     : t(Translation.BOOK_PAGE_NUMBER, { currentPage, totalPages });
 
   return (
-    <View
-      style={[
-        styles.footerRow,
-        {
-          borderTopColor: isDarkMode
-            ? colors.readerDarkBorder
-            : colors.borderSubtle,
-        },
-      ]}
-    >
+    <View style={styles.footerRow}>
       {/* Back / Prev button */}
-      {!isFirst && (
-        <TouchableOpacity
-          style={[styles.navButton, isFirst && styles.navButtonDisabled]}
-          onPress={() => {
-            triggerHaptic();
-            onPrev();
-          }}
-          disabled={isFirst}
-          activeOpacity={0.7}
-        >
-          <Back
-            width={scale(14)}
-            height={scale(14)}
-            stroke={
-              isFirst
-                ? isDarkMode
-                  ? colors.readerDarkDisabled
-                  : colors.neutralDisabled
-                : colors.ring
-            }
-          />
-        </TouchableOpacity>
-      )}
+
+      <TouchableOpacity
+        style={[styles.navButton, isFirst && styles.navButtonDisabled]}
+        onPress={() => {
+          triggerHaptic();
+          onPrev();
+        }}
+        disabled={isFirst}
+        activeOpacity={0.7}
+      >
+        <Back width={scale(14)} height={scale(14)} stroke={colors.white} />
+      </TouchableOpacity>
 
       {/* Page number pill */}
       <View
@@ -87,40 +62,32 @@ const ReadingFooter = ({
           },
         ]}
       >
-        <Text
-          style={[
-            styles.pageNumberText,
-            { color: isDarkMode ? colors.readerDarkText : colors.secondary },
-          ]}
-        >
+        <Text style={[styles.pageNumberText, { color: colors.black }]}>
           {pageLabel}
         </Text>
       </View>
 
-      {/* Forward / Next button */}
-      {!isLast && (
-        <TouchableOpacity
-          style={[styles.navButton, isLast && styles.navButtonDisabled]}
-          onPress={() => {
-            triggerHaptic();
-            onNext();
-          }}
-          disabled={isLast}
-          activeOpacity={0.7}
-        >
-          <Forward
-            width={scale(14)}
-            height={scale(14)}
-            stroke={
-              isLast
-                ? isDarkMode
-                  ? colors.readerDarkDisabled
-                  : colors.neutralDisabled
-                : colors.ring
-            }
-          />
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity
+        style={[styles.navButton, isLast && styles.navButtonDisabled]}
+        onPress={() => {
+          triggerHaptic();
+          onNext();
+        }}
+        disabled={isLast}
+        activeOpacity={0.7}
+      >
+        <Forward
+          width={scale(14)}
+          height={scale(14)}
+          stroke={
+            isLast
+              ? isDarkMode
+                ? colors.readerDarkDisabled
+                : colors.neutralDisabled
+              : colors.ring
+          }
+        />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -135,8 +102,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(20),
     paddingVertical: scale(10),
     borderTopWidth: 1,
-    borderTopColor: colors.borderSubtle,
     width: '100%',
+    borderTopColor: colors.readerDarkBorder,
   },
   navButton: {
     width: scale(32),

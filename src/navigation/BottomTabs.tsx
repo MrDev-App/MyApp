@@ -1,5 +1,11 @@
 import React from 'react';
-import { StyleSheet, View, TouchableOpacity, Image } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Image,
+  Platform,
+} from 'react-native';
 import { fs, scale, verticalScale } from '@theme/sizes';
 import colors from '@theme/colors';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
@@ -13,6 +19,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import imagePath from '@assets/index';
+import { getTabBarBottomOffset } from '@theme/tabBarMetrics';
 
 const bubbleWidth = scale(64);
 const bubbleHeight = scale(36);
@@ -90,8 +97,8 @@ export const CustomTabBar = ({
 }: BottomTabBarProps) => {
   const safeInsets = useSafeAreaInsets();
   const bottomInset = insets?.bottom ?? safeInsets.bottom;
-  const bottomOffset =
-    bottomInset > 0 ? bottomInset + verticalScale(8) : verticalScale(20);
+
+  const bottomOffset = getTabBarBottomOffset(bottomInset);
 
   const buttonWidthShared = useSharedValue(0);
   const activeIndexShared = useSharedValue(state.index);
@@ -180,10 +187,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: scale(20),
     right: scale(20),
+
     alignItems: 'center',
     backgroundColor: 'transparent',
     zIndex: 100,
   },
+
   tabBar: {
     flexDirection: 'row',
     backgroundColor: colors.white,

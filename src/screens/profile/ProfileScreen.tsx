@@ -368,7 +368,7 @@ const ProfileScreen = () => {
 
   return (
     <GradientBackground>
-      <SafeAreaView style={profileStyles.safeArea} edges={['top', 'bottom']}>
+      <SafeAreaView style={profileStyles.safeArea} edges={['top']}>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[

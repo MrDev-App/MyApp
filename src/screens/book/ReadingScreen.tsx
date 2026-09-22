@@ -101,7 +101,7 @@ const ReadingScreen = () => {
   return (
     <GradientBackground>
       <SafeAreaView style={styles.safeAreaContainer} edges={['top', 'bottom']}>
-        <ReadingHeader isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
+        <ReadingHeader />
 
         <View
           style={styles.contentArea}
@@ -145,7 +145,9 @@ const ReadingScreen = () => {
                 <View
                   style={[
                     styles.slideContainer,
-                    { width: containerWidth > 0 ? containerWidth : windowWidth },
+                    {
+                      width: containerWidth > 0 ? containerWidth : windowWidth,
+                    },
                   ]}
                 >
                   <ZoomableComicPage

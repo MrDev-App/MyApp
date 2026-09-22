@@ -44,7 +44,11 @@ export const ZoomableImage: React.FC<ZoomableImageProps> = ({
   isZoomed = false,
   onZoomStateChange,
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
+  const isLocalAsset =
+    typeof source === 'number' ||
+    (typeof source === 'object' && source !== null && !('uri' in source));
+
+  const [isLoading, setIsLoading] = useState(!isLocalAsset);
 
   const containerWidth = useSharedValue(0);
   const containerHeight = useSharedValue(0);
@@ -96,7 +100,11 @@ export const ZoomableImage: React.FC<ZoomableImageProps> = ({
 
   // Reset zoom whenever source changes (e.g. page flip in comic reader)
   useEffect(() => {
-    setIsLoading(true);
+    if (!isLocalAsset) {
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
+    }
     scale.value = 1;
     savedScale.value = 1;
     translateX.value = 0;
@@ -106,6 +114,7 @@ export const ZoomableImage: React.FC<ZoomableImageProps> = ({
     isCurrentlyZoomed.value = false;
   }, [
     source,
+    isLocalAsset,
     scale,
     savedScale,
     translateX,
@@ -114,6 +123,16 @@ export const ZoomableImage: React.FC<ZoomableImageProps> = ({
     savedTranslateY,
     isCurrentlyZoomed,
   ]);
+
+  // Safety fallback for remote images that might fail to emit onLoadEnd
+  useEffect(() => {
+    if (isLoading && !isLocalAsset) {
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, isLocalAsset]);
 
   const onLayout = useCallback(
     (e: LayoutChangeEvent) => {
@@ -268,7 +287,11 @@ export const ZoomableImage: React.FC<ZoomableImageProps> = ({
           source={resolvedSource}
           style={[styles.image, animatedStyle]}
           resizeMode="contain"
-          onLoadStart={() => setIsLoading(true)}
+          onLoadStart={() => {
+            if (!isLocalAsset) {
+              setIsLoading(true);
+            }
+          }}
           onLoad={() => setIsLoading(false)}
           onLoadEnd={() => setIsLoading(false)}
           onError={() => setIsLoading(false)}

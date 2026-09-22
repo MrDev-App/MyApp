@@ -10,6 +10,7 @@ import {
   StatusBar,
   Keyboard,
   Image,
+  InputAccessoryView,
 } from 'react-native';
 import imagePath from '@assets/index';
 import {
@@ -22,7 +23,7 @@ import Animated from 'react-native-reanimated';
 
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
-import { fs, scale } from '@theme/sizes';
+import { fs, scale, verticalScale } from '@theme/sizes';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 import { AllBooks } from '@constants/storiesData';
@@ -47,6 +48,11 @@ const SearchScreen = () => {
     recentProgress: t(Translation.BOOK_RECENT_PROGRESS),
     emptyState: t(Translation.BOOK_SEARCH_EMPTY_STATE),
   };
+
+  const defaultAccessoryIdRef = useRef(
+    `search_accessory_${Math.random().toString(36).substring(2, 9)}`,
+  );
+  const accessoryId = defaultAccessoryIdRef.current;
 
   const [searchQuery, setSearchQuery] = useState('');
   const [bookmarks, setBookmarks] = useState<string[]>([]);
@@ -76,12 +82,6 @@ const SearchScreen = () => {
     } catch (error) {
       console.log('[Storage] Error loading search storage:', error);
     }
-
-    // Auto focus search input on mount
-    const timer = setTimeout(() => {
-      inputRef.current?.focus();
-    }, 150);
-    return () => clearTimeout(timer);
   }, []);
 
   // Filter logic
@@ -133,8 +133,12 @@ const SearchScreen = () => {
               placeholderTextColor={colors.neutralDisabled}
               value={searchQuery}
               onChangeText={setSearchQuery}
-              returnKeyType="search"
-              onSubmitEditing={Keyboard.dismiss}
+              blurOnSubmit={true}
+              returnKeyType="done"
+              onSubmitEditing={() => Keyboard.dismiss()}
+              inputAccessoryViewID={
+                Platform.OS === 'ios' ? accessoryId : undefined
+              }
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity
@@ -148,6 +152,21 @@ const SearchScreen = () => {
             )}
           </View>
         </View>
+
+        {Platform.OS === 'ios' ? (
+          <InputAccessoryView nativeID={accessoryId}>
+            <View style={styles.accessoryContainer}>
+              <TouchableOpacity
+                onPress={() => Keyboard.dismiss()}
+                style={styles.accessoryDoneButton}
+                activeOpacity={0.7}
+                hitSlop={{ top: 8, bottom: 8, left: 16, right: 16 }}
+              >
+                <Text style={styles.accessoryDoneText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          </InputAccessoryView>
+        ) : null}
 
         {/* Results List */}
         <ScrollView
@@ -331,6 +350,7 @@ const styles = StyleSheet.create({
     fontSize: fs(12),
     color: colors.secondary,
     paddingVertical: 0,
+    marginHorizontal: scale(10),
   },
   clearIcon: {
     fontSize: fs(14),
@@ -493,5 +513,24 @@ const styles = StyleSheet.create({
   },
   favoriteBadgeText: {
     fontSize: fs(10),
+  },
+  accessoryContainer: {
+    height: verticalScale(42),
+    backgroundColor: '#f2f2f6',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(0, 0, 0, 0.2)',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingHorizontal: scale(16),
+  },
+  accessoryDoneButton: {
+    paddingVertical: verticalScale(6),
+    paddingHorizontal: scale(8),
+  },
+  accessoryDoneText: {
+    color: colors.ring,
+    fontSize: fs(15),
+    fontWeight: '600',
   },
 });

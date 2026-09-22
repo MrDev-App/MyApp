@@ -21,15 +21,7 @@ import { RootNavigationProp } from '@navigation/types';
 import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
 
-interface ReadingHeaderProps {
-  isDarkMode?: boolean;
-  onToggleTheme?: () => void;
-}
-
-const ReadingHeader = ({
-  isDarkMode = true,
-  onToggleTheme,
-}: ReadingHeaderProps) => {
+const ReadingHeader = () => {
   const navigation = useNavigation<RootNavigationProp>();
   const route = useRoute<any>();
   const { t, i18n } = useTranslation();
@@ -112,13 +104,7 @@ const ReadingHeader = ({
         </TouchableOpacity>
 
         <View style={styles.titleContainer}>
-          <Text
-            style={[
-              styles.headerTitle,
-              { color: isDarkMode ? colors.readerDarkText : colors.secondary },
-            ]}
-            numberOfLines={1}
-          >
+          <Text style={[styles.headerTitle]} numberOfLines={1}>
             {title}
           </Text>
         </View>
@@ -176,7 +162,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: fs(15),
     fontFamily: fonts.TiroHindiRegular,
-    color: colors.secondary,
+    color: colors.black,
     textAlign: 'center',
   },
   actionRow: {

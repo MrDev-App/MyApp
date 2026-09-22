@@ -8,7 +8,12 @@ import GradientBackground from '@components/GradientBackground';
 import globalStyles from '@theme/globalStyles';
 import { scale } from '@theme/sizes';
 import colors from '@theme/colors';
-import { useAppDispatch, useAppSelector, fetchFestivals, RootState } from '../../redux';
+import {
+  useAppDispatch,
+  useAppSelector,
+  fetchFestivals,
+  RootState,
+} from '../../redux';
 
 // Sub-components
 import HomeHeaderMedia from './components/HomeHeaderMedia';
@@ -83,10 +88,7 @@ export const HomeScreen = () => {
         style={styles.topGradient}
       />
 
-      <SafeAreaView
-        style={globalStyles.containerMargin20}
-        edges={['top', 'bottom']}
-      >
+      <SafeAreaView style={globalStyles.containerMargin20} edges={['top']}>
         <ScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"

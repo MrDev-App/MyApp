@@ -25,6 +25,7 @@ import { getUserJoinedDate } from '@services/storageService';
 import { useAppOpenAd } from '@admob/useAppOpenAd';
 import { isAdMobEnabled } from '@admob/adConfig';
 import colors from '@theme/colors';
+import NetworkBanner from '@components/NetworkBanner';
 
 LogBox.ignoreAllLogs();
 
@@ -77,10 +78,12 @@ const MainApp = () => {
         backgroundColor="transparent"
         translucent
       />
+
       <ErrorBoundary>
         <SafeAreaProvider>
           <NavigationContainer ref={navigationRef}>
             <StackNavigation />
+            <NetworkBanner />
           </NavigationContainer>
         </SafeAreaProvider>
       </ErrorBoundary>

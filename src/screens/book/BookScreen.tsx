@@ -120,7 +120,7 @@ const BookScreen = () => {
   return (
     <GradientBackground style={styles.containerFull}>
       <StatusBar barStyle="dark-content" />
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* Header Section */}
         <View style={styles.header}>
           <View>

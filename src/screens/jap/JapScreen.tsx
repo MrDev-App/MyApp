@@ -382,7 +382,7 @@ const JapScreen = () => {
 
   return (
     <GradientBackground>
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* ── Header ── */}
         <View style={styles.headerRow}>
           <Text style={styles.headerTitle}>{t(Translation.JAP_CHANTING)}</Text>
