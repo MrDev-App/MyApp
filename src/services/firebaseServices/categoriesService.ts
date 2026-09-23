@@ -39,14 +39,14 @@ export interface Category {
 
 export const STATIC_SHLOK_CATEGORY: Category = {
   id: 'shlok',
-  titleHi: 'श्लोक संग्रह',
-  titleEn: 'Sacred Shlokas',
+  titleHi: 'सर्व अवसर श्लोक एवं प्रार्थनाएं',
+  titleEn: 'Shlokas & Prayers for Every Occasion',
   icon: imagePath.shlok,
   coverImage: imagePath.Vishnu,
   descriptionHi:
-    'आध्यात्मिक ज्ञान और दिव्य ऊर्जा से ओत-प्रोत पवित्र संस्कृत श्लोक।',
+    'दैनिक जीवन के हर अवसर के लिए पवित्र श्लोक — प्रातः जागरण से शयन तक।',
   descriptionEn:
-    'Sacred Sanskrit verses holding spiritual wisdom and divine vibrations.',
+    'Verses for the occasions of daily life — from waking to sleep, and everything in between.',
   items: shlokData,
 };
 

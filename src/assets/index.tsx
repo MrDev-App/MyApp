@@ -265,6 +265,25 @@ const imagePath = {
   loading: require('./lottie/loading.json'),
   lampLottie: require('./lottie/lamp.json'),
 
+  // 4 Sacred Char Dham images
+  badrinathDham: require('./png/chardham/badrinath.jpg'),
+  dwarkadhishDham: require('./png/chardham/dwarka.jpg'),
+  jagannathPuriDham: require('./png/chardham/jagannath_puri.jpg'),
+
+  // 12 Sacred Jyotirlinga images
+  somnathJyotirlinga: require('./png/jyotirlinga/somnath.jpg'),
+  mallikarjunaJyotirlinga: require('./png/jyotirlinga/mallikarjuna.jpg'),
+  mahakaleshwarJyotirlinga: require('./png/jyotirlinga/mahakaleshwar.jpg'),
+  omkareshwarJyotirlinga: require('./png/jyotirlinga/omkareshwar.jpg'),
+  kedarnathJyotirlinga: require('./png/jyotirlinga/kedarnath.jpg'),
+  bhimashankarJyotirlinga: require('./png/jyotirlinga/bhimashankar.jpg'),
+  kashiVishwanathJyotirlinga: require('./png/jyotirlinga/kashi_vishwanath.jpg'),
+  trimbakeshwarJyotirlinga: require('./png/jyotirlinga/trimbakeshwar.jpg'),
+  vaidyanathJyotirlinga: require('./png/jyotirlinga/vaidyanath.jpg'),
+  nageshwarJyotirlinga: require('./png/jyotirlinga/nageshwar.jpg'),
+  rameshwaramJyotirlinga: require('./png/jyotirlinga/rameshwaram.jpg'),
+  grishneshwarJyotirlinga: require('./png/jyotirlinga/grishneshwar.jpg'),
+
   // audio and video
   bhaktiVideo: require('./video/bhakti.mp4'),
   artiDemo: require('./audio/ArtiDemo.mp3'),

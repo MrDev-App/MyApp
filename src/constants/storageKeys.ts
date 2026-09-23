@@ -42,6 +42,7 @@ export const STORAGE_KEYS = {
   FESTIVALS_CACHE: 'festivals_data_cache_v4',
   CATEGORIES_CACHE: 'categories_data_cache',
   AARTI_DATA_CACHE: 'aarti_data_cache_v1',
+  TEMPLES_CACHE: 'temples_data_cache_v1',
 } as const;
 
 export type StorageKey = keyof typeof STORAGE_KEYS;

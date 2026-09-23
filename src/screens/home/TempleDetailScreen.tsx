@@ -1,0 +1,425 @@
+import React from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from 'react-native';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import { RootStackParamList } from '@navigation/types';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
+import imagePath, { FoldedHands } from '@assets/index';
+import { TagIcon, LocationIcon, PinIcon } from '@components/icons/SvgIcons';
+import { ScreenHeader, GradientBackground } from '@components';
+import { useAppLanguage } from '@hooks';
+import { Translation } from '@i18n/language';
+import { triggerHaptic } from '@helper/helper';
+
+type TempleDetailRouteProp = RouteProp<
+  RootStackParamList,
+  'TempleDetailScreen'
+>;
+
+export const TempleDetailScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
+  const route = useRoute<TempleDetailRouteProp>();
+  const navigation = useNavigation<any>();
+  const { t, isHindi } = useAppLanguage();
+
+  const temple = route.params?.temple;
+
+  if (!temple) {
+    return (
+      <GradientBackground>
+        <SafeAreaView
+          style={[styles.container, styles.center]}
+          edges={['top', 'bottom']}
+        >
+          <Text style={styles.errorText}>
+            {isHindi
+              ? 'मंदिर की जानकारी उपलब्ध नहीं है'
+              : 'Temple details not found'}
+          </Text>
+          <TouchableOpacity
+            style={styles.backBtnFallback}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.backBtnFallbackText}>
+              {isHindi ? 'वापस जाएँ' : 'Go Back'}
+            </Text>
+          </TouchableOpacity>
+        </SafeAreaView>
+      </GradientBackground>
+    );
+  }
+
+  const name = isHindi ? temple.nameHi : temple.nameEn;
+  const location = isHindi ? temple.locationHi : temple.locationEn;
+  const state = isHindi ? temple.stateHi : temple.stateEn;
+  const deity = isHindi ? temple.deityHi : temple.deityEn;
+  const significance = isHindi ? temple.significanceHi : temple.significanceEn;
+  const timing = isHindi ? temple.timingHi : temple.timingEn;
+  const description = isHindi ? temple.descriptionHi : temple.descriptionEn;
+  const nearbyAttractions = isHindi
+    ? temple.nearbyAttractionsHi
+    : temple.nearbyAttractionsEn;
+  const yuga = isHindi ? temple.yugaHi : temple.yugaEn;
+  const direction = isHindi ? temple.directionHi : temple.directionEn;
+
+  const imageSource = temple.image
+    ? typeof temple.image === 'string'
+      ? { uri: temple.image }
+      : temple.image
+    : temple.imageUrl
+    ? { uri: temple.imageUrl }
+    : imagePath.greeting;
+
+  const handleBack = () => {
+    triggerHaptic();
+    navigation.goBack();
+  };
+
+  return (
+    <GradientBackground>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        {/* Top Header with Back Button & Temple Name */}
+        <ScreenHeader title={name} onBack={handleBack} />
+
+        {/* Content Scroll View */}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: insets.bottom + scale(32) },
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Hero Image */}
+          <View style={styles.heroImageContainer}>
+            <Image
+              source={imageSource}
+              style={styles.templeImage}
+              resizeMode="contain"
+            />
+          </View>
+
+          <View style={styles.detailsBody}>
+            {/* Meta Badges Row */}
+            <View style={styles.metaRow}>
+              {yuga ? (
+                <View style={styles.metaBadge}>
+                  <TagIcon size={scale(11)} color={colors.ring} />
+                  <Text style={styles.metaBadgeText}>{yuga}</Text>
+                </View>
+              ) : null}
+
+              {direction ? (
+                <View style={styles.metaBadge}>
+                  <PinIcon size={scale(11)} color={colors.ring} />
+                  <Text style={styles.metaBadgeText}>{direction}</Text>
+                </View>
+              ) : null}
+
+              {temple.isCharDham ? (
+                <View style={[styles.metaBadge, styles.highlightBadge]}>
+                  <Text style={styles.highlightBadgeText}>
+                    {isHindi ? 'चार महाधाम' : 'Char Dham'}
+                  </Text>
+                </View>
+              ) : null}
+
+              {temple.isJyotirlinga ? (
+                <View style={[styles.metaBadge, styles.highlightBadge]}>
+                  <Text style={styles.highlightBadgeText}>
+                    {isHindi ? 'द्वादश ज्योतिर्लिंग' : '12 Jyotirlinga'}
+                  </Text>
+                </View>
+              ) : null}
+
+              {temple.isShaktipeeth ? (
+                <View style={[styles.metaBadge, styles.highlightBadge]}>
+                  <Text style={styles.highlightBadgeText}>
+                    {isHindi ? 'शक्तिपीठ' : 'Shakti Peeth'}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
+
+            {/* Location Row */}
+            <View style={styles.sectionRow}>
+              <LocationIcon size={scale(15)} color={colors.ring} />
+              <Text style={styles.sectionLabel}>
+                {isHindi ? 'स्थान: ' : 'Location: '}
+                <Text style={styles.sectionValue}>
+                  {location}
+                  {state && !location.includes(state) ? `, ${state}` : ''}
+                </Text>
+              </Text>
+            </View>
+
+            {/* Presiding Deity Row */}
+            <View style={styles.sectionRow}>
+              <FoldedHands width={scale(15)} height={scale(15)} />
+              <Text style={styles.sectionLabel}>
+                {t(Translation.TEMPLE_PRESIDING_DEITY_LABEL)}:{' '}
+                <Text style={styles.sectionValue}>{deity}</Text>
+              </Text>
+            </View>
+
+            {/* Darshan Timings Row */}
+            {timing ? (
+              <View style={styles.sectionRow}>
+                <Image
+                  source={imagePath.calendar}
+                  style={styles.timingIcon}
+                  resizeMode="contain"
+                />
+                <Text style={styles.sectionLabel}>
+                  {t(Translation.TEMPLE_DARSHAN_TIMINGS_LABEL)}:{' '}
+                  <Text style={styles.sectionValue}>{timing}</Text>
+                </Text>
+              </View>
+            ) : null}
+
+            {/* Significance Section */}
+            {significance ? (
+              <View style={styles.infoCard}>
+                <Text style={styles.infoCardTitle}>
+                  {t(Translation.TEMPLE_SIGNIFICANCE_LABEL)}
+                </Text>
+                <Text style={styles.infoCardText}>{significance}</Text>
+              </View>
+            ) : null}
+
+            {/* Detailed History & Puranic Story */}
+            {description ? (
+              <View style={styles.storyContainer}>
+                <Text style={styles.storySectionTitle}>
+                  {t(Translation.TEMPLE_ABOUT_HISTORY_LABEL)}
+                </Text>
+                <Text style={styles.storyText}>{description}</Text>
+              </View>
+            ) : null}
+
+            {/* Nearby Attractions */}
+            {nearbyAttractions ? (
+              <View style={styles.nearbyContainer}>
+                <View style={styles.nearbyHeaderRow}>
+                  <PinIcon size={scale(14)} color={colors.ring} />
+                  <Text style={styles.nearbyTitle}>
+                    {isHindi
+                      ? 'निकटवर्ती प्रमुख स्थल'
+                      : 'Nearby Places of Interest'}
+                  </Text>
+                </View>
+                <Text style={styles.nearbyText}>{nearbyAttractions}</Text>
+              </View>
+            ) : null}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </GradientBackground>
+  );
+};
+
+export default TempleDetailScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: scale(20),
+  },
+  errorText: {
+    fontSize: fs(15),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
+    textAlign: 'center',
+    marginBottom: scale(16),
+  },
+  backBtnFallback: {
+    backgroundColor: colors.ring,
+    paddingHorizontal: scale(20),
+    paddingVertical: scale(10),
+    borderRadius: scale(8),
+  },
+  backBtnFallbackText: {
+    fontSize: fs(14),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.white,
+  },
+  heroImageContainer: {
+    width: '100%',
+    height: scale(250),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  templeImage: {
+    width: '100%',
+    height: '100%',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingTop: scale(4),
+  },
+  detailsBody: {
+    paddingHorizontal: scale(16),
+    paddingTop: scale(8),
+  },
+  metaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: scale(8),
+    marginBottom: scale(14),
+  },
+  metaBadge: {
+    backgroundColor: colors.white,
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(5),
+    borderRadius: scale(12),
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(5),
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    shadowColor: colors.cardOverlay,
+    shadowOffset: { width: 0, height: scale(1) },
+    shadowOpacity: 0.05,
+    shadowRadius: scale(2),
+    elevation: 1,
+  },
+  highlightBadge: {
+    backgroundColor: 'rgba(251, 148, 55, 0.12)',
+    borderWidth: 1,
+    borderColor: colors.ring,
+  },
+  highlightBadgeText: {
+    fontSize: fs(11),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.ring,
+    fontWeight: '700',
+  },
+  metaBadgeText: {
+    fontSize: fs(11),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
+  },
+  sectionRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: scale(8),
+    marginBottom: scale(11),
+  },
+  timingIcon: {
+    width: scale(14),
+    height: scale(14),
+    tintColor: colors.ring,
+    marginTop: scale(2),
+  },
+  sectionLabel: {
+    fontSize: fs(13.5),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.ring,
+    flex: 1,
+    lineHeight: fs(19),
+    fontWeight: '600',
+  },
+  sectionValue: {
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
+    fontWeight: '400',
+  },
+  infoCard: {
+    marginTop: scale(10),
+    padding: scale(14),
+    backgroundColor: colors.white,
+    borderRadius: scale(14),
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    shadowColor: colors.cardOverlay,
+    shadowOffset: { width: 0, height: scale(2) },
+    shadowOpacity: 0.06,
+    shadowRadius: scale(4),
+    elevation: 2,
+  },
+  infoCardTitle: {
+    fontSize: fs(13.5),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.ring,
+    marginBottom: scale(6),
+    fontWeight: '700',
+  },
+  infoCardText: {
+    fontSize: fs(13),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.charcoal,
+    lineHeight: fs(20),
+  },
+  storyContainer: {
+    marginTop: scale(14),
+    padding: scale(14),
+    backgroundColor: colors.white,
+    borderRadius: scale(14),
+    borderLeftWidth: 4,
+    borderLeftColor: colors.ring,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    shadowColor: colors.cardOverlay,
+    shadowOffset: { width: 0, height: scale(2) },
+    shadowOpacity: 0.06,
+    shadowRadius: scale(4),
+    elevation: 2,
+  },
+  storySectionTitle: {
+    fontSize: fs(14),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.ring,
+    marginBottom: scale(8),
+    fontWeight: '700',
+  },
+  storyText: {
+    fontSize: fs(13),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
+    lineHeight: fs(21),
+  },
+  nearbyContainer: {
+    marginTop: scale(14),
+    padding: scale(14),
+    backgroundColor: 'rgba(251, 148, 55, 0.08)',
+    borderRadius: scale(14),
+    borderWidth: 1,
+    borderColor: 'rgba(251, 148, 55, 0.22)',
+  },
+  nearbyHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(6),
+    marginBottom: scale(6),
+  },
+  nearbyTitle: {
+    fontSize: fs(13.5),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.ring,
+    fontWeight: '700',
+  },
+  nearbyText: {
+    fontSize: fs(13),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
+    lineHeight: fs(20),
+  },
+});

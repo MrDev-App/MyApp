@@ -82,6 +82,173 @@ export const SunIcon = (props: SvgIconProps) => {
     </Svg>
   );
 };
+export const SunriseIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 20, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M12 2v6M4.93 10.93l1.41 1.41M20 18H4M19.07 10.93l-1.41 1.41M22 22H2M8 18a4 4 0 0 1 8 0" />
+    </Svg>
+  );
+};
+
+export const ShieldCrossIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 22, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <Path d="M12 8v8M8 12h8" />
+    </Svg>
+  );
+};
+
+export const CoinsIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 22, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M9 3c3.31 0 6 1.34 6 3s-2.69 3-6 3-6-1.34-6-3 2.69-3 6-3z" />
+      <Path d="M3 6v3c0 1.66 2.69 3 6 3s6-1.34 6-3V6" />
+      <Path d="M15 12c3.31 0 6 1.34 6 3s-2.69 3-6 3-6-1.34-6-3" />
+      <Path d="M9 15v3c0 1.66 2.69 3 6 3s6-1.34 6-3v-3" />
+    </Svg>
+  );
+};
+
+export const BookStudyIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 22, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+      <Path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+      <Path d="M8 7h8M8 11h6" />
+    </Svg>
+  );
+};
+
+export const HomeFamilyIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 22, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <Path d="M9 22V12h6v10" />
+    </Svg>
+  );
+};
+
+export const ChildrenIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 22, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Circle cx="8" cy="8" r="3" />
+      <Circle cx="16" cy="8" r="3" />
+      <Path d="M4 20c0-3 2.5-5 5-5s3 2 3 2 0.5-2 3-2 5 2 5 5" />
+    </Svg>
+  );
+};
+
+export const LotusSpiritualIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 22, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M12 3c-2 4-2 9 0 13 2-4 2-9 0-13z" />
+      <Path d="M12 16c-3.5 0-7-2-9-6 1 4 4.5 7 9 7 4.5 0 8-3 9-7-2 4-5.5 6-9 6z" />
+      <Path d="M3 10c2-1 6 0 9 6" />
+      <Path d="M21 10c-2-1-6 0-9 6" />
+    </Svg>
+  );
+};
+
+export const OmIcon = (props: SvgIconProps) => {
+  const { size, color } = getIconProps(props, 24, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 100 100"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <SvgText
+        x="50"
+        y="78"
+        fontSize="85"
+        fontWeight="bold"
+        textAnchor="middle"
+        fill={color}
+      >
+        ॐ
+      </SvgText>
+    </Svg>
+  );
+};
 
 export const MoonIcon = (props: SvgIconProps) => {
   const { size, color, strokeWidth } = getIconProps(props, 18, 2);

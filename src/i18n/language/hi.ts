@@ -322,13 +322,13 @@ export default {
   TEMPLE_CATEGORY_MAJOR: 'प्रमुख तीर्थ',
 
   // Shlok Screen
-  SHLOK_SCREEN_TITLE: 'श्लोक संग्रह',
+  SHLOK_SCREEN_TITLE: 'सर्व अवसर श्लोक एवं प्रार्थनाएं',
   SHLOK_SCREEN_DEFAULT_DESC:
-    'आध्यात्मिक ज्ञान और दिव्य ऊर्जा से ओत-प्रोत पवित्र संस्कृत श्लोक।',
-  SHLOK_SEARCH_PLACEHOLDER: 'श्लोक, देवता या अर्थ खोजें...',
+    'दैनिक जीवन के हर अवसर के लिए पवित्र श्लोक — प्रातः जागरण से शयन तक।',
+  SHLOK_SEARCH_PLACEHOLDER: 'श्लोक, अवसर या भावार्थ खोजें...',
   SHLOK_COUNT_LABEL: 'श्लोक',
   SHLOK_NO_FOUND_TITLE: 'कोई श्लोक नहीं मिला',
-  SHLOK_NO_FOUND_DESC: 'कृपया अन्य देवता या शब्द से खोजें।',
+  SHLOK_NO_FOUND_DESC: 'कृपया अन्य अवसर या शब्द से खोजें।',
   SHLOK_MEANING_LABEL: 'भावार्थ',
   SHLOK_MEANING_SIGNIFICANCE_TITLE: '॥ भावार्थ एवं महत्व ॥',
   SHLOK_READ_FULL_ACTION: 'विस्तार से पढ़ें',
@@ -336,6 +336,11 @@ export default {
   SHLOK_SHARE_ACTION: 'शेयर करें',
   SHLOK_COPIED_TOAST: 'श्लोक कॉपी हो गया! ✨',
   DEITY_TAG_ALL: 'सभी',
+  SHLOK_TAG_DAILY: 'दिनचर्या',
+  SHLOK_TAG_HEALTH: 'आरोग्य व रक्षा',
+  SHLOK_TAG_WORK: 'कर्म व समृद्धि',
+  SHLOK_TAG_STUDY: 'विद्या व ज्ञान',
+  SHLOK_TAG_DEVOTION: 'भक्ति व शांति',
   DEITY_TAG_GANESH: 'श्री गणेश',
   DEITY_TAG_SHIVA: 'भगवान शिव',
   DEITY_TAG_KRISHNA: 'श्री कृष्ण',
@@ -347,4 +352,17 @@ export default {
   DEITY_TAG_DURGA: 'माँ दुर्गा',
   DEITY_TAG_VISHNU: 'भगवान विष्णु',
   DEITY_TAG_GURU: 'गुरु वंदना',
+
+  // Shlok Categories & Occasions
+  SHLOK_SECTION_OCCASIONS_TITLE: 'श्लोक एवं प्रार्थनाएं',
+  SHLOK_SECTION_OCCASIONS_SUBTITLE:
+    'दैनिक जीवन के हर अवसर के लिए श्लोक — प्रातः जागरण से शयन तक।',
+  SHLOK_CAT_THROUGH_THE_DAY: 'दिनचर्या',
+  SHLOK_CAT_HEALTH_PROTECTION: 'आरोग्य एवं रक्षा',
+  SHLOK_CAT_WORK_MONEY: 'कर्म एवं समृद्धि',
+  SHLOK_CAT_STUDY_SUCCESS: 'विद्या एवं सफलता',
+  SHLOK_CAT_HOME_FAMILY: 'गृह एवं परिवार',
+  SHLOK_CAT_CHILDREN: 'बच्चों के लिए',
+  SHLOK_CAT_MIND_HEART: 'मन एवं शांति',
+  SHLOK_CAT_SPIRITUAL_PATH: 'आध्यात्मिक मार्ग',
 };

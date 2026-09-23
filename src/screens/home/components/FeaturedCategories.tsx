@@ -16,7 +16,7 @@ interface FeaturedCategoryItem {
   titleKey: string;
   type: 'lottie' | 'image';
   icon: any;
-  route: 'AllArtiScreen' | 'ShlokScreen' | 'TempleScreen';
+  route: 'AllArtiScreen' | 'AllShlokasScreen' | 'TempleScreen';
 }
 
 const FEATURED_ITEMS: FeaturedCategoryItem[] = [
@@ -32,7 +32,7 @@ const FEATURED_ITEMS: FeaturedCategoryItem[] = [
     titleKey: Translation.FEATURED_SHLOK_TITLE,
     type: 'image',
     icon: imagePath.shlok,
-    route: 'ShlokScreen',
+    route: 'AllShlokasScreen',
   },
   {
     id: 'temples',

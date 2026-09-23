@@ -14,8 +14,11 @@ import NotificationScreen from '@screens/home/NotificationScreen';
 import ProgressScreen from '@screens/jap/ProgressScreen';
 import MantraScreen from '@screens/home/MantraScreen';
 
-import ShlokScreen from '@screens/home/ShlokScreen';
+import { AllShlokasScreen } from '@screens/home/AllShlokasScreen';
+import { ShlokaCategoryDetailScreen } from '@screens/home/ShlokaCategoryDetailScreen';
+import { ShlokaVerseListScreen } from '@screens/home/ShlokaVerseListScreen';
 import TempleScreen from '@screens/home/TempleScreen';
+import TempleDetailScreen from '@screens/home/TempleDetailScreen';
 import { AllArtiScreen } from '@screens/home/AllArtiScreen';
 import ArtiScreen from '@screens/home/ArtiScreen';
 import CalendarScreen from '@screens/calendar/CalendarScreen';
@@ -86,13 +89,33 @@ const StackNavigation = () => {
         options={{ animation: 'slide_from_bottom' }}
       />
       <Stack.Screen
+        name="AllShlokasScreen"
+        component={AllShlokasScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="ShlokaCategoryDetailScreen"
+        component={ShlokaCategoryDetailScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="ShlokaVerseListScreen"
+        component={ShlokaVerseListScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
         name="ShlokScreen"
-        component={ShlokScreen}
+        component={AllShlokasScreen}
         options={{ animation: 'slide_from_right' }}
       />
       <Stack.Screen
         name="TempleScreen"
         component={TempleScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="TempleDetailScreen"
+        component={TempleDetailScreen}
         options={{ animation: 'slide_from_right' }}
       />
       <Stack.Screen

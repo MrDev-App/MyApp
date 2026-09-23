@@ -18,7 +18,7 @@ const GradientBackground: React.FC<GradientBackgroundProps> = ({
 }) => {
   return (
     <LinearGradient
-      colors={[colors.primary2, colors.primary, colors.white, colors.white]}
+      colors={[colors.primary, colors.white, colors.white]}
       style={[styles.background, style]}
       start={start}
       end={end}

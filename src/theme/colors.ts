@@ -152,8 +152,8 @@ export const colors = {
   chipBg: '#ECEFF1',
   chipText: '#455A64',
   gradientStart: 'rgba(255, 254, 254, 0.2)',
-  skeletonBase: '#e8e2d4',
-  skeletonHighlight: 'rgba(255, 255, 255, 0.6)',
+  skeletonBase: '#F5EFE4',
+  skeletonHighlight: 'rgba(255, 255, 255, 0.95)',
   backgroundLight: '#f5ecd6',
   neutralDark: '#2e1c0c',
   pathActiveLine: '#FB9437',
@@ -184,7 +184,11 @@ export const colors = {
 };
 
 export const bannerGradients = {
-  calendarBanner: [colors.bannerBgIvory, colors.bannerBgWarm, colors.bannerBgSaffron],
+  calendarBanner: [
+    colors.bannerBgIvory,
+    colors.bannerBgWarm,
+    colors.bannerBgSaffron,
+  ],
   calendarShimmer: [
     colors.shimmerGoldTransparent,
     colors.shimmerGoldLight,
@@ -195,11 +199,7 @@ export const bannerGradients = {
 };
 
 export const cardGradients = {
-  festivalCard: [
-    'transparent',
-    'rgba(0, 0, 0, 0.5)',
-    'rgba(0, 0, 0, 0.92)',
-  ],
+  festivalCard: ['transparent', 'rgba(0, 0, 0, 0.5)', 'rgba(0, 0, 0, 0.92)'],
 };
 
 export type ColorsType = typeof colors;

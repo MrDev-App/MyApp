@@ -321,13 +321,13 @@ export default {
   TEMPLE_CATEGORY_MAJOR: 'Major Shrines',
 
   // Shlok Screen
-  SHLOK_SCREEN_TITLE: 'Sacred Shlokas',
+  SHLOK_SCREEN_TITLE: 'Shlokas & Prayers for Every Occasion',
   SHLOK_SCREEN_DEFAULT_DESC:
-    'Sacred Sanskrit verses holding spiritual wisdom and divine vibrations.',
-  SHLOK_SEARCH_PLACEHOLDER: 'Search shlok, deity or meaning...',
+    'Verses for the occasions of daily life — from waking to sleep, and everything in between.',
+  SHLOK_SEARCH_PLACEHOLDER: 'Search shlok, occasion, or meaning...',
   SHLOK_COUNT_LABEL: 'Verses',
   SHLOK_NO_FOUND_TITLE: 'No Shlokas Found',
-  SHLOK_NO_FOUND_DESC: 'Try searching with a different deity or keyword.',
+  SHLOK_NO_FOUND_DESC: 'Try searching with a different keyword or occasion.',
   SHLOK_MEANING_LABEL: 'Meaning',
   SHLOK_MEANING_SIGNIFICANCE_TITLE: '॥ Meaning & Significance ॥',
   SHLOK_READ_FULL_ACTION: 'Read full & meaning',
@@ -335,6 +335,11 @@ export default {
   SHLOK_SHARE_ACTION: 'Share',
   SHLOK_COPIED_TOAST: 'Shlok copied to clipboard! ✨',
   DEITY_TAG_ALL: 'All',
+  SHLOK_TAG_DAILY: 'Daily Routine',
+  SHLOK_TAG_HEALTH: 'Health & Protection',
+  SHLOK_TAG_WORK: 'Work & Success',
+  SHLOK_TAG_STUDY: 'Study & Wisdom',
+  SHLOK_TAG_DEVOTION: 'Peace & Devotion',
   DEITY_TAG_GANESH: 'Ganesha',
   DEITY_TAG_SHIVA: 'Shiva',
   DEITY_TAG_KRISHNA: 'Krishna',
@@ -346,4 +351,17 @@ export default {
   DEITY_TAG_DURGA: 'Durga',
   DEITY_TAG_VISHNU: 'Vishnu',
   DEITY_TAG_GURU: 'Guru',
+
+  // Shlok Categories & Occasions
+  SHLOK_SECTION_OCCASIONS_TITLE: 'Shlokas & Prayers',
+  SHLOK_SECTION_OCCASIONS_SUBTITLE:
+    'Verses for the occasions of daily life — from waking to sleep, and everything in between.',
+  SHLOK_CAT_THROUGH_THE_DAY: 'Through the Day',
+  SHLOK_CAT_HEALTH_PROTECTION: 'Health & Protection',
+  SHLOK_CAT_WORK_MONEY: 'Work & Money',
+  SHLOK_CAT_STUDY_SUCCESS: 'Study & Success',
+  SHLOK_CAT_HOME_FAMILY: 'Home & Family',
+  SHLOK_CAT_CHILDREN: 'For Children',
+  SHLOK_CAT_MIND_HEART: 'Mind & Heart',
+  SHLOK_CAT_SPIRITUAL_PATH: 'The Spiritual Path',
 };

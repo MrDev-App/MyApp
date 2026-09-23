@@ -1,4 +1,5 @@
 import { CategoryItem } from '@services/firebaseServices/categoriesService';
+import { TempleItem } from '@constants/templesData';
 import { NavigatorScreenParams } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -21,8 +22,12 @@ export type RootStackParamList = {
   MantraScreen: { god?: any; godId?: string; allGods?: any[] };
   ArtiScreen: { arti: CategoryItem };
   AllArtiScreen: { category?: any };
-  ShlokScreen: { category?: any };
+  AllShlokasScreen: { category?: any };
+  ShlokaCategoryDetailScreen: { category?: any };
+  ShlokaVerseListScreen: { subcategory?: any; category?: any };
+  ShlokScreen?: { category?: any };
   TempleScreen: undefined;
+  TempleDetailScreen: { temple: TempleItem };
   ReminderScreen: undefined;
 };
 
