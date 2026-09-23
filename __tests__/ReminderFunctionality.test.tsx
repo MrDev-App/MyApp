@@ -8,6 +8,7 @@ import {
   scheduleMultipleReminders,
   cancelAllReminders,
   ReminderItem,
+  NotificationStorage,
 } from '../src/services/notificationService';
 import { Translation } from '../src/i18n/language';
 
@@ -105,6 +106,12 @@ describe('Daily Reminder Functionality', () => {
       expect(parsed[0].title).toBe('Evening Japa');
       expect(parsed[0].subtitle).toBe('Peaceful meditation time');
       expect(parsed[0].enabled).toBe(true);
+
+      // Verify added to NotificationStorage
+      const notifs = NotificationStorage.getNotifications();
+      const matched = notifs.find(n => n.titleEn === 'Evening Japa');
+      expect(matched).toBeTruthy();
+      expect(matched?.type).toBe('sadhana');
     });
 
     it('prevents adding duplicate reminder for the exact same time', async () => {
@@ -199,6 +206,11 @@ describe('Daily Reminder Functionality', () => {
         // Storage key must be deleted when list reaches 0
         const stored = Storage.getString(STORAGE_KEYS.DAILY_REMINDERS_LIST, '');
         expect(stored).toBe('');
+        expect(
+          NotificationStorage.getNotifications().some(
+            n => n.id === 'rem_delete_1',
+          ),
+        ).toBe(false);
       });
     });
   });

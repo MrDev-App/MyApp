@@ -13,7 +13,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
@@ -36,11 +36,13 @@ const NotificationScreen = () => {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
 
-  useEffect(() => {
-    // Automatically mark all notifications as read once user opens the notification screen
-    const updatedList = NotificationStorage.markAllAsRead();
-    setNotifications(updatedList);
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      // Automatically load and mark all notifications as read once user opens the notification screen
+      const updatedList = NotificationStorage.markAllAsRead();
+      setNotifications(updatedList);
+    }, []),
+  );
 
   const handleMarkAllAsRead = () => {
     const updated = NotificationStorage.markAllAsRead();

@@ -53,11 +53,16 @@ const SadhanaCalendarCard: React.FC<SadhanaCalendarCardProps> = ({
             monthTextColor: colors.secondary,
             indicatorColor: colors.ring,
             textDayFontFamily: fonts.PoppinsRegular,
-            textMonthFontFamily: fonts.Marcellus,
-            textDayHeaderFontFamily: fonts.PoppinsMedium,
-            textDayFontSize: fs(12),
+            textDayFontWeight: '400',
+            textDayHeaderFontFamily: fonts.PoppinsRegular,
+            textDayHeaderFontWeight: '400',
+            textMonthFontFamily: fonts.TiroHindiRegular,
+            textMonthFontWeight: '500',
+            textDayFontSize: fs(13),
             textMonthFontSize: fs(15),
             textDayHeaderFontSize: fs(11),
+            textDayStyle: { fontWeight: '400' },
+            todayButtonFontWeight: '400',
           }}
         />
       </View>
