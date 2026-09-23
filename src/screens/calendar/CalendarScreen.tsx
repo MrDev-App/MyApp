@@ -212,7 +212,7 @@ const CalendarScreen = () => {
 
   return (
     <GradientBackground>
-      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.container} edges={['top']}>
         {/* Premium Header: Back button on far-left */}
         <View style={styles.header}>
           <TouchableOpacity
