@@ -17,7 +17,12 @@ import {
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import GradientBackground from '@components/GradientBackground';
+import {
+  GradientBackground,
+  AnimatedButton,
+  FestivalModal,
+  AnimatedListItem,
+} from '@components';
 import {
   getFestivalData,
   getCachedFestivalData,
@@ -25,9 +30,7 @@ import {
 } from '@services/firebaseServices/getFestivalData';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { Back } from '@assets/index';
-import AnimatedButton from '@components/AnimatedButton';
 import imagePath from '@assets/index';
-import FestivalModal from '@components/FestivalModal';
 import { getMonthName, getCalendarLocaleConfig } from '@constants/calendarData';
 
 const CalendarScreen = () => {
@@ -129,7 +132,7 @@ const CalendarScreen = () => {
     return marks;
   }, [festivals, currentYearNum, selectedDate]);
 
-  const renderFestivalCard = (item: Festival) => {
+  const renderFestivalCard = (item: Festival, index: number) => {
     const name = currentLanguage === 'hi' ? item.hindiName : item.englishName;
     const dateStr = currentLanguage === 'hi' ? item.dateStrHi : item.dateStrEn;
     const tithi =
@@ -142,51 +145,60 @@ const CalendarScreen = () => {
         : item.category || item.categoryHi;
 
     return (
-      <View key={item.id} style={styles.festivalCardWrapper}>
-        <AnimatedButton
-          style={styles.festivalCardContainer}
-          activeOpacity={0.85}
-          onPress={() => setDetailFestival(item)}
-        >
-          <ImageBackground
-            source={item.image || imagePath.greeting}
-            style={styles.cardBgImage}
-            imageStyle={styles.cardBgImageStyle}
-            fadeDuration={0}
+      <AnimatedListItem
+        key={`${currentMonthDate}_${item.id}_${index}`}
+        index={index}
+        delayStep={40}
+      >
+        <View style={styles.festivalCardWrapper}>
+          <AnimatedButton
+            style={styles.festivalCardContainer}
+            activeOpacity={0.85}
+            onPress={() => setDetailFestival(item)}
           >
-            <View style={styles.cardTintOverlay} pointerEvents="none">
-              {/* Top Row: Date capsule & Category Badge */}
-              <View style={styles.cardTopRow}>
-                <View style={styles.dateCapsule}>
-                  <Text style={styles.dateCapsuleText}>{dateStr}</Text>
+            <ImageBackground
+              source={item.image || imagePath.greeting}
+              style={styles.cardBgImage}
+              imageStyle={styles.cardBgImageStyle}
+              fadeDuration={0}
+            >
+              <View style={styles.cardTintOverlay} pointerEvents="none">
+                {/* Top Row: Date capsule & Category Badge */}
+                <View style={styles.cardTopRow}>
+                  <View style={styles.dateCapsule}>
+                    <Text style={styles.dateCapsuleText}>{dateStr}</Text>
+                  </View>
+                  {category ? (
+                    <View style={styles.categoryBadge}>
+                      <Text style={styles.categoryBadgeText} numberOfLines={1}>
+                        {category}
+                      </Text>
+                    </View>
+                  ) : null}
                 </View>
-                {category ? (
-                  <View style={styles.categoryBadge}>
-                    <Text style={styles.categoryBadgeText} numberOfLines={1}>
-                      {category}
-                    </Text>
-                  </View>
-                ) : null}
-              </View>
 
-              {/* Bottom Row: Festival Name & Sub-details */}
-              <View style={styles.cardBottomRow}>
-                <Text style={styles.cardFestivalName} numberOfLines={1}>
-                  {name}
-                </Text>
-                {tithi ? (
-                  <View style={styles.tithiRow}>
-                    <Image source={imagePath.lotus} style={styles.sakuraIcon} />
-                    <Text style={styles.cardFestivalTithi} numberOfLines={1}>
-                      {tithi}
-                    </Text>
-                  </View>
-                ) : null}
+                {/* Bottom Row: Festival Name & Sub-details */}
+                <View style={styles.cardBottomRow}>
+                  <Text style={styles.cardFestivalName} numberOfLines={1}>
+                    {name}
+                  </Text>
+                  {tithi ? (
+                    <View style={styles.tithiRow}>
+                      <Image
+                        source={imagePath.lotus}
+                        style={styles.sakuraIcon}
+                      />
+                      <Text style={styles.cardFestivalTithi} numberOfLines={1}>
+                        {tithi}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
               </View>
-            </View>
-          </ImageBackground>
-        </AnimatedButton>
-      </View>
+            </ImageBackground>
+          </AnimatedButton>
+        </View>
+      </AnimatedListItem>
     );
   };
 

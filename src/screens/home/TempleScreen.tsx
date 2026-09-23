@@ -17,7 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { ScreenHeader } from '@components';
+import { ScreenHeader, AnimatedListItem } from '@components';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
@@ -138,58 +138,66 @@ export const TempleScreen = () => {
     });
   }, [templesList, selectedTag, searchQuery]);
 
-  const renderTempleCard = ({ item }: { item: TempleItem }) => {
+  const renderTempleCard = ({
+    item,
+    index,
+  }: {
+    item: TempleItem;
+    index: number;
+  }) => {
     const name = isHindi ? item.nameHi : item.nameEn;
     const location = isHindi ? item.locationHi : item.locationEn;
     const deity = isHindi ? item.deityHi : item.deityEn;
     const significance = isHindi ? item.significanceHi : item.significanceEn;
 
     return (
-      <TouchableOpacity
-        style={styles.templeCard}
-        activeOpacity={0.88}
-        onPress={() => {
-          triggerHaptic();
-          navigation.navigate('TempleDetailScreen', { temple: item });
-        }}
-      >
-        <View style={styles.cardHeaderRow}>
-          {item.image && <TempleAvatar source={item.image} />}
+      <AnimatedListItem index={index} delayStep={40}>
+        <TouchableOpacity
+          style={styles.templeCard}
+          activeOpacity={0.88}
+          onPress={() => {
+            triggerHaptic();
+            navigation.navigate('TempleDetailScreen', { temple: item });
+          }}
+        >
+          <View style={styles.cardHeaderRow}>
+            {item.image && <TempleAvatar source={item.image} />}
 
-          <View style={styles.headerTextCol}>
-            <Text style={styles.templeName} numberOfLines={1}>
-              {name}
-            </Text>
-            <View style={styles.locationBadgeRow}>
-              <LocationIcon size={scale(12)} color={colors.ring} />
-              <Text style={styles.locationText} numberOfLines={1}>
-                {location}
+            <View style={styles.headerTextCol}>
+              <Text style={styles.templeName} numberOfLines={1}>
+                {name}
               </Text>
+              <View style={styles.locationBadgeRow}>
+                <LocationIcon size={scale(12)} color={colors.ring} />
+                <Text style={styles.locationText} numberOfLines={1}>
+                  {location}
+                </Text>
+              </View>
             </View>
           </View>
-        </View>
 
-        <View style={styles.deityTagRow}>
-          <Text style={styles.deityTagText}>
-            {t(Translation.TEMPLE_DEITY_LABEL)}
-            <Text style={{ color: colors.secondary, fontWeight: '700' }}>
-              {deity}
+          <View style={styles.deityTagRow}>
+            <Text style={styles.deityTagText}>
+              {t(Translation.TEMPLE_DEITY_LABEL)}
+              <Text style={{ color: colors.secondary, fontWeight: '700' }}>
+                {deity}
+              </Text>
             </Text>
-          </Text>
-        </View>
+          </View>
 
-        <View style={styles.significanceBox}>
-          <Text style={styles.significanceText} numberOfLines={2}>
-            {significance}
-          </Text>
-        </View>
+          <View style={styles.significanceBox}>
+            <Text style={styles.significanceText} numberOfLines={2}>
+              {significance}
+            </Text>
+          </View>
 
-        <View style={styles.cardFooter}>
-          <Text style={styles.cardFooterText}>
-            {t(Translation.TEMPLE_VIEW_DETAILS_ACTION)}
-          </Text>
-        </View>
-      </TouchableOpacity>
+          <View style={styles.cardFooter}>
+            <Text style={styles.cardFooterText}>
+              {t(Translation.TEMPLE_VIEW_DETAILS_ACTION)}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </AnimatedListItem>
     );
   };
 

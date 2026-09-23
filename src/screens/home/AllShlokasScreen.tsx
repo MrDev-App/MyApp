@@ -18,7 +18,11 @@ import LinearGradient from 'react-native-linear-gradient';
 import colors, { cardGradients } from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { GradientBackground, ScreenHeader } from '@components';
+import {
+  GradientBackground,
+  ScreenHeader,
+  AnimatedListItem,
+} from '@components';
 import Skeleton from '@components/Skeleton';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
@@ -151,15 +155,23 @@ export const AllShlokasScreen = () => {
   const cardWidth = Math.floor(availableWidth / numColumns);
   const cardHeight = Math.floor(cardWidth * 0.86);
 
-  const renderCategoryCard = ({ item }: { item: ShlokaCategory }) => {
+  const renderCategoryCard = ({
+    item,
+    index,
+  }: {
+    item: ShlokaCategory;
+    index: number;
+  }) => {
     return (
-      <ShlokaCategoryCard
-        item={item}
-        cardWidth={cardWidth}
-        cardHeight={cardHeight}
-        onPress={handleCardPress}
-        t={t}
-      />
+      <AnimatedListItem index={index} numColumns={numColumns} delayStep={45}>
+        <ShlokaCategoryCard
+          item={item}
+          cardWidth={cardWidth}
+          cardHeight={cardHeight}
+          onPress={handleCardPress}
+          t={t}
+        />
+      </AnimatedListItem>
     );
   };
 

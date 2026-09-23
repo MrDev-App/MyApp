@@ -22,6 +22,7 @@ import {
   AutoScrollItem,
   BlurBackdrop,
   ScreenHeader,
+  AnimatedListItem,
 } from '@components';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
@@ -172,40 +173,46 @@ const MantraScreen = () => {
             </Text>
           </View>
 
-          {/* Mantras List */}
+          {/* Mantras List (मंत्र सूची) */}
           {mantras.map((m, index) => {
             const title = isHindi && m.nameHi ? m.nameHi : m.nameEn || m.nameHi;
             return (
-              <View key={index} style={styles.mantraCard}>
-                <TouchableOpacity
-                  activeOpacity={0.85}
-                  onPress={() => setSelectedMantra(m)}
-                >
-                  <View style={styles.mantraCardTop}>
-                    <View style={styles.mantraIndexBadge}>
-                      <Text style={styles.mantraIndexText}>{index + 1}</Text>
+              <AnimatedListItem
+                key={`${currentGod?.id || 'god'}_${index}`}
+                index={index}
+                delayStep={40}
+              >
+                <View style={styles.mantraCard}>
+                  <TouchableOpacity
+                    activeOpacity={0.85}
+                    onPress={() => setSelectedMantra(m)}
+                  >
+                    <View style={styles.mantraCardTop}>
+                      <View style={styles.mantraIndexBadge}>
+                        <Text style={styles.mantraIndexText}>{index + 1}</Text>
+                      </View>
+                      <Text style={styles.mantraCardTitle} numberOfLines={1}>
+                        {title}
+                      </Text>
                     </View>
-                    <Text style={styles.mantraCardTitle} numberOfLines={1}>
-                      {title}
+
+                    <Text style={styles.mantraCardText} numberOfLines={2}>
+                      {m.mantra}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
 
-                  <Text style={styles.mantraCardText} numberOfLines={2}>
-                    {m.mantra}
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.mantraCardFooter}
-                  activeOpacity={0.7}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  onPress={() => setSelectedMantra(m)}
-                >
-                  <Text style={styles.viewMoreText}>
-                    {t(Translation.VIEW_FULL_MANTRA)}
-                  </Text>
-                </TouchableOpacity>
-              </View>
+                  <TouchableOpacity
+                    style={styles.mantraCardFooter}
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    onPress={() => setSelectedMantra(m)}
+                  >
+                    <Text style={styles.viewMoreText}>
+                      {t(Translation.VIEW_FULL_MANTRA)}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </AnimatedListItem>
             );
           })}
         </ScrollView>

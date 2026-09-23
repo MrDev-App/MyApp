@@ -21,4 +21,6 @@ export { default as Loader } from './Loader';
 export type { LoaderProps } from './Loader';
 export { default as TextField } from './TextField';
 export type { TextFieldProps } from './TextField';
+export { default as AnimatedListItem } from './AnimatedListItem';
+export type { AnimatedListItemProps } from './AnimatedListItem';
 export * from './icons/SvgIcons';

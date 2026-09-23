@@ -17,7 +17,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import colors, { cardGradients } from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { GradientBackground, ScreenHeader } from '@components';
+import { GradientBackground, ScreenHeader, AnimatedListItem } from '@components';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
@@ -173,69 +173,71 @@ export const ShlokaVerseListScreen = () => {
       : item.translationEn || item.meaningEn;
 
     return (
-      <View style={styles.verseCard}>
-        {/* Card Header with Verse Index & Title */}
-        <View style={styles.cardHeaderRow}>
-          <View style={styles.indexBadge}>
-            <Text style={styles.indexBadgeText}>{index + 1}</Text>
-          </View>
-          <Text style={styles.verseTitle} numberOfLines={2}>
-            {verseTitle}
-          </Text>
-        </View>
-
-        {/* Sanskrit Devanagari Verses Box */}
-        <View style={styles.sanskritBox}>
-          <Text style={styles.sanskritText}>{item.sanskrit}</Text>
-        </View>
-
-        {/* Transliteration Box (if available) */}
-        {item.transliteration ? (
-          <View style={styles.transliterationBox}>
-            <Text style={styles.transliterationLabel}>Transliteration</Text>
-            <Text style={styles.transliterationText}>
-              {item.transliteration}
+      <AnimatedListItem index={index} delayStep={45}>
+        <View style={styles.verseCard}>
+          {/* Card Header with Verse Index & Title */}
+          <View style={styles.cardHeaderRow}>
+            <View style={styles.indexBadge}>
+              <Text style={styles.indexBadgeText}>{index + 1}</Text>
+            </View>
+            <Text style={styles.verseTitle} numberOfLines={2}>
+              {verseTitle}
             </Text>
           </View>
-        ) : null}
 
-        {/* Translation / Meaning Box */}
-        {translation ? (
-          <View style={styles.translationBox}>
-            <View style={styles.translationBadge}>
-              <Text style={styles.translationBadgeText}>
-                {t(Translation.SHLOK_MEANING_LABEL)}
+          {/* Sanskrit Devanagari Verses Box */}
+          <View style={styles.sanskritBox}>
+            <Text style={styles.sanskritText}>{item.sanskrit}</Text>
+          </View>
+
+          {/* Transliteration Box (if available) */}
+          {item.transliteration ? (
+            <View style={styles.transliterationBox}>
+              <Text style={styles.transliterationLabel}>Transliteration</Text>
+              <Text style={styles.transliterationText}>
+                {item.transliteration}
               </Text>
             </View>
-            <Text style={styles.translationText}>{translation}</Text>
+          ) : null}
+
+          {/* Translation / Meaning Box */}
+          {translation ? (
+            <View style={styles.translationBox}>
+              <View style={styles.translationBadge}>
+                <Text style={styles.translationBadgeText}>
+                  {t(Translation.SHLOK_MEANING_LABEL)}
+                </Text>
+              </View>
+              <Text style={styles.translationText}>{translation}</Text>
+            </View>
+          ) : null}
+
+          {/* Action Buttons: Copy & Share */}
+          <View style={styles.cardActionsRow}>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              activeOpacity={0.8}
+              onPress={() => handleCopyVerse(item)}
+            >
+              <CopyIcon size={scale(15)} color={colors.ring} />
+              <Text style={styles.actionBtnText}>
+                {t(Translation.SHLOK_COPY_ACTION)}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.actionBtn, styles.shareBtn]}
+              activeOpacity={0.8}
+              onPress={() => handleShareVerse(item)}
+            >
+              <ShareIcon size={scale(15)} color={colors.white} />
+              <Text style={[styles.actionBtnText, { color: colors.white }]}>
+                {t(Translation.SHLOK_SHARE_ACTION)}
+              </Text>
+            </TouchableOpacity>
           </View>
-        ) : null}
-
-        {/* Action Buttons: Copy & Share */}
-        <View style={styles.cardActionsRow}>
-          <TouchableOpacity
-            style={styles.actionBtn}
-            activeOpacity={0.8}
-            onPress={() => handleCopyVerse(item)}
-          >
-            <CopyIcon size={scale(15)} color={colors.ring} />
-            <Text style={styles.actionBtnText}>
-              {t(Translation.SHLOK_COPY_ACTION)}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionBtn, styles.shareBtn]}
-            activeOpacity={0.8}
-            onPress={() => handleShareVerse(item)}
-          >
-            <ShareIcon size={scale(15)} color={colors.white} />
-            <Text style={[styles.actionBtnText, { color: colors.white }]}>
-              {t(Translation.SHLOK_SHARE_ACTION)}
-            </Text>
-          </TouchableOpacity>
         </View>
-      </View>
+      </AnimatedListItem>
     );
   };
 

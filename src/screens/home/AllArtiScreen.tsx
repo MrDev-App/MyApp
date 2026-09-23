@@ -21,6 +21,7 @@ import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import { RootNavigationProp } from '@navigation/types';
 import Skeleton from '@components/Skeleton';
+import { AnimatedListItem } from '@components';
 import {
   getAartiCategoryData,
   getCachedAartiCategory,
@@ -91,37 +92,45 @@ export const AllArtiScreen = () => {
   const gap = scale(12);
   const cardWidth = (windowWidth - padding * 2 - gap) / 2;
 
-  const renderAartiItem = ({ item }: { item: CategoryItem }) => {
+  const renderAartiItem = ({
+    item,
+    index,
+  }: {
+    item: CategoryItem;
+    index: number;
+  }) => {
     const name = select(item.nameHi, item.nameEn);
     const subtitle = select(item.subtitleHi, item.subtitleEn);
 
     return (
-      <TouchableOpacity
-        style={[styles.aartiCard, { width: cardWidth }]}
-        activeOpacity={0.8}
-        onPress={() => handleOpenAarti(item)}
-      >
-        <View style={styles.aartiImageWrapper}>
-          <Image
-            source={item.image}
-            style={styles.aartiImage}
-            resizeMode="cover"
-          />
-        </View>
-        <Text style={styles.aartiName} numberOfLines={1}>
-          {name}
-        </Text>
-        {subtitle ? (
-          <Text style={styles.aartiSubtitle} numberOfLines={1}>
-            {subtitle}
+      <AnimatedListItem index={index} numColumns={2} delayStep={45}>
+        <TouchableOpacity
+          style={[styles.aartiCard, { width: cardWidth }]}
+          activeOpacity={0.8}
+          onPress={() => handleOpenAarti(item)}
+        >
+          <View style={styles.aartiImageWrapper}>
+            <Image
+              source={item.image}
+              style={styles.aartiImage}
+              resizeMode="cover"
+            />
+          </View>
+          <Text style={styles.aartiName} numberOfLines={1}>
+            {name}
           </Text>
-        ) : null}
-        <View style={styles.aartiCardAction}>
-          <Text style={styles.aartiActionText}>
-            {t(Translation.READ_AARTI_ACTION)}
-          </Text>
-        </View>
-      </TouchableOpacity>
+          {subtitle ? (
+            <Text style={styles.aartiSubtitle} numberOfLines={1}>
+              {subtitle}
+            </Text>
+          ) : null}
+          <View style={styles.aartiCardAction}>
+            <Text style={styles.aartiActionText}>
+              {t(Translation.READ_AARTI_ACTION)}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </AnimatedListItem>
     );
   };
 

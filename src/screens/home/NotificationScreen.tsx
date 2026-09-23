@@ -14,12 +14,11 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import Animated, { FadeInDown, Layout } from 'react-native-reanimated';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Back } from '@assets';
-import { GradientBackground } from '@components';
+import { GradientBackground, AnimatedListItem } from '@components';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import {
@@ -165,10 +164,7 @@ const NotificationScreen = () => {
       const animDelay = Math.min(index, 10) * 45;
 
       return (
-        <Animated.View
-          entering={FadeInDown.delay(animDelay).springify()}
-          layout={Layout.springify()}
-        >
+        <AnimatedListItem index={index} delayStep={45}>
           <TouchableOpacity
             style={[styles.card, !item.isRead && styles.cardUnread]}
             onPress={() => handleNotificationPress(item)}
@@ -220,7 +216,7 @@ const NotificationScreen = () => {
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
-        </Animated.View>
+        </AnimatedListItem>
       );
     },
     [

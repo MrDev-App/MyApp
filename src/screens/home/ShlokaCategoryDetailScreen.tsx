@@ -20,7 +20,12 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import colors, { cardGradients } from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { GradientBackground, ScreenHeader, BlurBackdrop } from '@components';
+import {
+  GradientBackground,
+  ScreenHeader,
+  BlurBackdrop,
+  AnimatedListItem,
+} from '@components';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
@@ -200,7 +205,13 @@ export const ShlokaCategoryDetailScreen = () => {
     }
   };
 
-  const renderSubItemCard = ({ item }: { item: ShlokaSubItem }) => {
+  const renderSubItemCard = ({
+    item,
+    index,
+  }: {
+    item: ShlokaSubItem;
+    index: number;
+  }) => {
     const itemName = isHindi ? item.nameHi : item.nameEn;
     const hasError = imageErrors[item.id];
     const imageSource =
@@ -213,28 +224,30 @@ export const ShlokaCategoryDetailScreen = () => {
         : categoryImageSource;
 
     return (
-      <TouchableOpacity
-        style={styles.cardContainer}
-        activeOpacity={0.82}
-        onPress={() => handleCardPress(item)}
-      >
-        {/* Left Thumbnail Image */}
-        <View style={[styles.imageContainer, { width: imageWidth }]}>
-          <Image
-            source={imageSource}
-            style={styles.cardThumbImage}
-            resizeMode="cover"
-            onError={() => handleImageError(item.id)}
-          />
-        </View>
+      <AnimatedListItem index={index} delayStep={35}>
+        <TouchableOpacity
+          style={styles.cardContainer}
+          activeOpacity={0.82}
+          onPress={() => handleCardPress(item)}
+        >
+          {/* Left Thumbnail Image */}
+          <View style={[styles.imageContainer, { width: imageWidth }]}>
+            <Image
+              source={imageSource}
+              style={styles.cardThumbImage}
+              resizeMode="cover"
+              onError={() => handleImageError(item.id)}
+            />
+          </View>
 
-        {/* Right Subcategory Title */}
-        <View style={styles.textContainer}>
-          <Text style={styles.cardTitleText} numberOfLines={2}>
-            {itemName}
-          </Text>
-        </View>
-      </TouchableOpacity>
+          {/* Right Subcategory Title */}
+          <View style={styles.textContainer}>
+            <Text style={styles.cardTitleText} numberOfLines={2}>
+              {itemName}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </AnimatedListItem>
     );
   };
 
