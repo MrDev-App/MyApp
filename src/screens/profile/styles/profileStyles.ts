@@ -255,7 +255,6 @@ const profileStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.overlayBackdrop,
     paddingHorizontal: scale(20),
   },
   modalCard: {
@@ -425,13 +424,13 @@ const profileStyles = StyleSheet.create({
     alignItems: 'center',
   },
   langLoadingCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    backgroundColor: colors.cardWhiteHigh,
     borderRadius: scale(24),
     padding: scale(18),
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.8)',
+    borderColor: colors.borderWhiteSubtle,
     shadowColor: colors.ring,
     shadowOffset: { width: 0, height: scale(8) },
     shadowOpacity: 0.22,
@@ -441,6 +440,61 @@ const profileStyles = StyleSheet.create({
   lottieLoading: {
     width: scale(70),
     height: scale(70),
+  },
+
+  // Image Picker Modal Styles
+  imagePickerOptionsContainer: {
+    width: '100%',
+    gap: scale(10),
+    marginTop: scale(4),
+    marginBottom: scale(12),
+  },
+  imagePickerOptionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.profileEditBgSubtle,
+    paddingVertical: scale(12),
+    paddingHorizontal: scale(14),
+    borderRadius: scale(14),
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
+  imagePickerOptionIconContainer: {
+    width: scale(38),
+    height: scale(38),
+    borderRadius: scale(19),
+    backgroundColor: colors.ring,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: scale(12),
+  },
+  imagePickerOptionIconContainerDanger: {
+    backgroundColor: colors.alertRedSubtle,
+    borderWidth: 1,
+    borderColor: colors.alertRedBorder,
+  },
+  imagePickerOptionText: {
+    fontSize: fs(14),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
+    flex: 1,
+  },
+  imagePickerOptionTextDanger: {
+    color: colors.danger,
+  },
+  imagePickerCancelBtn: {
+    width: '100%',
+    paddingVertical: scale(11),
+    borderRadius: scale(12),
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imagePickerCancelText: {
+    fontSize: fs(13),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
   },
 });
 

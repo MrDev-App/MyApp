@@ -92,8 +92,8 @@ const styles = StyleSheet.create({
     minHeight: scale(48),
   },
   backButton: {
-    width: scale(36),
-    height: scale(36),
+    width: scale(32),
+    height: scale(32),
     borderRadius: scale(18),
     backgroundColor: colors.ring,
     alignItems: 'center',

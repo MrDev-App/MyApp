@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
     marginBottom: scale(12),
   },
   categoryBadge: {
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    backgroundColor: colors.cardOverlaylight,
     paddingHorizontal: scale(8),
     paddingVertical: scale(3),
     borderRadius: scale(10),

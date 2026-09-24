@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Platform,
 } from 'react-native';
 import {
   SafeAreaView,
@@ -22,6 +23,7 @@ import { ScreenHeader, GradientBackground } from '@components';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
+import LottieView from 'lottie-react-native';
 
 type TempleDetailRouteProp = RouteProp<
   RootStackParamList,
@@ -33,10 +35,48 @@ export const TempleDetailScreen: React.FC = () => {
   const route = useRoute<TempleDetailRouteProp>();
   const navigation = useNavigation<any>();
   const { t, isHindi } = useAppLanguage();
+  const [imageLoading, setImageLoading] = useState(true);
 
   const temple = route.params?.temple;
 
-  if (!temple) {
+  const handleBack = useCallback(() => {
+    triggerHaptic();
+    navigation.goBack();
+  }, [navigation]);
+
+  const templeData = useMemo(() => {
+    if (!temple) return null;
+
+    return {
+      name: isHindi ? temple.nameHi : temple.nameEn,
+      location: isHindi ? temple.locationHi : temple.locationEn,
+      state: isHindi ? temple.stateHi : temple.stateEn,
+      deity: isHindi ? temple.deityHi : temple.deityEn,
+      significance: isHindi ? temple.significanceHi : temple.significanceEn,
+      timing: isHindi ? temple.timingHi : temple.timingEn,
+      description: isHindi ? temple.descriptionHi : temple.descriptionEn,
+      nearbyAttractions: isHindi
+        ? temple.nearbyAttractionsHi
+        : temple.nearbyAttractionsEn,
+      yuga: isHindi ? temple.yugaHi : temple.yugaEn,
+      direction: isHindi ? temple.directionHi : temple.directionEn,
+    };
+  }, [temple, isHindi]);
+
+  const imageSource = useMemo(() => {
+    if (!temple) return imagePath.greeting;
+    if (temple.image) {
+      return typeof temple.image === 'string'
+        ? { uri: temple.image }
+        : temple.image;
+    }
+    if (temple.imageUrl) {
+      return { uri: temple.imageUrl };
+    }
+    return imagePath.greeting;
+  }, [temple]);
+
+  if (!temple || !templeData) {
     return (
       <GradientBackground>
         <SafeAreaView
@@ -44,16 +84,15 @@ export const TempleDetailScreen: React.FC = () => {
           edges={['top', 'bottom']}
         >
           <Text style={styles.errorText}>
-            {isHindi
-              ? 'मंदिर की जानकारी उपलब्ध नहीं है'
-              : 'Temple details not found'}
+            {t(Translation.TEMPLE_NOT_FOUND)}
           </Text>
           <TouchableOpacity
             style={styles.backBtnFallback}
-            onPress={() => navigation.goBack()}
+            onPress={handleBack}
+            activeOpacity={0.85}
           >
             <Text style={styles.backBtnFallbackText}>
-              {isHindi ? 'वापस जाएँ' : 'Go Back'}
+              {t(Translation.COMMON_GO_BACK)}
             </Text>
           </TouchableOpacity>
         </SafeAreaView>
@@ -61,31 +100,18 @@ export const TempleDetailScreen: React.FC = () => {
     );
   }
 
-  const name = isHindi ? temple.nameHi : temple.nameEn;
-  const location = isHindi ? temple.locationHi : temple.locationEn;
-  const state = isHindi ? temple.stateHi : temple.stateEn;
-  const deity = isHindi ? temple.deityHi : temple.deityEn;
-  const significance = isHindi ? temple.significanceHi : temple.significanceEn;
-  const timing = isHindi ? temple.timingHi : temple.timingEn;
-  const description = isHindi ? temple.descriptionHi : temple.descriptionEn;
-  const nearbyAttractions = isHindi
-    ? temple.nearbyAttractionsHi
-    : temple.nearbyAttractionsEn;
-  const yuga = isHindi ? temple.yugaHi : temple.yugaEn;
-  const direction = isHindi ? temple.directionHi : temple.directionEn;
-
-  const imageSource = temple.image
-    ? typeof temple.image === 'string'
-      ? { uri: temple.image }
-      : temple.image
-    : temple.imageUrl
-    ? { uri: temple.imageUrl }
-    : imagePath.greeting;
-
-  const handleBack = () => {
-    triggerHaptic();
-    navigation.goBack();
-  };
+  const {
+    name,
+    location,
+    state,
+    deity,
+    significance,
+    timing,
+    description,
+    nearbyAttractions,
+    yuga,
+    direction,
+  } = templeData;
 
   return (
     <GradientBackground>
@@ -101,13 +127,27 @@ export const TempleDetailScreen: React.FC = () => {
             { paddingBottom: insets.bottom + scale(32) },
           ]}
           showsVerticalScrollIndicator={false}
+          removeClippedSubviews={Platform.OS === 'android'}
         >
           {/* Hero Image */}
           <View style={styles.heroImageContainer}>
+            {imageLoading && (
+              <View style={styles.imageLoader}>
+                <LottieView
+                  source={imagePath.loading}
+                  autoPlay
+                  loop
+                  style={styles.lottieLoader}
+                />
+              </View>
+            )}
             <Image
               source={imageSource}
               style={styles.templeImage}
-              resizeMode="contain"
+              resizeMode="cover"
+              onLoadStart={() => setImageLoading(true)}
+              onLoadEnd={() => setImageLoading(false)}
+              onError={() => setImageLoading(false)}
             />
           </View>
 
@@ -131,7 +171,7 @@ export const TempleDetailScreen: React.FC = () => {
               {temple.isCharDham ? (
                 <View style={[styles.metaBadge, styles.highlightBadge]}>
                   <Text style={styles.highlightBadgeText}>
-                    {isHindi ? 'चार महाधाम' : 'Char Dham'}
+                    {t(Translation.TEMPLE_BADGE_CHARDHAM)}
                   </Text>
                 </View>
               ) : null}
@@ -139,7 +179,7 @@ export const TempleDetailScreen: React.FC = () => {
               {temple.isJyotirlinga ? (
                 <View style={[styles.metaBadge, styles.highlightBadge]}>
                   <Text style={styles.highlightBadgeText}>
-                    {isHindi ? 'द्वादश ज्योतिर्लिंग' : '12 Jyotirlinga'}
+                    {t(Translation.TEMPLE_BADGE_JYOTIRLINGA)}
                   </Text>
                 </View>
               ) : null}
@@ -147,7 +187,7 @@ export const TempleDetailScreen: React.FC = () => {
               {temple.isShaktipeeth ? (
                 <View style={[styles.metaBadge, styles.highlightBadge]}>
                   <Text style={styles.highlightBadgeText}>
-                    {isHindi ? 'शक्तिपीठ' : 'Shakti Peeth'}
+                    {t(Translation.TEMPLE_BADGE_SHAKTIPEETH)}
                   </Text>
                 </View>
               ) : null}
@@ -157,7 +197,7 @@ export const TempleDetailScreen: React.FC = () => {
             <View style={styles.sectionRow}>
               <LocationIcon size={scale(15)} color={colors.ring} />
               <Text style={styles.sectionLabel}>
-                {isHindi ? 'स्थान: ' : 'Location: '}
+                {t(Translation.TEMPLE_LOCATION_LABEL)}:{' '}
                 <Text style={styles.sectionValue}>
                   {location}
                   {state && !location.includes(state) ? `, ${state}` : ''}
@@ -215,9 +255,7 @@ export const TempleDetailScreen: React.FC = () => {
                 <View style={styles.nearbyHeaderRow}>
                   <PinIcon size={scale(14)} color={colors.ring} />
                   <Text style={styles.nearbyTitle}>
-                    {isHindi
-                      ? 'निकटवर्ती प्रमुख स्थल'
-                      : 'Nearby Places of Interest'}
+                    {t(Translation.TEMPLE_NEARBY_PLACES_LABEL)}
                   </Text>
                 </View>
                 <Text style={styles.nearbyText}>{nearbyAttractions}</Text>
@@ -230,7 +268,7 @@ export const TempleDetailScreen: React.FC = () => {
   );
 };
 
-export default TempleDetailScreen;
+export default React.memo(TempleDetailScreen);
 
 const styles = StyleSheet.create({
   container: {
@@ -262,8 +300,20 @@ const styles = StyleSheet.create({
   heroImageContainer: {
     width: '100%',
     height: scale(250),
+    backgroundColor: colors.accentOrangeLight,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  imageLoader: {
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: colors.accentOrangeLight,
+    zIndex: 1,
+  },
+  lottieLoader: {
+    width: scale(60),
+    height: scale(60),
   },
   templeImage: {
     width: '100%',
@@ -302,7 +352,7 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   highlightBadge: {
-    backgroundColor: 'rgba(251, 148, 55, 0.12)',
+    backgroundColor: colors.accentOrangeSubtle,
     borderWidth: 1,
     borderColor: colors.ring,
   },
@@ -399,10 +449,10 @@ const styles = StyleSheet.create({
   nearbyContainer: {
     marginTop: scale(14),
     padding: scale(14),
-    backgroundColor: 'rgba(251, 148, 55, 0.08)',
+    backgroundColor: colors.accentOrangeLight,
     borderRadius: scale(14),
     borderWidth: 1,
-    borderColor: 'rgba(251, 148, 55, 0.22)',
+    borderColor: colors.bannerBorderOrangeLight,
   },
   nearbyHeaderRow: {
     flexDirection: 'row',

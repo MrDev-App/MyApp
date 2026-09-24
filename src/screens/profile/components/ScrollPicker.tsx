@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1.5,
     borderBottomWidth: 1.5,
     top: ITEM_HEIGHT,
-    backgroundColor: 'rgba(251, 148, 55, 0.08)',
+    backgroundColor: colors.accentOrangeLight,
     borderRadius: scale(8),
     zIndex: 1,
   },

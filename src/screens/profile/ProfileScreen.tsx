@@ -11,9 +11,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
-  Modal,
   Alert,
-  Platform,
 } from 'react-native';
 
 import {
@@ -25,7 +23,6 @@ import { useTranslation } from 'react-i18next';
 import { Translation } from '@i18n/language';
 import GradientBackground from '@components/GradientBackground';
 import { OverlayModalHandle } from '@components/OverlayModal';
-import { suppressNextAppOpenAd } from '@admob/useAppOpenAd';
 import imagePath, { Bell } from '@assets/index';
 import colors from '@theme/colors';
 import { CameraIcon, ChevronRight } from '@components/icons/SvgIcons';
@@ -35,7 +32,6 @@ import {
   STORAGE_KEYS,
   getUserJoinedDate,
 } from '@services/storageService';
-import { pickImage } from '@services/imagePickerService';
 import { AllBooks, findStoryById, Story } from '@constants/storiesData';
 import { getJapMantrasData, MantraSelectorItem } from '@services/japService';
 import {
@@ -54,6 +50,7 @@ import SadhanaCalendarCard from './components/SadhanaCalendarCard';
 import SelectedDayBreakdownCard from './components/SelectedDayBreakdownCard';
 import LanguageLoadingModal from './components/LanguageLoadingModal';
 import ComingSoonModal from './components/ComingSoonModal';
+import ImagePickerModal from './components/ImagePickerModal';
 
 const ProfileScreen = () => {
   const { t, i18n } = useTranslation();
@@ -68,6 +65,7 @@ const ProfileScreen = () => {
   const overlayRef = useRef<OverlayModalHandle>(null);
   const customMantrasModalRef = useRef<OverlayModalHandle>(null);
   const resetModalRef = useRef<OverlayModalHandle>(null);
+  const imagePickerModalRef = useRef<OverlayModalHandle>(null);
 
   // ──────────────────────────────────────────────
   // MULTIPLE DAILY REMINDERS
@@ -88,7 +86,7 @@ const ProfileScreen = () => {
   const formattedReminderSummary = useMemo(() => {
     const activeReminders = reminders.filter(r => r.enabled);
     if (activeReminders.length === 0) {
-      return currentLanguage === 'hi' ? 'कोई सक्रिय नहीं' : 'None active';
+      return t(Translation.PROFILE_REMINDERS_NONE_ACTIVE);
     }
     if (activeReminders.length === 1) {
       const r = activeReminders[0];
@@ -98,10 +96,10 @@ const ProfileScreen = () => {
         '0',
       )} ${r.isPm ? 'PM' : 'AM'}`;
     }
-    return currentLanguage === 'hi'
-      ? `${activeReminders.length} सक्रिय रिमाइंडर`
-      : `${activeReminders.length} Reminders active`;
-  }, [reminders, currentLanguage]);
+    return t(Translation.PROFILE_REMINDERS_COUNT_ACTIVE, {
+      count: activeReminders.length,
+    });
+  }, [reminders, t]);
 
   // ─── UI & Local State ─────────────────────────────────────────────────────
   const [showJapHistory, setShowJapHistory] = useState(false);
@@ -119,17 +117,20 @@ const ProfileScreen = () => {
     return Storage.getString(STORAGE_KEYS.PROFILE_IMAGE_URI, '') || null;
   });
 
-  const handlePickProfileImage = useCallback(async () => {
-    triggerHaptic('light');
-    suppressNextAppOpenAd();
-    const uri = await pickImage();
-    if (uri) {
-      setProfileImageUri(uri);
-      Storage.set(STORAGE_KEYS.PROFILE_IMAGE_URI, uri);
-    }
+  const handlePickProfileImage = useCallback(() => {
+    imagePickerModalRef.current?.open();
   }, []);
 
-  // ─── Joined date ──────────────────────────────────────────────────────────
+  const handleImageSelected = useCallback((uri: string) => {
+    setProfileImageUri(uri);
+    Storage.set(STORAGE_KEYS.PROFILE_IMAGE_URI, uri);
+  }, []);
+
+  const handleRemoveProfileImage = useCallback(() => {
+    setProfileImageUri(null);
+    Storage.delete(STORAGE_KEYS.PROFILE_IMAGE_URI);
+  }, []);
+
   const userJoinedDate = useMemo(() => {
     const rawDate = getUserJoinedDate();
     const date = new Date(rawDate);
@@ -644,6 +645,14 @@ const ProfileScreen = () => {
         isResetEnabled={isResetEnabled}
         onClose={handleCloseResetModal}
         onExecute={handleExecuteReset}
+      />
+
+      {/* ── Image Picker Modal ────────────────────────────────────── */}
+      <ImagePickerModal
+        modalRef={imagePickerModalRef}
+        hasExistingImage={Boolean(profileImageUri)}
+        onImageSelected={handleImageSelected}
+        onRemoveImage={handleRemoveProfileImage}
       />
 
       {/* ── Language Change Dim Loading Overlay ── */}

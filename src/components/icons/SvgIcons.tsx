@@ -752,3 +752,25 @@ export const CopyIcon = (props: SvgIconProps) => {
     </Svg>
   );
 };
+
+export const ImageIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 20, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z" />
+      <Circle cx="8.5" cy="8.5" r="1.5" />
+      <Path d="M21 15l-5-5L5 21" />
+    </Svg>
+  );
+};
+

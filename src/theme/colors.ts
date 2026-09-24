@@ -89,6 +89,7 @@ export const colors = {
   accentBorderMedium: 'rgba(251, 148, 55, 0.35)',
   progressTrackBg: '#F3EFE9',
   inputBgLight: '#FAFAF9',
+  accessoryBg: '#f2f2f6',
   overlayModalBackdrop: 'rgba(0, 0, 0, 0.4)',
 
   // Opacity Overlays
@@ -98,6 +99,7 @@ export const colors = {
   overlaySemiTransparent: 'rgba(255, 255, 255, 0.6)',
   borderWhiteSubtle: 'rgba(255, 255, 255, 0.8)',
   cardWhiteMedium: 'rgba(255, 255, 255, 0.8)',
+  cardWhiteHigh: 'rgba(255, 255, 255, 0.92)',
   textWhiteMuted: 'rgba(255, 255, 255, 0.8)',
   cardOverlayDark: 'rgba(0, 0, 0, 0.55)',
   cardOverlaylight: 'rgba(0, 0, 0, 0.40)',
@@ -181,6 +183,18 @@ export const colors = {
   shimmerGoldTransparent: 'rgba(255, 215, 0, 0)',
   shimmerGoldLight: 'rgba(255, 225, 120, 0.1)',
   shimmerWhiteHighlight: 'rgba(255, 255, 255, 0.25)',
+
+  // Category & Vedic Domain Accent Colors
+  categoryAmber: '#F59E0B',
+  categoryEmerald: '#10B981',
+  categoryBronze: '#D97706',
+  categoryBlue: '#3B82F6',
+  categoryBrown: '#B45309',
+  categoryRed: '#EF4444',
+
+  // Floating Toast Notifications
+  toastBg: 'rgba(30, 27, 24, 0.94)',
+  toastBorder: 'rgba(251, 148, 55, 0.3)',
 };
 
 export const bannerGradients = {

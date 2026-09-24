@@ -18,8 +18,13 @@ import Animated, {
   withSequence,
   Easing,
 } from 'react-native-reanimated';
+import {
+  getTabBarBottomOffset,
+  getBannerHeight,
+  BANNER_TAB_GAP,
+} from '@theme/tabBarMetrics';
+import { useNetworkStatus } from '@hooks';
 import imagePath from '@assets/index';
-import { getTabBarBottomOffset } from '@theme/tabBarMetrics';
 
 const bubbleWidth = scale(64);
 const bubbleHeight = scale(36);
@@ -97,8 +102,27 @@ export const CustomTabBar = ({
 }: BottomTabBarProps) => {
   const safeInsets = useSafeAreaInsets();
   const bottomInset = insets?.bottom ?? safeInsets.bottom;
+  const baseBottomOffset = getTabBarBottomOffset(bottomInset);
 
-  const bottomOffset = getTabBarBottomOffset(bottomInset);
+  const isOffline = useNetworkStatus();
+
+  const totalBannerHeight = getBannerHeight(bottomInset);
+  const targetBottomOffset = isOffline
+    ? totalBannerHeight + BANNER_TAB_GAP
+    : baseBottomOffset;
+
+  const animatedBottom = useSharedValue(baseBottomOffset);
+
+  React.useEffect(() => {
+    animatedBottom.value = withTiming(targetBottomOffset, {
+      duration: 300,
+      easing: Easing.out(Easing.cubic),
+    });
+  }, [targetBottomOffset, animatedBottom]);
+
+  const animatedContainerStyle = useAnimatedStyle(() => ({
+    bottom: animatedBottom.value,
+  }));
 
   const buttonWidthShared = useSharedValue(0);
   const activeIndexShared = useSharedValue(state.index);
@@ -132,7 +156,7 @@ export const CustomTabBar = ({
   });
 
   return (
-    <View style={[styles.tabBarContainer, { bottom: bottomOffset }]}>
+    <Animated.View style={[styles.tabBarContainer, animatedContainerStyle]}>
       <View style={styles.tabBar} onLayout={onLayout}>
         {/* Smooth sliding background pill behind the icons */}
         <Animated.View style={[styles.slidingBg, animatedBgStyle]} />
@@ -178,7 +202,7 @@ export const CustomTabBar = ({
           );
         })}
       </View>
-    </View>
+    </Animated.View>
   );
 };
 

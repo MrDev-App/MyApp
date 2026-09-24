@@ -47,6 +47,7 @@ const OverlayModal = forwardRef<OverlayModalHandle, Props>(
       <Modal
         visible={visible}
         transparent
+        statusBarTranslucent
         animationType="fade"
         onRequestClose={handleClose}
       >

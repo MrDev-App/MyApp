@@ -516,9 +516,9 @@ const styles = StyleSheet.create({
   },
   accessoryContainer: {
     height: verticalScale(42),
-    backgroundColor: '#f2f2f6',
+    backgroundColor: colors.accessoryBg,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(0, 0, 0, 0.2)',
+    borderTopColor: colors.cardOverlaylight2,
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
