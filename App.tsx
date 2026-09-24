@@ -20,6 +20,7 @@ import colors from '@theme/colors';
 import NetworkBanner from '@components/NetworkBanner';
 import { getFestivalData } from '@services/firebaseServices/getFestivalData';
 import { getGodData } from '@services/firebaseServices/godMantras';
+import { initRemoteConfig } from '@services/remoteConfigService';
 
 LogBox.ignoreAllLogs();
 
@@ -27,6 +28,10 @@ const App = () => {
   useAppOpenAd(isAdMobEnabled());
 
   useEffect(() => {
+    initRemoteConfig().catch(err => {
+      console.warn('Remote Config init error:', err);
+    });
+
     if (isAdMobEnabled()) {
       mobileAds()
         .initialize()

@@ -8,7 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import colors, { cardGradients } from '@theme/colors';
+import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { AnimatedListItem } from '@components';
@@ -49,7 +49,7 @@ export const ShlokaCategoryCard: React.FC<ShlokaCategoryCardProps> = ({
     if (!hasError && item.imageUrl) {
       return { uri: item.imageUrl };
     }
-    return imagePath.shlok || imagePath.Vishnu;
+    return imagePath.shlokasFallback;
   }, [hasError, item.imageUrl]);
 
   const handleImageLoaded = useCallback(() => {
@@ -87,18 +87,22 @@ export const ShlokaCategoryCard: React.FC<ShlokaCategoryCardProps> = ({
           {/* Full Bleed Background Image */}
           <Image
             source={imageSource}
-            style={StyleSheet.absoluteFill}
             resizeMode="cover"
             onLoad={handleImageLoaded}
             onLoadEnd={handleImageLoaded}
             onError={handleImageError}
+            style={{ width: '100%', height: '100%' }}
           />
 
           {/* Ambient Dark Gradient Overlay - shown once image is ready */}
           {!imageLoading && (
             <LinearGradient
-              colors={cardGradients.festivalCard}
-              locations={[0, 0.52, 1]}
+              colors={[
+                'transparent',
+                'rgba(0, 0, 0, 0.3)',
+                'rgba(0, 0, 0, 0.75)',
+              ]}
+              locations={[0, 0.35, 1]}
               style={styles.gradientOverlay}
             >
               <Text
@@ -134,8 +138,8 @@ export default React.memo(ShlokaCategoryCard);
 const styles = StyleSheet.create({
   cardContainer: {
     borderRadius: scale(18),
-    backgroundColor: colors.white,
-    borderWidth: 1,
+    backgroundColor: colors.charcoal,
+
     borderColor: colors.borderSubtle,
     ...Platform.select({
       ios: {
@@ -155,7 +159,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   gradientOverlay: {
-    ...StyleSheet.absoluteFill,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '60%',
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
@@ -168,7 +176,6 @@ const styles = StyleSheet.create({
     textShadowColor: colors.overlayDarkStrong,
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
-    marginBottom: scale(14),
-    paddingHorizontal: scale(2),
+    marginBottom: scale(12),
   },
 });

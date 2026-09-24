@@ -16,9 +16,11 @@ import {
   Festival,
 } from '@services/firebaseServices/getFestivalData';
 import { getMonthShortName } from '@constants/calendarData';
+import { FestivalVideoEntry } from '../../../types/festivalVideo';
 
 interface HomeGreetingHeaderProps {
   loading: boolean;
+  activeFestival?: FestivalVideoEntry | null;
 }
 
 interface EkadashiDisplayItem {
@@ -44,6 +46,7 @@ const isToday = (dateStr?: string): boolean => {
 
 const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
   loading: parentLoading,
+  activeFestival = null,
 }) => {
   const { t, isHindi: isHi } = useAppLanguage();
   const navigation = useNavigation<any>();
@@ -52,7 +55,9 @@ const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
   const [festivals, setFestivals] = useState<Festival[]>(() => {
     return getCachedFestivalData() || [];
   });
-  const [festivalsLoading, setFestivalsLoading] = useState<boolean>(festivals.length === 0);
+  const [festivalsLoading, setFestivalsLoading] = useState<boolean>(
+    festivals.length === 0,
+  );
 
   useEffect(() => {
     getFestivalData()
@@ -128,18 +133,15 @@ const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
         ) : (
           <>
             <View>
-              <Text style={styles.greetingTime}>
-                {t(Translation.SHUBH_PRABHAT)}
-              </Text>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('SeedScreen')}
-                activeOpacity={0.7}
-                delayPressIn={0}
-              >
-                <Text style={styles.greetingText}>
-                  {t(Translation.RADHE_RADHE)}
+              {!activeFestival?.wishText && (
+                <Text style={styles.greetingTime}>
+                  {t(Translation.SHUBH_PRABHAT)}
                 </Text>
-              </TouchableOpacity>
+              )}
+
+              <Text style={styles.greetingText}>
+                {activeFestival?.wishText || t(Translation.RADHE_RADHE)}
+              </Text>
             </View>
             <TouchableOpacity
               style={styles.bellIconView}

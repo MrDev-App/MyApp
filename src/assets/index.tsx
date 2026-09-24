@@ -234,6 +234,7 @@ const imagePath = {
   calendar: require('./png/calendar.webp'),
   lamp: require('./png/lamp.webp'),
   shlok: require('./png/shlok.webp'),
+  shlokasFallback: require('./png/shlokasFallback.webp'),
   temples: require('./png/temples.webp'),
   clock: require('./png/clock.webp'),
   temple_bell: require('./png/temple_bell.png'),

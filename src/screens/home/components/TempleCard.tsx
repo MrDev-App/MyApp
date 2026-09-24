@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
@@ -19,10 +19,19 @@ interface TempleAvatarProps {
 const TempleAvatar: React.FC<TempleAvatarProps> = React.memo(({ source }) => {
   const [imageLoading, setImageLoading] = useState(true);
 
+  useEffect(() => {
+    if (imageLoading) {
+      const timer = setTimeout(() => {
+        setImageLoading(false);
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [imageLoading, source]);
+
   return (
     <View style={styles.avatarWrapper}>
       {imageLoading && (
-        <View style={styles.avatarLoaderWrapper}>
+        <View style={styles.avatarLoaderWrapper} pointerEvents="none">
           <LottieView
             source={imagePath.loading}
             autoPlay
@@ -35,7 +44,7 @@ const TempleAvatar: React.FC<TempleAvatarProps> = React.memo(({ source }) => {
         source={typeof source === 'string' ? { uri: source } : source}
         style={styles.avatarImage}
         resizeMode="cover"
-        onLoadStart={() => setImageLoading(true)}
+        onLoad={() => setImageLoading(false)}
         onLoadEnd={() => setImageLoading(false)}
         onError={() => setImageLoading(false)}
       />

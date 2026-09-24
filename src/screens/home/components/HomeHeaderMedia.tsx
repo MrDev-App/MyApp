@@ -12,12 +12,22 @@ import Skeleton from '@components/Skeleton';
 import imagePath from '@assets/index';
 import colors from '@theme/colors';
 import { verticalScale } from '@theme/sizes';
+import {
+  getHomeScreenVideoConfig,
+  subscribeHomeScreenVideoConfig,
+} from '@services/remoteConfigService';
+import {
+  resolveFestivalVideoSource,
+  selectActiveFestivalVideo,
+} from '../../../utils/selectFestivalVideo';
+import { FestivalVideoEntry } from '../../../types/festivalVideo';
 
 interface HomeHeaderMediaProps {
   loading: boolean;
   onVideoLoad: () => void;
   onImageLoad: () => void;
   onVideoError: () => void;
+  onFestivalActiveChange?: (festival: FestivalVideoEntry | null) => void;
 }
 
 export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
@@ -25,6 +35,7 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
   onVideoLoad,
   onImageLoad,
   onVideoError,
+  onFestivalActiveChange,
 }) => {
   const isFocused = useIsFocused();
   const navigation = useNavigation();
@@ -33,9 +44,33 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
     AppState.currentState !== 'background',
   );
   const [isReady, setIsReady] = useState(false);
+  const [activeFestival, setActiveFestival] =
+    useState<FestivalVideoEntry | null>(() => {
+      const config = getHomeScreenVideoConfig();
+      return selectActiveFestivalVideo(config);
+    });
+  const [videoSource, setVideoSource] = useState(() => {
+    const config = getHomeScreenVideoConfig();
+    return resolveFestivalVideoSource(config);
+  });
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryCountRef = useRef(0);
   const videoRef = useRef<any>(null);
+
+  // Sync video source dynamically whenever Remote Config is fetched or updated
+  useEffect(() => {
+    const unsubscribe = subscribeHomeScreenVideoConfig(config => {
+      const active = selectActiveFestivalVideo(config);
+      const source = resolveFestivalVideoSource(config);
+      setActiveFestival(active);
+      if (!active) {
+        onFestivalActiveChange?.(null);
+      }
+      setVideoSource(source);
+      setVideoError(false);
+    });
+    return unsubscribe;
+  }, [onFestivalActiveChange]);
 
   // AppState check: Only allow video to mount/play when app is not in background
   useEffect(() => {
@@ -89,6 +124,8 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
     const errorMsg =
       e?.error?.errorException || e?.error?.message || e?.errorString || '';
 
+    console.log('[Video] Error loading video:', errorMsg || e);
+
     // If Activity is null (race condition during launch/transition), retry mounting after Activity attaches
     if (
       (typeof errorMsg === 'string' && errorMsg.includes('Activity is null')) ||
@@ -110,16 +147,29 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
       }
     }
 
-    console.log(
-      '[Video] Error loading background video, falling back to image:',
-      e,
-    );
+    // If remote festival video failed, fallback to local default video
+    if (typeof videoSource === 'object' && videoSource?.uri) {
+      console.log(
+        '[Video] Remote video failed, falling back to local default video',
+      );
+      setVideoSource(imagePath.bhaktiVideo);
+      setActiveFestival(null);
+      onFestivalActiveChange?.(null);
+      return;
+    }
+
     setVideoError(true);
+    setActiveFestival(null);
+    onFestivalActiveChange?.(null);
     onVideoError();
   };
 
   // Keep Video mounted once initialized; pause/resume smoothly without reloading
   const shouldRenderVideo = isReady && !videoError;
+  const videoKey =
+    typeof videoSource === 'object' && videoSource?.uri
+      ? videoSource.uri
+      : String(videoSource);
 
   return (
     <View style={styles.imageContainer} pointerEvents="none">
@@ -132,8 +182,9 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
 
       {shouldRenderVideo && (
         <Video
+          key={videoKey}
           ref={videoRef}
-          source={imagePath.bhaktiVideo}
+          source={videoSource}
           style={[styles.greetingImage, styles.absoluteVideo]}
           resizeMode="cover"
           repeat={true}
@@ -146,10 +197,12 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
           ignoreSilentSwitch="ignore"
           shutterColor="transparent"
           preventsDisplaySleepDuringVideoPlayback={false}
-          selectedAudioTrack={{ type: 'disabled' as any }}
           onLoad={() => {
             retryCountRef.current = 0;
             onVideoLoad();
+            if (activeFestival) {
+              onFestivalActiveChange?.(activeFestival);
+            }
           }}
           onError={handleVideoError}
         />

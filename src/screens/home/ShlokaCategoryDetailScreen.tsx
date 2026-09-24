@@ -43,30 +43,15 @@ export const ShlokaCategoryDetailScreen: React.FC = () => {
   const { t, isHindi } = useAppLanguage();
 
   const categoryParam: ShlokaCategory = useMemo(() => {
-    return (
-      route.params?.category || {
-        id: 'occasion-through-the-day',
-        slug: 'through-the-day',
-        title: Translation.SHLOK_CAT_THROUGH_THE_DAY,
-        imageUrl: 'https://shlokam.org/assets/domains/through-the-day.jpg',
-        path: '/shloka/prayers/through-the-day.htm',
-      }
-    );
+    return route.params?.category;
   }, [route.params?.category]);
 
   const slug = useMemo(() => {
-    return (
-      categoryParam.slug ||
-      categoryParam.id ||
-      'through-the-day'
-    ).replace('occasion-', '');
+    return (categoryParam.slug || categoryParam.id).replace('occasion-', '');
   }, [categoryParam]);
 
   const [categoryData, setCategoryData] = useState<ShlokaCategoryDetail>(() => {
-    return (
-      STATIC_SHLOKA_CATEGORIES_DATA[slug] ||
-      STATIC_SHLOKA_CATEGORIES_DATA['through-the-day']
-    );
+    return STATIC_SHLOKA_CATEGORIES_DATA[slug];
   });
 
   const [loading, setLoading] = useState<boolean>(true);

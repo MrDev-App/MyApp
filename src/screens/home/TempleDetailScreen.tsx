@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from 'react';
+import React, { useMemo, useCallback, useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -38,6 +38,15 @@ export const TempleDetailScreen: React.FC = () => {
   const [imageLoading, setImageLoading] = useState(true);
 
   const temple = route.params?.temple;
+
+  useEffect(() => {
+    if (imageLoading) {
+      const timer = setTimeout(() => {
+        setImageLoading(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [imageLoading, temple]);
 
   const handleBack = useCallback(() => {
     triggerHaptic();
@@ -132,7 +141,7 @@ export const TempleDetailScreen: React.FC = () => {
           {/* Hero Image */}
           <View style={styles.heroImageContainer}>
             {imageLoading && (
-              <View style={styles.imageLoader}>
+              <View style={styles.imageLoader} pointerEvents="none">
                 <LottieView
                   source={imagePath.loading}
                   autoPlay
@@ -145,7 +154,7 @@ export const TempleDetailScreen: React.FC = () => {
               source={imageSource}
               style={styles.templeImage}
               resizeMode="cover"
-              onLoadStart={() => setImageLoading(true)}
+              onLoad={() => setImageLoading(false)}
               onLoadEnd={() => setImageLoading(false)}
               onError={() => setImageLoading(false)}
             />

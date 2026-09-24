@@ -2044,29 +2044,38 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/netinfo/-/netinfo-12.0.1.tgz#fec75f4093c27778479d8927b4f51f133b8a13a4"
   integrity sha512-P/3caXIvfYSJG8AWJVefukg+ZGRPs+M4Lp3pNJtgcTYoJxCjWrKQGNnCkj/Cz//zWa/avGed0i/wzm0T8vV2IQ==
 
-"@react-native-firebase/app@^26.3.3":
-  version "26.3.3"
-  resolved "https://registry.npmjs.org/@react-native-firebase/app/-/app-26.3.3.tgz"
-  integrity sha512-DmgSP+k7sB/KjaKYYk27n06+O3q4shO4LsDRYCSmE3axL59r93Zoh3qP62dyAi1BHXuLvuOv+3ooS1xTS4RtjQ==
+"@react-native-firebase/app@26.4.0":
+  version "26.4.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-26.4.0.tgz#6a87a29dc64272821801ef556d351ac184a31422"
+  integrity sha512-lqs9vgPcniEw5a+NPRjGNXCQKwuGdVJoSB0iW0HvExR7aGEON/VZYOtSfElBCj3zTwQSiN732zREmqmKrW7Ixw==
   dependencies:
     firebase "12.17.1"
 
-"@react-native-firebase/firestore@^26.3.3":
-  version "26.3.3"
-  resolved "https://registry.npmjs.org/@react-native-firebase/firestore/-/firestore-26.3.3.tgz"
-  integrity sha512-aThSPouRDvxSVOu4uQGP59ehBeU9iDK642IWH4EnEhg+K2Yu3OCKVcpksecZhdjGP4Xc5En3R2OWmE8soyh+zg==
+"@react-native-firebase/firestore@26.4.0":
+  version "26.4.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/firestore/-/firestore-26.4.0.tgz#89d7b2c3842eb0547aea91c5e069d4e180161d87"
+  integrity sha512-OdHSSk1iH/HcWPAr/THunf4FvQqiN9uVh4cyY2KJSYrPXKFT20Ia9Ls92wo/NXY3K5R45p4K3TGjfFiwZGDSRQ==
   dependencies:
     react-native-url-polyfill "4.0.0"
 
-"@react-native-firebase/messaging@^26.3.3":
-  version "26.3.3"
-  resolved "https://registry.npmjs.org/@react-native-firebase/messaging/-/messaging-26.3.3.tgz"
-  integrity sha512-fsZbJWRjuDeTBOUKMxd1775dhCNx6G8i7PWTn931tAnIw7Q5lR/5JG6XOk57fg6rXUYV35GW58Ayqzq94+X/Yg==
+"@react-native-firebase/messaging@26.4.0":
+  version "26.4.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-26.4.0.tgz#b9e566014debe3b7a57783089f9b943f9a36a7bb"
+  integrity sha512-OmUyc/C6urbzBbOlUQP2sob71gn2irbbWQQtK8VPCh/rwdCTw1YMhVA+CR7NroKTHKnU+iOyGYVohbxFQlGVLA==
 
-"@react-native-firebase/storage@^26.3.3":
-  version "26.3.3"
-  resolved "https://registry.npmjs.org/@react-native-firebase/storage/-/storage-26.3.3.tgz"
-  integrity sha512-Y0NTexG5taxPOwuhuZF3co0M3JShG93XFW7PZBwp+BHcZ2tz+IblRLXvvjFj6jVDCpL2Hd7SXn7DL1FjyVyRTQ==
+"@react-native-firebase/remote-config@26.4.0":
+  version "26.4.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/remote-config/-/remote-config-26.4.0.tgz#b9231120b46232abad2fa9dbed6ffab11abf5e31"
+  integrity sha512-nKQ00zYVA/50BULJqNy3XKEOmNeWl26ho3XVb5in0HdJ/nwMzhAMy0ujMeLCpZRn8F31DGEe8ptJPa1nwcfG7w==
+  dependencies:
+    react-native-fetch-api "^3.0.0"
+    text-encoding "^0.7.0"
+    web-streams-polyfill "^4.2.0"
+
+"@react-native-firebase/storage@26.4.0":
+  version "26.4.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/storage/-/storage-26.4.0.tgz#eede0d19b5fd5bde665001d36196e557c255c60f"
+  integrity sha512-DpVwJBtKL7q8pOf0hiPGla3A+kM7lcvzDJRaXy5qrL54JC0/9M+XiUzuhJJ9+r+yVep54vXxCIGtf5DSAZyQEw==
 
 "@react-native/assets-registry@0.86.2":
   version "0.86.2"
@@ -6359,6 +6368,11 @@ own-keys@^1.0.1:
     object-keys "^1.1.1"
     safe-push-apply "^1.0.0"
 
+p-defer@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/p-defer/-/p-defer-3.0.0.tgz#d1dceb4ee9b2b604b1d94ffec83760175d4e6f83"
+  integrity sha512-ugZxsxmtTln604yeYd29EGrNhazN2lywetzpKhfmQjW/VJmhpDmWbiX+h0zL8V91R0UXkhb3KtPmyq9PZw3aYw==
+
 p-limit@^2.0.0, p-limit@^2.2.0:
   version "2.3.0"
   resolved "https://registry.npmjs.org/p-limit/-/p-limit-2.3.0.tgz"
@@ -6709,6 +6723,13 @@ react-native-config@^1.7.2:
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/react-native-config/-/react-native-config-1.7.2.tgz#fde34ba7641e8670883f7c6e4f0bf4b928e4f5de"
   integrity sha512-sOzjs2oGPqlgJu7WjlYa/zA8/uShebQeQVYumgPd8pO+l/TrHWhOZPWrDAphxrshpnFVgPgQeXXT3eVSTNQGpg==
+
+react-native-fetch-api@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-fetch-api/-/react-native-fetch-api-3.0.0.tgz#81e1bb6562c292521bc4eca52fe1097f4c1ebab5"
+  integrity sha512-g2rtqPjdroaboDKTsJCTlcmtw54E25OjyaunUP0anOZn4Fuo2IKs8BVfe02zVggA/UysbmfSnRJIqtNkAgggNA==
+  dependencies:
+    p-defer "^3.0.0"
 
 react-native-gesture-handler@^3.2.1:
   version "3.2.1"
@@ -7621,6 +7642,11 @@ test-renderer@^1.2.0:
     "@types/react-reconciler" "~0.33.0"
     react-reconciler "~0.33.0"
 
+text-encoding@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/text-encoding/-/text-encoding-0.7.0.tgz#f895e836e45990624086601798ea98e8f36ee643"
+  integrity sha512-oJQ3f1hrOnbRLOcwKz0Liq2IcrvDeZRHXhd9RgLrsT+DjWY/nty1Hi7v3dtkaEYbPYe0mUoOfzRrMwfXXwgPUA==
+
 text-table@^0.2.0:
   version "0.2.0"
   resolved "https://registry.npmjs.org/text-table/-/text-table-0.2.0.tgz"
@@ -7899,6 +7925,11 @@ wcwidth@^1.0.1:
   integrity sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==
   dependencies:
     defaults "^1.0.3"
+
+web-streams-polyfill@^4.2.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/web-streams-polyfill/-/web-streams-polyfill-4.3.0.tgz#2f5fe004e2c53f09f7e03aef25b892953cab99a6"
+  integrity sha512-/Gnggvj9oSrEvJbDyyPtAnxBt5fGQM2iWOKQNu7ie1OxDgK40iZpyV3TKaRiEzVj1oA1UxKnEy9XPXh6PW3eVw==
 
 web-vitals@^4.2.4:
   version "4.2.4"

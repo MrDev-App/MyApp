@@ -21,10 +21,13 @@ import FestivalHighlights from './components/FestivalHighlights';
 import HinduCalendarBanner from './components/HinduCalendarBanner';
 import GradientOverlay from '@components/GradientOverlay';
 import { BannerAdComponent } from '@admob';
+import { FestivalVideoEntry } from '../../types/festivalVideo';
 
 export const HomeScreen = () => {
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
+  const [activeFestival, setActiveFestival] =
+    useState<FestivalVideoEntry | null>(null);
 
   const imageLoadedRef = useRef(false);
   const videoErrorRef = useRef(false);
@@ -59,6 +62,7 @@ export const HomeScreen = () => {
         onVideoLoad={handleVideoLoad}
         onImageLoad={handleImageLoad}
         onVideoError={handleVideoError}
+        onFestivalActiveChange={setActiveFestival}
       />
 
       {/* Top status bar gradient overlay */}
@@ -84,7 +88,10 @@ export const HomeScreen = () => {
           ]}
         >
           {/* Greeting Banner */}
-          <HomeGreetingHeader loading={loading} />
+          <HomeGreetingHeader
+            loading={loading}
+            activeFestival={activeFestival}
+          />
 
           {/* Loading Skeleton OR Cards List */}
           {loading ? (

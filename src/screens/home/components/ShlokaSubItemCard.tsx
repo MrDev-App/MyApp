@@ -38,7 +38,7 @@ export const ShlokaSubItemCard: React.FC<ShlokaSubItemCardProps> = ({
 
   const imageSource = useMemo(() => {
     if (imageError) {
-      return imagePath.shlok || imagePath.Vishnu;
+      return imagePath.shlokasFallback;
     }
     if (categoryImageUri) {
       return { uri: categoryImageUri };
@@ -49,7 +49,7 @@ export const ShlokaSubItemCard: React.FC<ShlokaSubItemCardProps> = ({
     if (item.image) {
       return item.image;
     }
-    return imagePath.shlok || imagePath.Vishnu;
+    return imagePath.shlokasFallback;
   }, [imageError, categoryImageUri, item.imageUrl, item.image]);
 
   const handlePress = useCallback(() => {
