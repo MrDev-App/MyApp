@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
   },
   modalHeaderCloseBtn: {
     position: 'absolute',
-    top: scale(12),
+    top: scale(10),
     right: scale(16),
     width: scale(36),
     height: scale(36),
@@ -382,14 +382,14 @@ const styles = StyleSheet.create({
   },
   leftBell: {
     position: 'absolute',
-    top: 0,
-    left: scale(22),
+    top: scale(-13),
+    left: scale(25),
     zIndex: 1,
   },
   rightBell: {
     position: 'absolute',
-    top: 0,
-    right: scale(4),
+    top: scale(-13),
+    right: scale(25),
     zIndex: 1,
   },
 });

@@ -239,6 +239,11 @@ const imagePath = {
   clock: require('./png/clock.webp'),
   temple_bell: require('./png/temple_bell.png'),
   templeBell: require('./png/temple_bell.png'),
+  Bell: require('./png/Bell.webp'),
+
+  Kedarnath: require('./png/kedarnath.webp'),
+
+  Badrinath: require('./png/badrinath.webp'),
   karm: require('./png/karm.jpg'),
   krishnasBirth: require('./png/krishnasBirth.jpg'),
   vasudevaCarriesKrishna: require('./png/vasudevaCarriesKrishna.jpg'),

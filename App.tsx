@@ -1,5 +1,5 @@
 import { StatusBar, LogBox, InteractionManager } from 'react-native';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import StackNavigation from '@navigation/StackNavigation';
@@ -22,10 +22,15 @@ import { getFestivalData } from '@services/firebaseServices/getFestivalData';
 import { getGodData } from '@services/firebaseServices/godMantras';
 import { initRemoteConfig } from '@services/remoteConfigService';
 
+import { getApp } from '@react-native-firebase/app';
+import { getAnalytics, logScreenView } from '@react-native-firebase/analytics';
+
 LogBox.ignoreAllLogs();
 
 const App = () => {
   useAppOpenAd(isAdMobEnabled());
+  const routeNameRef = useRef<string | undefined>(undefined);
+  const analyticsInstance = useRef(getAnalytics(getApp())).current;
 
   useEffect(() => {
     initRemoteConfig().catch(err => {
@@ -46,7 +51,6 @@ const App = () => {
     initNotifications();
     getUserJoinedDate();
 
-    // Fetch and persist from Firestore in the background after initial UI interactions/animations finish
     const interactionPromise = InteractionManager.runAfterInteractions(() => {
       getFestivalData();
       getGodData();
@@ -84,7 +88,24 @@ const App = () => {
 
       <ErrorBoundary>
         <SafeAreaProvider>
-          <NavigationContainer ref={navigationRef}>
+          <NavigationContainer
+            ref={navigationRef}
+            onReady={() => {
+              routeNameRef.current = navigationRef.getCurrentRoute()?.name;
+            }}
+            onStateChange={async () => {
+              const previousRouteName = routeNameRef.current;
+              const currentRouteName = navigationRef.getCurrentRoute()?.name;
+
+              if (previousRouteName !== currentRouteName && currentRouteName) {
+                await logScreenView(analyticsInstance, {
+                  screen_name: currentRouteName,
+                  screen_class: currentRouteName,
+                });
+                routeNameRef.current = currentRouteName;
+              }
+            }}
+          >
             <StackNavigation />
             <NetworkBanner />
           </NavigationContainer>
