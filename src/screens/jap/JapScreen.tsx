@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   StyleSheet,
   Text,
@@ -50,39 +50,31 @@ import { BannerAdComponent } from '@admob';
 import { ResetIcon, ZapIcon, ChartBarIcon } from '@components/icons/SvgIcons';
 import TempleBell from '@components/TempleBell';
 
-const TOTAL_BEADS = 108;
+/** Total beads on a mala AND the target count per round — single source of truth. */
+const MALA_BEAD_COUNT = 108;
 
 const JapScreen = () => {
   const navigation = useNavigation<RootNavigationProp>();
   const insets = useSafeAreaInsets();
-  const { t, currentLanguage } = useAppLanguage();
+  const { t, currentLanguage, select } = useAppLanguage();
+
+  // Single cache read — shared across all four useState initialisers below
+  const _initialCache = getCachedJapMantrasData();
+  const _hasCached = !!_initialCache && _initialCache.length > 0;
 
   const [defaultMantras, setDefaultMantras] = useState<MantraSelectorItem[]>(
-    () => {
-      const cached = getCachedJapMantrasData();
-      return cached && cached.length > 0 ? cached : [DEFAULT_MANTRA];
-    },
+    () => (_hasCached ? _initialCache! : [DEFAULT_MANTRA]),
   );
-  const [loading, setLoading] = useState<boolean>(() => {
-    const cached = getCachedJapMantrasData();
-    return !cached || cached.length === 0;
-  });
+  const [loading, setLoading] = useState<boolean>(() => !_hasCached);
   const [selectedMantra, setSelectedMantra] = useState<MantraSelectorItem>(
-    () => {
-      const cached = getCachedJapMantrasData();
-      return cached && cached.length > 0 ? cached[0] : DEFAULT_MANTRA;
-    },
+    () => (_hasCached ? _initialCache![0] : DEFAULT_MANTRA),
   );
   const [displayedMantra, setDisplayedMantra] = useState<MantraSelectorItem>(
-    () => {
-      const cached = getCachedJapMantrasData();
-      return cached && cached.length > 0 ? cached[0] : DEFAULT_MANTRA;
-    },
+    () => (_hasCached ? _initialCache![0] : DEFAULT_MANTRA),
   );
   const [count, setCount] = useState(0);
   const countRef = useRef(0);
   const [rounds, setRounds] = useState(0);
-  const [target, _setTarget] = useState(108);
   const [isHapticOn, setIsHapticOn] = useState(true);
   const isHapticOnRef = useRef(isHapticOn);
   const isFocused = useIsFocused();
@@ -101,8 +93,7 @@ const JapScreen = () => {
             setDefaultMantras(list);
           }
 
-          const raw = Storage.getString('CUSTOM_MANTRAS', '[]');
-          const parsed: CustomMantra[] = JSON.parse(raw);
+          const parsed = Storage.getJSON<CustomMantra[]>(STORAGE_KEYS.CUSTOM_MANTRAS, []);
           if (isMounted) {
             setCustomMantras(parsed);
           }
@@ -154,23 +145,18 @@ const JapScreen = () => {
 
   const [totalCount, setTotalCount] = useState(() => {
     const mantraId = DEFAULT_MANTRA.id;
-    return (
-      Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`) || 0
-    );
+    return Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`) || 0;
   });
-  const [_totalMala, setTotalMala] = useState(() => {
+  // totalMala is persisted but only displayed in ProgressScreen; kept in sync via setTotalMala
+  const [totalMala, setTotalMala] = useState(() => {
     const mantraId = DEFAULT_MANTRA.id;
     return Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`) || 0;
   });
   const [todayCount, setTodayCount] = useState(() => {
-    Storage.checkAndResetTodayStats();
     const mantraId = DEFAULT_MANTRA.id;
-    return (
-      Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`) || 0
-    );
+    return Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`) || 0;
   });
   const [todayMala, setTodayMala] = useState(() => {
-    Storage.checkAndResetTodayStats();
     const mantraId = DEFAULT_MANTRA.id;
     return Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_MALA}_${mantraId}`) || 0;
   });
@@ -266,7 +252,7 @@ const JapScreen = () => {
 
     const currentVal = countRef.current;
     const nextVal = currentVal + 1;
-    const isMalaCompleted = nextVal >= target;
+    const isMalaCompleted = nextVal >= MALA_BEAD_COUNT;
     const nextCount = isMalaCompleted ? 0 : nextVal;
 
     countRef.current = nextCount;
@@ -292,7 +278,7 @@ const JapScreen = () => {
     setTotalCount(nextTotalCount);
 
     if (isMalaCompleted) {
-      const nextTodayMala = Storage.getNumber(`JAP_TODAY_MALA_${mantraId}`, 0);
+      const nextTodayMala = Storage.getNumber(`JAP_TODAY_MALA_${mantraId}`, 0); // key written by logChant
       const nextTotalMala = Storage.getNumber(
         `${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`,
         0,
@@ -302,7 +288,7 @@ const JapScreen = () => {
     }
 
     // Rotation step calculation - perfectly smooth without jumping
-    const step = 360 / TOTAL_BEADS;
+    const step = 360 / MALA_BEAD_COUNT;
     if (isMalaCompleted) {
       malaRotation.value = withTiming(
         -360,
@@ -345,7 +331,6 @@ const JapScreen = () => {
       easing: Easing.out(Easing.quad),
     });
   }, [
-    target,
     selectedMantra,
     malaRotation,
     sphereScale,
@@ -354,7 +339,7 @@ const JapScreen = () => {
     handleDateCheck,
   ]);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     countRef.current = 0;
     setCount(0);
@@ -363,20 +348,22 @@ const JapScreen = () => {
       duration: 600,
       easing: Easing.out(Easing.cubic),
     });
-  };
+  }, [malaRotation]);
 
-  const handleMantraSelect = (item: MantraSelectorItem) => {
-    if (item.id === selectedMantra.id) return;
+  const handleMantraSelect = useCallback(
+    (item: MantraSelectorItem) => {
+      if (item.id === selectedMantra.id) return;
+      if (countRef.current > 0 || rounds > 0) {
+        setPendingMantra(item);
+        setIsSwitchModalVisible(true);
+      } else {
+        setSelectedMantra(item);
+      }
+    },
+    [selectedMantra.id, rounds],
+  );
 
-    if (countRef.current > 0 || rounds > 0) {
-      setPendingMantra(item);
-      setIsSwitchModalVisible(true);
-    } else {
-      setSelectedMantra(item);
-    }
-  };
-
-  const handleConfirmSwitch = () => {
+  const handleConfirmSwitch = useCallback(() => {
     if (pendingMantra) {
       setSelectedMantra(pendingMantra);
       countRef.current = 0;
@@ -389,17 +376,44 @@ const JapScreen = () => {
     }
     setIsSwitchModalVisible(false);
     setPendingMantra(null);
-  };
+  }, [pendingMantra, malaRotation]);
 
-  const handleCancelSwitch = () => {
+  const handleCancelSwitch = useCallback(() => {
     setIsSwitchModalVisible(false);
     setPendingMantra(null);
-  };
+  }, []);
 
   const currentBeadIndex =
-    Math.round((count / target) * TOTAL_BEADS) % TOTAL_BEADS;
-  const mantraText =
-    currentLanguage === 'hi' ? displayedMantra.textHi : displayedMantra.textEn;
+    Math.round((count / MALA_BEAD_COUNT) * MALA_BEAD_COUNT) % MALA_BEAD_COUNT;
+  const mantraText = select(displayedMantra.textHi, displayedMantra.textEn);
+
+  // Memoised mantra list — avoids new array reference on every render caused by chant taps
+  const mantraList = useMemo(
+    () => [...defaultMantras, ...customMantras],
+    [defaultMantras, customMantras],
+  );
+
+  // Memoised renderItem — stable reference so FlatList skips re-diffing on chant state updates
+  const renderMantraItem = useCallback(
+    ({ item }: { item: MantraSelectorItem }) => {
+      const isSelected = selectedMantra.id === item.id;
+      const name = select(item.nameHi, item.nameEn);
+      return (
+        <TouchableOpacity
+          style={[styles.selectorItem, isSelected && styles.selectorItemSelected]}
+          onPress={() => handleMantraSelect(item)}
+          activeOpacity={0.8}
+        >
+          <Text
+            style={[styles.selectorText, isSelected && styles.selectorTextSelected]}
+          >
+            {name}
+          </Text>
+        </TouchableOpacity>
+      );
+    },
+    [selectedMantra.id, select, handleMantraSelect],
+  );
 
   return (
     <GradientBackground>
@@ -481,33 +495,10 @@ const JapScreen = () => {
               <FlatList
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                data={[...defaultMantras, ...customMantras]}
+                data={mantraList}
                 keyExtractor={item => item.id}
                 contentContainerStyle={styles.selectorList}
-                renderItem={({ item }) => {
-                  const isSelected = selectedMantra.id === item.id;
-                  const name =
-                    currentLanguage === 'hi' ? item.nameHi : item.nameEn;
-                  return (
-                    <TouchableOpacity
-                      style={[
-                        styles.selectorItem,
-                        isSelected && styles.selectorItemSelected,
-                      ]}
-                      onPress={() => handleMantraSelect(item)}
-                      activeOpacity={0.8}
-                    >
-                      <Text
-                        style={[
-                          styles.selectorText,
-                          isSelected && styles.selectorTextSelected,
-                        ]}
-                      >
-                        {name}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                }}
+                renderItem={renderMantraItem}
               />
             )}
           </View>
@@ -591,7 +582,7 @@ const JapScreen = () => {
             <ChantSphere
               onPress={handleChantPress}
               count={count}
-              target={target}
+              target={MALA_BEAD_COUNT}
               animatedSphereStyle={animatedSphereStyle}
               chantLabel={t(Translation.JAP_CHANT_LABEL)}
             />

@@ -22,6 +22,7 @@ import { STORAGE_KEYS } from '@constants/storageKeys';
 import OverlayModal, { OverlayModalHandle } from '@components/OverlayModal';
 import { CloseIcon } from '@components/icons/SvgIcons';
 import imagePath from '@assets/index';
+import ContractModal from './ContractModal';
 
 const ChallengeCard = () => {
   const { t } = useTranslation();
@@ -54,6 +55,7 @@ const ChallengeCard = () => {
   const targetModalRef = useRef<OverlayModalHandle>(null);
   const [tempGoal, setTempGoal] = useState(String(dailyTargetGoal));
   const [tempDays, setTempDays] = useState(String(challengeTotalDays));
+  const [contractVisible, setContractVisible] = useState(false);
 
   useEffect(() => {
     if (isFocused) {
@@ -127,19 +129,24 @@ const ChallengeCard = () => {
     buttonView: t(Translation.CHALLENGE_BTN_VIEW),
   };
 
+  const handleStartChallenge = () => {
+    Storage.set(STORAGE_KEYS.CHALLENGE_STARTED, true);
+    Storage.set('CHALLENGE_PROGRESS_DAYS', 1);
+    Storage.set('CHALLENGE_STREAK', 1);
+    Storage.set('CHALLENGE_BASE_CHANTS', todayChants);
+    Storage.set('CHALLENGE_BASE_DATE', new Date().toDateString());
+    setStarted(true);
+  };
+
   const handlePress = () => {
     if (!started) {
-      Storage.set(STORAGE_KEYS.CHALLENGE_STARTED, true);
-      Storage.set('CHALLENGE_PROGRESS_DAYS', 1);
-      Storage.set('CHALLENGE_STREAK', 1);
-      Storage.set('CHALLENGE_BASE_CHANTS', todayChants);
-      Storage.set('CHALLENGE_BASE_DATE', new Date().toDateString());
-      setStarted(true);
-    }
-    try {
-      navigation.navigate('Jap');
-    } catch {
-      navigation.navigate('BottomTabs', { screen: 'Jap' });
+      setContractVisible(true);
+    } else {
+      try {
+        navigation.navigate('BottomTabs', { screen: 'Jap' });
+      } catch {
+        navigation.navigate('Jap');
+      }
     }
   };
 
@@ -292,6 +299,12 @@ const ChallengeCard = () => {
           </View>
         </KeyboardAvoidingView>
       </OverlayModal>
+
+      <ContractModal
+        visible={contractVisible}
+        onClose={() => setContractVisible(false)}
+        onStartChallenge={handleStartChallenge}
+      />
     </View>
   );
 };

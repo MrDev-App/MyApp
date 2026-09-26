@@ -389,4 +389,13 @@ export default {
   SHLOK_CAT_CHILDREN: 'बच्चों के लिए',
   SHLOK_CAT_MIND_HEART: 'मन एवं शांति',
   SHLOK_CAT_SPIRITUAL_PATH: 'आध्यात्मिक मार्ग',
+
+  // Contract / Vow Modal
+  CONTRACT_INVOCATION: '॥ श्री हरि ॥',
+  CONTRACT_TITLE: 'साधना संकल्प',
+  CONTRACT_VOW_TEXT:
+    '“हे प्रभु, मैं आज यह प्रतिज्ञा लेता हूँ कि प्रतिदिन श्रद्धा और प्रेम से आपके पवित्र नाम का जप करूँगा। अपने मन, वचन और कर्म को आपकी भक्ति में समर्पित रखूँगा और हर परिस्थिति में आपके नाम का स्मरण करता रहूँगा। हे प्रभु, मुझे इस संकल्प को सच्चे मन से निभाने की शक्ति और भक्ति प्रदान करें।”',
+
+  CONTRACT_CTA_START_JAP: 'जप प्रारंभ करें',
+  CONTRACT_DISMISS_LATER: 'बाद में',
 };

@@ -34,21 +34,6 @@ export const useNetworkStatus = () => {
     };
   }, []);
 
-  // While offline, poll NetInfo every 1.5s to immediately detect when internet is restored on iOS
-  useEffect(() => {
-    if (!isOffline) return;
-
-    const interval = setInterval(() => {
-      NetInfo.fetch().then(state => {
-        if (state.isConnected === true) {
-          setIsOffline(false);
-        }
-      });
-    }, 1500);
-
-    return () => clearInterval(interval);
-  }, [isOffline]);
-
   return isOffline;
 };
 

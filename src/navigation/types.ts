@@ -7,6 +7,7 @@ export type RootStackParamList = {
   Splash: undefined;
   Onboarding: undefined;
   BottomTabs: NavigatorScreenParams<BottomTabParamList>;
+  AllFestivals: undefined;
   CalendarScreen: undefined;
   Calendar?: undefined;
   ReadingScreen: { storyId?: string };

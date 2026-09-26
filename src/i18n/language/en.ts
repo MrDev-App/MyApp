@@ -388,4 +388,13 @@ export default {
   SHLOK_CAT_CHILDREN: 'For Children',
   SHLOK_CAT_MIND_HEART: 'Mind & Heart',
   SHLOK_CAT_SPIRITUAL_PATH: 'The Spiritual Path',
+
+  // Contract / Vow Modal
+  CONTRACT_INVOCATION: '॥ Shri Hari ॥',
+  CONTRACT_TITLE: 'Sadhana Resolve',
+  CONTRACT_VOW_TEXT:
+    '“O Lord, today I make this promise that I will chant Your holy name every day with faith and love. I will dedicate my thoughts, words, and actions to Your devotion, and in every circumstance, I will continue to remember Your name. O Lord, please grant me the strength and devotion to sincerely uphold this resolve.”',
+
+  CONTRACT_CTA_START_JAP: 'Start Chanting',
+  CONTRACT_DISMISS_LATER: 'Maybe later ',
 };

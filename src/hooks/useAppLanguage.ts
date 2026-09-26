@@ -5,7 +5,6 @@ export type SupportedLanguage = 'en' | 'hi';
 
 export interface AppLanguageState {
   currentLanguage: SupportedLanguage;
-  lang: SupportedLanguage;
   rawLanguage: string;
   isHindi: boolean;
   t: (key: string, options?: any) => string;
@@ -28,7 +27,6 @@ export const useAppLanguage = (): AppLanguageState => {
     i18n.language || Storage.getString(STORAGE_KEYS.APP_LANGUAGE, 'hi') || 'hi';
   const isHindi = rawLanguage.startsWith('hi');
   const currentLanguage: SupportedLanguage = isHindi ? 'hi' : 'en';
-  const lang = currentLanguage;
 
   const changeLanguage = async (newLng: SupportedLanguage) => {
     Storage.set(STORAGE_KEYS.APP_LANGUAGE, newLng);
@@ -44,7 +42,6 @@ export const useAppLanguage = (): AppLanguageState => {
 
   return {
     currentLanguage,
-    lang,
     rawLanguage,
     isHindi,
     t,

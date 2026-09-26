@@ -1,4 +1,4 @@
-import { createMMKV } from 'react-native-mmkv';
+// No direct MMKV instance here — all storage goes through the typed Storage facade in storageService
 import {
   getFirestore,
   collection,
@@ -25,7 +25,7 @@ export const DEFAULT_MANTRA: MantraSelectorItem = {
   textHi: 'राधा',
 };
 
-const storage = createMMKV();
+
 export const JAP_MANTRAS_CACHE_KEY = STORAGE_KEYS.JAP_MANTRAS_CACHE;
 
 export const mapMantraItem = (item: any, index = 0): MantraSelectorItem => {
@@ -48,7 +48,7 @@ let hasFetchedJapMantrasThisSession = false;
  */
 export const getCachedJapMantrasData = (): MantraSelectorItem[] | null => {
   try {
-    const cachedData = storage.getString(JAP_MANTRAS_CACHE_KEY);
+    const cachedData = Storage.getString(JAP_MANTRAS_CACHE_KEY);
     if (cachedData) {
       const parsed: any[] = JSON.parse(cachedData);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -98,7 +98,7 @@ export const getJapMantrasData = async (
 
     if (rawList.length > 0) {
       try {
-        storage.set(JAP_MANTRAS_CACHE_KEY, JSON.stringify(rawList));
+        Storage.set(JAP_MANTRAS_CACHE_KEY, JSON.stringify(rawList));
         console.log(
           '💾 [JapService] Saved JapMantras to local persistent storage (MMKV).',
         );
@@ -131,7 +131,7 @@ export const getJapMantrasData = async (
 };
 
 export const clearJapMantrasCache = (): void => {
-  storage.remove(JAP_MANTRAS_CACHE_KEY);
+  Storage.delete(JAP_MANTRAS_CACHE_KEY);
 };
 
 export interface MantraRecord {
@@ -217,13 +217,29 @@ export const logChant = (mantraId: string, increment = 1) => {
     Storage.set(STORAGE_KEYS.JAP_HISTORY, JSON.stringify(history));
   } catch (error) {
     console.error('Failed to log Japa history:', error);
+    // Reset corrupted history so future calls don't silently fail forever
+    Storage.set(STORAGE_KEYS.JAP_HISTORY, '{}');
   }
 };
 
-export const getDayWiseStats = (mantraId?: string) => {
+/**
+ * Parses the full Japa history from MMKV once.
+ * Pass the returned value into get*WiseStats() to avoid repeated JSON.parse calls.
+ * On corrupt data: logs the error, resets the stored value, and returns an empty object.
+ */
+export const parseJapaHistory = (): JapaHistory => {
   try {
-    const rawHistory = Storage.getString(STORAGE_KEYS.JAP_HISTORY, '{}');
-    const history: JapaHistory = JSON.parse(rawHistory);
+    const raw = Storage.getString(STORAGE_KEYS.JAP_HISTORY, '{}');
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('[JapService] Corrupted JAP_HISTORY — resetting to empty.', e);
+    Storage.set(STORAGE_KEYS.JAP_HISTORY, '{}');
+    return {};
+  }
+};
+
+export const getDayWiseStats = (mantraId?: string, history: JapaHistory = parseJapaHistory()) => {
+  try {
     const data = [];
 
     for (let i = 6; i >= 0; i--) {
@@ -258,10 +274,8 @@ export const getDayWiseStats = (mantraId?: string) => {
   }
 };
 
-export const getWeekWiseStats = (mantraId?: string) => {
+export const getWeekWiseStats = (mantraId?: string, history: JapaHistory = parseJapaHistory()) => {
   try {
-    const rawHistory = Storage.getString(STORAGE_KEYS.JAP_HISTORY, '{}');
-    const history: JapaHistory = JSON.parse(rawHistory);
     const weeks = [];
 
     for (let i = 3; i >= 0; i--) {
@@ -295,10 +309,8 @@ export const getWeekWiseStats = (mantraId?: string) => {
   }
 };
 
-export const getMonthWiseStats = (mantraId?: string) => {
+export const getMonthWiseStats = (mantraId?: string, history: JapaHistory = parseJapaHistory()) => {
   try {
-    const rawHistory = Storage.getString(STORAGE_KEYS.JAP_HISTORY, '{}');
-    const history: JapaHistory = JSON.parse(rawHistory);
     const months = [];
 
     for (let i = 5; i >= 0; i--) {
@@ -336,10 +348,8 @@ export const getMonthWiseStats = (mantraId?: string) => {
   }
 };
 
-export const getYearWiseStats = (mantraId?: string) => {
+export const getYearWiseStats = (mantraId?: string, history: JapaHistory = parseJapaHistory()) => {
   try {
-    const rawHistory = Storage.getString(STORAGE_KEYS.JAP_HISTORY, '{}');
-    const history: JapaHistory = JSON.parse(rawHistory);
     const years = [];
 
     const currentYear = new Date().getFullYear();

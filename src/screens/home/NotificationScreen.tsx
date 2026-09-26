@@ -25,13 +25,18 @@ import {
   NotificationStorage,
   AppNotification,
 } from '@services/notificationService';
+import {
+  getNotificationIcon,
+  getNotificationBadgeBg,
+} from '@utils/notificationHelpers';
+import { RootNavigationProp } from '@navigation/types';
 
 type FilterType = 'all' | 'sadhana' | 'festival' | 'wisdom';
 
 const NotificationScreen = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<RootNavigationProp>();
   const insets = useSafeAreaInsets();
-  const { t, lang: currentLanguage } = useAppLanguage();
+  const { t, currentLanguage, select } = useAppLanguage();
 
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
@@ -123,47 +128,14 @@ const NotificationScreen = () => {
     [currentLanguage],
   );
 
-  const getTypeIcon = (type: AppNotification['type']) => {
-    switch (type) {
-      case 'sadhana':
-        return '⚡';
-      case 'festival':
-        return '🪔';
-      case 'milestone':
-        return '🏆';
-      case 'wisdom':
-        return '📜';
-      default:
-        return '🔔';
-    }
-  };
-
-  const getTypeBadgeBg = (type: AppNotification['type']) => {
-    switch (type) {
-      case 'sadhana':
-        return colors.accentOrangeBg;
-      case 'festival':
-        return colors.notificationTagOrange;
-      case 'milestone':
-        return colors.notificationTagAmber;
-      case 'wisdom':
-        return colors.notificationTagBrown;
-      default:
-        return colors.borderSubtle2;
-    }
-  };
-
   const notifKeyExtractor = useCallback((item: AppNotification) => item.id, []);
 
   const renderNotificationItem = useCallback(
     ({ item, index }: { item: AppNotification; index: number }) => {
-      const title = currentLanguage === 'hi' ? item.titleHi : item.titleEn;
-      const message =
-        currentLanguage === 'hi' ? item.messageHi : item.messageEn;
-      const icon = getTypeIcon(item.type);
-      const badgeBg = getTypeBadgeBg(item.type);
-
-      const animDelay = Math.min(index, 10) * 45;
+      const title = select(item.titleHi, item.titleEn);
+      const message = select(item.messageHi, item.messageEn);
+      const icon = getNotificationIcon(item.type);
+      const badgeBg = getNotificationBadgeBg(item.type);
 
       return (
         <AnimatedListItem index={index} delayStep={45}>
@@ -201,7 +173,7 @@ const NotificationScreen = () => {
               {item.actionRoute && (
                 <View style={styles.actionRow}>
                   <Text style={styles.actionLinkText}>
-                    {currentLanguage === 'hi' ? 'देखें' : 'View'} →
+                    {select('देखें →', 'View →')}
                   </Text>
                 </View>
               )}
@@ -221,12 +193,7 @@ const NotificationScreen = () => {
         </AnimatedListItem>
       );
     },
-    [
-      currentLanguage,
-      formatTimestamp,
-      handleNotificationPress,
-      handleDeleteNotification,
-    ],
+    [select, formatTimestamp, handleNotificationPress, handleDeleteNotification],
   );
 
   const renderFilterPill = (key: FilterType, label: string, icon: string) => {
@@ -323,9 +290,10 @@ const NotificationScreen = () => {
         {unreadCount > 0 && (
           <View style={styles.markReadRow}>
             <Text style={styles.unreadSubText}>
-              {currentLanguage === 'hi'
-                ? `${unreadCount} बिना पढ़ी सूचनाएं`
-                : `${unreadCount} unread alerts`}
+              {select(
+                `${unreadCount} बिना पढ़ी सूचनाएं`,
+                `${unreadCount} unread alerts`,
+              )}
             </Text>
             <TouchableOpacity onPress={handleMarkAllAsRead} activeOpacity={0.7}>
               <Text style={styles.markReadText}>

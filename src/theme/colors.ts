@@ -195,6 +195,16 @@ export const colors = {
   // Floating Toast Notifications
   toastBg: 'rgba(30, 27, 24, 0.94)',
   toastBorder: 'rgba(251, 148, 55, 0.3)',
+
+  // Contract Modal Tokens
+  contractCardBg: 'rgba(255, 246, 220, 0.97)',
+  contractDarkOverlay: 'rgba(20, 8, 0, 0.72)',
+  contractBorder: 'rgba(251, 148, 55, 0.45)',
+  contractDismissText: 'rgba(255, 255, 255, 0.45)',
+  contractParchmentBrown: '#2a1708',
+  contractOrnament: '#8a5323',
+  contractDivider: 'rgba(138, 83, 35, 0.25)',
+  contractBackdrop: 'rgba(0, 0, 0, 0.72)',
 };
 
 export const bannerGradients = {

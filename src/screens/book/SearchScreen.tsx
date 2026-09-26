@@ -40,7 +40,7 @@ import { useAppLanguage } from '@hooks';
 const SearchScreen = () => {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
-  const { t, lang: currentLang } = useAppLanguage();
+  const { t, currentLanguage: currentLang } = useAppLanguage();
   const labels = {
     searchPlaceholder: t(Translation.BOOK_SEARCH_PLACEHOLDER),
     noResults: t(Translation.BOOK_NO_STORIES_FOUND),

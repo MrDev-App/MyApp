@@ -232,6 +232,7 @@ const imagePath = {
   warning: require('./png/warning.webp'),
 
   calendar: require('./png/calendar.webp'),
+  letter: require('./png/letter.png'),
   lamp: require('./png/lamp.webp'),
   shlok: require('./png/shlok.webp'),
   shlokasFallback: require('./png/shlokasFallback.webp'),

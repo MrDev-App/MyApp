@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -12,7 +12,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
@@ -26,12 +26,15 @@ import {
 } from '@components';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
+import { RootNavigationProp, RootStackParamList } from '@navigation/types';
+
+type MantraScreenRouteProp = RouteProp<RootStackParamList, 'MantraScreen'>;
 
 const MantraScreen = () => {
   const insets = useSafeAreaInsets();
-  const route = useRoute<any>();
-  const navigation = useNavigation<any>();
-  const { isHindi, t } = useAppLanguage();
+  const route = useRoute<MantraScreenRouteProp>();
+  const navigation = useNavigation<RootNavigationProp>();
+  const { isHindi, t, select } = useAppLanguage();
 
   const initialGod: God | undefined = route.params?.god;
   const allGods: God[] =
@@ -42,9 +45,9 @@ const MantraScreen = () => {
   );
   const [selectedMantra, setSelectedMantra] = useState<GodMantra | null>(null);
 
-  const handleSelectGod = (item: God) => {
+  const handleSelectGod = useCallback((item: God) => {
     setSelectedGod(item);
-  };
+  }, []);
 
   const currentGod = selectedGod || initialGod || allGods[0];
 
@@ -62,11 +65,7 @@ const MantraScreen = () => {
     ];
   }, [currentGod]);
 
-  const godName = currentGod
-    ? isHindi
-      ? currentGod.hindiName
-      : currentGod.englishName
-    : '';
+  const godName = select(currentGod?.hindiName ?? '', currentGod?.englishName ?? '');
 
   const handleStartJap = (_mantraItem: GodMantra) => {
     setSelectedMantra(null);
@@ -132,7 +131,7 @@ const MantraScreen = () => {
                 resumeDelayMs={1500}
                 renderItem={({ item }) => {
                   const isSelected = item.id === currentGod?.id;
-                  const name = isHindi ? item.hindiName : item.englishName;
+                  const name = select(item.hindiName, item.englishName);
                   return (
                     <AutoScrollItem
                       style={({ pressed }) => [
@@ -175,7 +174,7 @@ const MantraScreen = () => {
 
           {/* Mantras List (मंत्र सूची) */}
           {mantras.map((m, index) => {
-            const title = isHindi && m.nameHi ? m.nameHi : m.nameEn || m.nameHi;
+            const title = select(m.nameHi, m.nameEn ?? m.nameHi);
             return (
               <AnimatedListItem
                 key={`${currentGod?.id || 'god'}_${index}`}
@@ -258,9 +257,7 @@ const MantraScreen = () => {
                     )}
                     <View style={styles.modalHeaderInfo}>
                       <Text style={styles.modalTitle} numberOfLines={1}>
-                        {isHindi && selectedMantra.nameHi
-                          ? selectedMantra.nameHi
-                          : selectedMantra.nameEn || selectedMantra.nameHi}
+                        {select(selectedMantra.nameHi, selectedMantra.nameEn ?? selectedMantra.nameHi)}
                       </Text>
                       <Text style={styles.modalSubtitle} numberOfLines={1}>
                         {godName}
