@@ -8,7 +8,11 @@
     "lint": "eslint .",
     "postinstall": "patch-package",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "export:shlokas": "node scripts/exportShlokaData.js",
+    "upload:shlokas": "node scripts/uploadShlokas.js",
+    "upload:dry": "node scripts/uploadShlokas.js --dry-run",
+    "upload:reset": "node scripts/uploadShlokas.js --reset"
   },
   "dependencies": {
     "@notifee/react-native": "^9.1.8",

@@ -6,6 +6,8 @@ import FirebaseCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
+
+ 
   var window: UIWindow?
 
   var reactNativeDelegate: ReactNativeDelegate?
@@ -26,14 +28,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     reactNativeDelegate = delegate
     reactNativeFactory = factory
 
-    window = UIWindow(frame: UIScreen.main.bounds)
-
-    factory.startReactNative(
-      withModuleName: "guruvani",
-      in: window,
-      launchOptions: launchOptions
-    )
-
+    // Window is now managed by SceneDelegate for UIScene lifecycle compliance.
+    // This is required for foldable / multi-display devices (e.g. iPhone Duo).
     return true
   }
 }
