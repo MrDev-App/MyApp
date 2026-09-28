@@ -36,15 +36,6 @@ const ReadingScreen = () => {
 
   const [isZoomed, setIsZoomed] = useState(false);
 
-  const toggleTheme = () => {
-    triggerHaptic('impactLight');
-    setIsDarkMode(prev => {
-      const next = !prev;
-      Storage.set(STORAGE_KEYS.READER_THEME, next ? 'dark' : 'light');
-      return next;
-    });
-  };
-
   const { storyId } = route.params || {};
   const story =
     MahaBharatStories.find(s => s.id === storyId) || MahaBharatStories[0];
