@@ -13,7 +13,7 @@ import { fs, scale } from '@theme/sizes';
 import { AnimatedListItem } from '@components';
 import { useAppLanguage } from '@hooks';
 import imagePath from '@assets/index';
-import { ShlokaSubItem } from '@services/firebaseServices/shlokaService';
+import { ShlokaSubItem } from '@services/firebaseServices/shlokasService';
 
 export interface ShlokaSubItemCardProps {
   item: ShlokaSubItem;

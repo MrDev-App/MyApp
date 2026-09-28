@@ -10,7 +10,7 @@ import { triggerHaptic } from '@helper/helper';
 import { LocationIcon } from '@components/icons/SvgIcons';
 import LottieView from 'lottie-react-native';
 import imagePath from '@assets/index';
-import { TempleItem } from '@constants/templesData';
+import { TempleItem } from '@services/firebaseServices/templeService';
 
 interface TempleAvatarProps {
   source: any;

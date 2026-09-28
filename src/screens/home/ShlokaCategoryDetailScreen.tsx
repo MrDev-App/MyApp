@@ -25,9 +25,8 @@ import {
   getShlokaCategoryDetail,
   ShlokaCategoryDetail,
   ShlokaSubItem,
-  STATIC_SHLOKA_CATEGORIES_DATA,
-} from '@services/firebaseServices/shlokaService';
-import { ShlokaCategory } from '@constants/shlokData';
+  ShlokaCategory,
+} from '@services/firebaseServices/shlokasService';
 
 // Sub-components
 import ShlokaSubItemCard from './components/ShlokaSubItemCard';
@@ -47,17 +46,20 @@ export const ShlokaCategoryDetailScreen: React.FC = () => {
   }, [route.params?.category]);
 
   const slug = useMemo(() => {
-    return (categoryParam.slug || categoryParam.id).replace('occasion-', '');
+    return (categoryParam?.slug || categoryParam?.id || '').replace(
+      'occasion-',
+      '',
+    );
   }, [categoryParam]);
 
-  const [categoryData, setCategoryData] = useState<ShlokaCategoryDetail>(() => {
-    return STATIC_SHLOKA_CATEGORIES_DATA[slug];
-  });
-
+  const [categoryData, setCategoryData] = useState<ShlokaCategoryDetail | null>(
+    null,
+  );
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     let isMounted = true;
+    setLoading(true);
     getShlokaCategoryDetail(slug)
       .then(data => {
         if (isMounted && data) {
@@ -66,7 +68,7 @@ export const ShlokaCategoryDetailScreen: React.FC = () => {
       })
       .catch(err => {
         console.warn(
-          '[ShlokaCategoryDetailScreen] Error fetching category detail:',
+          '[ShlokaCategoryDetailScreen] Error fetching category detail from Firebase:',
           err,
         );
       })
@@ -82,25 +84,31 @@ export const ShlokaCategoryDetailScreen: React.FC = () => {
   }, [slug]);
 
   const screenTitle = useMemo(() => {
-    if (categoryParam.title) {
+    if (categoryData) {
+      return isHindi ? categoryData.titleHi : categoryData.titleEn;
+    }
+    if (isHindi && categoryParam?.titleHi) {
+      return categoryParam.titleHi;
+    }
+    if (!isHindi && categoryParam?.titleEn) {
+      return categoryParam.titleEn;
+    }
+    if (categoryParam?.title) {
       return t(categoryParam.title);
     }
-    return isHindi ? categoryData.titleHi : categoryData.titleEn;
-  }, [
-    categoryParam.title,
-    categoryData.titleHi,
-    categoryData.titleEn,
-    isHindi,
-    t,
-  ]);
+    return categoryParam?.titleEn || categoryParam?.titleHi || '';
+  }, [categoryData, categoryParam, isHindi, t]);
 
   const screenDesc = useMemo(() => {
-    return isHindi ? categoryData.descriptionHi : categoryData.descriptionEn;
-  }, [categoryData.descriptionHi, categoryData.descriptionEn, isHindi]);
+    if (categoryData) {
+      return isHindi ? categoryData.descriptionHi : categoryData.descriptionEn;
+    }
+    return '';
+  }, [categoryData, isHindi]);
 
   const categoryImageUri = useMemo(() => {
-    return categoryParam.imageUrl || categoryData.imageUrl;
-  }, [categoryParam.imageUrl, categoryData.imageUrl]);
+    return categoryParam?.imageUrl || categoryData?.imageUrl;
+  }, [categoryParam?.imageUrl, categoryData?.imageUrl]);
 
   const handleCardPress = useCallback(
     (item: ShlokaSubItem) => {

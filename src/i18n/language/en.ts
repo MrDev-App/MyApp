@@ -388,6 +388,9 @@ export default {
   SHLOK_CAT_CHILDREN: 'For Children',
   SHLOK_CAT_MIND_HEART: 'Mind & Heart',
   SHLOK_CAT_SPIRITUAL_PATH: 'The Spiritual Path',
+  SHLOK_WAKING_NAME: 'Shlokas for Waking Up',
+  SHLOK_WAKING_DESC:
+    'The very first moment of waking is a chance to begin the day with God rather than with our worries. These verses greet the morning — gazing at the palms of the hands, waking the Lord, remembering Ganesha and the gods. Chant these prayers quietly before you rise, so the day starts in gratitude.',
 
   // Contract / Vow Modal
   CONTRACT_INVOCATION: '॥ Shri Hari ॥',

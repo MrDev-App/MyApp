@@ -10,7 +10,6 @@ import {
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 import imagePath from '@assets/index';
-import { shlokData } from '@constants/shlokData';
 
 export interface CategoryItem {
   id: string;
@@ -47,7 +46,7 @@ export const STATIC_SHLOK_CATEGORY: Category = {
     'दैनिक जीवन के हर अवसर के लिए पवित्र श्लोक — प्रातः जागरण से शयन तक।',
   descriptionEn:
     'Verses for the occasions of daily life — from waking to sleep, and everything in between.',
-  items: shlokData,
+  items: [],
 };
 
 export const getCachedAartiCategory = (): Category | null => {

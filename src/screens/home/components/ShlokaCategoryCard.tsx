@@ -15,7 +15,7 @@ import { AnimatedListItem } from '@components';
 import Skeleton from '@components/Skeleton';
 import { useAppLanguage } from '@hooks';
 import imagePath from '@assets/index';
-import { ShlokaCategory } from '@constants/shlokData';
+import { ShlokaCategory } from '@services/firebaseServices/shlokasService';
 
 const loadedImageCache = new Set<string>();
 
@@ -36,7 +36,7 @@ export const ShlokaCategoryCard: React.FC<ShlokaCategoryCardProps> = ({
   cardHeight,
   onPress,
 }) => {
-  const { t } = useAppLanguage();
+  const { t, isHindi } = useAppLanguage();
   const [hasError, setHasError] = useState<boolean>(false);
 
   const isInitiallyLoaded = useMemo(() => {
@@ -69,8 +69,17 @@ export const ShlokaCategoryCard: React.FC<ShlokaCategoryCardProps> = ({
   }, [onPress, item]);
 
   const title = useMemo(() => {
-    return item.title ? t(item.title) : item.title;
-  }, [item.title, t]);
+    if (isHindi && item.titleHi) {
+      return item.titleHi;
+    }
+    if (!isHindi && item.titleEn) {
+      return item.titleEn;
+    }
+    if (item.title) {
+      return t(item.title);
+    }
+    return item.titleEn || item.titleHi || '';
+  }, [item, isHindi, t]);
 
   return (
     <AnimatedListItem index={index} numColumns={numColumns} delayStep={45}>

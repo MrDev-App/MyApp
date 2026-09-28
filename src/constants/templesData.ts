@@ -7,705 +7,2194 @@ export type TempleCategory =
   | 'major'
   | 'chota_chardham';
 
-export interface TempleItem {
-  id: string;
+export interface GeoLocation {
+  latitude: number;
+  longitude: number;
+}
+
+export interface TempleTiming {
+  openingTime?: string;
+  closingTime?: string;
+  aartiTimingsHi?: string;
+  aartiTimingsEn?: string;
+  bestTimeToVisitHi?: string;
+  bestTimeToVisitEn?: string;
+}
+
+export interface HowToReach {
+  byAirHi?: string;
+  byAirEn?: string;
+  byRailHi?: string;
+  byRailEn?: string;
+  byRoadHi?: string;
+  byRoadEn?: string;
+  nearestAirport?: string;
+  nearestRailwayStation?: string;
+}
+
+export interface TempleFestival {
   nameHi: string;
   nameEn: string;
+  dateHi?: string;
+  dateEn?: string;
+  descriptionHi?: string;
+  descriptionEn?: string;
+}
+
+export interface TempleItem {
+  id: string;
+  order?: number;
+  isActive?: boolean;
+  updatedAt?: string;
+
+  // ── Identity ──────────────────────────────────────────────
+  nameHi: string;
+  nameEn: string;
+  aliasNamesHi?: string[];
+  aliasNamesEn?: string[];
+
+  // ── Location ──────────────────────────────────────────────
   locationHi: string;
   locationEn: string;
+  addressHi?: string;
+  addressEn?: string;
+  districtHi?: string;
+  districtEn?: string;
   stateHi: string;
   stateEn: string;
+  countryHi?: string;
+  countryEn?: string;
+  pincode?: string;
+  geo?: GeoLocation;
+
+  // ── Religious details ─────────────────────────────────────
   deityHi: string;
   deityEn: string;
-  image: any;
-  imageUrl?: string;
+  otherDeitiesHi?: string[];
+  otherDeitiesEn?: string[];
+  yugaHi?: string;
+  yugaEn?: string;
+  directionHi?: string;
+  directionEn?: string;
+  mythologyHi?: string;
+  mythologyEn?: string;
+
+  // ── Categorization ────────────────────────────────────────
   category: TempleCategory;
   categories: TempleCategory[];
   isCharDham?: boolean;
   isJyotirlinga?: boolean;
   isShaktipeeth?: boolean;
   isChotaCharDham?: boolean;
-  yugaHi?: string;
-  yugaEn?: string;
-  directionHi?: string;
-  directionEn?: string;
+  isDivyaDesam?: boolean;
+  tags?: string[];
+
+  // ── History & significance ────────────────────────────────
+  historyHi?: string;
+  historyEn?: string;
+  builtCentury?: string;
+  builtByHi?: string;
+  builtByEn?: string;
+  architectureStyleHi?: string;
+  architectureStyleEn?: string;
   significanceHi: string;
   significanceEn: string;
-  timingHi: string;
-  timingEn: string;
   descriptionHi: string;
   descriptionEn: string;
+
+  // ── Visiting info ─────────────────────────────────────────
+  timing: TempleTiming;
+  entryFeeHi?: string;
+  entryFeeEn?: string;
+  dressCodeHi?: string;
+  dressCodeEn?: string;
+  festivals?: TempleFestival[];
+
+  // ── Connectivity ──────────────────────────────────────────
+  howToReach?: HowToReach;
   nearbyAttractionsHi?: string;
   nearbyAttractionsEn?: string;
-  order?: number;
+  nearbyTempleIds?: string[];
+
+  // ── Media ─────────────────────────────────────────────────
+  image: any;
+  imageUrl?: string;
+  galleryImageUrls?: string[];
+  videoUrl?: string;
+  aartiAudioUrl?: string;
+
+  // ── Contact ───────────────────────────────────────────────
+  officialWebsite?: string;
+  contactPhone?: string;
 }
 
 export const templesData: TempleItem[] = [
   // =========================================================================
-  // 1. THE 4 SACRED ALL-INDIA CHAR DHAMS (चार महाधाम - सत्य, त्रेता, द्वापर, कलि)
+  // 1. THE 4 SACRED ALL-INDIA CHAR DHAMS (चार महाधाम)
   // =========================================================================
   {
     id: 'badrinath_dham',
+    order: 1,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
     nameHi: 'बद्रीनाथ धाम (उत्तर धाम - सत्ययुग)',
     nameEn: 'Badrinath Dham (North Dham - Satya Yuga)',
+    aliasNamesHi: ['बद्रीनारायण मंदिर', 'विशाल बद्री'],
+    aliasNamesEn: ['Badrinarayan Temple', 'Vishal Badri'],
     locationHi: 'चमोली, उत्तराखण्ड (अलकनंदा नदी तट)',
     locationEn: 'Chamoli District, Uttarakhand (Banks of Alaknanda River)',
+    addressHi: 'बद्रीनाथ धाम, चमोली, उत्तराखण्ड - 246422',
+    addressEn: 'Badrinath Dham, Chamoli, Uttarakhand - 246422',
+    districtHi: 'चमोली',
+    districtEn: 'Chamoli',
     stateHi: 'उत्तराखण्ड',
     stateEn: 'Uttarakhand',
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '246422',
+    geo: {
+      latitude: 30.7447,
+      longitude: 79.4912,
+    },
     deityHi: 'भगवान विष्णु (बद्रीनारायण / नर-नारायण)',
     deityEn: 'Lord Vishnu (Badrinarayan / Nara-Narayana)',
-    image: imagePath.badrinathDham,
-    category: 'chardham',
-    categories: ['chardham', 'chota_chardham', 'major'],
-    isCharDham: true,
-    isChotaCharDham: true,
+    otherDeitiesHi: [
+      'माँ लक्ष्मी',
+      'गरुड़ जी',
+      'कुबेर जी',
+      'नारद मुनि',
+      'उद्धव जी',
+    ],
+    otherDeitiesEn: [
+      'Goddess Lakshmi',
+      'Garuda',
+      'Kubera',
+      'Narada',
+      'Uddhava',
+    ],
     yugaHi: 'सत्ययुग',
     yugaEn: 'Satya Yuga',
     directionHi: 'उत्तर (North)',
     directionEn: 'North',
-    order: 1,
+    mythologyHi:
+      'जब भगवान विष्णु यहाँ कठोर तपस्या कर रहे थे, तब माँ लक्ष्मी ने बेर (बदरी) का वृक्ष बनकर उन्हें धूप और हिम से बचाया था। अतः इसका नाम बद्रीनाथ पड़ा।',
+    mythologyEn:
+      'When Lord Vishnu performed intense penance here, Goddess Lakshmi sheltered Him by turning into a Badri (jujube) tree, shielding Him from rain and snow.',
+    category: 'chardham',
+    categories: ['chardham', 'chota_chardham', 'major'],
+    isCharDham: true,
+    isChotaCharDham: true,
+    isDivyaDesam: true,
+    tags: ['chardham', 'vishnu', 'himalayas', 'uttarakhand', 'satya-yuga'],
+    historyHi:
+      'आठवीं शताब्दी में आद्य शंकराचार्य जी ने नारद कुंड से शालिग्राम विग्रह निकालकर मंदिर में पुनः प्रतिष्ठित किया था।',
+    historyEn:
+      'In the 8th century CE, Adi Shankaracharya retrieved the self-manifested black Shaligram deity from Narad Kund and enshrined it in the temple.',
+    builtCentury: '8th Century CE',
+    builtByHi: 'आद्य जगद्गुरु शंकराचार्य',
+    builtByEn: 'Adi Shankaracharya',
+    architectureStyleHi: 'पारंपरिक गढ़वाली काष्ठ-पाषाण शैली एवं शंकु शिखर',
+    architectureStyleEn:
+      'Traditional Garhwali stone and wood Himalayan style with conical roof',
     significanceHi:
-      'सत्ययुग से संबंधित प्रथम महाधाम एवं तपस्या का सर्वोच्च केंद्र। यहाँ भगवान विष्णु नर-नारायण स्वरूप में विश्वकल्याण हेतु निरंतर ध्यानमग्न हैं। माता लक्ष्मी ने भीषण हिमपात में नारायण की रक्षा हेतु विशाल बद्री (बेर) वृक्ष का रूप धारण किया था। यह आद्य शंकराचार्य द्वारा स्थापित चार प्रमुख मठों में से ज्योतिर्मठ (जोशीमठ) का पावन क्षेत्र है।',
+      'सत्ययुग का पावन उत्तर धाम, 108 दिव्य देशम में सर्वोपरि तथा चार महाधाम एवं छोटा चार धाम दोनों का अभिन्न पावन केंद्र। नर और नारायण पर्वतों के मध्य अलकनंदा तट पर स्थित।',
     significanceEn:
-      'Associated with Satya Yuga, Badrinath is the supreme domain of penance (tapas). Twin sages Nara and Narayana meditated here for cosmic balance. Goddess Lakshmi manifested as a Badari (berry) tree to shield Narayana. Part of the cardinal mathas established by Adi Shankaracharya (Jyotirmath).',
-    timingHi:
-      'प्रातः 04:30 से दोपहर 01:00, सायं 04:00 से रात्रि 09:00 (अक्षय तृतीया से भाईदूज / ग्रीष्मकालीन)',
-    timingEn:
-      '04:30 AM – 01:00 PM, 04:00 PM – 09:00 PM (May to November / Seasonal)',
+      'The Satya Yuga northern Dham, supreme among 108 Divya Desams, and an integral shrine in both Maha Char Dham and Chota Char Dham circuits.',
     descriptionHi:
-      'नर और नारायण पर्वत श्रृंखलाओं के मध्य अलकनंदा नदी के पावन तट पर स्थित। ८वीं शताब्दी में आद्य जगद्गुरु शंकराचार्य जी ने नारद कुण्ड से शालिग्राम विग्रह को निकालकर तप्त कुण्ड के समीप स्थापित किया था। पौराणिक मान्यता है कि कलियुग के अंत में जब जय-विजय पर्वत आपस में मिल जाएंगे, तब बद्रीनाथ जी का प्राकट्य भविष्य बद्री में होगा।',
+      'समुद्र तल से 3,133 मीटर की ऊँचाई पर स्थित बद्रीनाथ धाम में भगवान बद्रीनारायण पद्मासन मुद्रा में ध्यानमग्न विराजमान हैं। मंदिर के कपाट प्रत्येक वर्ष अक्षय तृतीया के निकट खुलते हैं और भाई दूज पर शीतकाल हेतु बंद होते हैं। मंदिर के समीप स्थित तप्त कुण्ड का प्राकृतिक गर्म जल गंधकयुक्त व औषधीय गुणों से परिपूर्ण है।',
     descriptionEn:
-      'Nestled between the Nar and Narayana ranges on the Alaknanda river. In the 8th century, Adi Shankaracharya recovered the sacred Saligram idol from Narad Kund and consecrated it. Puranic prophecy states that when the mountains of Jay and Vijay close, the deity will manifest at Bhavishya Badri.',
+      'Perched at an altitude of 3,133 meters in the Garhwal Himalayas, Badrinath enshrines a 1-meter black stone statue of Lord Vishnu in padmasana pose. Opens annually around Akshaya Tritiya (April/May) and closes on Bhai Dooj for winter.',
+    timing: {
+      openingTime: '04:30 AM',
+      closingTime: '09:00 PM',
+      aartiTimingsHi:
+        'महाभिषेक: प्रातः 04:30 | गीता पाठ: सायं 06:00 | शयन आरती: रात्रि 08:30',
+      aartiTimingsEn:
+        'Maha Abhishek: 04:30 AM | Geeta Path: 06:00 PM | Shayan Aarti: 08:30 PM',
+      bestTimeToVisitHi:
+        'मई से जून एवं सितम्बर से अक्टूबर (शीतकाल में कपाट बंद रहते हैं)',
+      bestTimeToVisitEn:
+        'May to June and September to October (temple remains closed in winter)',
+    },
+    entryFeeHi: 'निःशुल्क दर्शन (विशेष पूजा एवं अभिषेक हेतु आधिकारिक टोकन)',
+    entryFeeEn:
+      'Free General Darshan (official tokens for special Pujas and Abhishekams)',
+    dressCodeHi:
+      'पारंपरिक भारतीय मर्यादित वस्त्र (धोती-कुर्ता / साड़ी / सलवार सूट)',
+    dressCodeEn:
+      'Modest traditional Indian attire (Dhoti-Kurta, Saree, Salwar)',
+    festivals: [
+      {
+        nameHi: 'बद्री-केदार उत्सव',
+        nameEn: 'Badri-Kedar Festival',
+        dateHi: 'जून माह',
+        dateEn: 'June',
+        descriptionHi:
+          'उत्तराखण्ड की समृद्ध लोक संस्कृति और भक्ति गीतों का महाउत्सव।',
+        descriptionEn:
+          'Grand cultural celebration of Uttarakhand spiritual heritage and music.',
+      },
+      {
+        nameHi: 'जन्माष्टमी एवं माता मूर्ति मेला',
+        nameEn: 'Janmashtami & Mata Murti Mela',
+        dateHi: 'भाद्रपद मास (अगस्त/सितम्बर)',
+        dateEn: 'August / September',
+        descriptionHi:
+          'भगवान श्री कृष्ण का जन्मोत्सव एवं माता मूर्ति का पावन पूजनोत्सव।',
+        descriptionEn:
+          'Celebration of Lord Krishna birth and worshipping Mother Murti.',
+      },
+    ],
+    howToReach: {
+      byAirHi:
+        'जॉली ग्रांट हवाई अड्डा, देहरादून (लगभग 314 किमी) से टैक्सी या हेलिकॉप्टर सेवा।',
+      byAirEn:
+        'Jolly Grant Airport, Dehradun (approx 314 km) followed by taxi or helicopter.',
+      byRailHi: 'निकटतम रेलवे स्टेशन ऋषिकेश (295 किमी) व योगनगरी ऋषिकेश।',
+      byRailEn:
+        'Nearest major railway stations: Rishikesh (295 km) & Yog Nagari Rishikesh.',
+      byRoadHi:
+        'हरिद्वार, ऋषिकेश, जोशीमठ से राष्ट्रीय राजमार्ग 7 (NH-7) द्वारा सुगम सड़क मार्ग।',
+      byRoadEn:
+        'Connected via all-weather NH-7 passing through Rishikesh, Devprayag, and Joshimath.',
+      nearestAirport: 'Jolly Grant Airport, Dehradun (DED)',
+      nearestRailwayStation: 'Rishikesh Railway Station (RKSH) / Haridwar (HW)',
+    },
     nearbyAttractionsHi:
-      'तप्त कुण्ड, माणा गाँव (भारत का प्रथम गाँव), वसुधारा जलप्रपात, व्यास गुफा, गणेश गुफा, चरणपादुका',
+      'तप्त कुण्ड, माणा गाँव (भारत का प्रथम गाँव), वसुधारा जलप्रपात, भीम पुल, व्यास गुफा, गणेश गुफा',
     nearbyAttractionsEn:
-      'Tapt Kund (hot sulfur spring), Mana Village, Vasudhara Falls, Vyas Gufa, Ganesh Gufa, Charanpaduka',
+      'Tapt Kund, Mana Village (First Indian Village), Vasudhara Falls, Bhim Pul, Vyas Gufa, Ganesh Gufa',
+    image: imagePath.badrinathDham,
   },
   {
     id: 'rameshwaram_dham',
-    nameHi: 'रामेश्वरम धाम एवं ज्योतिर्लिंग (दक्षिण धाम - त्रेतायुग)',
-    nameEn: 'Rameswaram Dham & Jyotirlinga (South Dham - Treta Yuga)',
-    locationHi: 'रामेश्वरम द्वीप, रामनाथपुरम, तमिलनाडु',
-    locationEn: 'Rameswaram Island, Tamil Nadu',
+    order: 2,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'रामेश्वरम धाम (दक्षिण धाम - त्रेतायुग)',
+    nameEn: 'Rameshwaram Dham (South Dham - Treta Yuga)',
+    aliasNamesHi: ['श्री रामनाथस्वामी मंदिर', 'सेतु माधव मंदिर'],
+    aliasNamesEn: ['Sri Ramanathaswamy Temple', 'Sethu Madhava Temple'],
+    locationHi: 'रामनाथपुरम, तमिलनाडु (पाम्बन द्वीप)',
+    locationEn: 'Ramanathapuram District, Tamil Nadu (Pamban Island)',
+    addressHi: 'श्री रामनाथस्वामी मंदिर, रामेश्वरम, तमिलनाडु - 623526',
+    addressEn: 'Sri Ramanathaswamy Temple, Rameswaram, Tamil Nadu - 623526',
+    districtHi: 'रामनाथपुरम',
+    districtEn: 'Ramanathapuram',
     stateHi: 'तमिलनाडु',
     stateEn: 'Tamil Nadu',
-    deityHi: 'भगवान शिव (रामनाथस्वामी / रामलिंगम व विश्वलिंगम)',
-    deityEn: 'Lord Shiva (Ramanathaswamy - Ramalingam & Viswalingam)',
-    image: imagePath.rameshwaramJyotirlinga,
-    category: 'chardham',
-    categories: ['chardham', 'jyotirlinga', 'major'],
-    isCharDham: true,
-    isJyotirlinga: true,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '623526',
+    geo: {
+      latitude: 9.2881,
+      longitude: 79.3174,
+    },
+    deityHi: 'भगवान शिव (रामनाथस्वामी ज्योतिर्लिंग)',
+    deityEn: 'Lord Shiva (Ramanathaswamy Jyotirlinga)',
+    otherDeitiesHi: [
+      'माता पर्वतावर्धिनी',
+      'भगवान सेतुमाधव (विष्णु)',
+      'हनुमान जी',
+    ],
+    otherDeitiesEn: [
+      'Goddess Parvathavarthini',
+      'Lord Sethu Madhava (Vishnu)',
+      'Lord Hanuman',
+    ],
     yugaHi: 'त्रेतायुग',
     yugaEn: 'Treta Yuga',
     directionHi: 'दक्षिण (South)',
     directionEn: 'South',
-    order: 2,
+    mythologyHi:
+      'लंका विजय एवं रावण वध के पश्चात ब्रह्महत्या दोष निवारण हेतु मर्यादा पुरुषोत्तम भगवान श्री राम ने माता सीता द्वारा बालू से निर्मित शिवलिंग की विधिवत प्रतिष्ठा की थी।',
+    mythologyEn:
+      'Lord Rama consecrated the sand Lingam fashioned by Sita Devi to absolve the sin of killing Ravana before crossing the Ram Setu to Sri Lanka.',
+    category: 'chardham',
+    categories: ['chardham', 'jyotirlinga', 'major'],
+    isCharDham: true,
+    isJyotirlinga: true,
+    tags: [
+      'chardham',
+      'jyotirlinga',
+      'shiva',
+      'rameshwaram',
+      'treta-yuga',
+      'tamil-nadu',
+    ],
+    historyHi:
+      'मंदिर के वर्तमान भव्य स्वरूप और विश्वप्रसिद्ध तीसरे गलियारे का निर्माण 12वीं से 18वीं शताब्दी में पाण्ड्य और सेतुपति राजाओं द्वारा कराया गया था।',
+    historyEn:
+      'Extensively expanded in the 12th-18th centuries by Pandya kings and the Sethupathi rulers of Ramanathapuram.',
+    builtCentury: '12th – 18th Century CE',
+    builtByHi: 'पाण्ड्य राजवंश एवं सेतुपति नरेश',
+    builtByEn: 'Pandya Dynasty & Sethupathi Rulers',
+    architectureStyleHi:
+      'विशाल द्रविड़ियन शैली, भव्य गोपुरम एवं 1212 नक्काशीदार स्तंभों वाला गलियारा',
+    architectureStyleEn:
+      'Dravidian temple architecture with towering Gopurams and longest pillared corridor (1212 pillars)',
     significanceHi:
-      'त्रेतायुग से संबंधित दक्षिण धाम एवं द्वादश ज्योतिर्लिंग, जो शैव और वैष्णव मतों का परम संगम है। लंका विजय व रावण वध के पश्चात ब्रह्म-हत्या दोष से मुक्ति हेतु भगवान श्री राम ने यहाँ महादेव की प्रतिष्ठा की थी। आदि शंकराचार्य ने यहाँ शृंगेरी शारदा पीठ से संबंधित दक्षिण पीठ की स्थापना की थी।',
+      'त्रेतायुग से संबंधित पावन दक्षिण धाम, 12 ज्योतिर्लिंगों में एकादश ज्योतिर्लिंग तथा काशी यात्रा की पूर्णता का पावन तीर्थ। मंदिर परिसर में 22 पवित्र तीर्थ (कुण्ड) विद्यमान हैं।',
     significanceEn:
-      'Associated with Treta Yuga, Rameswaram bridges Shaivism and Vaishnavism as both a Char Dham and a Jyotirlinga. Lord Rama consecrated the Shiva Lingam here to atone for slaying Ravana before building the bridge to Lanka. Connected to Adi Shankaracharya’s Southern monastic tradition.',
-    timingHi:
-      'प्रातः 05:00 से दोपहर 01:00, दोपहर 03:00 से रात्रि 09:00 (स्फटिक लिंग दर्शन: प्रातः 05:00 से 06:00)',
-    timingEn:
-      '05:00 AM – 01:00 PM, 03:00 PM – 09:00 PM (Spadika Linga Darshan: 05:00 AM – 06:00 AM)',
+      'The Treta Yuga Southern Dham, 11th Jyotirlinga, and culmination point of Kashi Yatra. Houses 22 sacred Theerthams (wells).',
     descriptionHi:
-      'गर्भगृह में दो दिव्य शिवलिंग प्रतिष्ठित हैं—माता सीता द्वारा रेत से निर्मित "रामलिंगम" और कैलाश से हनुमान जी द्वारा लाया गया "विश्वलिंगम"। श्री राम के आदेशानुसार आज भी पहले विश्वलिंगम की पूजा होती है। मंदिर परिसर में श्री राम के बाणों से निर्मित २२ पवित्र कुण्ड (तीर्थ) हैं, जिनमें स्नान से समस्त पाप व रोग नष्ट होते हैं।',
+      'पाम्बन द्वीप पर स्थित रामेश्वरम मंदिर का गलियारा (Corridor) विश्व का सबसे लंबा मंदिर गलियारा है जिसकी लंबाई 1,220 मीटर है। दर्शन से पूर्व अग्नि तीर्थम (समुद्र) और परिसर के 22 पवित्र कुओं के जल से स्नान करने की पावन परंपरा है।',
     descriptionEn:
-      'Houses two sacred lingams: Ramalingam (sculpted from sand by Sita) and Viswalingam (brought from Kailash by Hanuman, worshipped first as per Rama’s decree). Pilgrims bathe in 22 holy wells (Theerthams) created by Rama’s arrows, possessing therapeutic and purifying powers.',
+      'Home to the world’s longest temple corridor measuring 1,220 meters with 1,212 intricately sculpted granite pillars. Devotees take holy bath in Agni Theertham and 22 sacred wells inside the temple.',
+    timing: {
+      openingTime: '05:00 AM',
+      closingTime: '09:00 PM',
+      aartiTimingsHi:
+        'स्पटिक लिंग दर्शन: प्रातः 05:00 | उच्छिकाल पूजा: दोपहर 12:00 | सायं पूजा: 06:00 | शयन पूजा: रात्रि 08:45',
+      aartiTimingsEn:
+        'Spatika Linga Darshan: 05:00 AM | Uchikala Puja: 12:00 PM | Sayaratchai: 06:00 PM | Arthajama: 08:45 PM',
+      bestTimeToVisitHi: 'अक्टूबर से मार्च (सुखद एवं शीतल मौसम)',
+      bestTimeToVisitEn: 'October to March (pleasant coastal climate)',
+    },
+    entryFeeHi:
+      'निःशुल्क सामान्य दर्शन (22 कुण्ड स्नान हेतु ₹25 का आधिकारिक टिकट)',
+    entryFeeEn:
+      'Free general Darshan (nominal ₹25 ticket for 22 Theertham holy baths)',
+    dressCodeHi:
+      'पारंपरिक भारतीय परिधान (पुरुषों हेतु धोती/अंगवस्त्रम अनिवार्य, महिलाओं हेतु साड़ी/सूट)',
+    dressCodeEn:
+      'Strict traditional dress code: Dhoti/Veshti for men, Saree/Salwar for women',
+    festivals: [
+      {
+        nameHi: 'महाशिवरात्रि',
+        nameEn: 'Maha Shivaratri',
+        dateHi: 'फाल्गुन मास (फरवरी/मार्च)',
+        dateEn: 'February / March',
+        descriptionHi:
+          '10 दिवसीय ब्रह्मोत्सव एवं भगवान रामनाथस्वामी व देवी का दिव्य कल्याणम्।',
+        descriptionEn:
+          '10-day grand Brahmotsavam and divine wedding ceremony of Shiva & Parvathi.',
+      },
+      {
+        nameHi: 'रामलिंग प्रतिष्टा उत्सव',
+        nameEn: 'Ramalinga Pratishtha Utsavam',
+        dateHi: 'ज्येष्ठ मास (जून)',
+        dateEn: 'June',
+        descriptionHi:
+          'श्री राम द्वारा शिवलिंग प्रतिष्ठा की स्मृति का पावन उत्सव।',
+        descriptionEn:
+          'Annual festival celebrating the consecration of the Lingam by Lord Rama.',
+      },
+    ],
+    howToReach: {
+      byAirHi:
+        'मदुरै अंतर्राष्ट्रीय हवाई अड्डा (लगभग 175 किमी) से नियमित टैक्सी व बस सेवा।',
+      byAirEn:
+        'Madurai International Airport (approx 175 km) is the nearest airport.',
+      byRailHi:
+        'रामेश्वरम रेलवे स्टेशन (RMM) पाम्बन रेल पुल द्वारा भारत के प्रमुख नगरों से जुड़ा है।',
+      byRailEn:
+        'Rameswaram Railway Station (RMM) connected via the historic Pamban Sea Bridge.',
+      byRoadHi:
+        'राष्ट्रीय राजमार्ग 87 (NH-87) और पाम्बन सड़क पुल (अन्नाई इंदिरा गांधी सेतु) द्वारा उत्कृष्ट सड़क कनेक्टिविटी।',
+      byRoadEn:
+        'Connected via NH-87 over the Annai Indira Gandhi Road Bridge over the ocean.',
+      nearestAirport: 'Madurai International Airport (IXM)',
+      nearestRailwayStation: 'Rameswaram Railway Station (RMM)',
+    },
     nearbyAttractionsHi:
-      'धनुषकोडी, राम सेतु बिंदु, पंचमुखी हनुमान मंदिर (तैरते पत्थर), अग्नि तीर्थम, एपीजे अब्दुल कलाम मेमोरियल',
+      'धनुषकोडि (भूतहा शहर व रामसेतु बिंदु), पाम्बन ब्रिज, अग्नि तीर्थम, एपीजे अब्दुल कलाम मेमोरियल, पंचमुखी हनुमान मंदिर',
     nearbyAttractionsEn:
-      'Dhanushkodi, Ram Setu Point, Panchmukhi Hanuman Temple (Floating Stones), Agni Tirtham, APJ Abdul Kalam Memorial',
+      'Dhanushkodi & Ram Setu Point, Pamban Sea Bridge, Agni Theertham, Dr. APJ Abdul Kalam National Memorial, Panchamukhi Hanuman Temple',
+    image: imagePath.rameshwaramJyotirlinga,
   },
   {
     id: 'dwarkadhish_dham',
+    order: 3,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
     nameHi: 'द्वारकाधीश धाम (पश्चिम धाम - द्वापरयुग)',
     nameEn: 'Dwarkadhish Dham (West Dham - Dvapara Yuga)',
-    locationHi: 'द्वारका, सौराष्ट्र, गुजरात (गोमती नदी संगम, अरब सागर)',
-    locationEn: 'Dwarka, Gujarat (Confluence of Gomti River & Arabian Sea)',
+    aliasNamesHi: ['जगत मंदिर', 'त्रिलोक सुंदर मंदिर'],
+    aliasNamesEn: ['Jagat Mandir', 'Trilok Sunder Temple'],
+    locationHi: 'देवभूमि द्वारका, गुजरात (गोमती नदी व अरब सागर संगम)',
+    locationEn:
+      'Devbhumi Dwarka, Gujarat (Confluence of Gomti River & Arabian Sea)',
+    addressHi: 'द्वारकाधीश जगत मंदिर, द्वारका, गुजरात - 361335',
+    addressEn: 'Dwarkadhish Jagat Mandir, Dwarka, Gujarat - 361335',
+    districtHi: 'देवभूमि द्वारका',
+    districtEn: 'Devbhumi Dwarka',
     stateHi: 'गुजरात',
     stateEn: 'Gujarat',
-    deityHi: 'भगवान श्री कृष्ण (द्वारकाधीश / त्रिलोक सुंदर)',
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '361335',
+    geo: {
+      latitude: 22.2376,
+      longitude: 68.9678,
+    },
+    deityHi: 'भगवान श्री कृष्ण (द्वारकाधीश / राजाधिराज)',
     deityEn: 'Lord Krishna (Dwarkadhish / King of Dwarka)',
-    image: imagePath.dwarkadhishDham,
-    category: 'chardham',
-    categories: ['chardham', 'major'],
-    isCharDham: true,
+    otherDeitiesHi: [
+      'माता रुक्मिणी',
+      'बलराम जी',
+      'प्रद्युम्न जी',
+      'अनिरुद्ध जी',
+      'माता देवकी',
+    ],
+    otherDeitiesEn: [
+      'Goddess Rukmini',
+      'Balarama',
+      'Pradyumna',
+      'Aniruddha',
+      'Devaki',
+    ],
     yugaHi: 'द्वापरयुग',
     yugaEn: 'Dvapara Yuga',
     directionHi: 'पश्चिम (West)',
     directionEn: 'West',
-    order: 3,
-    significanceHi:
-      'द्वापरयुग से संबंधित पश्चिम धाम एवं सप्त पुरियों में मोक्षदायिनी पुरी। मथुरा त्याग के उपरांत भगवान श्री कृष्ण ने समुद्र देव से १२ योजन भूमि लेकर विश्वकर्मा द्वारा इस भव्य स्वर्ण नगरी की रचना कराई थी। यहाँ आद्य शंकराचार्य द्वारा स्थापित पश्चिमी द्वारका शारदा पीठ (कालिका मठ) स्थित है।',
-    significanceEn:
-      'Associated with Dvapara Yuga and one of the Sapta Puris (Mokshada Puri). Lord Krishna established his residential capital here over 12 yojanas of reclaimed sea land built by Vishwakarma. Site of the western Dvaraka Sharada Peetham established by Adi Shankara.',
-    timingHi:
-      'प्रातः 06:30 से दोपहर 01:00, सायं 05:00 से रात्रि 09:30 (ध्वजारोहण: प्रातः, दोपहर, सायं)',
-    timingEn:
-      '06:30 AM – 01:00 PM, 05:00 PM – 09:30 PM (Daily 5 Sacred Flag Hoistings)',
-    descriptionHi:
-      'महाभारत युद्ध के ३६ वर्ष पश्चात गांधारी के शाप व यदुवंश के उपशम के साथ मूल द्वारका नगरी समुद्र में समाहित हो गई थी। वर्तमान ५-मंजिला जगत मंदिर का निर्माण भगवान कृष्ण के प्रपौत्र वज्रनाभ द्वारा मूल "हरि गृह" पर कराया गया था। समुद्री पुरातत्व उत्खनन में जलमग्न पाषाण स्तंभ और प्राचीन प्राचीर मिले हैं जो पौराणिक इतिहास को प्रमाणित करते हैं।',
-    descriptionEn:
-      'Following Queen Gandhari’s curse, the original golden city submerged into the Arabian Sea 36 years after the Mahabharata war. The present 5-story Jagat Mandir was built by Krishna’s great-grandson Vajranabh over the original palace (Hari Griha). Marine excavations have verified these submerged ancient structures.',
-    nearbyAttractionsHi:
-      'बेट द्वारका, रुक्मिणी देवी मंदिर, गोमती घाट, नागेश्वर ज्योतिर्लिंग, सुदामा सेतु',
-    nearbyAttractionsEn:
-      'Beyt Dwarka, Rukmini Devi Temple, Gomti Ghat, Nageshwar Jyotirlinga, Sudama Setu',
-  },
-  {
-    id: 'jagannath_puri',
-    nameHi: 'श्री जगन्नाथ पुरी धाम (पूर्व धाम - कलियुग)',
-    nameEn: 'Shri Jagannath Puri Dham (East Dham - Kali Yuga)',
-    locationHi: 'पुरी, ओडिशा (बंगाल की खाड़ी तट)',
-    locationEn: 'Puri, Odisha (Eastern Coast on Bay of Bengal)',
-    stateHi: 'ओडिशा',
-    stateEn: 'Odisha',
-    deityHi: 'भगवान जगन्नाथ (श्रीकृष्ण), बलभद्र व देवी सुभद्रा',
-    deityEn: 'Lord Jagannath (Krishna), Balabhadra & Goddess Subhadra',
-    image: imagePath.jagannathPuriDham,
+    mythologyHi:
+      'मथुरा त्याग के उपरांत भगवान श्री कृष्ण ने समुद्र देव से 12 योजन भूमि लेकर विश्वकर्मा द्वारा इस भव्य स्वर्ण नगरी की रचना कराई थी। यहाँ आद्य शंकराचार्य द्वारा स्थापित पश्चिमी शारदा पीठ स्थित है।',
+    mythologyEn:
+      'Lord Krishna founded His golden capital here on 12 yojanas of reclaimed sea land. Houses the western Sharada Peetham established by Adi Shankaracharya.',
     category: 'chardham',
     categories: ['chardham', 'major'],
     isCharDham: true,
+    isDivyaDesam: true,
+    tags: [
+      'chardham',
+      'krishna',
+      'gujarat',
+      'dvapara-yuga',
+      'dwarka',
+      'divya-desam',
+    ],
+    historyHi:
+      'मूल हरि-गृह पर मंदिर का निर्माण भगवान कृष्ण के प्रपौत्र वज्रनाभ द्वारा कराया गया था। वर्तमान 5-मंजिला 72-स्तंभों वाला मंदिर 16वीं शताब्दी में निर्मित है।',
+    historyEn:
+      'Originally built by Vajranabh (great-grandson of Lord Krishna) over Hari Griha. Present 5-story 72-pillar temple structure dates to 16th century CE.',
+    builtCentury: '16th Century CE (Current structure)',
+    builtByHi: 'वज्रनाभ (मूल) एवं चालुक्य-सोलंकी राजा',
+    builtByEn: 'Vajranabh (Original) & Chalukya/Solanki Rulers',
+    architectureStyleHi:
+      'चालुक्य-सोलंकी नागर वास्तु शैली, 72 नक्काशीदार पाषाण स्तंभ एवं 52 गज की धर्मध्वजा',
+    architectureStyleEn:
+      'Chalukya-Solanki Nagara architectural style with 72 carved sandstone pillars and 52-yard sacred flag',
+    significanceHi:
+      'द्वापरयुग से संबंधित पश्चिम महाधाम, सप्त मोक्षदायिनी पुरियों में प्रमुख। मंदिर के 51 मीटर ऊंचे शिखर पर दिन में 5 बार 52 गज की दिव्य धर्मध्वजा बदली जाती है।',
+    significanceEn:
+      'The Dvapara Yuga Western Dham, one of the 7 Moksha-granting holy cities (Sapta Puri). Its 51m spire hosts the daily changing of the 52-yard sacred flag.',
+    descriptionHi:
+      'अरब सागर और गोमती नदी के संगम पर स्थित यह 5-मंजिला जगत मंदिर 72 भव्य नक्काशीदार स्तंभों पर टिका है। मंदिर के दो प्रमुख द्वार हैं — "मोक्ष द्वार" (प्रवेश) और "स्वर्ग द्वार" (गोमती घाट की ओर 56 सीढ़ियों वाला निकास)।',
+    descriptionEn:
+      'Located on the confluence of Gomti river and the Arabian Sea, this 5-story spire stands on 72 limestone pillars. Features two sacred portals: Moksha Dwar (Entrance) and Swarga Dwar (56 steps leading to Gomti Ghat).',
+    timing: {
+      openingTime: '06:30 AM',
+      closingTime: '09:30 PM',
+      aartiTimingsHi:
+        'मंगला आरती: 06:30 AM | श्रृंगार: 10:30 AM | संध्या आरती: 07:30 PM | शयन आरती: 08:30 PM',
+      aartiTimingsEn:
+        'Mangala Aarti: 06:30 AM | Shringar: 10:30 AM | Sandhya Aarti: 07:30 PM | Shayan Aarti: 08:30 PM',
+      bestTimeToVisitHi:
+        'अक्टूबर से मार्च (एवं भाद्रपद में श्रीकृष्ण जन्माष्टमी)',
+      bestTimeToVisitEn:
+        'October to March (and during Krishna Janmashtami in Aug/Sep)',
+    },
+    entryFeeHi:
+      'निःशुल्क दर्शन (ध्वजारोहण एवं विशेष भोग हेतु देवस्थान समिति में अग्रिम बुकिंग)',
+    entryFeeEn:
+      'Free general entry (prior registration for Dhwajarohan flag hoisting)',
+    dressCodeHi:
+      'पारंपरिक शालीन वस्त्र (धोती-कुर्ता, कुर्ता-पायजामा, साड़ी, सूट)',
+    dressCodeEn:
+      'Decent traditional Indian clothing (Dhoti, Kurta-Pyjama, Saree, Salwar)',
+    festivals: [
+      {
+        nameHi: 'श्रीकृष्ण जन्माष्टमी',
+        nameEn: 'Krishna Janmashtami',
+        dateHi: 'भाद्रपद कृष्ण अष्टमी (अगस्त/सितम्बर)',
+        dateEn: 'August / September',
+        descriptionHi:
+          'द्वारका का सबसे भव्य उत्सव जिसमें लाखों श्रद्धालु कान्हा के जन्मोत्सव के साक्षी बनते हैं।',
+        descriptionEn:
+          'The biggest annual festival celebrating the birth of Lord Krishna with midnight aarti and royal shringar.',
+      },
+      {
+        nameHi: 'होली / डोल उत्सव',
+        nameEn: 'Holi / Dolo Utsav',
+        dateHi: 'फाल्गुन पूर्णिमा (मार्च)',
+        dateEn: 'March',
+        descriptionHi: 'ठाकुर जी के संग गुलाल और फूलों की दिव्य होली का उत्सव।',
+        descriptionEn:
+          'Celebration of colors and flower Holi with Lord Dwarkadhish.',
+      },
+    ],
+    howToReach: {
+      byAirHi:
+        'जामनगर हवाई अड्डा (137 किमी) अथवा पोरबंदर हवाई अड्डा (105 किमी) से टैक्सी।',
+      byAirEn:
+        'Jamnagar Airport (137 km) or Porbandar Airport (105 km) with direct taxi/bus services.',
+      byRailHi:
+        'द्वारका रेलवे स्टेशन (DWK) अहमदाबाद, राजकोट, मुंबई, दिल्ली से सीधे जुड़ा है।',
+      byRailEn:
+        'Dwarka Railway Station (DWK) has direct trains from Mumbai, Delhi, Ahmedabad, Kolkata.',
+      byRoadHi:
+        'राजकोट (225 किमी) और जामनगर (135 किमी) से 4-लेन राष्ट्रीय राजमार्ग।',
+      byRoadEn:
+        'Well connected via state and national highways with regular AC/sleeper bus services.',
+      nearestAirport: 'Jamnagar Airport (JGA) / Rajkot Airport (RAJ)',
+      nearestRailwayStation: 'Dwarka Railway Station (DWK)',
+    },
+    nearbyAttractionsHi:
+      'बेट द्वारका (नाव द्वारा), रुक्मिणी देवी मंदिर, गोमती घाट, नागेश्वर ज्योतिर्लिंग, सुदामा सेतु, शिवराजपुर ब्लू-फ्लैग बीच',
+    nearbyAttractionsEn:
+      'Beyt Dwarka (Island by ferry), Rukmini Devi Temple, Gomti Ghat, Nageshwar Jyotirlinga, Sudama Setu, Shivrajpur Blue Flag Beach',
+    image: imagePath.dwarkadhishDham,
+  },
+  {
+    id: 'jagannath_puri',
+    order: 4,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'श्री जगन्नाथ पुरी धाम (पूर्व धाम - कलियुग)',
+    nameEn: 'Shri Jagannath Puri Dham (East Dham - Kali Yuga)',
+    aliasNamesHi: ['श्रीक्षेत्र', 'पुरुषोत्तम क्षेत्र', 'नीलांचल'],
+    aliasNamesEn: ['Srikshetra', 'Purushottama Kshetra', 'Nilachala'],
+    locationHi: 'पुरी, ओडिशा (बंगाल की खाड़ी तट)',
+    locationEn: 'Puri, Odisha (Eastern Coast on Bay of Bengal)',
+    addressHi: 'श्री जगन्नाथ मंदिर, ग्रैंड रोड, पुरी, ओडिशा - 752001',
+    addressEn: 'Shree Jagannatha Temple, Grand Road, Puri, Odisha - 752001',
+    districtHi: 'पुरी',
+    districtEn: 'Puri',
+    stateHi: 'ओडिशा',
+    stateEn: 'Odisha',
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '752001',
+    geo: {
+      latitude: 19.8049,
+      longitude: 85.8179,
+    },
+    deityHi: 'भगवान जगन्नाथ (श्रीकृष्ण), बलभद्र व देवी सुभद्रा',
+    deityEn: 'Lord Jagannath (Krishna), Balabhadra & Goddess Subhadra',
+    otherDeitiesHi: ['सुदर्शन चक्र', 'माता विमला (शक्तिपीठ)', 'महालक्ष्मी जी'],
+    otherDeitiesEn: [
+      'Sudarshana Chakra',
+      'Maa Vimala (Shaktipeeth)',
+      'Maha Lakshmi',
+    ],
     yugaHi: 'कलियुग',
     yugaEn: 'Kali Yuga',
     directionHi: 'पूर्व (East)',
     directionEn: 'East',
-    order: 4,
+    mythologyHi:
+      'राजा इंद्रद्युम्न को भगवान विष्णु ने स्वप्न में दर्शन देकर समुद्र में तैरते नीम के काष्ठ से विग्रह निर्माण का आदेश दिया था। स्वयं विश्वकर्मा ने बढ़ई रूप में विग्रह गढ़े।',
+    mythologyEn:
+      'King Indradyumna was commanded by Lord Vishnu in a dream to carve deities from a fragrant neem log washed ashore by the ocean.',
+    category: 'chardham',
+    categories: ['chardham', 'shaktipeeth', 'major'],
+    isCharDham: true,
+    isShaktipeeth: true,
+    isDivyaDesam: true,
+    tags: [
+      'chardham',
+      'jagannath',
+      'puri',
+      'odisha',
+      'rath-yatra',
+      'kali-yuga',
+      'shaktipeeth',
+    ],
+    historyHi:
+      'वर्तमान 65 मीटर ऊंचे भव्य कलिंग शैली मंदिर का निर्माण 12वीं शताब्दी में पूर्वी गंग वंश के प्रतापी राजा अनंतवर्मन चोडगंग देव द्वारा कराया गया था।',
+    historyEn:
+      'Present 65-meter temple was commissioned in the 12th century CE by King Anantavarman Chodaganga Deva of the Eastern Ganga Dynasty.',
+    builtCentury: '12th Century CE (1161 CE)',
+    builtByHi: 'अनंतवर्मन चोडगंग देव (पूर्वी गंग राजवंश)',
+    builtByEn: 'King Anantavarman Chodaganga Deva',
+    architectureStyleHi:
+      'कलिंग वास्तुकला (रेखा देउल व पीढ़ा देउल), नीलकंठ चक्र एवं महाप्रसाद रोषघर',
+    architectureStyleEn:
+      'Kalinga temple architecture with Rekha Deula vimana, Jagamohana, and world largest traditional kitchen',
     significanceHi:
-      'कलियुग का परम मोक्षधाम एवं शंख क्षेत्र (पुरुषोत्तम धाम)। यह भारत का एकमात्र ऐसा पवित्र तीर्थ है जहाँ भगवान श्री कृष्ण (जगन्नाथ) के साथ उनके बड़े भाई बलभद्र और बहन सुभद्रा की एक साथ पूजा की जाती है। यह आद्य शंकराचार्य द्वारा स्थापित चार प्रमुख मठों में से गोवर्धन मठ का पावन स्थल है।',
+      'कलियुग का प्रधान पूर्व महाधाम तथा विश्वप्रसिद्ध वार्षिक "रथयात्रा" का पावन केंद्र। यहाँ का "महाप्रसाद" विश्व का सबसे बड़ा पावन अन्नक्षेत्र है जिसे 56 भोग कहा जाता है।',
     significanceEn:
-      'Associated with Kali Yuga and located on the coast of the Bay of Bengal in Odisha. It is the only shrine in India where Goddess Subhadra, sister of Krishna, is worshipped together with her brothers Jagannatha and Balabhadra. Puri is also the site of the sacred Govardhana Matha, one of the four cardinal mathas established by Adi Shankara.',
-    timingHi: 'प्रातः 05:30 से रात्रि 11:00 (दैनिक महाप्रसाद एवं संध्या आरती)',
-    timingEn: '05:30 AM – 11:00 PM (Daily Mahaprasad Offering & Sandhya Aarti)',
+      'The Kali Yuga Eastern Dham and home of the world-renowned annual Ratha Yatra. Features the world largest temple kitchen preparing 56 Bhogas cooked on clay pots over wood fire.',
     descriptionHi:
-      'मंदिर अभिलेखों के अनुसार अवंती के राजा इंद्रद्युम्न ने पुरी में मूल जगन्नाथ मंदिर का निर्माण कराया था। १०वीं शताब्दी से पूर्वी गंगा राजवंश के प्रथम राजा अनंतवर्मन चोडगंग देव ने वर्तमान भव्य कलिंग शैली मंदिर का पुनर्निर्माण कराया। दारु (पवित्र नीम काष्ठ) से निर्मित विग्रहों में हर ८-१९ वर्ष में "नव कलेवर" के दौरान गुप्त रूप से "ब्रह्म पदार्थ" स्थानांतरित किया जाता है।',
+      'पुरी का जगन्नाथ मंदिर कई चमत्कारों का केंद्र है — मंदिर के शिखर का ध्वज सदा वायु की विपरीत दिशा में लहराता है, इसके ऊपर कोई पक्षी नहीं उड़ता, और प्रवेश करते ही सिंहद्वार पर समुद्र की ध्वनि शांत हो जाती है।',
     descriptionEn:
-      'As per temple records, King Indradyumna of Avanti built the original temple of Jagannath at Puri. Starting in the tenth century, the first king of the Eastern Ganga dynasty, Anantavarman Chodaganga, rebuilt the present grand temple compound in traditional Kalinga architecture. Deities are carved from sacred neem logs (Daru), with the secret divine Brahma Padartha transferred during the sacred Nabakalebara ritual.',
+      'Famous for unique mystical phenomena: the top flag always flutters against the wind direction, no birds fly over the dome, and the sound of the ocean vanishes the moment one steps inside Singhadwara.',
+    timing: {
+      openingTime: '05:30 AM',
+      closingTime: '10:00 PM',
+      aartiTimingsHi:
+        'द्वारफिटा: प्रातः 05:30 | मंगला आरती: 06:00 | संध्या धूप: सायं 07:00 | बड़शृंगार आरती: रात्रि 10:00',
+      aartiTimingsEn:
+        'Dwaraphita: 05:30 AM | Mangala Aarti: 06:00 AM | Sandhya Dhupa: 07:00 PM | Badasinghar: 10:00 PM',
+      bestTimeToVisitHi:
+        'अक्टूबर से मार्च (तथा आषाढ़ मास में जगन्नाथ रथयात्रा)',
+      bestTimeToVisitEn:
+        'October to March (and during June/July Ratha Yatra festival)',
+    },
+    entryFeeHi:
+      'निःशुल्क सामान्य दर्शन (केवल सनातनी हिंदुओं हेतु प्रवेश परंपरा)',
+    entryFeeEn:
+      'Free entry (traditional entry policy adhering to ancient temple customs)',
+    dressCodeHi:
+      'पारंपरिक भारतीय मर्यादित पोशाक (धोती-कुर्ता, साड़ी, सलवार सूट)',
+    dressCodeEn:
+      'Traditional conservative clothing (Dhoti, Kurta, Saree, Salwar Kameez)',
+    festivals: [
+      {
+        nameHi: 'श्री जगन्नाथ रथयात्रा',
+        nameEn: 'Puri Jagannath Ratha Yatra',
+        dateHi: 'आषाढ़ शुक्ल द्वितीया (जून/जुलाई)',
+        dateEn: 'June / July',
+        descriptionHi:
+          'भगवान जगन्नाथ, बलभद्र व सुभद्रा का तीन विशाल रथों पर गुंडिचा मंदिर का 9 दिवसीय नगर भ्रमण।',
+        descriptionEn:
+          'Grand 9-day chariot festival where deities travel to Gundicha Temple on massive wooden chariots pulled by millions.',
+      },
+      {
+        nameHi: 'चंदन यात्रा व नवकलेवर',
+        nameEn: 'Chandan Yatra & Nabakalebara',
+        dateHi: 'अक्षय तृतीया (वैशाख) / अधिक मास',
+        dateEn: 'April-May / Lunar cycle',
+        descriptionHi:
+          '42 दिवसीय जलक्रीड़ा उत्सव तथा 12-19 वर्षों में विग्रहों का पावन काष्ठ नवीनीकरण (नवकलेवर)।',
+        descriptionEn:
+          '42-day water sports festival and sacred periodic rebirth/renewal of the wooden deities.',
+      },
+    ],
+    howToReach: {
+      byAirHi:
+        'बीजू पटनायक अंतर्राष्ट्रीय हवाई अड्डा, भुवनेश्वर (लगभग 60 किमी) से राष्ट्रीय राजमार्ग द्वारा 1 घंटा।',
+      byAirEn:
+        'Biju Patnaik International Airport, Bhubaneswar (60 km) with NH316 highway connection.',
+      byRailHi:
+        'पुरी रेलवे स्टेशन (PURI) भारत के सभी प्रमुख महानगरों से सीधे जुड़ा हुआ है।',
+      byRailEn:
+        'Puri Railway Station (PURI) is a major terminus connected directly to all Indian metros.',
+      byRoadHi:
+        'भुवनेश्वर-पुरी 4-लेन नेशनल हाईवे (NH-316) द्वारा निरंतर बस व कैब सेवाएं।',
+      byRoadEn:
+        'NH-316 4-lane expressway connects Bhubaneswar to Puri with frequent bus and taxi services.',
+      nearestAirport: 'Biju Patnaik International Airport, Bhubaneswar (BBI)',
+      nearestRailwayStation: 'Puri Railway Station (PURI)',
+    },
     nearbyAttractionsHi:
-      'गोवर्धन मठ, पुरी समुद्र तट (गोल्डन बीच), गुंडिचा मंदिर, कोणार्क सूर्य मंदिर, चिल्का झील, साक्षी गोपाल मंदिर',
+      'कोणार्क सूर्य मंदिर (यूनेस्को धरोहर), पुरी गोल्डन बीच, चिल्का झील (डॉल्फिन अभयारण्य), गुंडिचा मंदिर, साक्षी गोपाल',
     nearbyAttractionsEn:
-      'Govardhana Matha, Puri Golden Beach, Gundicha Temple, Konark Sun Temple, Chilika Lake, Sakshi Gopal Temple',
+      'Konark Sun Temple (UNESCO), Puri Golden Beach (Blue Flag), Chilika Lake, Gundicha Temple, Sakshi Gopal Temple',
+    image: imagePath.jagannathPuriDham,
   },
 
-  // =========================================================================
-  // 2. THE 12 SACRED JYOTIRLINGAS (द्वादश ज्योतिर्लिंग)
-  // =========================================================================
   {
     id: 'somnath_jyotirlinga',
-    nameHi: 'सोमनाथ ज्योतिर्लिंग',
-    nameEn: 'Somnath Jyotirlinga',
-    locationHi: 'प्रभास पाटन, वेरावल, गुजरात',
-    locationEn: 'Prabhas Patan, near Veraval, Gujarat',
+    order: 5,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'सोमनाथ ज्योतिर्लिंग (प्रथम ज्योतिर्लिंग)',
+    nameEn: 'Somnath Jyotirlinga (First Jyotirlinga)',
+    aliasNamesHi: ['प्रभात पाटन', 'सोमेश्वर महादेव'],
+    aliasNamesEn: ['Prabhas Patan', 'Someshwar Mahadev'],
+    locationHi: 'प्रभास पाटन, वेरावल, गुजरात (अरब सागर तट)',
+    locationEn: 'Prabhas Patan, Veraval, Gujarat (Coast of Arabian Sea)',
+    addressHi: 'सोमनाथ मंदिर, प्रभास पाटन, वेरावल, गुजरात - 362268',
+    addressEn: 'Somnath Temple, Prabhas Patan, Veraval, Gujarat - 362268',
+    districtHi: 'गिर सोमनाथ',
+    districtEn: 'Gir Somnath',
     stateHi: 'गुजरात',
     stateEn: 'Gujarat',
-    deityHi: 'भगवान शिव (सोमनाथ)',
-    deityEn: 'Lord Shiva (Somnath)',
-    image: imagePath.somnathJyotirlinga,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '362268',
+    geo: {
+      latitude: 20.888,
+      longitude: 70.4012,
+    },
+    deityHi: 'भगवान शिव (सोमनाथ महादेव)',
+    deityEn: 'Lord Shiva (Somnath Mahadev)',
+    otherDeitiesHi: ['माता पार्वती', 'भगवान गणेश', 'कार्तिकेय जी'],
+    otherDeitiesEn: ['Goddess Parvati', 'Lord Ganesha', 'Kartikeya'],
+    directionHi: 'पश्चिम (West)',
+    directionEn: 'West',
+    mythologyHi:
+      'प्रजापति दक्ष के शाप से क्षय रोग ग्रस्त चंद्रदेव (सोम) ने यहाँ भगवान शिव की कठोर तपस्या कर शापमुक्ति पाई थी और स्वर्ण का मूल मंदिर बनवाया था।',
+    mythologyEn:
+      'Chandra Dev (Moon God) was cured of consumption caused by Daksha curse after worshiping Shiva here, and built the first golden temple.',
     category: 'jyotirlinga',
     categories: ['jyotirlinga', 'major'],
     isJyotirlinga: true,
-    order: 5,
+    tags: ['jyotirlinga', 'shiva', 'somnath', 'gujarat', 'first-jyotirlinga'],
+    historyHi:
+      'अनेकों बार विध्वंस के बाद सरदार वल्लभभाई पटेल के संकल्प से 1951 में आधुनिक भारत में मंदिर का भव्य पुनर्निर्माण हुआ।',
+    historyEn:
+      'Reconstructed multiple times throughout history; final modern reconstruction was initiated by Sardar Vallabhbhai Patel in 1951.',
+    builtCentury: '1951 CE (Modern Reconstruction)',
+    builtByHi: 'सरदार वल्लभभाई पटेल एवं के.एम. मुंशी',
+    builtByEn: 'Sardar Vallabhbhai Patel & K. M. Munshi',
+    architectureStyleHi: 'चालुक्य-कैलाश महामेरु प्रासाद नागर शैली',
+    architectureStyleEn:
+      'Chalukya Kailash Mahameru Prasad Nagara architectural style',
     significanceHi:
-      'द्वादश ज्योतिर्लिंगों में सर्वप्रथम ज्योतिर्लिंग, जिसका निर्माण दक्ष प्रजापति के शाप से मुक्ति पाने पर स्वयं चंद्रदेव ने स्वर्ण से कराया था। यह सनातन आस्था और अटूट आत्मबल का अमर प्रतीक है।',
+      'द्वादश ज्योतिर्लिंगों में सर्वप्राचीन "प्रथम ज्योतिर्लिंग"। मंदिर प्रांगण में स्थित बाणस्तंभ यह प्रमाणित करता है कि यहाँ से अंटार्कटिका (दक्षिणी ध्रुव) तक समुद्र में कोई भूभाग नहीं है।',
     significanceEn:
-      'The oldest and first among the 12 Jyotirlingas, built in gold by Moon God (Chandra) in gratitude to Lord Shiva for curing Daksha’s curse. An eternal emblem of strength, faith, and devotion.',
-    timingHi:
-      'प्रातः 06:00 से रात्रि 10:00 (आरती: प्रातः 07:00, दोपहर 12:00, सायं 07:00; लाइट एंड साउंड शो: रात्रि 08:00)',
-    timingEn:
-      '06:00 AM – 10:00 PM (Aarti: 07:00 AM, 12:00 PM, 07:00 PM; Light & Sound Show: 08:00 PM)',
+      'First of the 12 Jyotirlingas. Features the historic Baan Stambh (Arrow Pillar) indicating an unobstructed sea line directly to Antarctica.',
     descriptionHi:
-      'अरब सागर के सुरम्य तट पर स्थित सोमनाथ मंदिर का इतिहास भक्ति व पुनर्निर्माण की अमर गाथा है। निकटवर्ती प्रमुख दर्शनीय स्थलों में त्रिवेणी संगम (हिरण, कपिला व सरस्वती नदी संगम), भालका तीर्थ (जहाँ श्रीकृष्ण ने देहोत्सर्ग किया) एवं सोमनाथ समुद्र तट शामिल हैं।',
+      'अरब सागर की गर्जना करती लहरों के किनारे स्थित यह भव्य पाषाण मंदिर सनातन आस्था के अमरत्व का जीवंत प्रतीक है। सायं काल मंदिर में "ध्वनि एवं प्रकाश" (Sound & Light) शो आयोजित होता है।',
     descriptionEn:
-      'Located along the Arabian Sea coast in Prabhas Patan, Somnath has stood resilient through centuries. Nearby attractions include Triveni Sangam (confluence of Hiran, Kapila, and Saraswati rivers), Bhalka Tirth (where Lord Krishna ascended to his divine abode), and Somnath Beach.',
+      'Perched on the roaring shores of Arabian Sea, Somnath stands as an eternal symbol of resilience. Hosts nightly Sound & Light show (Jay Somnath).',
+    timing: {
+      openingTime: '06:00 AM',
+      closingTime: '10:00 PM',
+      aartiTimingsHi:
+        'प्रातः आरती: 07:00 | मध्याह्न आरती: 12:00 | सायं आरती: 07:00 | लाइट एंड साउंड शो: रात्रि 08:00',
+      aartiTimingsEn:
+        'Morning Aarti: 07:00 AM | Noon Aarti: 12:00 PM | Evening Aarti: 07:00 PM | Light & Sound: 08:00 PM',
+      bestTimeToVisitHi:
+        'अक्टूबर से मार्च (कार्तिक पूर्णिमा मेला एवं महाशिवरात्रि)',
+      bestTimeToVisitEn:
+        'October to March (Kartik Purnima Fair and Maha Shivaratri)',
+    },
+    entryFeeHi: 'निःशुल्क दर्शन (लाइट एंड साउंड शो ₹30/₹50)',
+    entryFeeEn: 'Free entry (nominal ticket for Sound & Light Show)',
+    dressCodeHi: 'पारंपरिक मर्यादित परिधान (जींस/शॉर्ट्स प्रतिबंधित)',
+    dressCodeEn:
+      'Traditional Indian attire (shorts, sleeveless clothes not permitted)',
+    festivals: [
+      {
+        nameHi: 'महाशिवरात्रि महोत्सव',
+        nameEn: 'Maha Shivaratri Mahotsav',
+        dateHi: 'फाल्गुन कृष्ण त्रयोदशी',
+        dateEn: 'February / March',
+        descriptionHi: '4 दिवसीय भव्य शिव उत्सव व पालकी यात्रा।',
+        descriptionEn:
+          '4-day grand festival with continuous Vedic recitations and palanquin procession.',
+      },
+    ],
+    howToReach: {
+      byAirHi: 'दीव हवाई अड्डा (85 किमी) अथवा राजकोट (195 किमी) से टैक्सी।',
+      byAirEn: 'Diu Airport (85 km) or Rajkot International Airport (195 km).',
+      byRailHi: 'वेरावल जंक्शन (VRL) मंदिर से मात्र 6 किमी दूर है।',
+      byRailEn: 'Veraval Junction (VRL) is just 6 km from the temple.',
+      byRoadHi: 'अहमदाबाद, जूनागढ़ और पोरबंदर से सुगम 4-लेन राजमार्ग।',
+      byRoadEn:
+        'State highway network connects directly to Ahmedabad (410 km) and Rajkot (195 km).',
+      nearestAirport: 'Diu Airport (DIU) / Rajkot Airport (HSR)',
+      nearestRailwayStation: 'Veraval Railway Station (VRL)',
+    },
     nearbyAttractionsHi:
-      'त्रिवेणी संगम, भालका तीर्थ, सोमनाथ बीच, गीता मंदिर, प्रभास पाटन संग्रहालय',
+      'भालका तीर्थ (श्रीकृष्ण देहोत्सर्ग स्थल), त्रिवेणी संगम (हिरण, कपिला, सरस्वती), गीता मंदिर, गिर राष्ट्रीय उद्यान (एशियाई शेर)',
     nearbyAttractionsEn:
-      'Triveni Sangam, Bhalka Tirth, Somnath Beach, Gita Mandir, Prabhas Patan Museum',
+      'Bhalka Tirth (Lord Krishna departure site), Triveni Sangam, Gita Mandir, Gir National Park (Asiatic Lions)',
+    image: imagePath.somnathJyotirlinga,
   },
   {
     id: 'mallikarjuna_jyotirlinga',
-    nameHi: 'मल्लिकार्जुन ज्योतिर्लिंग',
-    nameEn: 'Mallikarjuna Jyotirlinga',
-    locationHi: 'श्रीशैलम, आन्ध्र प्रदेश',
-    locationEn: 'Srisailam, Andhra Pradesh',
+    order: 6,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'मल्लिकार्जुन ज्योतिर्लिंग (श्रीशैलम)',
+    nameEn: 'Mallikarjuna Jyotirlinga (Srisailam)',
+    aliasNamesHi: ['श्रीशैलम मंदिर', 'दक्षिण का कैलास'],
+    aliasNamesEn: ['Srisailam Temple', 'Kailash of the South'],
+    locationHi: 'नंद्याल जिला, आन्ध्र प्रदेश (कृष्णा नदी व नल्लामल्ला वन)',
+    locationEn:
+      'Nandyal District, Andhra Pradesh (Banks of Krishna River, Nallamala Hills)',
+    addressHi:
+      'श्री भ्रामराम्बा मल्लिकार्जुन स्वामी मंदिर, श्रीशैलम, आन्ध्र प्रदेश - 518101',
+    addressEn:
+      'Sri Bhramaramba Mallikarjuna Swamy Temple, Srisailam, Andhra Pradesh - 518101',
+    districtHi: 'नंद्याल',
+    districtEn: 'Nandyal',
     stateHi: 'आन्ध्र प्रदेश',
     stateEn: 'Andhra Pradesh',
-    deityHi: 'भगवान शिव (मल्लिकार्जुन) व माँ पार्वती (भ्रमराम्बा)',
-    deityEn: 'Lord Shiva (Mallikarjuna) & Goddess Parvati (Bhramaramba)',
-    image: imagePath.mallikarjunaJyotirlinga,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '518101',
+    geo: {
+      latitude: 16.074,
+      longitude: 78.868,
+    },
+    deityHi: 'भगवान शिव (मल्लिकार्जुन) व माता भ्रामराम्बा',
+    deityEn: 'Lord Shiva (Mallikarjuna) & Goddess Bhramaramba Devi',
+    yugaHi: 'सत्ययुग / त्रेतायुग',
+    yugaEn: 'Satya / Treta Yuga',
+    directionHi: 'दक्षिण (South)',
+    directionEn: 'South',
     category: 'jyotirlinga',
     categories: ['jyotirlinga', 'shaktipeeth', 'major'],
     isJyotirlinga: true,
     isShaktipeeth: true,
-    order: 6,
+    tags: [
+      'jyotirlinga',
+      'shaktipeeth',
+      'srisailam',
+      'andhra-pradesh',
+      'shiva',
+    ],
+    historyHi:
+      'सातवाहन, इक्ष्वाकु, काकतीय और विजयनगर सम्राट श्री कृष्णदेवराय द्वारा मंदिर का विस्तार कराया गया था।',
+    historyEn:
+      'Patronized by Satavahanas, Kakatiyas, and expanded by Vijayanagara Emperor Sri Krishnadevaraya in 1516 CE.',
+    builtCentury: '6th – 16th Century CE',
+    builtByHi: 'सातवाहन एवं विजयनगर साम्राज्य',
+    builtByEn: 'Satavahana & Vijayanagara Dynasties',
+    architectureStyleHi:
+      'विजयनगर एवं द्रविड़ियन वास्तु शैली, उत्तुंग गोपुरम व प्राचीर',
+    architectureStyleEn:
+      'Dravidian and Vijayanagara architectural style with towering Gopurams and sculpted battlements',
     significanceHi:
-      'द्वादश ज्योतिर्लिंगों में एकमात्र ऐसा दिव्य धाम जहाँ भगवान शिव (मल्लिकार्जुन ज्योतिर्लिंग) और माँ पार्वती (भ्रमराम्बा शक्तिपीठ) दोनों एक साथ साक्षात रूप में पूजे जाते हैं।',
+      'भारत का एकमात्र ऐसा दुर्लभ पवित्र तीर्थ जहाँ "द्वादश ज्योतिर्लिंग" तथा "अष्टादश महाशक्तिपीठ" (माँ भ्रामराम्बा) एक ही परिसर में एक साथ विद्यमान हैं।',
     significanceEn:
-      'The sole temple among the 12 Jyotirlingas where both Lord Shiva (Mallikarjuna) and Goddess Parvati (Bhramaramba Shaktipeeth) are revered together.',
-    timingHi: 'प्रातः 04:30 से दोपहर 03:30, सायं 06:00 से रात्रि 10:00',
-    timingEn: '04:30 AM – 03:30 PM, 06:00 PM – 10:00 PM',
+      'The only divine shrine in India that is simultaneously one of the 12 Jyotirlingas and one of the 18 Maha Shakti Peethas (Bhramaramba Devi).',
     descriptionHi:
-      'नल्लामलाई पर्वतमाला पर कृष्णा नदी के तट पर स्थित। पौराणिक मान्यता है कि जब भगवान कार्तिकेय क्रौंच पर्वत गए, तब शिव-पार्वती ने यहाँ मल्लिकार्जुन व भ्रमराम्बा रूप में निवास किया। निकटवर्ती प्रमुख स्थलों में कृष्णा नदी पर श्रीशैलम बाँध, अक्कमहादेवी गुफाएं एवं पाताल गंगा तीर्थ शामिल हैं।',
+      'नल्लामल्ला पहाड़ियों में कृष्णा नदी (पाताल गंगा) के तट पर स्थित यह धाम "दक्षिण का कैलास" कहलाता है। आदि शंकराचार्य जी ने यहाँ "शिवानंद लहरी" स्तोत्र की रचना की थी।',
     descriptionEn:
-      'Nestled atop the Nallamala Hills in Srisailam along the Krishna river. Legend says when Kartikeya went to Krauncha Mountain, Shiva and Parvati stayed here in the form of Mallikarjuna and Bhramaramba. Nearby attractions include Srisailam Dam, Akkamahadevi natural rock caves, and Pathala Ganga sacred ghat.',
+      'Nestled in Nallamala dense forests overlooking Krishna river (Patalganga). Adi Shankara composed his famous Sivananda Lahari here.',
+    timing: {
+      openingTime: '04:30 AM',
+      closingTime: '10:00 PM',
+      aartiTimingsHi:
+        'सुप्रभातम्: 04:30 | महामंगल आरती: 05:30 | स्पर्श दर्शन: प्रातः 06:00 | शयन आरती: 09:30',
+      aartiTimingsEn:
+        'Suprabhatam: 04:30 AM | Mangala Aarti: 05:30 AM | Sparsha Darshan: 06:00 AM | Ekantha Seva: 09:30 PM',
+      bestTimeToVisitHi: 'सितम्बर से मार्च',
+      bestTimeToVisitEn: 'September to March',
+    },
+    howToReach: {
+      byAirHi:
+        'राजीव गांधी अंतर्राष्ट्रीय हवाई अड्डा, हैदराबाद (लगभग 200 किमी)।',
+      byAirEn: 'Rajiv Gandhi International Airport, Hyderabad (approx 200 km).',
+      byRailHi: 'मरकापुर रोड रेलवे स्टेशन (85 किमी) अथवा कुरनूल/हैदराबाद।',
+      byRailEn: 'Markapur Road Railway Station (85 km) or Nandyal / Kurnool.',
+      byRoadHi: 'हैदराबाद, विजयवाड़ा और तिरुपति से सीधी बस सेवाएं।',
+      byRoadEn:
+        'Regular state buses connecting through forest ghat roads from Hyderabad and Vijayawada.',
+      nearestAirport: 'Hyderabad International Airport (HYD)',
+      nearestRailwayStation: 'Markapur Road (MRK) / Kurnool (KRNT)',
+    },
     nearbyAttractionsHi:
-      'श्रीशैलम बाँध, अक्कमहादेवी गुफाएं, पाताल गंगा, साक्षी गणपति मंदिर',
+      'पाताल गंगा (रोपवे व नौकायन), श्रीशैलम बाँध, साक्षी गणपति, पालधारा पंचधारा, इष्टकामेश्वरी मंदिर',
     nearbyAttractionsEn:
-      'Srisailam Dam, Akkamahadevi Caves, Pathala Ganga, Sakshi Ganapathi Temple',
+      'Patalganga & Ropeway, Srisailam Dam, Sakshi Ganapathi, Phaladhara Panchadhara, Ishtakameshwari Temple',
+    image: imagePath.mallikarjunaJyotirlinga,
   },
   {
     id: 'mahakaleshwar_jyotirlinga',
-    nameHi: 'महाकालेश्वर ज्योतिर्लिंग',
-    nameEn: 'Mahakaleshwar Jyotirlinga',
-    locationHi: 'उज्जैन, मध्य प्रदेश',
-    locationEn: 'Ujjain, Madhya Pradesh',
+    order: 7,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'महाकालेश्वर ज्योतिर्लिंग (उज्जैन)',
+    nameEn: 'Mahakaleshwar Jyotirlinga (Ujjain)',
+    aliasNamesHi: ['महाकाल', 'काल के काल महाकाल', 'अवंतिका नाथ'],
+    aliasNamesEn: ['Mahakal', 'Avantika Nath', 'Lord of Time and Death'],
+    locationHi: 'उज्जैन, मध्य प्रदेश (क्षिप्रा नदी तट)',
+    locationEn: 'Ujjain, Madhya Pradesh (Banks of Holy Shipra River)',
+    addressHi:
+      'श्री महाकालेश्वर मंदिर, जयसिंहपुरा, उज्जैन, मध्य प्रदेश - 456001',
+    addressEn:
+      'Shri Mahakaleshwar Temple, Jaisinghpura, Ujjain, Madhya Pradesh - 456001',
+    districtHi: 'उज्जैन',
+    districtEn: 'Ujjain',
     stateHi: 'मध्य प्रदेश',
     stateEn: 'Madhya Pradesh',
-    deityHi: 'भगवान शिव (महाकालेश्वर / महाकाल)',
-    deityEn: 'Lord Shiva (Mahakal)',
-    image: imagePath.mahakaleshwarJyotirlinga,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '456001',
+    geo: {
+      latitude: 23.1827,
+      longitude: 75.7682,
+    },
+    deityHi: 'भगवान शिव (दक्षिणमुखी महाकाल ज्योतिर्लिंग)',
+    deityEn: 'Lord Shiva (Dakshinmukhi Mahakaleshwar Jyotirlinga)',
+    otherDeitiesHi: [
+      'नागचंद्रेश्वर (तीसरी मंजिल)',
+      'माता हरसिद्धि (शक्तिपीठ)',
+      'काल भैरव',
+    ],
+    otherDeitiesEn: [
+      'Nagchandreshwar (Top Floor)',
+      'Maa Harsiddhi',
+      'Kal Bhairav',
+    ],
+    directionHi: 'दक्षिणमुखी (South-facing)',
+    directionEn: 'South-facing',
     category: 'jyotirlinga',
     categories: ['jyotirlinga', 'major'],
     isJyotirlinga: true,
-    order: 7,
+    tags: [
+      'jyotirlinga',
+      'mahakal',
+      'ujjain',
+      'bhasma-aarti',
+      'kumbh-mela',
+      'madhya-pradesh',
+    ],
+    historyHi:
+      'राजा भोज और विक्रमादित्य काल के उपरांत मराठा जनरल राणोजी शिंदे द्वारा 1734 ई. में वर्तमान मंदिर का जीर्णोद्धार कराया गया।',
+    historyEn:
+      'Rebuilt by Maratha general Ranoji Shinde in 1734 CE following historical destructions in ancient Ujjayini.',
+    builtCentury: '18th Century CE (Current structure)',
+    builtByHi: 'राणोजी शिंदे (मराठा साम्राज्य)',
+    builtByEn: 'Ranoji Shinde',
+    architectureStyleHi:
+      'मराठा, भूमिजा एवं चालुक्य मिश्रित नागर शैली, विशाल महाकाल लोक कॉरिडोर',
+    architectureStyleEn:
+      'Bhumija, Chalukya and Maratha Nagara style with the modern Shri Mahakal Lok corridor',
     significanceHi:
-      'एकमात्र स्वयंभू दक्षिणमुखी ज्योतिर्लिंग, जो काल और मृत्यु के संहारक महाकाल स्वरूप को दर्शाता है। यह ब्रह्ममुहूर्त की अलौकिक भस्म आरती के लिए विश्वप्रसिद्ध है।',
+      'द्वादश ज्योतिर्लिंगों में एकमात्र स्वयंभू "दक्षिणमुखी ज्योतिर्लिंग" तथा विश्वप्रसिद्ध प्रातःकालीन "भस्म आरती" का अलौकिक धाम। काल चक्र के अधिष्ठाता महाकाल।',
     significanceEn:
-      'One of the most distinctive Jyotirlingas with a south-facing lingam representing Mahakaal, destroyer of time and death. World-renowned for its sacred morning Bhasma Aarti.',
-    timingHi: 'प्रातः 04:00 से रात्रि 11:00 (भस्म आरती: प्रातः 04:00 से 06:00)',
-    timingEn: '04:00 AM – 11:00 PM (Bhasma Aarti: 04:00 AM – 06:00 AM)',
+      'The only South-facing (Dakshinmukhi) self-manifested Jyotirlinga, famous worldwide for the pre-dawn Bhasma Aarti (Sacred Ash Ritual).',
     descriptionHi:
-      'पवित्र क्षिप्रा नदी के तट पर स्थित प्राचीन अवंतिका नगरी में काल के स्वामी भगवान महाकाल का दिव्य दरबार। निकटवर्ती प्रमुख आकर्षणों में माँ हरसिद्धि शक्तिपीठ, शिप्रा नदी का रामघाट, मंगलनाथ मंदिर एवं काल भैरव मंदिर शामिल हैं।',
+      'रुद्रसागर झील के समीप स्थित यह 3-मंजिला मंदिर भूमिगत ओंकारेश्वर और शीर्ष पर नागचंद्रेश्वर (जो केवल नागपंचमी पर खुलता है) से सुशोभित है। हाल ही में निर्मित "श्री महाकाल लोक" कॉरिडोर 900 मीटर लंबा भव्य सांस्कृतिक गलियारा है।',
     descriptionEn:
-      'Situated in the holy city of Ujjain along the sacred Shipra river. Nearby places of interest include Harsiddhi Temple (Shaktipeeth), Ram Ghat (Shipra River), Mangalnath Temple, and the ancient Kal Bhairav Temple.',
+      'Three-story temple with Mahakal on lowest level, Omkareshwar in middle, and Nagchandreshwar on top (opened only on Nag Panchami). Adjoined by the majestic Shri Mahakal Lok corridor.',
+    timing: {
+      openingTime: '04:00 AM',
+      closingTime: '11:00 PM',
+      aartiTimingsHi:
+        'भस्म आरती: प्रातः 04:00 से 06:00 (अग्रिम बुकिंग) | भोग आरती: 10:30 AM | सायन आरती: 07:00 PM | शयन आरती: रात्रि 10:30',
+      aartiTimingsEn:
+        'Bhasma Aarti: 04:00 AM – 06:00 AM (Prior Booking) | Bhog Aarti: 10:30 AM | Sandhya: 07:00 PM | Shayan: 10:30 PM',
+      bestTimeToVisitHi: 'अक्टूबर से मार्च (एवं सावन मास महाकाल सवारी)',
+      bestTimeToVisitEn:
+        'October to March (and Shravan Month Royal Processions)',
+    },
+    entryFeeHi:
+      'सामान्य दर्शन निःशुल्क (भस्म आरती ऑनलाइन अनुमति व प्रोटोकॉल दर्शन शुल्क)',
+    entryFeeEn:
+      'Free general Darshan (Advance registration for Bhasma Aarti & VIP protocols)',
+    dressCodeHi:
+      'भस्म आरती हेतु पुरुषों हेतु धोती-सोला एवं महिलाओं हेतु साड़ी अनिवार्य',
+    dressCodeEn:
+      'Bhasma Aarti strictly requires unstitched Dhoti-Sola for men and Saree for women',
+    festivals: [
+      {
+        nameHi: 'महाशिवरात्रि एवं शिव नवरात्रि',
+        nameEn: 'Maha Shivaratri & Shiva Navratri',
+        dateHi: 'फाल्गुन मास',
+        dateEn: 'February / March',
+        descriptionHi:
+          '9 दिवसीय शिव नवरात्रि उत्सव जिसमें बाबा महाकाल का प्रतिदिन नवरूपों में अलौकिक श्रृंगार होता है।',
+        descriptionEn:
+          '9-day Shiva Navratri where Mahakal is adorned in 9 divine forms concluding in grand Maha Shivaratri sehra.',
+      },
+      {
+        nameHi: 'श्रावण सोमवार महाकाल सवारी',
+        nameEn: 'Shravan Somwar Mahakal Sawari',
+        dateHi: 'श्रावण-भाद्रपद मास',
+        dateEn: 'July - September',
+        descriptionHi:
+          'राजाधिराज महाकाल की नगर प्रजा का हाल जानने हेतु रजत पालकी में भव्य राजसी सवारी।',
+        descriptionEn:
+          'Royal ceremonial palanquin procession where Lord Mahakal inspects His city.',
+      },
+    ],
+    howToReach: {
+      byAirHi:
+        'देवी अहिल्याबाई होल्कर अंतर्राष्ट्रीय हवाई अड्डा, इंदौर (लगभग 55 किमी) से 1 घंटा एक्सप्रेसवे मार्ग।',
+      byAirEn:
+        'Devi Ahilyabai Holkar International Airport, Indore (55 km) connected by 4-lane expressway.',
+      byRailHi:
+        'उज्जैन जंक्शन (UJN) भारत के सभी प्रमुख रेलवे नेटवर्कों से सीधे जुड़ा है।',
+      byRailEn: 'Ujjain Junction (UJN) is a major A-category railway junction.',
+      byRoadHi:
+        'इंदौर-उज्जैन 4-लेन सुपर कॉरिडोर द्वारा 45 मिनट में सुगम यात्रा।',
+      byRoadEn:
+        'Indore-Ujjain 4-lane highway with 24x7 bus and private cab services.',
+      nearestAirport: 'Indore Airport (IDR)',
+      nearestRailwayStation: 'Ujjain Junction (UJN)',
+    },
     nearbyAttractionsHi:
-      'माँ हरसिद्धि शक्तिपीठ, रामघाट (शिप्रा नदी), काल भैरव मंदिर, मंगलनाथ मंदिर',
+      'श्री महाकाल लोक, हरसिद्धि माता शक्तिपीठ, काल भैरव मंदिर, मंगलनाथ (मंगल ग्रह जन्मस्थान), रामघाट क्षिप्रा, सांदीपनि आश्रम',
     nearbyAttractionsEn:
-      'Harsiddhi Temple (Shaktipeeth), Ram Ghat (Shipra River), Kal Bhairav Temple, Mangalnath Temple',
+      'Shri Mahakal Lok, Harsiddhi Shaktipeeth, Kaal Bhairav Temple, Mangalnath Temple, Ram Ghat Shipra, Sandipani Ashram',
+    image: imagePath.mahakaleshwarJyotirlinga,
   },
   {
     id: 'omkareshwar_jyotirlinga',
-    nameHi: 'ओंकारेश्वर ज्योतिर्लिंग',
-    nameEn: 'Omkareshwar Jyotirlinga',
-    locationHi: 'मांधाता द्वीप, नर्मदा नदी, खंडवा, मध्य प्रदेश',
-    locationEn: 'Mandhata Island, Narmada River, Khandwa, Madhya Pradesh',
+    order: 8,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'ओंकारेश्वर ज्योतिर्लिंग (मांधाता)',
+    nameEn: 'Omkareshwar Jyotirlinga (Mandhata)',
+    aliasNamesHi: ['अमलेश्वर', 'ममलेश्वर', 'मांधाता द्वीप'],
+    aliasNamesEn: ['Amaleshwar', 'Mamleshwar', 'Shivpuri Island'],
+    locationHi: 'खंडवा जिला, मध्य प्रदेश (नर्मदा नदी के ॐ आकार द्वीप)',
+    locationEn:
+      'Khandwa District, Madhya Pradesh (Om-shaped Island in Narmada River)',
+    addressHi:
+      'श्री ओंकारेश्वर ज्योतिर्लिंग मंदिर, मांधाता, खंडवा, मध्य प्रदेश - 450595',
+    addressEn:
+      'Shri Omkareshwar Jyotirlinga, Mandhata Island, Khandwa, Madhya Pradesh - 450595',
+    districtHi: 'खंडवा',
+    districtEn: 'Khandwa',
     stateHi: 'मध्य प्रदेश',
     stateEn: 'Madhya Pradesh',
-    deityHi: 'भगवान शिव (ओंकारेश्वर व अमलेश्वर)',
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '450595',
+    geo: {
+      latitude: 22.2464,
+      longitude: 76.1517,
+    },
+    deityHi: 'भगवान शिव (ओंकारेश्वर एवं ममलेश्वर)',
     deityEn: 'Lord Shiva (Omkareshwar & Mamleshwar)',
-    image: imagePath.omkareshwarJyotirlinga,
     category: 'jyotirlinga',
     categories: ['jyotirlinga', 'major'],
     isJyotirlinga: true,
-    order: 8,
+    tags: ['jyotirlinga', 'narmada', 'omkareshwar', 'madhya-pradesh', 'shiva'],
+    architectureStyleHi:
+      'प्राचीन नागर शैली एवं नक्काशीदार बलुआ पत्थर के विशाल स्तंभ',
+    architectureStyleEn:
+      'Ancient Nagara sandstone architecture with intricately carved multi-tiered shikharas',
     significanceHi:
-      'नर्मदा नदी के मध्य पवित्र ॐ (प्रणव) आकार के मांधाता द्वीप पर स्थित। देवासुर संग्राम में देवताओं की रक्षा हेतु भगवान शिव ने यहाँ साक्षात ज्योति स्वरूप प्रकट किया था।',
+      'नर्मदा नदी के मध्य "ॐ" (प्रणव) आकार वाले मांधाता पर्वत पर स्थित चतुर्थ ज्योतिर्लिंग। यहाँ भगवान शिव प्रतिदिन शयन हेतु पधारते हैं और चौपड़-पासे खेलते हैं।',
     significanceEn:
-      'Enshrined on a sacred island naturally shaped like the holy symbol "ॐ" (Om) in the Narmada River. Shiva manifested here to bless the Devas during battle with demons.',
-    timingHi: 'प्रातः 05:00 से रात्रि 09:30 (शयन आरती: रात्रि 08:30)',
-    timingEn: '05:00 AM – 09:30 PM (Shayan Aarti: 08:30 PM)',
+      '4th Jyotirlinga located on an Om-shaped river island in the Narmada. Tradition holds that Lord Shiva visits here daily for evening rest and games of chaupar.',
     descriptionHi:
-      'नर्मदा और कावेरी (नर्मदा की उपधारा) के संगम पर स्थित यह द्वीप अत्यंत शांत व ऊर्जावान है। यहाँ ओंकारेश्वर और ममलेश्वर दोनों के दर्शन से ज्योतिर्लिंग यात्रा पूर्ण होती है। प्रमुख स्थलों में ममलेश्वर मंदिर, अहिल्या घाट एवं नर्मदा परिक्रमा का आरंभ स्थल शामिल हैं।',
+      'ओंकारेश्वर दर्शन ममलेश्वर (अमलेश्वर) ज्योतिर्लिंग के दर्शन के बिना अधूरा माना जाता है। यहाँ हाल ही में 108 फीट ऊंची "स्टैच्यू ऑफ वननेस" (आदि शंकराचार्य प्रतिमा) और एकात्म धाम का निर्माण हुआ है।',
     descriptionEn:
-      'Perched on Mandhata island surrounded by the serene Narmada river. Both Omkareshwar and Mamleshwar temples are revered together. Nearby attractions include Mamleshwar Temple, Ahilya Ghat, and the revered Narmada Parikrama starting point.',
+      'Comprises two interconnected temples: Omkareshwar on Mandhata island and Mamleshwar on the south bank. Nearby stands the 108-ft Statue of Oneness (Adi Shankara).',
+    timing: {
+      openingTime: '05:00 AM',
+      closingTime: '09:30 PM',
+      aartiTimingsHi:
+        'मंगला आरती: प्रातः 05:00 | मध्याह्न भोग: 12:00 | शयन आरती व चौपड़: रात्रि 08:30',
+      aartiTimingsEn:
+        'Mangala Aarti: 05:00 AM | Madhyahna Bhog: 12:00 PM | Shayan Aarti: 08:30 PM',
+      bestTimeToVisitHi: 'अक्टूबर से मार्च',
+      bestTimeToVisitEn: 'October to March',
+    },
+    howToReach: {
+      byAirHi: 'इंदौर हवाई अड्डा (लगभग 80 किमी) से टैक्सी सेवा।',
+      byAirEn: 'Indore International Airport (approx 80 km).',
+      byRailHi:
+        'ओंकारेश्वर रोड रेलवे स्टेशन (12 किमी) अथवा खंडवा (70 किमी)/इंदौर।',
+      byRailEn: 'Omkareshwar Road Station (12 km) or Khandwa / Indore.',
+      byRoadHi: 'इंदौर और उज्जैन से सीधी बस व टैक्सी सेवा।',
+      byRoadEn:
+        'Well paved road connection from Indore (80 km) and Ujjain (135 km).',
+      nearestAirport: 'Indore Airport (IDR)',
+      nearestRailwayStation: 'Omkareshwar Road (OM) / Khandwa (KNW)',
+    },
     nearbyAttractionsHi:
-      'ममलेश्वर मंदिर, अहिल्या घाट, नर्मदा परिक्रमा स्थल, सिद्धनाथ मंदिर',
+      'ममलेश्वर मंदिर, 108 फीट आदि शंकराचार्य प्रतिमा (स्टैच्यू ऑफ वननेस), ओंकारेश्वर बाँध, नर्मदा परिक्रमा संगम घाट',
     nearbyAttractionsEn:
-      'Mamleshwar Temple, Ahilya Ghat, Narmada Parikrama Point, Siddhanath Temple',
+      'Mamleshwar Temple, Statue of Oneness (Adi Shankara 108ft), Omkareshwar Dam, Sangam Ghat',
+    image: imagePath.omkareshwarJyotirlinga,
   },
   {
     id: 'kedarnath_dham',
-    nameHi: 'केदारनाथ ज्योतिर्लिंग धाम',
-    nameEn: 'Kedarnath Jyotirlinga Dham',
-    locationHi: 'केदारनाथ, रुद्रप्रयाग, उत्तराखण्ड',
-    locationEn: 'Kedarnath, Rudraprayag, Uttarakhand',
+    order: 9,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'केदारनाथ धाम (रुद्रप्रयाग - पंच केदार)',
+    nameEn: 'Kedarnath Dham (Rudraprayag - Panch Kedar)',
+    aliasNamesHi: ['केदारेश्वर ज्योतिर्लिंग', 'केदार खंड'],
+    aliasNamesEn: ['Kedareshwar Jyotirlinga', 'Kedar Khand'],
+    locationHi: 'रुद्रप्रयाग, उत्तराखण्ड (मंदाकिनी नदी तट, गढ़वाल हिमालय)',
+    locationEn:
+      'Rudraprayag District, Uttarakhand (Banks of Mandakini River, Garhwal Himalayas)',
+    addressHi: 'केदारनाथ धाम, रुद्रप्रयाग, उत्तराखण्ड - 246445',
+    addressEn: 'Kedarnath Dham, Rudraprayag District, Uttarakhand - 246445',
+    districtHi: 'रुद्रप्रयाग',
+    districtEn: 'Rudraprayag',
     stateHi: 'उत्तराखण्ड',
     stateEn: 'Uttarakhand',
-    deityHi: 'भगवान शिव (केदारनाथ / सदाशिव)',
-    deityEn: 'Lord Shiva (Kedarnath / Sadashiva)',
-    image: imagePath.kedarnathJyotirlinga,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '246445',
+    geo: {
+      latitude: 30.7352,
+      longitude: 79.0669,
+    },
+    deityHi: 'भगवान शिव (सदाशिव / त्रिकोणीय स्वयंभू ज्योतिर्लिंग)',
+    deityEn: 'Lord Shiva (Sadashiva / Triangular Self-manifested Jyotirlinga)',
     category: 'jyotirlinga',
     categories: ['jyotirlinga', 'chota_chardham', 'major'],
     isJyotirlinga: true,
     isChotaCharDham: true,
-    order: 9,
+    tags: [
+      'jyotirlinga',
+      'kedarnath',
+      'himalayas',
+      'chota-chardham',
+      'shiva',
+      'uttarakhand',
+    ],
+    builtCentury: '8th Century CE (Adi Shankara Reconstruction)',
+    builtByHi: 'पाण्डव (मूल) एवं आद्य शंकराचार्य',
+    builtByEn: 'Pandavas (Original) & Adi Shankaracharya (Reconstruction)',
+    architectureStyleHi:
+      'कत्युरी हिमालयी महापाषाण शैली (बिना गारे के इंटरलॉकिंग ग्रेनाइट शिलाएं)',
+    architectureStyleEn:
+      'Katyuri style monolithic Himalayan granite interlocking without mortar',
     significanceHi:
-      'हिमालय की गोद में 3,583 मीटर की ऊंचाई पर स्थित सर्वोच्च ज्योतिर्लिंग एवं छोटा चार धाम का प्रमुख अंग। महाभारत युद्ध के बाद पांडवों को गोत्र-हत्या दोष से मुक्त करने हेतु भगवान शिव ने यहाँ बैल रूप में दर्शन दिए थे।',
+      'समुद्र तल से 3,584 मीटर की ऊँचाई पर 12 ज्योतिर्लिंगों में सर्वोच्च स्थान पर स्थित पंच केदारों में अग्रणी ज्योतिर्लिंग धाम। महाभारत युद्ध के उपरांत पाण्डवों को पापमुक्ति हेतु यहाँ शिव के पृष्ठ भाग के दर्शन हुए थे।',
     significanceEn:
-      'Situated in the Garhwal Himalayas at 3,583m, Kedarnath is one of the highest Jyotirlingas and part of Chota Char Dham. Shiva manifested as a celestial bull leaving His hump to absolve the Pandavas.',
-    timingHi:
-      'प्रातः 05:00 से दोपहर 01:30, सायं 05:00 से रात्रि 09:00 (अक्षय तृतीया से भाईदूज / ग्रीष्मकालीन)',
-    timingEn:
-      '05:00 AM – 01:30 PM, 05:00 PM – 09:00 PM (Seasonal / May to Nov)',
+      'Highest of all 12 Jyotirlingas at 3,584m altitude. Pandavas sought Shiva here for redemption after the Kurukshetra war; Lord Shiva appeared in the form of a celestial hump.',
     descriptionHi:
-      'मंदाकिनी नदी के उद्गम के समीप स्थित केदारनाथ धाम पंच केदार व छोटा चार धाम का मुख्य अंग है। निकटवर्ती दर्शनीय स्थलों में क्षेत्ररक्षक भैरवनाथ मंदिर, वासुकी ताल (हिमानी झील), गांधी सरोवर (चोराबाड़ी ताल) एवं शंकराचार्य समाधि शामिल हैं।',
+      'बर्फ से ढकी केदारनाथ पर्वत श्रृंखलाओं और मंदाकिनी नदी के उद्गम के निकट स्थित यह पाषाण मंदिर 2013 की भीषण प्रलयंकारी बाढ़ में "भीम शिला" के चमत्कारिक रक्षण से अक्षुण्ण रहा। शीतकाल में भगवान की पूजा उखीमठ में होती है।',
     descriptionEn:
-      'Encircled by snow-clad Himalayan peaks near the Mandakini river. Part of both Panch Kedar and Chota Char Dham. Nearby attractions include Bhairavnath Temple, Vasuki Tal glacial lake, Gandhi Sarovar (Chorabari Tal), and Adi Shankaracharya Samadhi.',
+      'Surrounded by majestic snow-clad peaks, this ancient temple miraculously survived the catastrophic 2013 floods protected by the massive Bhim Shila boulder. In winter, deity resides at Ukhimath.',
+    timing: {
+      openingTime: '04:00 AM',
+      closingTime: '09:00 PM',
+      aartiTimingsHi:
+        'महाभिषेक: प्रातः 04:00 | सामान्य दर्शन: 06:00 AM से 03:00 PM | सायं आरती: 06:30 PM | शयन आरती: 08:30 PM',
+      aartiTimingsEn:
+        'Maha Abhishek: 04:00 AM | Public Darshan: 06:00 AM – 03:00 PM | Evening Aarti: 06:30 PM | Shayan: 08:30 PM',
+      bestTimeToVisitHi:
+        'मई से जून तथा सितम्बर से अक्टूबर (शीतकाल में कपाट बंद)',
+      bestTimeToVisitEn:
+        'May to June and September to October (closed in freezing winter)',
+    },
+    howToReach: {
+      byAirHi:
+        'जॉली ग्रांट एयरपोर्ट, देहरादून से फाटा/गुप्तकाशी/सिरसी तक हेलिकॉप्टर सेवा।',
+      byAirEn:
+        'Jolly Grant Airport Dehradun, then helicopter from Phata, Guptkashi, or Sirsi.',
+      byRailHi:
+        'ऋषिकेश/हरिद्वार रेलवे स्टेशन से गौरीकुंड (सड़क मार्ग) फिर 16 किमी पैदल ट्रेक।',
+      byRailEn:
+        'Rishikesh Railway Station (216 km) to Gaurikund, followed by 16 km mountain trek.',
+      byRoadHi:
+        'हरिद्वार/ऋषिकेश से रुद्रप्रयाग, गुप्तकाशी होते हुए गौरीकुंड तक पक्की सड़क।',
+      byRoadEn:
+        'NH-107 connects to base camp Gaurikund, followed by walking/pony/palki trek.',
+      nearestAirport: 'Jolly Grant Airport, Dehradun (DED)',
+      nearestRailwayStation: 'Rishikesh (RKSH) / Haridwar (HW)',
+    },
     nearbyAttractionsHi:
-      'भैरवनाथ मंदिर, वासुकी ताल, गांधी सरोवर (चोराबाड़ी ताल), शंकराचार्य समाधि, गौरीकुण्ड',
+      'भीम शिला, भैरवनाथ मंदिर (केदारनाथ रक्षक), गांधी सरोवर (चोराबाड़ी ताल), वासुकी ताल, त्रिजुगीनारायण (शिव-पार्वती विवाह स्थल)',
     nearbyAttractionsEn:
-      'Bhairavnath Temple, Vasuki Tal, Gandhi Sarovar (Chorabari Tal), Shankaracharya Samadhi, Gaurikund',
+      'Bhim Shila, Bhairavnath Temple, Gandhi Sarovar (Chorabari Lake), Vasuki Tal, Triyuginarayan Temple',
+    image: imagePath.kedarnathJyotirlinga,
   },
   {
     id: 'bhimashankar_jyotirlinga',
-    nameHi: 'भीमाशंकर ज्योतिर्लिंग',
-    nameEn: 'Bhimashankar Jyotirlinga',
-    locationHi: 'खेड़ (पुणे के समीप), सह्याद्रि पर्वत, महाराष्ट्र',
-    locationEn: 'Khed (near Pune), Sahyadri Hills, Maharashtra',
+    order: 10,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'भीमाशंकर ज्योतिर्लिंग (महाराष्ट्र)',
+    nameEn: 'Bhimashankar Jyotirlinga (Maharashtra)',
+    aliasNamesHi: ['डाकिनी भीमाशंकर', 'भीमा नदी उद्गम'],
+    aliasNamesEn: ['Dakini Bhimashankar', 'Source of Bhima River'],
+    locationHi: 'पुणे जिला, महाराष्ट्र (सह्याद्रि पर्वतमाला, भीमा नदी उद्गम)',
+    locationEn:
+      'Pune District, Maharashtra (Sahyadri Range, Source of Bhima River)',
+    addressHi: 'भीमाशंकर मंदिर, भोरगिरी, खेड़, पुणे, महाराष्ट्र - 410509',
+    addressEn:
+      'Bhimashankar Temple, Bhorgiri, Khed, Pune, Maharashtra - 410509',
+    districtHi: 'पुणे',
+    districtEn: 'Pune',
     stateHi: 'महाराष्ट्र',
     stateEn: 'Maharashtra',
-    deityHi: 'भगवान शिव (भीमाशंकर)',
-    deityEn: 'Lord Shiva (Bhimashankar)',
-    image: imagePath.bhimashankarJyotirlinga,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '410509',
+    geo: {
+      latitude: 19.0722,
+      longitude: 73.5358,
+    },
+    deityHi: 'भगवान शिव (भीमाशंकर ज्योतिर्लिंग)',
+    deityEn: 'Lord Shiva (Bhimashankar Jyotirlinga)',
     category: 'jyotirlinga',
     categories: ['jyotirlinga', 'major'],
     isJyotirlinga: true,
-    order: 10,
+    tags: ['jyotirlinga', 'maharashtra', 'pune', 'sahyadri', 'shiva'],
+    builtCentury: '13th & 18th Century CE (Nana Phadnavis)',
+    builtByHi: 'नाना फडणवीस (मराठा साम्राज्य)',
+    builtByEn: 'Nana Phadnavis (Peshwa Minister)',
+    architectureStyleHi: 'प्राचीन नागर एवं हेमदपंथी पाषाण वास्तु शैली',
+    architectureStyleEn: 'Nagara and Hemadpanthi stone architectural style',
     significanceHi:
-      'सह्याद्रि पर्वतमाला के सघन वनों में स्थित, जहाँ भगवान शिव ने कुंभकर्ण के पुत्र असुर भीम का संहार कर धर्म की रक्षा की थी। यहाँ से पवित्र भीमा (चंद्रभागा) नदी का उद्गम होता है।',
+      'सह्याद्रि की सुरम्य वादियों में स्थित षष्ठम ज्योतिर्लिंग जहाँ भगवान शिव ने त्रिपुरासुर के पुत्र महाअसुर भीम का वध कर धर्म की रक्षा की थी। भीमा नदी का पावन उद्गम स्थल।',
     significanceEn:
-      'Set in dense Sahyadri forests, this Jyotirlinga marks the spot where Shiva vanquished the demon Bhima (son of Kumbhakarna) to protect sages. Origin point of the holy Bhima River.',
-    timingHi: 'प्रातः 04:30 से दोपहर 03:00, सायं 04:00 से रात्रि 09:30',
-    timingEn: '04:30 AM – 03:00 PM, 04:00 PM – 09:30 PM',
+      '6th Jyotirlinga in the Sahyadri mountains. Legend holds that Lord Shiva vanquished the demon Bhima (son of Kumbhakarna) here. Source of holy Bhima River.',
     descriptionHi:
-      'नागर शैली की उत्कृष्ट वास्तुकला से सज्जित यह मंदिर भीमाशंकर वन्यजीव अभयारण्य (भारतीय विशाल गिलहरी / शेकरू का घर) के भीतर स्थित है। निकटवर्ती स्थलों में गुप्त भीमाशंकर (भीमा नदी उद्गम), हनुमान झील एवं नागफनी व्यू प्वाइंट शामिल हैं।',
+      'भीमाशंकर वन्यजीव अभयारण्य (विशालकाय शेकरू गिलहरी का प्राकृतिक वास) के घने जंगलों में स्थित यह मंदिर अद्भुत नक्काशी और शांत प्राकृतिक आभा से ओतप्रोत है।',
     descriptionEn:
-      'Built in Nagara architectural style within the lush Bhimashankar Wildlife Sanctuary (home to the Giant Flying Squirrel / Shekru). Nearby attractions include Gupt Bhimashankar, Hanuman Lake, and Nagphani Viewpoint.',
+      'Located inside Bhimashankar Wildlife Sanctuary (home of the Giant Flying Squirrel Shekru). Dense mist and green hills envelop the ancient sanctum.',
+    timing: {
+      openingTime: '04:30 AM',
+      closingTime: '09:30 PM',
+      aartiTimingsHi:
+        'काकड़ आरती: प्रातः 04:30 | महापूजा: दोपहर 12:00 | सायं आरती: 07:30',
+      aartiTimingsEn:
+        'Kakad Aarti: 04:30 AM | Mahapuja: 12:00 PM | Sandhya Aarti: 07:30 PM',
+      bestTimeToVisitHi: 'अक्टूबर से मार्च (तथा मानसून में सावन मास)',
+      bestTimeToVisitEn: 'October to March (and monsoon for lush scenery)',
+    },
+    howToReach: {
+      byAirHi:
+        'पुणे हवाई अड्डा (लगभग 125 किमी) अथवा मुंबई छत्रपति शिवाजी महाराज हवाई अड्डा (220 किमी)।',
+      byAirEn: 'Pune Airport (approx 125 km) or Mumbai Airport (220 km).',
+      byRailHi: 'पुणे रेलवे स्टेशन (110 किमी) अथवा मंचर/कल्याण।',
+      byRailEn: 'Pune Railway Station (110 km) or Kalyan (130 km).',
+      byRoadHi: 'पुणे से मंचर-घोड़ेगांव होते हुए सीधी राज्य परिवहन बसें।',
+      byRoadEn:
+        'Connected by scenic ghat roads from Pune (110 km) and Mumbai (220 km).',
+      nearestAirport: 'Pune Airport (PNQ)',
+      nearestRailwayStation: 'Pune Junction (PUNE)',
+    },
     nearbyAttractionsHi:
-      'भीमाशंकर वन्यजीव अभयारण्य, गुप्त भीमाशंकर, हनुमान झील, नागफनी शिखर',
+      'भीमाशंकर वन्यजीव अभयारण्य (शेकरू गिलहरी), गुप्त भीमाशंकर, हनुमान झील, नागफणी व्यू पॉइंट, बॉम्बे पॉइंट',
     nearbyAttractionsEn:
-      'Bhimashankar Wildlife Sanctuary, Gupt Bhimashankar, Hanuman Lake, Nagphani Point',
+      'Bhimashankar Wildlife Sanctuary, Gupt Bhimashankar, Hanuman Lake, Nagphani Viewpoint',
+    image: imagePath.bhimashankarJyotirlinga,
   },
   {
     id: 'kashi_vishwanath_jyotirlinga',
-    nameHi: 'काशी विश्वनाथ ज्योतिर्लिंग',
-    nameEn: 'Kashi Vishwanath Jyotirlinga',
-    locationHi: 'वाराणसी (काशी), उत्तर प्रदेश',
-    locationEn: 'Varanasi (Kashi), Uttar Pradesh',
+    order: 11,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'काशी विश्वनाथ ज्योतिर्लिंग (वाराणसी)',
+    nameEn: 'Kashi Vishwanath Jyotirlinga (Varanasi)',
+    aliasNamesHi: [
+      'विश्वेश्वर महादेव',
+      'अविमुक्त क्षेत्र',
+      'स्वर्ण मंदिर काशी',
+    ],
+    aliasNamesEn: [
+      'Vishweshwar Mahadev',
+      'Avimukta Kshetra',
+      'Golden Temple of Kashi',
+    ],
+    locationHi: 'वाराणसी, उत्तर प्रदेश (पवित्र गंगा नदी तट)',
+    locationEn: 'Varanasi, Uttar Pradesh (Banks of Holy Ganges River)',
+    addressHi:
+      'श्री काशी विश्वनाथ मंदिर, लाहौरी टोला, वाराणसी, उत्तर प्रदेश - 221001',
+    addressEn:
+      'Shri Kashi Vishwanath Temple, Lahori Tola, Varanasi, UP - 221001',
+    districtHi: 'वाराणसी',
+    districtEn: 'Varanasi',
     stateHi: 'उत्तर प्रदेश',
     stateEn: 'Uttar Pradesh',
-    deityHi: 'भगवान शिव (विश्वनाथ / विश्वेश्वर)',
-    deityEn: 'Lord Shiva (Vishwa-nath / Lord of the Universe)',
-    image: imagePath.kashiVishwanathJyotirlinga,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '221001',
+    geo: {
+      latitude: 25.3109,
+      longitude: 83.0107,
+    },
+    deityHi: 'भगवान शिव (काशी विश्वनाथ / विश्वेश्वर)',
+    deityEn: 'Lord Shiva (Kashi Vishwanath / Vishweshwara)',
+    otherDeitiesHi: [
+      'माता अन्नपूर्णा',
+      'काल भैरव (काशी के कोतवाल)',
+      'माता विशालाक्षी (शक्तिपीठ)',
+    ],
+    otherDeitiesEn: [
+      'Maa Annapurna',
+      'Kaal Bhairav',
+      'Maa Vishalakshi (Shaktipeeth)',
+    ],
+    directionHi: 'उत्तर (North)',
+    directionEn: 'North',
     category: 'jyotirlinga',
     categories: ['jyotirlinga', 'major'],
     isJyotirlinga: true,
-    order: 11,
+    tags: [
+      'jyotirlinga',
+      'kashi',
+      'varanasi',
+      'ganga',
+      'shiva',
+      'uttar-pradesh',
+    ],
+    historyHi:
+      '1780 ई. में इंदौर की पुण्यश्लोका महारानी अहिल्याबाई होल्कर ने वर्तमान मंदिर का पुनर्निर्माण कराया और पंजाब केसरी महाराजा रणजीत सिंह ने शिखर पर स्वर्ण पत्र मढ़वाए।',
+    historyEn:
+      'Rebuilt in 1780 CE by Maharani Ahilyabai Holkar of Indore; golden spire donated by Maharaja Ranjit Singh of Punjab in 1835.',
+    builtCentury: '1780 CE (Modern Corridor 2021)',
+    builtByHi: 'महारानी अहिल्याबाई होल्कर एवं महाराजा रणजीत सिंह',
+    builtByEn: 'Maharani Ahilyabai Holkar & Maharaja Ranjit Singh',
+    architectureStyleHi:
+      'नागर शैली, 15.5 मीटर ऊंचा स्वर्ण शिखर एवं अत्याधुनिक काशी विश्वनाथ धाम कॉरिडोर',
+    architectureStyleEn:
+      'Traditional Nagara spire overlaid with 1 tonne gold dome and modern 50,000 sq m Corridor to Ganga',
     significanceHi:
-      'विश्व की प्राचीनतम जीवित नगरी काशी में स्थित मोक्ष प्रदायक ज्योतिर्लिंग। मान्यता है कि काशी भगवान शिव के त्रिशूल पर टिकी है और यहाँ प्राण त्यागने वाले को साक्षात तारक मंत्र व मोक्ष प्राप्त होता है।',
+      'सप्तम ज्योतिर्लिंग तथा सनातन धर्म का सर्वोच्च मोक्ष तीर्थ। मान्यता है कि काशी भगवान शिव के त्रिशूल पर टिकी है और यहाँ प्राण त्यागने वाले को साक्षात शिव तारक मंत्र देकर मोक्ष प्रदान करते हैं।',
     significanceEn:
-      'The supreme abode of liberation in Varanasi, the world’s oldest living city. Legend holds that Kashi rests on Shiva’s trident and grants ultimate Moksha to all seekers.',
-    timingHi: 'प्रातः 03:00 से रात्रि 11:00 (मंगला आरती: प्रातः 03:00 से 04:00)',
-    timingEn: '03:00 AM – 11:00 PM (Mangla Aarti: 03:00 AM – 04:00 AM)',
+      '7th Jyotirlinga and supreme spiritual capital of Hinduism. Believed to stand on Shiva’s Trishul where Lord Shiva Himself whispers the Taraka Mantra to dying souls for instant Moksha.',
     descriptionHi:
-      'पवित्र गंगा नदी के तट पर स्थित नव-निर्मित भव्य काशी विश्वनाथ धाम कॉरिडोर सीधे गंगा घाटों से मंदिर को जोड़ता है। निकटवर्ती प्रमुख स्थलों में माँ अन्नपूर्णा मंदिर, दशाश्वमेध घाट (विश्वप्रसिद्ध सांध्य गंगा आरती), मणिकर्णिका घाट एवं काल भैरव मंदिर शामिल हैं।',
+      'गंगा तट से मंदिर तक सीधा 50,000 वर्ग मीटर में फैला "श्री काशी विश्वनाथ धाम" कॉरिडोर श्रद्धालुओं को गंगा स्नान के उपरांत सीधे गर्भगृह दर्शन की सुगम अनुभूति कराता है।',
     descriptionEn:
-      'Standing proudly along the sacred Ganges with the grand Kashi Vishwanath Corridor. Nearby attractions include Annapurna Temple, Dashashwamedh Ghat (famous Evening Ganga Aarti), Manikarnika Ghat, and Kal Bhairav Temple.',
+      'The newly inaugurated 50,000 sqm Kashi Vishwanath Dham directly connects Manikarnika and Lalita Ghats on the Ganges to the inner sanctum.',
+    timing: {
+      openingTime: '03:00 AM',
+      closingTime: '11:00 PM',
+      aartiTimingsHi:
+        'मंगला आरती: 03:00 AM | भोग आरती: 11:15 AM | सप्तऋषि आरती: सायं 07:00 | शृंगार/भोग: 09:00 PM | शयन आरती: 10:30 PM',
+      aartiTimingsEn:
+        'Mangala Aarti: 03:00 AM | Bhog: 11:15 AM | Saptarishi Aarti: 07:00 PM | Shringar: 09:00 PM | Shayan: 10:30 PM',
+      bestTimeToVisitHi: 'अक्टूबर से मार्च (देव दीपावली एवं महाशिवरात्रि)',
+      bestTimeToVisitEn:
+        'October to March (Dev Deepawali in Kartik and Maha Shivaratri)',
+    },
+    howToReach: {
+      byAirHi:
+        'लाल बहादुर शास्त्री अंतर्राष्ट्रीय हवाई अड्डा, बाबतपुर वाराणसी (लगभग 24 किमी)।',
+      byAirEn: 'Lal Bahadur Shastri International Airport, Babatpur (24 km).',
+      byRailHi:
+        'वाराणसी जंक्शन (कैंट), बनारस (मंडुआडीह) व पंडित दीनदयाल उपाध्याय जंक्शन।',
+      byRailEn:
+        'Varanasi Junction (BSB), Banaras (BSBS), and Pt. Deen Dayal Upadhyay (DDU).',
+      byRoadHi:
+        'प्रयागराज (125 किमी), लखनऊ (300 किमी), गोरखपुर और पटना से राष्ट्रीय राजमार्ग।',
+      byRoadEn: 'Expressway access from Lucknow, Prayagraj, and Patna.',
+      nearestAirport: 'Varanasi Airport (VNS)',
+      nearestRailwayStation: 'Varanasi Junction (BSB) / Banaras (BSBS)',
+    },
     nearbyAttractionsHi:
-      'दशाश्वमेध घाट (गंगा आरती), माँ अन्नपूर्णा मंदिर, काल भैरव मंदिर, मणिकर्णिका घाट, सारनाथ',
+      'दशाश्वमेध घाट (विश्वप्रसिद्ध महाआरती), मणिकर्णिका घाट, अन्नपूर्णा मंदिर, काल भैरव, सारनाथ (बौद्ध महातीर्थ), संकट मोचन',
     nearbyAttractionsEn:
-      'Dashashwamedh Ghat (Ganga Aarti), Annapurna Temple, Kal Bhairav Temple, Manikarnika Ghat, Sarnath',
+      'Dashashwamedh Ghat (Ganga Aarti), Manikarnika Ghat, Annapurna Temple, Kaal Bhairav, Sarnath, Sankat Mochan',
+    image: imagePath.kashiVishwanathJyotirlinga,
   },
   {
     id: 'trimbakeshwar_jyotirlinga',
-    nameHi: 'त्र्यंबकेश्वर ज्योतिर्लिंग',
-    nameEn: 'Trimbakeshwar Jyotirlinga',
-    locationHi: 'त्र्यंबक, नासिक, महाराष्ट्र',
-    locationEn: 'Trimbak, near Nashik, Maharashtra',
+    order: 12,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'त्र्यंबकेश्वर ज्योतिर्लिंग (नासिक)',
+    nameEn: 'Trimbakeshwar Jyotirlinga (Nashik)',
+    aliasNamesHi: ['त्रिनेत्रेश्वर', 'गोदावरी उद्गम तीर्थ'],
+    aliasNamesEn: ['Trinetreshwar', 'Source of Godavari'],
+    locationHi:
+      'त्र्यंबक, नासिक जिला, महाराष्ट्र (ब्रह्मगिरि पर्वत, गोदावरी उद्गम)',
+    locationEn:
+      'Trimbak, Nashik District, Maharashtra (Brahmagiri Hills, Godavari Origin)',
+    addressHi:
+      'श्री त्र्यंबकेश्वर ज्योतिर्लिंग मंदिर, त्र्यंबक, नासिक, महाराष्ट्र - 422212',
+    addressEn:
+      'Shri Trimbakeshwar Shiva Temple, Trimbak, Nashik, Maharashtra - 422212',
+    districtHi: 'नासिक',
+    districtEn: 'Nashik',
     stateHi: 'महाराष्ट्र',
     stateEn: 'Maharashtra',
-    deityHi: 'भगवान शिव (त्र्यंबकेश्वर - ब्रह्मा, विष्णु, महेश त्रिदेव स्वरूप)',
-    deityEn: 'Lord Shiva (Trimbakeshwar - Trimurti Embodiment)',
-    image: imagePath.trimbakeshwarJyotirlinga,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '422212',
+    geo: {
+      latitude: 19.9322,
+      longitude: 73.5307,
+    },
+    deityHi: 'भगवान शिव (त्रिदेव रूपी ज्योतिर्लिंग - ब्रह्मा, विष्णु, महेश)',
+    deityEn: 'Lord Shiva (Tridev Jyotirlinga - Brahma, Vishnu, Shiva)',
     category: 'jyotirlinga',
     categories: ['jyotirlinga', 'major'],
     isJyotirlinga: true,
-    order: 12,
+    tags: [
+      'jyotirlinga',
+      'maharashtra',
+      'nashik',
+      'godavari',
+      'kumbh-mela',
+      'shiva',
+    ],
+    historyHi:
+      'वर्तमान भव्य काले पाषाण मंदिर का निर्माण 1755-1786 ई. में तीसरे पेशवा बालाजी बाजीराव (नाना साहेब) द्वारा कराया गया।',
+    historyEn:
+      'Current black stone temple was built between 1755 and 1786 CE by Peshwa Balaji Baji Rao (Nana Saheb).',
+    builtCentury: '18th Century CE (1786 CE)',
+    builtByHi: 'पेशवा बालाजी बाजीराव (नाना साहेब)',
+    builtByEn: 'Peshwa Balaji Baji Rao',
+    architectureStyleHi:
+      'काले बसाल्ट पाषाण से निर्मित उत्कृष्ट हेमदपंथी नागर शैली',
+    architectureStyleEn:
+      'Hemadpanthi black basalt stone architecture adorned with intricate sculptures',
     significanceHi:
-      'द्वादश ज्योतिर्लिंगों में अद्वितीय ज्योतिर्लिंग, जहाँ लिंगम में त्रिदेव—ब्रह्मा, विष्णु और महेश के तीन मुख विद्यमान हैं। पितृदोष व कालसर्प दोष निवारण हेतु नारायण नागबलि पूजा का यह मुख्य केंद्र है।',
+      'अष्टम ज्योतिर्लिंग जहाँ गर्भगृह के लिंगम में ब्रह्मा, विष्णु और महेश तीनों देवों के तीन मुख (पिंडी) संयुक्त रूप से प्रतिष्ठित हैं। दक्षिण गंगा गोदावरी का पावन उद्गम।',
     significanceEn:
-      'Distinct among all 12 Jyotirlingas as its lingam symbolizes the Trimurti — Brahma, Vishnu, and Mahesh. Highly revered for performing Narayan Nagbali rituals to alleviate ancestral doshas.',
-    timingHi:
-      'प्रातः 05:30 से रात्रि 09:00 (रुद्राभिषेक: प्रातः 05:30 से 09:00)',
-    timingEn: '05:30 AM – 09:00 PM (Rudrabhishek: 05:30 AM – 09:00 AM)',
+      '8th Jyotirlinga unique for housing a three-faced lingam embodying the holy Trinity: Brahma, Vishnu, and Shiva. Origin of sacred Godavari River.',
     descriptionHi:
-      'ब्रह्मगिरि पर्वत की तलहटी में स्थित, जहाँ से दक्षिण गंगा गोदावरी नदी का उद्गम होता है। प्रमुख दर्शनीय स्थलों में ब्रह्मगिरि पर्वत, अंजनेरी पहाड़ी (श्री हनुमान जी की जन्मस्थली) एवं कुशावर्त कुण्ड शामिल हैं।',
+      'ब्रह्मगिरि पर्वत की तलहटी में स्थित इस मंदिर में कुशावर्त तीर्थ (कुण्ड) स्थित है जहाँ प्रत्येक 12 वर्ष में नासिक-त्र्यंबकेश्वर सिंहस्थ कुंभ मेला आयोजित होता है। कालसर्प दोष व नारायण नागबली पूजा का प्रमुख केंद्र।',
     descriptionEn:
-      'Located at the foothills of Brahmagiri mountain, the source of sacred river Godavari. Nearby attractions include Brahmagiri Hill trek, Anjaneri Hills (birthplace of Lord Hanuman), and Kushavarta Kund.',
+      'Site of the legendary Kushavarta Kund and the Nashik-Trimbakeshwar Simhastha Kumbh Mela. Foremost center for Kalsarp Dosh and Narayan Nagbali rituals.',
+    timing: {
+      openingTime: '05:30 AM',
+      closingTime: '09:00 PM',
+      aartiTimingsHi:
+        'काकड़ आरती: 05:30 AM | मध्याह्न महापूजा: 12:00 PM | सायं आरती: 07:00 PM',
+      aartiTimingsEn:
+        'Kakad Aarti: 05:30 AM | Madhyahna Puja: 12:00 PM | Sandhya Aarti: 07:00 PM',
+      bestTimeToVisitHi: 'अक्टूबर से मार्च',
+      bestTimeToVisitEn: 'October to March',
+    },
+    howToReach: {
+      byAirHi: 'नासिक हवाई अड्डा ओझर (लगभग 50 किमी) अथवा मुंबई (175 किमी)।',
+      byAirEn:
+        'Nashik Ozar Airport (50 km) or Mumbai Chhatrapati Shivaji Airport (175 km).',
+      byRailHi: 'नासिक रोड रेलवे स्टेशन (NK) से मंदिर 36 किमी दूर है।',
+      byRailEn:
+        'Nashik Road Railway Station (36 km) with frequent bus/taxi connectivity.',
+      byRoadHi: 'नासिक सेंट्रल बस स्टैंड से प्रत्येक 15 मिनट में बसें उपलब्ध।',
+      byRoadEn:
+        'Regular state transport buses every 15 mins from Nashik CBS (28 km).',
+      nearestAirport: 'Nashik Airport (ISK) / Mumbai (BOM)',
+      nearestRailwayStation: 'Nashik Road Railway Station (NK)',
+    },
     nearbyAttractionsHi:
-      'ब्रह्मगिरि पर्वत, अंजनेरी हिल्स (हनुमान जन्मस्थली), कुशावर्त कुण्ड, गोदावरी उद्गम स्थल',
+      'कुशावर्त तीर्थ, ब्रह्मगिरि पर्वत ट्रेक (गोदावरी उद्गम), गंगाद्वार, संत निवृत्तिनाथ समाधि, पंचवटी नासिक',
     nearbyAttractionsEn:
-      'Brahmagiri Hills, Anjaneri Hills (Birthplace of Hanuman), Kushavarta Kund, Godavari River Source',
+      'Kushavarta Theertham, Brahmagiri Trek, Gangadwar, Sant Nivruttinath Samadhi, Panchavati Nashik',
+    image: imagePath.trimbakeshwarJyotirlinga,
   },
   {
     id: 'vaidyanath_jyotirlinga',
-    nameHi: 'वैद्यनाथ ज्योतिर्लिंग (बाबा धाम)',
-    nameEn: 'Vaidyanath Jyotirlinga (Baba Baidyanath)',
-    locationHi: 'देवघर, संथाल परगना, झारखण्ड',
-    locationEn: 'Deoghar, Santhal Parganas, Jharkhand',
+    order: 13,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'वैद्यनाथ ज्योतिर्लिंग (देवघर)',
+    nameEn: 'Vaidyanath Jyotirlinga (Deoghar)',
+    aliasNamesHi: ['बाबा बैद्यनाथ धाम', 'कामना लिंग'],
+    aliasNamesEn: ['Baidyanath Dham', 'Kamana Linga', 'Lord of Physicians'],
+    locationHi: 'देवघर जिला, झारखण्ड (संथाल परगना)',
+    locationEn: 'Deoghar District, Jharkhand (Santhal Parganas)',
+    addressHi: 'बाबा बैद्यनाथ धाम मंदिर, देवघर, झारखण्ड - 814112',
+    addressEn: 'Baba Baidyanath Temple, Deoghar, Jharkhand - 814112',
+    districtHi: 'देवघर',
+    districtEn: 'Deoghar',
     stateHi: 'झारखण्ड',
     stateEn: 'Jharkhand',
-    deityHi: 'भगवान शिव (वैद्यनाथ / कामेश्वर महादेव)',
-    deityEn: 'Lord Shiva (Vaidyanath / Kamna Lingam)',
-    image: imagePath.vaidyanathJyotirlinga,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '814112',
+    geo: {
+      latitude: 24.4925,
+      longitude: 86.7001,
+    },
+    deityHi: 'भगवान शिव (वैद्यनाथ महादेव) व माता पार्वती (शक्तिपीठ)',
+    deityEn: 'Lord Shiva (Baidyanath Mahadev) & Goddess Parvati',
     category: 'jyotirlinga',
     categories: ['jyotirlinga', 'shaktipeeth', 'major'],
     isJyotirlinga: true,
     isShaktipeeth: true,
-    order: 13,
+    tags: [
+      'jyotirlinga',
+      'shaktipeeth',
+      'baidyanath',
+      'kanwar-yatra',
+      'jharkhand',
+      'shiva',
+    ],
+    architectureStyleHi:
+      'पारंपरिक मध्ययुगीन नागर शैली, 72 फीट ऊंचा शिखर एवं स्वर्ण कलश',
+    architectureStyleEn:
+      'Nagara stone shikhara rising 72 ft with gold kalash and sacred red cloth connecting Shiva & Parvati temples',
     significanceHi:
-      'भगवान शिव को "परम वैद्य" (आरोग्य प्रदाता) के रूप में पूजा जाता है। रावण ने अपनी तपस्या में दस शीश काटकर अर्पित किए थे, जिसके पश्चात शिवजी ने वैद्य बनकर उसके शीश पुनः जोड़े और यहाँ कामना लिंग स्थापित किया।',
+      'नवम ज्योतिर्लिंग एवं 51 शक्तिपीठों में एक (माँ जयदुर्गा)। रावण द्वारा लंका ले जाते समय स्थापित स्वयंभू "कामना लिंग"। यहाँ विश्व का सबसे लंबा 105 किमी का "श्रावणी कांवड़ मेला" आयोजित होता है।',
     significanceEn:
-      'Celebrated as the "Divine Physician" who heals all physical and spiritual ailments. Demon king Ravana offered his ten heads in penance; pleased Shiva healed him and consecrated this Kamna Lingam.',
-    timingHi:
-      'प्रातः 04:00 से दोपहर 03:30, सायं 06:00 से रात्रि 09:00 (श्रावण मास में विशेष निरंतर दर्शन)',
-    timingEn:
-      '04:00 AM – 03:30 PM, 06:00 PM – 09:00 PM (Continuous Darshan during Shravan)',
+      '9th Jyotirlinga and Shaktipeeth. Ravana grounded the Shiva Lingam here. Hosts the world largest uninterrupted pilgrimage — the 105 km Shravani Kanwar Mela from Sultanganj.',
     descriptionHi:
-      'वार्षिक विश्वप्रसिद्ध श्रावणी मेले का केंद्र जहाँ लाखों कांवड़िए सुल्तानगंज से 108 किमी गंगाजल लाकर जलाभिषेक करते हैं। निकटवर्ती प्रमुख स्थलों में बासुकीनाथ मंदिर, त्रिकूट पर्वत (रोपवे व तपस्या गुफाएं) एवं नवलखा मंदिर दर्शनीय हैं।',
+      'बाबा मंदिर और माता पार्वती मंदिर के शिखरों को लाल रेशमी वस्त्र (गठबंधन) से आपस में बांधने की अलौकिक परंपरा है। सावन में लाखों कांवड़िये सुल्तानगंज (गंगा) से 105 किमी पैदल जल लेकर आते हैं।',
     descriptionEn:
-      'Center of the world-famous month-long Shravani Mela where millions of Kanwariyas offer holy Ganga water. Nearby attractions include Basukinath Temple, Trikuta Hills (caves and ropeway), and Naulakha Mandir.',
+      'Features a red ribbon (Gathbandhan) physically tying the spires of Shiva and Parvati temples together. Over 5 million Kanwariyas walk 105 km barefoot carrying holy Ganga water during Shravan.',
+    timing: {
+      openingTime: '04:00 AM',
+      closingTime: '09:00 PM',
+      aartiTimingsHi:
+        'प्रातः सरकारी पूजा: 04:00 AM | विश्राम: 03:30 से 06:00 PM | सायं शृंगार आरती: 07:30 PM',
+      aartiTimingsEn:
+        'Morning Puja: 04:00 AM | Afternoon Rest: 03:30 – 06:00 PM | Shringar Aarti: 07:30 PM',
+      bestTimeToVisitHi: 'अक्टूबर से मार्च (तथा सावन मास)',
+      bestTimeToVisitEn: 'October to March (and Shravan Month)',
+    },
+    howToReach: {
+      byAirHi:
+        'देवघर अंतर्राष्ट्रीय हवाई अड्डा (DGH) मंदिर से मात्र 8 किमी दूर है।',
+      byAirEn:
+        'Deoghar International Airport (DGH) is just 8 km from the temple.',
+      byRailHi:
+        'जसीडीह जंक्शन (10 किमी) दिल्ली-कोलकाता मुख्य रेल लाइन पर स्थित है।',
+      byRailEn:
+        'Jasidih Junction (JSME) is 10 km away on the Delhi-Howrah mainline.',
+      byRoadHi:
+        'रांची (250 किमी), पटना (250 किमी) और भागलपुर से सीधी बस सेवाएं।',
+      byRoadEn:
+        'Direct bus and taxi connectivity from Patna, Ranchi, and Kolkata.',
+      nearestAirport: 'Deoghar Airport (DGH)',
+      nearestRailwayStation: 'Jasidih Junction (JSME) / Deoghar (DGHR)',
+    },
     nearbyAttractionsHi:
-      'बासुकीनाथ मंदिर, त्रिकूट पर्वत, नवलखा मंदिर, तपोवन, नंदन पहाड़',
+      'तपोवन गुफाएं, त्रिकूट पर्वत (रोपवे), बासुकीनाथ मंदिर (42 किमी), नौलखा मंदिर, नंदन पहाड़',
     nearbyAttractionsEn:
-      'Basukinath Temple, Trikuta Hills, Naulakha Mandir, Tapovan, Nandan Pahar',
+      'Trikut Pahar (Ropeway), Basukinath Temple (42 km), Tapovan Caves, Naulakha Temple, Nandan Pahar',
+    image: imagePath.vaidyanathJyotirlinga,
   },
   {
     id: 'nageshwar_jyotirlinga',
-    nameHi: 'नागेश्वर ज्योतिर्लिंग',
-    nameEn: 'Nageshwar Jyotirlinga',
-    locationHi: 'द्वारका के समीप, दारुकावन, गुजरात',
-    locationEn: 'Near Dwarka, Saurashtra, Gujarat',
+    order: 14,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'नागेश्वर ज्योतिर्लिंग (दारुकावन)',
+    nameEn: 'Nageshwar Jyotirlinga (Darukavanam)',
+    aliasNamesHi: ['नागेश महादेव', 'दारुकावन ज्योतिर्लिंग'],
+    aliasNamesEn: ['Nagesh Mahadev', 'Darukavanam'],
+    locationHi: 'दारुकावन, देवभूमि द्वारका, गुजरात (द्वारका से 16 किमी)',
+    locationEn: 'Darukavanam, Devbhumi Dwarka, Gujarat (16 km from Dwarka)',
+    addressHi:
+      'श्री नागेश्वर ज्योतिर्लिंग मंदिर, दारुकावन, द्वारका, गुजरात - 361345',
+    addressEn:
+      'Shri Nageshwar Jyotirlinga, Darukavanam, Dwarka, Gujarat - 361345',
+    districtHi: 'देवभूमि द्वारका',
+    districtEn: 'Devbhumi Dwarka',
     stateHi: 'गुजरात',
     stateEn: 'Gujarat',
-    deityHi: 'भगवान शिव (नागेश्वर)',
-    deityEn: 'Lord Shiva (Nageshwar)',
-    image: imagePath.nageshwarJyotirlinga,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '361345',
+    geo: {
+      latitude: 22.3346,
+      longitude: 68.9959,
+    },
+    deityHi: 'भगवान शिव (नागेश्वर महादेव - सर्पों के अधिपति)',
+    deityEn: 'Lord Shiva (Nageshwar Mahadev - Lord of Serpents)',
     category: 'jyotirlinga',
     categories: ['jyotirlinga', 'major'],
     isJyotirlinga: true,
-    order: 14,
+    tags: ['jyotirlinga', 'nageshwar', 'dwarka', 'gujarat', 'shiva'],
     significanceHi:
-      'समस्त विष, भय, पाप और नकारात्मक शक्तियों से सुरक्षा प्रदान करने वाले प्रथम नागेश्वर ज्योतिर्लिंग। भगवान शिव ने अपने अनन्य भक्त सुप्रिय की रक्षा हेतु दारुका नामक असुर का संहार किया था।',
+      'दशम ज्योतिर्लिंग जो समस्त प्रकार के विष, सर्पभय और नकारात्मक शक्तियों से रक्षण प्रदान करता है। मंदिर परिसर में भगवान शिव की 85 फीट ऊंची ध्यानमग्न विशाल प्रतिमा स्थित है।',
     significanceEn:
-      'Represents divine protection from all evils and poisons. Legend says the Lord appeared and vanquished demon Daaruka to protect His devotee Supriya.',
-    timingHi: 'प्रातः 06:00 से दोपहर 12:30, सायं 05:00 से रात्रि 09:30',
-    timingEn: '06:00 AM – 12:30 PM, 05:00 PM – 09:30 PM',
+      '10th Jyotirlinga granting immunity from poisons, serpent fears, and worldly evils. Features an imposing 85-foot giant meditative statue of Lord Shiva.',
     descriptionHi:
-      'प्राचीन दारुकावन क्षेत्र में द्वारका व बेट द्वारका के मध्य अरब सागर के समीप स्थित। मंदिर परिसर में भगवान शिव की विशालकाय ८० फीट ऊंची पद्मासन प्रतिमा अत्यंत भव्य है। निकटवर्ती स्थलों में द्वारकाधीश मंदिर, रुक्मिणी देवी मंदिर व गोमती घाट शामिल हैं।',
+      'रुद्र संहिता के अनुसार शिवभक्त सुप्रिय को दारुक राक्षस के कारागार से मुक्त कराने हेतु भगवान शिव ज्योति रूप में प्रकट हुए थे। यहाँ स्थापित त्रिमूर्तिक लिंगम दक्षिण-पश्चिम मुखी है।',
     descriptionEn:
-      'Located in ancient Darukavana forest near Dwarka by the Arabian Sea, featuring a magnificent 80-foot giant seated statue of Lord Shiva. Nearby attractions include Dwarkadhish Temple, Rukmini Devi Temple, and Gomti Ghat.',
+      'According to Shiva Purana, Lord Shiva manifested here to protect His ardent devotee Supriya from the demon Daruka. The sanctum houses a triangular self-manifested stone lingam.',
+    timing: {
+      openingTime: '06:00 AM',
+      closingTime: '09:00 PM',
+      aartiTimingsHi:
+        'मंगला आरती: प्रातः 06:00 | मध्याह्न भोग: 12:00 | संध्या आरती: 07:00 PM',
+      aartiTimingsEn:
+        'Mangala Aarti: 06:00 AM | Noon Bhog: 12:00 PM | Sandhya Aarti: 07:00 PM',
+      bestTimeToVisitHi: 'अक्टूबर से मार्च',
+      bestTimeToVisitEn: 'October to March',
+    },
+    howToReach: {
+      byAirHi: 'जामनगर हवाई अड्डा (130 किमी) अथवा पोरबंदर (110 किमी)।',
+      byAirEn: 'Jamnagar Airport (130 km) or Porbandar Airport (110 km).',
+      byRailHi: 'द्वारका रेलवे स्टेशन (DWK) से मात्र 16 किमी।',
+      byRailEn: 'Dwarka Railway Station (16 km) with auto/taxi access.',
+      byRoadHi: 'द्वारका से बेट द्वारका मार्ग पर नियमित बसें व टैक्सियां।',
+      byRoadEn: 'Located on the main highway between Dwarka and Beyt Dwarka.',
+      nearestAirport: 'Jamnagar Airport (JGA)',
+      nearestRailwayStation: 'Dwarka Railway Station (DWK)',
+    },
     nearbyAttractionsHi:
-      'द्वारकाधीश मंदिर, रुक्मिणी देवी मंदिर, गोमती घाट, बेट द्वारका',
+      '85 फीट शिव प्रतिमा, द्वारकाधीश जगत मंदिर, बेट द्वारका, गोपी तालाब (गोपी चंदन तीर्थ), रुक्मिणी मंदिर',
     nearbyAttractionsEn:
-      'Dwarkadhish Temple, Rukmini Devi Temple, Gomti Ghat, Beyt Dwarka',
+      '85-ft Shiva Statue, Dwarkadhish Temple, Beyt Dwarka, Gopi Talav, Rukmini Temple',
+    image: imagePath.nageshwarJyotirlinga,
   },
   {
     id: 'grishneshwar_jyotirlinga',
-    nameHi: 'घृष्णेश्वर ज्योतिर्लिंग',
-    nameEn: 'Grishneshwar Jyotirlinga',
-    locationHi: 'वेरुल / एलोरा, छत्रपति संभाजीनगर, महाराष्ट्र',
-    locationEn: 'Ellora, near Aurangabad, Maharashtra',
+    order: 15,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'घृष्णेश्वर ज्योतिर्लिंग (एलोरा)',
+    nameEn: 'Grishneshwar Jyotirlinga (Ellora)',
+    aliasNamesHi: ['घुश्मेश्वर', 'कुंकुमेश्वर'],
+    aliasNamesEn: ['Ghushmeshwar', 'Grushneshwar'],
+    locationHi: 'एलोरा, छत्रपति संभाजीनगर (औरंगाबाद), महाराष्ट्र',
+    locationEn: 'Ellora, Chhatrapati Sambhajinagar (Aurangabad), Maharashtra',
+    addressHi:
+      'श्री घृष्णेश्वर ज्योतिर्लिंग मंदिर, एलोरा, संभाजीनगर, महाराष्ट्र - 431102',
+    addressEn: 'Shri Grishneshwar Jyotirlinga, Ellora, Maharashtra - 431102',
+    districtHi: 'छत्रपति संभाजीनगर',
+    districtEn: 'Chhatrapati Sambhajinagar',
     stateHi: 'महाराष्ट्र',
     stateEn: 'Maharashtra',
-    deityHi: 'भगवान शिव (घृष्णेश्वर / घुश्मेश्वर)',
-    deityEn: 'Lord Shiva (Grishneshwar / Ghushmeshwar)',
-    image: imagePath.grishneshwarJyotirlinga,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '431102',
+    geo: {
+      latitude: 20.0249,
+      longitude: 75.1708,
+    },
+    deityHi: 'भगवान शिव (घृष्णेश्वर महादेव)',
+    deityEn: 'Lord Shiva (Grishneshwar Mahadev)',
     category: 'jyotirlinga',
     categories: ['jyotirlinga', 'major'],
     isJyotirlinga: true,
-    order: 15,
+    tags: ['jyotirlinga', 'ellora', 'maharashtra', 'unesco', 'shiva'],
+    historyHi:
+      '18वीं शताब्दी में महारानी अहिल्याबाई होल्कर द्वारा लाल बलुआ पत्थर से पुनर्निर्मित।',
+    historyEn:
+      'Reconstructed in the 18th century CE by Queen Ahilyabai Holkar of Indore.',
+    builtCentury: '18th Century CE',
+    builtByHi: 'महारानी अहिल्याबाई होल्कर एवं मालोजी भोसले',
+    builtByEn: 'Maharani Ahilyabai Holkar & Maloji Bhosale',
+    architectureStyleHi:
+      'दक्षिण भारतीय शैली से प्रभावित 5-स्तरीय लाल पाषाण नागर शिखर',
+    architectureStyleEn:
+      '5-tiered red basalt stone shikhara in South Indian influenced Nagara style',
     significanceHi:
-      'द्वादश ज्योतिर्लिंगों में बारहवाँ व अंतिम ज्योतिर्लिंग, जिसे "परम करुणा के स्वामी" कहा जाता है। अनन्य शिवभक्त घुश्मा (कुसुमा) की भक्ति से प्रसन्न होकर भगवान शिव ने उनके मृत पुत्र को पुनर्जीवित किया था।',
+      'द्वादश ज्योतिर्लिंगों की पवित्र शृंखला का पावन "द्वादश (12वां) अंतिम ज्योतिर्लिंग"। शिवभक्त घुश्मा की अनन्य भक्ति से प्रसन्न होकर शिव यहाँ नित्य वास करते हैं।',
     significanceEn:
-      'The 12th and concluding Jyotirlinga, known as the "Lord of Compassion". Pious devotee Kusuma’s (Ghushma) unwavering devotion brought her murdered son back to life by Shiva’s grace.',
-    timingHi:
-      'प्रातः 05:30 से रात्रि 09:30 (श्रावण मास में प्रातः 03:00 से रात्रि 11:00)',
-    timingEn: '05:30 AM – 09:30 PM (Shravan month: 03:00 AM – 11:00 PM)',
+      'The 12th and final Jyotirlinga. Manifested for the ardent devotee Ghushma whose drowned son was miraculously brought back to life by Shiva.',
     descriptionHi:
-      'रानी अहिल्याबाई होल्कर द्वारा लाल बलुआ पत्थर से पुनर्निर्मित भव्य मंदिर। यह यूनेस्को विश्व धरोहर एलोरा गुफाओं (कैलाश मंदिर) के ठीक समीप स्थित है। निकटवर्ती स्थलों में एलोरा गुफाएं, देवगिरि / दौलताबाद किला एवं बीबी का मक़बरा प्रमुख हैं।',
+      'यूनेस्को विश्व धरोहर "एलोरा की गुफाओं" (कैलाश मंदिर) से मात्र 1 किमी की दूरी पर स्थित यह शांत मंदिर अपनी उत्कृष्ट नक्काशी और आध्यात्मिक शांति हेतु विख्यात है।',
     descriptionEn:
-      'Constructed with red sandstone in South Indian style by Ahilyabai Holkar. Located right near the iconic UNESCO World Heritage Ellora Caves (Kailasa Temple). Nearby attractions include Ellora Caves, Daulatabad Fort, and Bibi Ka Maqbara.',
+      'Located just 1 km from the world-famous UNESCO World Heritage Ellora Caves (Kailasa Monolithic Temple). Built using vibrant red basalt stone.',
+    timing: {
+      openingTime: '05:30 AM',
+      closingTime: '09:30 PM',
+      aartiTimingsHi:
+        'मंगला आरती: प्रातः 05:30 | मध्याह्न भोग: 12:00 | संध्या आरती: 07:30 PM',
+      aartiTimingsEn:
+        'Mangala: 05:30 AM | Noon Bhog: 12:00 PM | Sandhya Aarti: 07:30 PM',
+      bestTimeToVisitHi: 'अक्टूबर से मार्च',
+      bestTimeToVisitEn: 'October to March',
+    },
+    howToReach: {
+      byAirHi: 'औरंगाबाद हवाई अड्डा (लगभग 35 किमी)।',
+      byAirEn: 'Chhatrapati Sambhajinagar Airport (approx 35 km).',
+      byRailHi: 'औरंगाबाद रेलवे स्टेशन (30 किमी)।',
+      byRailEn: 'Aurangabad Railway Station (AWB) (30 km).',
+      byRoadHi: 'औरंगाबाद से एलोरा हेतु निरंतर बस व टैक्सी सेवा।',
+      byRoadEn:
+        'Well connected via state highway from Aurangabad (30 km) and Shirdi (105 km).',
+      nearestAirport: 'Aurangabad Airport (IXU)',
+      nearestRailwayStation: 'Aurangabad Railway Station (AWB)',
+    },
     nearbyAttractionsHi:
-      'एलोरा गुफाएं (कैलाश मंदिर), दौलताबाद किला, बीबी का मक़बरा, घृष्णेश्वर कुण्ड',
+      'एलोरा गुफाएं (कैलाश मंदिर - विश्व धरोहर), दौलताबाद किला, बीबी का मकबरा, भद्रा मारुति (शयन मुद्रा हनुमान जी)',
     nearbyAttractionsEn:
-      'Ellora Caves (Kailash Temple), Daulatabad Fort, Bibi Ka Maqbara, Grishneshwar Kund',
+      'Ellora Caves (Kailasa Temple), Daulatabad Fort, Bibi Ka Maqbara, Bhadra Maruti Temple',
+    image: imagePath.grishneshwarJyotirlinga,
   },
 
   // =========================================================================
-  // 3. OTHER ICONIC PILGRIMAGE TEMPLES & SHAKTIPEETHS OF INDIA
+  // 3. MAJOR HISTORIC & SACRED PILGRIMAGE TEMPLES (प्रमुख महातीर्थ)
   // =========================================================================
   {
     id: 'ram_mandir_ayodhya',
-    nameHi: 'श्री राम जन्मभूमि मंदिर',
-    nameEn: 'Shri Ram Janmabhoomi Mandir',
-    locationHi: 'अयोध्या, उत्तर प्रदेश',
-    locationEn: 'Ayodhya, Uttar Pradesh',
+    order: 16,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'श्री राम जन्मभूमि मंदिर (अयोध्या)',
+    nameEn: 'Shri Ram Janmabhoomi Mandir (Ayodhya)',
+    aliasNamesHi: ['राम लला मंदिर', 'अयोध्या धाम'],
+    aliasNamesEn: ['Ram Mandir', 'Ayodhya Dham', 'Ram Lalla Virajman'],
+    locationHi: 'अयोध्या धाम, उत्तर प्रदेश (सरयू नदी तट)',
+    locationEn: 'Ayodhya Dham, Uttar Pradesh (Banks of Holy Saryu River)',
+    addressHi:
+      'श्री राम जन्मभूमि तीर्थ क्षेत्र, अयोध्या, उत्तर प्रदेश - 224123',
+    addressEn: 'Shri Ram Janmabhoomi Teerth Kshetra, Ayodhya, UP - 224123',
+    districtHi: 'अयोध्या',
+    districtEn: 'Ayodhya',
     stateHi: 'उत्तर प्रदेश',
     stateEn: 'Uttar Pradesh',
-    deityHi: 'भगवान श्री राम (राम लला)',
-    deityEn: 'Lord Rama (Ram Lalla)',
-    image: imagePath.Rama,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '224123',
+    geo: {
+      latitude: 26.7956,
+      longitude: 82.1943,
+    },
+    deityHi: 'भगवान श्री राम लला (बालक रूप)',
+    deityEn: 'Bhagwan Shri Ram Lalla (Child Form of Lord Rama)',
+    otherDeitiesHi: [
+      'माता सीता',
+      'लक्ष्मण जी',
+      'भरत जी',
+      'शत्रुघ्न जी',
+      'हनुमान जी',
+    ],
+    otherDeitiesEn: [
+      'Mata Sita',
+      'Lakshmana',
+      'Bharata',
+      'Shatrughna',
+      'Hanuman',
+    ],
+    yugaHi: 'त्रेतायुग',
+    yugaEn: 'Treta Yuga',
+    directionHi: 'पूर्व (East)',
+    directionEn: 'East',
     category: 'major',
     categories: ['major'],
-    order: 16,
+    tags: [
+      'ram-mandir',
+      'ayodhya',
+      'saryu',
+      'treta-yuga',
+      'rama',
+      'uttar-pradesh',
+    ],
+    historyHi:
+      '500 वर्षों के संघर्ष के पश्चात 22 जनवरी 2024 को ऐतिहासिक प्राण-प्रतिष्ठा महोत्सव संपन्न हुआ।',
+    historyEn:
+      'Concluded 500 years of cultural anticipation with the historic consecration (Pran Pratishtha) on 22 January 2024.',
+    builtCentury: '2024 CE',
+    builtByHi:
+      'श्री राम जन्मभूमि तीर्थ क्षेत्र ट्रस्ट (वास्तुकार: चंद्रकांत सोमपुरा परिवार)',
+    builtByEn:
+      'Shri Ram Janmabhoomi Teerth Kshetra Trust (Architect: Chandrakant Sompura)',
+    architectureStyleHi:
+      'पारंपरिक नागर वास्तु शैली, बंसी पहाड़पुर के गुलाबी बलुआ पत्थर, बिना लोहे के 1000 वर्ष आयु संरचना',
+    architectureStyleEn:
+      'Traditional Nagara temple architecture built with pink Bansi Paharpur stone without iron/steel',
     significanceHi:
-      'भगवान श्री राम की पावन जन्मस्थली एवं विश्वभर के सनातनियों का परम आस्था केंद्र।',
+      'मर्यादा पुरुषोत्तम भगवान श्री राम की पावन जन्मस्थली तथा भारत की सांस्कृतिक चेतना का सर्वोच्च केंद्र। 3-मंजिला 161 फीट ऊंचा भव्य मंदिर।',
     significanceEn:
-      'The sacred birthplace of Lord Shri Rama and a premier global spiritual pilgrimage.',
-    timingHi: 'प्रातः 06:30 से दोपहर 12:00, सायं 02:00 से रात्रि 10:00',
-    timingEn: '06:30 AM – 12:00 PM, 02:00 PM – 10:00 PM',
+      'The sacred birthplace of Lord Rama. Spanning 3 stories and 161 ft height with 392 pillars, built to endure over 1,000 years.',
     descriptionHi:
-      'अयोध्या में सरयू नदी के तट पर स्थित भव्य श्री राम जन्मभूमि मंदिर भारतीय संस्कृति और आस्था का अनुपम प्रतीक है।',
+      '380 फीट लंबाई, 250 फीट चौड़ाई और 161 फीट ऊंचाई वाले इस महामंदिर में 5 भव्य मंडप हैं। गर्भगृह में 51 इंच के श्याम शिला विग्रह रूप में प्रभु श्री राम लला कमल दल पर धनुष-बाण संग बाल रूप में सुशोभित हैं।',
     descriptionEn:
-      'Located on the banks of the sacred Saryu river in Ayodhya, this grand temple stands as an epitome of devotion and heritage.',
-    nearbyAttractionsHi: 'हनुमान गढ़ी, कनक भवन, सरयू घाट, गुप्तार घाट',
-    nearbyAttractionsEn: 'Hanuman Garhi, Kanak Bhawan, Saryu Ghat, Guptar Ghat',
+      'Houses the 51-inch black Shaligram stone idol of 5-year-old Ram Lalla holding a golden bow. Features 5 iconic pavilions (Mandapas).',
+    timing: {
+      openingTime: '06:30 AM',
+      closingTime: '09:30 PM',
+      aartiTimingsHi:
+        'मंगला आरती: प्रातः 04:30 | शृंगार आरती: 06:30 AM | भोग आरती: दोपहर 12:00 | संध्या आरती: सायं 07:30 | शयन आरती: 09:30 PM',
+      aartiTimingsEn:
+        'Mangala: 04:30 AM | Shringar: 06:30 AM | Bhog: 12:00 PM | Sandhya: 07:30 PM | Shayan: 09:30 PM',
+      bestTimeToVisitHi: 'अक्टूबर से मार्च (तथा चैत्र रामनवमी व दीपोत्सव)',
+      bestTimeToVisitEn: 'October to March (and during Ram Navami & Deepotsav)',
+    },
+    howToReach: {
+      byAirHi:
+        'महर्षि वाल्मीकि अंतर्राष्ट्रीय हवाई अड्डा, अयोध्या (AYJ) मंदिर से मात्र 10 किमी दूर।',
+      byAirEn:
+        'Maharishi Valmiki International Airport, Ayodhya (AYJ) (10 km).',
+      byRailHi: 'अयोध्या धाम जंक्शन (AY) एवं अयोध्या कैंट स्टेशन (AYC)।',
+      byRailEn:
+        'Ayodhya Dham Junction (AY) and Ayodhya Cantt (AYC) connected with Vande Bharat trains.',
+      byRoadHi:
+        'लखनऊ (135 किमी) और गोरखपुर से 4-लेन राष्ट्रीय राजमार्ग (NH-27)।',
+      byRoadEn:
+        'NH-27 connecting from Lucknow (135 km), Varanasi (200 km), and Gorakhpur (140 km).',
+      nearestAirport: 'Ayodhya Airport (AYJ) / Lucknow (LKO)',
+      nearestRailwayStation: 'Ayodhya Dham Junction (AY)',
+    },
+    nearbyAttractionsHi:
+      'हनुमान गढ़ी, कनक भवन, सरयू घाट व राम की पैड़ी, नागेश्वरनाथ मंदिर, दशरथ महल, सूर्य कुंड',
+    nearbyAttractionsEn:
+      'Hanuman Garhi, Kanak Bhawan, Saryu Ghat & Ram Ki Paidi, Nageshwarnath Temple, Surya Kund',
+    image: imagePath.Rama,
   },
   {
     id: 'tirupati_balaji',
-    nameHi: 'तिरुपति बालाजी (वेंकटेश्वर मंदिर)',
-    nameEn: 'Tirupati Balaji (Venkateswara Temple)',
-    locationHi: 'तिरुमाला, आन्ध्र प्रदेश',
-    locationEn: 'Tirumala, Andhra Pradesh',
+    order: 17,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'तिरुपति बालाजी (श्री वेंकटेश्वर स्वामी)',
+    nameEn: 'Tirupati Balaji (Sri Venkateswara Swamy)',
+    aliasNamesHi: ['तिरुमाला मंदिर', 'गोविंदा', 'सात पहाड़ियों के स्वामी'],
+    aliasNamesEn: ['Tirumala Temple', 'Lord of Seven Hills', 'Govinda'],
+    locationHi: 'तिरुमाला, तिरुपति जिला, आन्ध्र प्रदेश (शेषाचलम पर्वतमाला)',
+    locationEn:
+      'Tirumala, Tirupati District, Andhra Pradesh (Seshachalam Hills)',
+    addressHi:
+      'श्री वेंकटेश्वर मंदिर, तिरुमाला, तिरुपति, आन्ध्र प्रदेश - 517504',
+    addressEn:
+      'Sri Venkateswara Temple, Tirumala, Tirupati, Andhra Pradesh - 517504',
+    districtHi: 'तिरुपति',
+    districtEn: 'Tirupati',
     stateHi: 'आन्ध्र प्रदेश',
     stateEn: 'Andhra Pradesh',
-    deityHi: 'भगवान वेंकटेश्वर (बालाजी/श्रीनिवास)',
-    deityEn: 'Lord Venkateswara (Balaji/Srinivasa)',
-    image: imagePath.Vishnu,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '517504',
+    geo: {
+      latitude: 13.6833,
+      longitude: 79.3472,
+    },
+    deityHi: 'भगवान विष्णु (श्री वेंकटेश्वर / बालाजी / श्रीनिवास)',
+    deityEn: 'Lord Vishnu (Sri Venkateswara / Balaji / Srinivasa)',
+    otherDeitiesHi: ['माता पद्मावती (अलमेलु मंगम्मा) तिरुचानूर'],
+    otherDeitiesEn: ['Goddess Padmavathi (Tiruchanur)'],
     category: 'major',
     categories: ['major'],
-    order: 17,
+    isDivyaDesam: true,
+    tags: [
+      'tirupati',
+      'balaji',
+      'venkateswara',
+      'andhra-pradesh',
+      'divya-desam',
+      'laddu-prasadam',
+    ],
+    builtCentury: '9th Century CE onwards',
+    builtByHi: 'पल्लव, चोल, पाण्ड्य एवं विजयनगर सम्राट श्री कृष्णदेवराय',
+    builtByEn: 'Pallavas, Cholas, Pandyas & Sri Krishnadevaraya',
+    architectureStyleHi:
+      'उत्कृष्ट द्रविड़ियन वास्तु शैली, आनन्द निलयम स्वर्ण विमान',
+    architectureStyleEn:
+      'Dravidian temple architecture with Ananda Nilayam pure gold-plated vimana',
     significanceHi:
-      'कलियुग में प्रत्यक्ष फल देने वाले भगवान वेंकटेश्वर का विश्व प्रसिद्ध पावन तीर्थ।',
+      'कलियुग में साक्षात वैकुंठ स्वरूप "कलियुग प्रत्यक्ष दैवम्" तिरुपति बालाजी। विश्व का सर्वाधिक दर्शनार्थी व सर्वाधिक दान प्राप्त करने वाला पावन तीर्थ। जीआई-टैग प्राप्त प्रसिद्ध "तिरुमाला लड्‌डू प्रसादम"।',
     significanceEn:
-      'One of the most visited and revered Vaishnavite shrines globally, known as the abode of Kaliyuga Varada.',
-    timingHi: 'प्रातः 03:00 से रात्रि 01:30 (सार्वजनिक दर्शन समय अनुसार)',
-    timingEn: '03:00 AM – 01:30 AM (Subject to darshan slots)',
+      'Revered as Kali Yuga Vaikuntham and the richest spiritual institution in the world. Famous for the sacred GI-tagged Tirupati Laddu Prasadam.',
     descriptionHi:
-      'सप्तगिरि (सात पहाड़ियों) पर स्थित यह भव्य मंदिर अद्वितीय वास्तुकला और असीम भक्ति का केंद्र है।',
+      'शेषाचलम पर्वत की सात पहाड़ियों (सप्तगिरि) पर स्थित यह मंदिर भगवान श्रीनिवास के दिव्य विग्रह को समर्पित है। प्रतिदिन 70,000 से अधिक श्रद्धालु यहाँ दर्शन व केश दान (मुंडन) अर्पण करते हैं।',
     descriptionEn:
-      'Perched on the Seshachalam hills in Tirumala, this temple represents profound bhakti and heritage.',
+      'Located on Venkatadri, the 7th peak of Seshachalam Hills. Welcomes over 70,000 pilgrims daily who offer hair tonsure and worship the 8-ft self-manifested idol.',
+    timing: {
+      openingTime: '03:00 AM',
+      closingTime: '01:30 AM (Next day)',
+      aartiTimingsHi:
+        'सुप्रभातम्: 03:00 AM | तोमाला सेवा: 03:30 AM | सहस्रनामार्चना: 04:45 AM | एकान्त सेवा: रात्रि 01:30 AM',
+      aartiTimingsEn:
+        'Suprabhatam: 03:00 AM | Thomala Seva: 03:30 AM | Archana: 04:45 AM | Ekantha Seva: 01:30 AM',
+      bestTimeToVisitHi: 'सितम्बर से फरवरी (ब्रह्मोत्सव पर्व)',
+      bestTimeToVisitEn: 'September to February (Srivari Brahmotsavam)',
+    },
+    howToReach: {
+      byAirHi:
+        'तिरुपति हवाई अड्डा (रेनिगुंटा) 35 किमी अथवा चेन्नई अंतर्राष्ट्रीय हवाई अड्डा (140 किमी)।',
+      byAirEn:
+        'Tirupati Airport (35 km) or Chennai International Airport (140 km).',
+      byRailHi: 'तिरुपति रेलवे स्टेशन (TPTY) एवं रेनिगुंटा जंक्शन (RU)।',
+      byRailEn:
+        'Tirupati Main (TPTY) and Renigunta (RU) connect all major Indian cities.',
+      byRoadHi: 'तिरुमाला तिरुपति देवस्थानम (TTD) की 24x7 घाट रोड बसें उपलब्ध।',
+      byRoadEn: 'Two twin-ghat roads connect Tirupati city to Tirumala hills.',
+      nearestAirport: 'Tirupati Airport (TIR) / Chennai (MAA)',
+      nearestRailwayStation: 'Tirupati Railway Station (TPTY)',
+    },
     nearbyAttractionsHi:
-      'पद्मावती अम्मावरि मंदिर, कपिला तीर्थम, श्री कालहस्ती मंदिर',
+      'पद्मावती अम्मावरु मंदिर (तिरुचानूर), श्री कालहस्ती (राहु-केतु पूजा), कपिला तीर्थम, शिला तोरणम्, श्री वराहस्वामी मंदिर',
     nearbyAttractionsEn:
-      'Padmavathi Ammavari Temple, Kapila Theertham, Sri Kalahasti Temple',
+      'Padmavathi Temple Tiruchanur, Srikalahasti Temple, Kapila Theertham, Natural Arch (Silathoranam), Sri Varahaswamy Temple',
+    image: imagePath.Vishnu,
   },
   {
     id: 'meenakshi_amman',
-    nameHi: 'मीनाक्षी अम्मन मंदिर',
-    nameEn: 'Meenakshi Amman Temple',
-    locationHi: 'मदुरै, तमिलनाडु',
-    locationEn: 'Madurai, Tamil Nadu',
+    order: 18,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'मीनाक्षी अम्मन मंदिर (मदुरै)',
+    nameEn: 'Meenakshi Amman Temple (Madurai)',
+    aliasNamesHi: ['मीनाक्षी सुंदरेश्वरर', 'मदुरै मीनाक्षी'],
+    aliasNamesEn: ['Meenakshi Sundareswarar', 'Madurai Meenakshi'],
+    locationHi: 'मदुरै, तमिलनाडु (वैगई नदी तट)',
+    locationEn: 'Madurai, Tamil Nadu (Banks of Vaigai River)',
+    addressHi: 'मीनाक्षी अम्मन मंदिर, मदुरै, तमिलनाडु - 625001',
+    addressEn: 'Madurai Meenakshi Amman Temple, Madurai, Tamil Nadu - 625001',
+    districtHi: 'मदुरै',
+    districtEn: 'Madurai',
     stateHi: 'तमिलनाडु',
     stateEn: 'Tamil Nadu',
-    deityHi: 'देवी मीनाक्षी (पार्वती) व सुंदरेश्वर (शिव)',
-    deityEn: 'Goddess Meenakshi & Sundareswarar',
-    image: imagePath.Durga,
-    category: 'shaktipeeth',
-    categories: ['shaktipeeth', 'major'],
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '625001',
+    geo: {
+      latitude: 9.9195,
+      longitude: 78.1193,
+    },
+    deityHi: 'देवी मीनाक्षी (पार्वती) एवं भगवान सुंदरेश्वरर (शिव)',
+    deityEn: 'Goddess Meenakshi (Parvati) & Lord Sundareswarar (Shiva)',
+    category: 'major',
+    categories: ['major', 'shaktipeeth'],
     isShaktipeeth: true,
-    order: 18,
+    tags: ['meenakshi', 'madurai', 'tamil-nadu', 'dravidian', 'shaktipeeth'],
+    historyHi:
+      '2500 वर्ष प्राचीन इतिहास; वर्तमान 14 भव्य गोपुरमों वाले स्वरूप का निर्माण 16वीं-17वीं शताब्दी में नायक राजाओं द्वारा कराया गया।',
+    historyEn:
+      'Rebuilt and expanded in 1623–1655 CE by King Tirumala Nayaka of the Nayak Dynasty.',
+    builtCentury: '17th Century CE (Nayak Era)',
+    builtByHi: 'तिरुमलाई नायक (नायक राजवंश)',
+    builtByEn: 'King Tirumala Nayaka',
+    architectureStyleHi:
+      'सर्वोत्कृष्ट द्रविड़ियन वास्तुकला, 14 विशाल बहुरंगी गोपुरम एवं 1000 स्तंभों वाला हॉल',
+    architectureStyleEn:
+      'Peak Dravidian architecture with 14 multi-tiered polychrome gopurams and Thousand Pillar Hall',
     significanceHi:
-      'द्रविड़ वास्तुकला का अनुपम चमत्कार, भव्य गोपुरम और 1000 स्तंभों का अलौकिक मंडप।',
+      'सनातन वास्तुकला का विश्वप्रसिद्ध आश्चर्य। 14 गगनचुम्बी गोपुरमों पर 33,000 से अधिक बारीक नक्काशीदार रंगीन देव प्रतिमाएं सुशोभित हैं।',
     significanceEn:
-      'A masterpiece of Dravidian architecture with towering sculptured gopurams and the famous Hall of 1000 Pillars.',
-    timingHi: 'प्रातः 05:00 से दोपहर 12:30, सायं 04:00 से रात्रि 10:00',
-    timingEn: '05:00 AM – 12:30 PM, 04:00 PM – 10:00 PM',
+      'Architectural masterpiece featuring 14 magnificent gopurams adorned with over 33,000 colorful mythological sculptures.',
     descriptionHi:
-      'वैगई नदी के तट पर स्थित मदुरै का यह ऐतिहासिक मंदिर देवी शक्ति और भगवान शिव के पावन विवाह का साक्षी है।',
+      'मदुरै नगर इस मंदिर के चारों ओर कमल के फूलों के चक्रव्यूह के आकार में बसा है। मंदिर का "हॉल ऑफ थाउजेंड पिलर्स" (सहस्र स्तंभ मंडप) ध्वनि तरंगें उत्पन्न करने वाले संगीत स्तंभों (Musical Pillars) से युक्त है।',
     descriptionEn:
-      'A historic temple on the banks of Vaigai river celebrating the divine union of Goddess Meenakshi and Lord Shiva.',
+      'Centerpiece of the ancient lotus-shaped city of Madurai. Houses the legendary 985-carved pillar hall with musical resonance stones.',
+    timing: {
+      openingTime: '05:00 AM',
+      closingTime: '10:00 PM',
+      aartiTimingsHi:
+        'प्रातः दर्शन: 05:00 AM – 12:30 PM | सायं दर्शन: 04:00 PM – 10:00 PM | शयन आरती व पल्लीअरै: 09:30 PM',
+      aartiTimingsEn:
+        'Morning: 05:00 AM – 12:30 PM | Evening: 04:00 PM – 10:00 PM | Palliyarai Seva: 09:30 PM',
+      bestTimeToVisitHi:
+        'अक्टूबर से मार्च (तथा अप्रैल में चित्तिरै ब्रह्मोत्सव)',
+      bestTimeToVisitEn:
+        'October to March (and Chithirai Festival in April/May)',
+    },
+    howToReach: {
+      byAirHi: 'मदुरै अंतर्राष्ट्रीय हवाई अड्डा (IXM) मंदिर से 12 किमी।',
+      byAirEn: 'Madurai International Airport (IXM) is 12 km from the temple.',
+      byRailHi: 'मदुरै जंक्शन (MDU) मात्र 2 किमी दूर है।',
+      byRailEn: 'Madurai Junction (MDU) is 2 km away.',
+      byRoadHi: 'चेन्नई, त्रिची, कोयंबटूर व कन्याकुमारी से 4-लेन राजमार्ग।',
+      byRoadEn: 'Major hub with 24x7 highway connectivity across South India.',
+      nearestAirport: 'Madurai Airport (IXM)',
+      nearestRailwayStation: 'Madurai Junction (MDU)',
+    },
     nearbyAttractionsHi:
-      'तिरुमलाई नायक पैलेस, गांधी मेमोरियल म्यूजियम, अलागर कोविल',
+      'तिरुमलाई नायक महल, तेप्पकुलम मरिअम्मन कुण्ड, गांधी मेमोरियल म्यूजियम, अलगर कोविल',
     nearbyAttractionsEn:
-      'Thirumalai Nayakkar Palace, Gandhi Memorial Museum, Alagar Kovil',
+      'Thirumalai Nayakkar Palace, Vandiyur Mariamman Teppakulam, Alagar Kovil, Gandhi Memorial Museum',
+    image: imagePath.Durga,
   },
   {
     id: 'vaishno_devi',
-    nameHi: 'माँ वैष्णो देवी धाम',
-    nameEn: 'Maa Vaishno Devi Dham',
-    locationHi: 'कटरा, जम्मू और कश्मीर',
-    locationEn: 'Katra, Jammu & Kashmir',
-    stateHi: 'जम्मू और कश्मीर',
+    order: 19,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'माँ वैष्णो देवी धाम (कटरा - त्रिकूट पर्वत)',
+    nameEn: 'Maa Vaishno Devi Dham (Katra - Trikuta Hills)',
+    aliasNamesHi: ['माता रानी', 'त्रिकूट सुंदरी', 'वैष्णवी माता'],
+    aliasNamesEn: ['Mata Rani', 'Trikuta Devi', 'Vaishnavi'],
+    locationHi: 'कटरा, रियासी जिला, जम्मू एवं कश्मीर (त्रिकूट पर्वत गुफा)',
+    locationEn:
+      'Katra, Reasi District, Jammu & Kashmir (Holy Trikuta Mountain Cave)',
+    addressHi:
+      'श्री माता वैष्णो देवी श्राइन बोर्ड, कटरा, जम्मू एवं कश्मीर - 182301',
+    addressEn: 'Shri Mata Vaishno Devi Shrine Board, Katra, J&K - 182301',
+    districtHi: 'रियासी',
+    districtEn: 'Reasi',
+    stateHi: 'जम्मू एवं कश्मीर',
     stateEn: 'Jammu & Kashmir',
-    deityHi: 'माँ वैष्णो देवी (महाकाली, महालक्ष्मी, महासरस्वती)',
-    deityEn: 'Maa Vaishno Devi (Mahakali, Mahalakshmi, Mahasaraswati)',
-    image: imagePath.Durga,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '182301',
+    geo: {
+      latitude: 33.0308,
+      longitude: 74.949,
+    },
+    deityHi:
+      'माँ वैष्णो देवी (तीन पावन पिण्डी रूप — महाकाली, महालक्ष्मी, महासरस्वती)',
+    deityEn:
+      'Maa Vaishno Devi (Holy Pindis of Mahakali, Mahalakshmi, Mahasaraswati)',
     category: 'shaktipeeth',
     categories: ['shaktipeeth', 'major'],
     isShaktipeeth: true,
-    order: 19,
+    tags: [
+      'vaishno-devi',
+      'katra',
+      'jammu-kashmir',
+      'shaktipeeth',
+      'himalayas',
+      'navratri',
+    ],
     significanceHi:
-      'त्रिकूटा पर्वत की पवित्र गुफा में तीन प्राकृतिक पिंडी स्वरूपों का पावन संगम।',
+      'त्रिकूट पर्वत की पवित्र गुफा में माँ वैष्णो देवी तीन प्राकृतिक पाषाण पिण्डियों (महाकाली, महालक्ष्मी व महासरस्वती) के रूप में जागृत रूप में विराजमान हैं। "जय माता दी" के उद्घोष से गुंजायमान 12 किमी का पावन ट्रेक।',
     significanceEn:
-      'The revered mountain cave shrine on Trikuta hills enshrining the three holy natural Pindis.',
-    timingHi: '24 घंटे खुला रहता है (दैनिक आरती समय: प्रातः 06:00, सायं 07:00)',
-    timingEn: 'Open 24 Hours (Daily Aarti: 06:00 AM & 07:00 PM)',
+      'Sacred cave shrine housing three self-manifested natural rock Pindis (Mahakali, Mahalakshmi, Mahasaraswati). Pilgrimage spans a scenic 12 km mountain trek from Katra.',
     descriptionHi:
-      'भक्तों की मनोकामना पूर्ण करने वाली माँ वैष्णो देवी का त्रिकूट पर्वत पर स्थित पावन धाम।',
+      'समुद्र तल से 5,200 फीट की ऊँचाई पर स्थित इस पावन धाम में वर्षभर लाखों भक्त दर्शन हेतु पधारते हैं। यात्रा बाणगंगा, चरण पादुका, अर्धकुंवारी (गर्भजून गुफा) से होते हुए मुख्य भवन तक पहुँचती है। भैरों घाटी दर्शन के बिना यात्रा पूर्ण नहीं मानी जाती।',
     descriptionEn:
-      'Millions of pilgrims trek each year to seek the divine blessings of Mother Vaishno Devi.',
-    nearbyAttractionsHi: 'भैरवनाथ मंदिर, बाणगंगा, अर्धकुंवारी गुफा, चरण पादुका',
+      'Situated at 5,200 ft in Trikuta hills. Trail passes Ban Ganga, Charan Paduka, Ardhkuwari (Garbhjun Cave), and culminates at Bhawan. Pilgrimage is completed after visiting Bhairon Ghati.',
+    timing: {
+      openingTime: '05:00 AM (24x7 Open except daily aartis)',
+      closingTime: '10:00 PM',
+      aartiTimingsHi:
+        'प्रातः दिव्य आरती: 06:00 से 08:00 AM | सायं दिव्य आरती: 06:00 से 08:00 PM',
+      aartiTimingsEn:
+        'Morning Divya Aarti: 06:00 – 08:00 AM | Evening Divya Aarti: 06:00 – 08:00 PM',
+      bestTimeToVisitHi: 'मार्च से नवम्बर (तथा चैत्र व शारदीय नवरात्रि)',
+      bestTimeToVisitEn: 'March to November (and Navratri festivals)',
+    },
+    howToReach: {
+      byAirHi:
+        'जम्मू हवाई अड्डा (IXJ) से कटरा 50 किमी (कार/टैक्सी द्वारा 1.5 घंटा)।',
+      byAirEn: 'Jammu Airport (IXJ) is 50 km from Katra base camp.',
+      byRailHi:
+        'श्री माता वैष्णो देवी कटरा रेलवे स्टेशन (SVDK) से वंदे भारत व सुपरफास्ट ट्रेनें।',
+      byRailEn:
+        'Shri Mata Vaishno Devi Katra (SVDK) station with direct Vande Bharat trains from Delhi.',
+      byRoadHi:
+        'जम्मू-कटरा 4-लेन राजमार्ग, कटरा से भवन हेतु हेलिकॉप्टर, बैटरी कार व रोपवे उपलब्ध।',
+      byRoadEn:
+        'NH-44 connected to Katra; helicopter, battery cars, and ropeway from Bhawan to Bhairon Ghati.',
+      nearestAirport: 'Jammu Airport (IXJ)',
+      nearestRailwayStation: 'SMVD Katra Railway Station (SVDK)',
+    },
+    nearbyAttractionsHi:
+      'अर्धकुंवारी गुफा, भैरों नाथ मंदिर (रोपवे द्वारा), बाणगंगा, चरण पादुका, शिव खोड़ी गुफा (75 किमी)',
     nearbyAttractionsEn:
-      'Bhairavnath Temple, Ban Ganga, Ardhkuwari Cave, Charan Paduka',
+      'Ardhkuwari Cave, Bhairon Ghati (Ropeway), Ban Ganga, Charan Paduka, Shiv Khori Cave (75 km)',
+    image: imagePath.Durga,
   },
   {
     id: 'siddhivinayak_mumbai',
-    nameHi: 'श्री सिद्धिविनायक मंदिर',
-    nameEn: 'Shri Siddhivinayak Temple',
+    order: 20,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'श्री सिद्धिविनायक मंदिर (मुंबई)',
+    nameEn: 'Shri Siddhivinayak Temple (Mumbai)',
+    aliasNamesHi: ['नवसाचा गणपती', 'सिद्धिविनायक गणपति'],
+    aliasNamesEn: ['Navasacha Ganapati', 'Siddhivinayak Ganapati'],
     locationHi: 'प्रभादेवी, मुंबई, महाराष्ट्र',
     locationEn: 'Prabhadevi, Mumbai, Maharashtra',
+    addressHi:
+      'श्री सिद्धिविनायक मंदिर, एसके बोले मार्ग, प्रभादेवी, मुंबई - 400028',
+    addressEn:
+      'Shree Siddhivinayak Temple, SK Bole Marg, Prabhadevi, Mumbai - 400028',
+    districtHi: 'मुंबई शहर',
+    districtEn: 'Mumbai City',
     stateHi: 'महाराष्ट्र',
     stateEn: 'Maharashtra',
-    deityHi: 'भगवान श्री गणेश (सिद्धिविनायक)',
-    deityEn: 'Lord Ganesha (Siddhivinayak)',
-    image: imagePath.Ganesha,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '400028',
+    geo: {
+      latitude: 19.0169,
+      longitude: 72.8304,
+    },
+    deityHi: 'भगवान श्री गणेश (दाहिनी ओर मुड़ी सूंड वाले सिद्धिविनायक)',
+    deityEn: 'Lord Ganesha (Siddhivinayak - Right-turned Trunk)',
+    otherDeitiesHi: ['माता रिद्धि व माता सिद्धि'],
+    otherDeitiesEn: ['Goddess Riddhi & Goddess Siddhi'],
     category: 'major',
     categories: ['major'],
-    order: 20,
+    tags: ['ganesha', 'siddhivinayak', 'mumbai', 'maharashtra', 'major'],
+    historyHi:
+      '19 नवंबर 1801 को लक्ष्मण विथु और देउबाई पाटिल द्वारा इस पावन मंदिर की स्थापना की गई थी।',
+    historyEn:
+      'Originally consecrated on 19 November 1801 by Laxman Vithu and Deubai Patil.',
+    builtCentury: '1801 CE',
+    builtByHi: 'लक्ष्मण विथु एवं देउबाई पाटिल',
+    builtByEn: 'Laxman Vithu & Deubai Patil',
+    architectureStyleHi:
+      'बहुमंजिला अष्टकोणीय स्वर्ण शिखर युक्त आधुनिक मंदिर शैली',
+    architectureStyleEn: 'Multi-tiered octagonal dome plated with pure gold',
     significanceHi:
-      'मनोकामना पूर्ण करने वाले सिद्धिविनायक गणपति, जिनकी सूंड दाहिनी ओर मुड़ी है।',
+      'मनोकामनाएं पूर्ण करने वाले "नवसाचा गणपती"। यहाँ भगवान गणेश की सूंड दाहिनी ओर (पिंगला नाड़ी स्वरूपा) मुड़ी है जो सिद्धि व पराक्रम की प्रतीक है।',
     significanceEn:
-      'A globally renowned Ganesha temple with right-turned trunk (Siddhi Vinayaka), fulfilling desires of all seekers.',
-    timingHi: 'प्रातः 05:30 से रात्रि 10:00 (मंगलवार विशेष दर्शन)',
-    timingEn: '05:30 AM – 10:00 PM (Special Tuesday Darshan)',
+      'Revered as "Navasacha Ganapati" (the wish-fulfiller). The deity’s trunk turns to the right representing the active Pingala energy.',
     descriptionHi:
-      'मुंबई के केंद्र में स्थित यह मंदिर सभी शुभ कार्यों में विघ्नहर्ता गणेश जी की कृपा प्राप्ति का पावन स्थल है।',
+      'काले पाषाण के एक ही शिलाखंड से निर्मित 2.5 फीट ऊंचे गणेश विग्रह के मस्तक पर तीसरी आँख और दोनों ओर रिद्धि-सिद्धि विराजित हैं। गर्भगृह का आंतरिक भाग शुद्ध स्वर्ण पत्थरों से अलंकृत है।',
     descriptionEn:
-      'Located in Mumbai, devotees throng here to seek obstacles-free success and blessings from Lord Ganesha.',
-    nearbyAttractionsHi: 'महालक्ष्मी मंदिर, हाजी अली दरगाह, शिवाजी पार्क',
-    nearbyAttractionsEn: 'Mahalaxmi Temple, Haji Ali Dargah, Shivaji Park',
+      'Enshrines a 2.5 ft black monolithic stone idol flanked by Riddhi and Siddhi. The sanctum dome is plated in pure gold.',
+    timing: {
+      openingTime: '05:30 AM',
+      closingTime: '10:00 PM (मंगलवार को 03:15 AM से रात्रि 10:30 PM)',
+      aartiTimingsHi:
+        'काकड़ आरती: 05:30 AM | श्री दर्शन: 06:00 AM | नैवेद्य: 12:05 PM | सायं आरती: 07:30 PM | शेजारती: 09:50 PM',
+      aartiTimingsEn:
+        'Kakad Aarti: 05:30 AM | Darshan: 06:00 AM | Naivedya: 12:05 PM | Sandhya: 07:30 PM | Shejaarti: 09:50 PM',
+      bestTimeToVisitHi:
+        'वर्षभर (विशेषकर मंगलवार एवं गणेश चतुर्थी/अंगारकी संकष्टी)',
+      bestTimeToVisitEn:
+        'Year-round (especially Tuesdays, Ganesh Chaturthi & Angaraki Chaturthi)',
+    },
+    howToReach: {
+      byAirHi:
+        'छत्रपति शिवाजी महाराज अंतर्राष्ट्रीय हवाई अड्डा, मुंबई (लगभग 12 किमी)।',
+      byAirEn: 'Chhatrapati Shivaji Maharaj International Airport (12 km).',
+      byRailHi: 'दादर रेलवे स्टेशन (मध्य व पश्चिम लाइन) मात्र 1.5 किमी।',
+      byRailEn:
+        'Dadar Railway Station (1.5 km) connects central and western lines.',
+      byRoadHi:
+        'लोकल टैक्सी, बेस्ट बसें और मुंबई मेट्रो लाइन 3 द्वारा अत्यंत सुलभ।',
+      byRoadEn:
+        'Accessible via Western Express Highway, Sea Link, and Mumbai Metro.',
+      nearestAirport: 'Mumbai Airport (BOM)',
+      nearestRailwayStation: 'Dadar Railway Station (DR / DDR)',
+    },
+    nearbyAttractionsHi:
+      'शिवाजी पार्क, दादर चौपाटी, महालक्ष्मी मंदिर, हाजी अली दरगाह, मरीन ड्राइव',
+    nearbyAttractionsEn:
+      'Shivaji Park, Dadar Chowpatty, Mahalaxmi Temple, Haji Ali, Marine Drive',
+    image: imagePath.Ganesha,
   },
   {
     id: 'kamakhya_temple',
-    nameHi: 'कामाख्या देवी मंदिर',
-    nameEn: 'Kamakhya Temple',
-    locationHi: 'गुवाहाटी, असम',
-    locationEn: 'Guwahati, Assam',
+    order: 21,
+    isActive: true,
+    updatedAt: '2026-09-28T00:00:00.000Z',
+    nameHi: 'माँ कामाख्या मंदिर (नीलांचल पर्वत - गुवाहाटी)',
+    nameEn: 'Maa Kamakhya Temple (Nilachal Hills - Guwahati)',
+    aliasNamesHi: ['कामगिरि पीठ', 'योनि पीठ', 'महापीठ कामाख्या'],
+    aliasNamesEn: ['Kamagiri Peeth', 'Yoni Peeth', 'Maha Shaktipeeth Kamakhya'],
+    locationHi: 'नीलांचल पर्वत, गुवाहाटी, असम (ब्रह्मपुत्र नदी तट)',
+    locationEn: 'Nilachal Hills, Guwahati, Assam (Banks of Brahmaputra River)',
+    addressHi: 'माँ कामाख्या देवालय, नीलांचल हिल्स, गुवाहाटी, असम - 781010',
+    addressEn:
+      'Maa Kamakhya Devalaya, Nilachal Hills, Guwahati, Assam - 781010',
+    districtHi: 'कामरूप मेट्रोपॉलिटन',
+    districtEn: 'Kamrup Metropolitan',
     stateHi: 'असम',
     stateEn: 'Assam',
-    deityHi: 'माँ कामाख्या (शक्तिपीठ)',
-    deityEn: 'Maa Kamakhya (Shakti Peeth)',
-    image: imagePath.Durga,
+    countryHi: 'भारत',
+    countryEn: 'India',
+    pincode: '781010',
+    geo: {
+      latitude: 26.1664,
+      longitude: 91.7054,
+    },
+    deityHi: 'माँ कामाख्या (महामाया / आद्य शक्ति)',
+    deityEn: 'Maa Kamakhya (Mahamaya / Supreme Mother Goddess)',
+    otherDeitiesHi: [
+      'दस महाविद्याएं (काली, तारा, षोडशी, भुवनेश्वरी, भैरवी, छिन्नमस्ता, धूमावती, बगलामुखी, मातंगी, कमला)',
+    ],
+    otherDeitiesEn: [
+      '10 Mahavidyas (Kali, Tara, Shodashi, Bhuvaneshwari, Bhairavi, Chhinnamasta, Dhumavati, Bagalamukhi, Matangi, Kamala)',
+    ],
     category: 'shaktipeeth',
-    categories: ['shaktipeeth'],
+    categories: ['shaktipeeth', 'major'],
     isShaktipeeth: true,
-    order: 21,
+    tags: [
+      'kamakhya',
+      'shaktipeeth',
+      'tantra',
+      'guwahati',
+      'assam',
+      'ambubachi-mela',
+    ],
+    historyHi:
+      '1565 ई. में कोच राजवंश के महान राजा नरनारायण और सेनापति चिलाराय द्वारा मंदिर का भव्य पुनर्निर्माण कराया गया।',
+    historyEn:
+      'Reconstructed in 1565 CE by King Naranarayan and his general Chilarai of the Koch Dynasty.',
+    builtCentury: '1565 CE (Koch Dynasty)',
+    builtByHi: 'राजा नरनारायण एवं चिलाराय (कोच राजवंश)',
+    builtByEn: 'King Naranarayan & General Chilarai',
+    architectureStyleHi:
+      'असमिया नीलांचल शैली (मधुमक्खी के छत्ते सदृश अष्टकोणीय शिखर व बलुआ पत्थर)',
+    architectureStyleEn:
+      'Nilachal style with beehive-shaped bulbous dome over a cruciform base',
     significanceHi:
-      '51 शक्तिपीठों में सर्वोच्च तांत्रिक शक्तिपीठ, अम्बुबाची मेले के लिए प्रसिद्ध।',
+      '51 महाशक्तिपीठों में सर्वोपरि "महापीठ" जहाँ माता सती का "योनि भाग" गिरा था। तंत्र साधना का विश्वप्रसिद्ध केंद्र एवं वार्षिक "अंबुवाची मेला" का पावन तीर्थ।',
     significanceEn:
-      'The supreme center of Tantric Shaktism among the 51 Shakti Peethas, famous for the Ambubachi Mela.',
-    timingHi: 'प्रातः 05:30 से दोपहर 01:00, सायं 02:30 से सायं 05:30',
-    timingEn: '05:30 AM – 01:00 PM, 02:30 PM – 05:30 PM',
+      'Foremost of the 51 Shakti Peethas where the Yoni (source of cosmic creation) of Goddess Sati fell. Supreme center of Kulachara Tantra and the annual Ambubachi Mela.',
     descriptionHi:
-      'नीलांचल पर्वत पर स्थित यह रहस्यमयी और जागृत शक्तिपीठ संपूर्ण सृष्टि की जननी देवी कामाख्या को समर्पित है।',
+      'गर्भगृह में कोई मूर्ति नहीं है, अपितु प्राकृतिक भूमिगत जलधारा से सिंचित एक पाषाण योनि शिला विराजित है। अंबुवाची पर्व (आषाढ़) में तीन दिन मंदिर बंद रहता है जब माँ धरती रजस्वला होती हैं।',
     descriptionEn:
-      'Situated on the Nilachal hill in Guwahati, revered as the ultimate source of cosmic creation and divine Shakti.',
-    nearbyAttractionsHi: 'उमानंद मंदिर, ब्रह्मपुत्र नदी क्रूज, नवग्रह मंदिर',
+      'The sanctum contains no idol but a natural spring-fed rock fissure worshipped as the creative womb of the cosmos. Closed for 3 days during Ambubachi when Mother Earth undergoes annual fertility cycle.',
+    timing: {
+      openingTime: '05:30 AM',
+      closingTime: '08:00 PM',
+      aartiTimingsHi:
+        'स्नान व द्वारोद्घाटन: प्रातः 05:30 | मध्याह्न भोग व विश्राम: 01:00 से 02:30 PM | संध्या आरती: सायं 07:00',
+      aartiTimingsEn:
+        'Opening & Snan: 05:30 AM | Afternoon Rest: 01:00 – 02:30 PM | Sandhya Aarti: 07:00 PM',
+      bestTimeToVisitHi:
+        'अक्टूबर से अप्रैल (तथा जून में अंबुवाची मेला व नवरात्रि)',
+      bestTimeToVisitEn: 'October to April (and Ambubachi Mela in June)',
+    },
+    howToReach: {
+      byAirHi:
+        'लोकप्रिय गोपीनाथ बोरदोलोई अंतर्राष्ट्रीय हवाई अड्डा, गुवाहाटी (लगभग 20 किमी)।',
+      byAirEn:
+        'Lokpriya Gopinath Bordoloi International Airport, Guwahati (20 km).',
+      byRailHi:
+        'कामाख्या जंक्शन (KYQ) मात्र 3 किमी अथवा गुवाहाटी रेलवे स्टेशन (6 किमी)।',
+      byRailEn:
+        'Kamakhya Junction (KYQ - 3 km) or Guwahati Station (GHY - 6 km).',
+      byRoadHi: 'गुवाहाटी शहर से नीलांचल हिल्स हेतु नियमित कैब, ऑटो व बस सेवा।',
+      byRoadEn:
+        'Frequent public and private road transport from Guwahati city.',
+      nearestAirport: 'Guwahati Airport (GAU)',
+      nearestRailwayStation: 'Kamakhya Junction (KYQ) / Guwahati (GHY)',
+    },
+    nearbyAttractionsHi:
+      'भुवनेश्वरी मंदिर (नीलांचल शिखर), उमानंद द्वीप मंदिर (ब्रह्मपुत्र नदी), नवग्रह मंदिर, ब्रह्मपुत्र रिवर क्रूज',
     nearbyAttractionsEn:
-      'Umananda Temple, Brahmaputra River Cruise, Navagraha Temple',
+      'Bhuvaneshwari Temple, Umananda Island Temple (Peacock Island), Navagraha Temple, Brahmaputra River Cruise',
+    image: imagePath.Kali,
   },
 ];

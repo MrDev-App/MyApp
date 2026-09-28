@@ -23,10 +23,10 @@ import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import { SearchIcon, CloseIcon } from '@components/icons/SvgIcons';
 import imagePath from '@assets/index';
-import { TempleItem, TempleCategory } from '@constants/templesData';
 import {
-  getCachedTemples,
-  fetchTemplesFromFirestore,
+  TempleItem,
+  TempleCategory,
+  fetchTemples,
 } from '@services/firebaseServices/templeService';
 
 // Extracted sub-components
@@ -39,71 +39,47 @@ export const TempleScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const { t } = useAppLanguage();
 
-  const [templesList, setTemplesList] = useState<TempleItem[]>(() =>
-    getCachedTemples(),
-  );
+  const [templesList, setTemplesList] = useState<TempleItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedTag, setSelectedTag] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
+  // Fetch from Firebase dynamically based on selected chip / search query / screen load
   useEffect(() => {
     let isMounted = true;
-    fetchTemplesFromFirestore()
+    setLoading(true);
+
+    const limitCount =
+      selectedTag === 'all' && !searchQuery.trim() ? 10 : undefined;
+
+    fetchTemples({
+      category: selectedTag,
+      searchQuery,
+      limitCount,
+    })
       .then(data => {
-        if (isMounted && data && data.length > 0) {
-          setTemplesList(data);
+        if (isMounted) {
+          setTemplesList(data || []);
         }
       })
       .catch(err => {
-        console.warn('[TempleScreen] Error loading remote temples:', err);
+        console.warn(
+          '[TempleScreen] Error fetching temples from Firebase:',
+          err,
+        );
       })
       .finally(() => {
-        if (isMounted) setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       });
 
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [selectedTag, searchQuery]);
 
-  const screenTitle = useMemo(
-    () => t(Translation.TEMPLE_SCREEN_TITLE),
-    [t],
-  );
-
-  const filteredTemples = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim();
-
-    return templesList.filter(item => {
-      // Multi-category tag filter
-      if (selectedTag !== 'all') {
-        const inCategories =
-          item.categories &&
-          item.categories.includes(selectedTag as TempleCategory);
-        const isPrimary = item.category === selectedTag;
-        if (!inCategories && !isPrimary) return false;
-      }
-
-      // Search filter
-      if (q.length > 0) {
-        const name = (item.nameHi + ' ' + item.nameEn).toLowerCase();
-        const location = (
-          item.locationHi +
-          ' ' +
-          item.locationEn +
-          ' ' +
-          item.stateHi +
-          ' ' +
-          item.stateEn
-        ).toLowerCase();
-        const deity = (item.deityHi + ' ' + item.deityEn).toLowerCase();
-
-        return name.includes(q) || location.includes(q) || deity.includes(q);
-      }
-
-      return true;
-    });
-  }, [templesList, selectedTag, searchQuery]);
+  const screenTitle = useMemo(() => t(Translation.TEMPLE_SCREEN_TITLE), [t]);
 
   const handleTemplePress = useCallback(
     (temple: TempleItem) => {
@@ -169,7 +145,7 @@ export const TempleScreen: React.FC = () => {
             <TempleSkeletonList count={3} />
           ) : (
             <FlatList
-              data={filteredTemples}
+              data={templesList}
               renderItem={renderTempleCard}
               keyExtractor={keyExtractor}
               contentContainerStyle={[

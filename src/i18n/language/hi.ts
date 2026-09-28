@@ -389,6 +389,9 @@ export default {
   SHLOK_CAT_CHILDREN: 'बच्चों के लिए',
   SHLOK_CAT_MIND_HEART: 'मन एवं शांति',
   SHLOK_CAT_SPIRITUAL_PATH: 'आध्यात्मिक मार्ग',
+  SHLOK_WAKING_NAME: 'प्रातः जागरण श्लोक',
+  SHLOK_WAKING_DESC:
+    'प्रातः जागरण का प्रथम क्षण चिंताओं के स्थान पर प्रभु स्मरण से दिन की शुरुआत करने का पावन अवसर है। शय्या त्यागने से पूर्व हथेलियों के दर्शन, प्रभु जागरण व नवप्रभात के इन श्लोकों का स्मरण कर दिन का शुभारंभ कृतज्ञता से करें।',
 
   // Contract / Vow Modal
   CONTRACT_INVOCATION: '॥ श्री हरि ॥',

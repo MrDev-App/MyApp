@@ -1,4 +1,10 @@
-import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
+import React, {
+  useState,
+  useRef,
+  useMemo,
+  useCallback,
+  useEffect,
+} from 'react';
 import {
   StyleSheet,
   Text,
@@ -13,6 +19,7 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
+import Video from 'react-native-video';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
@@ -33,11 +40,20 @@ import {
 import {
   ShlokaSubItem,
   ShlokaVerse,
-} from '@services/firebaseServices/shlokaService';
-import { ShlokaCategory } from '@constants/shlokData';
+  ShlokaCategory,
+} from '@services/firebaseServices/shlokasService';
 
 // Sub-components
 import ShlokaVerseCard from './components/ShlokaVerseCard';
+
+const FALLBACK_SUBCATEGORY: ShlokaSubItem = {
+  id: '',
+  nameEn: '',
+  nameHi: '',
+  headerTitleEn: '',
+  headerTitleHi: '',
+  verses: [],
+};
 
 export const ShlokaVerseListScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
@@ -45,23 +61,11 @@ export const ShlokaVerseListScreen: React.FC = () => {
   const { t, isHindi } = useAppLanguage();
 
   const subcategory: ShlokaSubItem = useMemo(() => {
-    return (
-      route.params?.subcategory || {
-        id: 'on-waking',
-        nameEn: 'Shlokas for Waking Up',
-        nameHi: 'प्रातः जागरण श्लोक',
-        headerTitleEn: 'Shlokas for Waking Up',
-        headerTitleHi: 'प्रातः जागरण श्लोक',
-        descriptionEn:
-          'The very first moment of waking is a chance to begin the day with God rather than with our worries. These verses greet the morning — gazing at the palms of the hands, waking the Lord, remembering Ganesha and the gods. Chant these prayers quietly before you rise, so the day starts in gratitude.',
-        descriptionHi:
-          'प्रातः जागरण का प्रथम क्षण चिंताओं के स्थान पर प्रभु स्मरण से दिन की शुरुआत करने का पावन अवसर है। शय्या त्यागने से पूर्व हथेलियों के दर्शन, प्रभु जागरण व नवप्रभात के इन श्लोकों का स्मरण कर दिन का शुभारंभ कृतज्ञता से करें।',
-      }
-    );
+    return route.params?.subcategory || FALLBACK_SUBCATEGORY;
   }, [route.params?.subcategory]);
 
   const categoryParam: ShlokaCategory = useMemo(() => {
-    return route.params?.category || {};
+    return route.params?.category || { id: '', slug: '', imageUrl: '' };
   }, [route.params?.category]);
 
   const [copiedToast, setCopiedToast] = useState<string | null>(null);
@@ -100,26 +104,35 @@ export const ShlokaVerseListScreen: React.FC = () => {
     return isHindi
       ? subcategory.headerTitleHi || subcategory.nameHi
       : subcategory.headerTitleEn || subcategory.nameEn;
-  }, [isHindi, subcategory.headerTitleHi, subcategory.nameHi, subcategory.headerTitleEn, subcategory.nameEn]);
+  }, [
+    isHindi,
+    subcategory.headerTitleHi,
+    subcategory.nameHi,
+    subcategory.headerTitleEn,
+    subcategory.nameEn,
+  ]);
 
   const screenDesc = useMemo(() => {
     return isHindi
       ? subcategory.descriptionHi || subcategory.subtitleHi
       : subcategory.descriptionEn || subcategory.subtitleEn;
-  }, [isHindi, subcategory.descriptionHi, subcategory.subtitleHi, subcategory.descriptionEn, subcategory.subtitleEn]);
+  }, [
+    isHindi,
+    subcategory.descriptionHi,
+    subcategory.subtitleHi,
+    subcategory.descriptionEn,
+    subcategory.subtitleEn,
+  ]);
 
-  const showToast = useCallback(
-    (message: string) => {
-      if (toastTimeoutRef.current) {
-        clearTimeout(toastTimeoutRef.current);
-      }
-      setCopiedToast(message);
-      toastTimeoutRef.current = setTimeout(() => {
-        setCopiedToast(null);
-      }, 2200);
-    },
-    [],
-  );
+  const showToast = useCallback((message: string) => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setCopiedToast(message);
+    toastTimeoutRef.current = setTimeout(() => {
+      setCopiedToast(null);
+    }, 2200);
+  }, []);
 
   const handleCopyVerse = useCallback(
     (_: ShlokaVerse) => {
@@ -169,13 +182,17 @@ export const ShlokaVerseListScreen: React.FC = () => {
       case 'through-the-day':
         return <SunriseIcon size={iconSize} color={colors.categoryAmber} />;
       case 'health-and-protection':
-        return <ShieldCrossIcon size={iconSize} color={colors.categoryEmerald} />;
+        return (
+          <ShieldCrossIcon size={iconSize} color={colors.categoryEmerald} />
+        );
       case 'money-work-studies':
         return <CoinsIcon size={iconSize} color={colors.categoryBronze} />;
       case 'study-success':
         return <BookStudyIcon size={iconSize} color={colors.categoryBlue} />;
       case 'home-and-family':
-        return <HomeFamilyIcon size={iconSize} color={colors.categoryEmerald} />;
+        return (
+          <HomeFamilyIcon size={iconSize} color={colors.categoryEmerald} />
+        );
       case 'children':
         return <ChildrenIcon size={iconSize} color={colors.categoryBrown} />;
       case 'mind-and-heart':
@@ -187,16 +204,58 @@ export const ShlokaVerseListScreen: React.FC = () => {
     }
   }, [categoryParam.slug, categoryParam.id]);
 
+  const videoRef = useRef<any>(null);
+  const [playingVerseId, setPlayingVerseId] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      setPlayingVerseId(null);
+    };
+  }, []);
+
+  const handlePlayPauseVerse = useCallback(
+    (verse: ShlokaVerse) => {
+      if (playingVerseId === verse.id) {
+        setPlayingVerseId(null);
+        return;
+      }
+
+      const audioUrl = verse.audioUrl || verse.link;
+      if (!audioUrl || !audioUrl.trim()) {
+        triggerHaptic();
+        showToast(
+          isHindi
+            ? 'इस श्लोक का ऑडियो उपलब्ध नहीं है'
+            : 'Audio not available for this shloka',
+        );
+        return;
+      }
+
+      triggerHaptic();
+      videoRef.current?.seek(0);
+      setPlayingVerseId(verse.id);
+    },
+    [playingVerseId, isHindi, showToast],
+  );
+
+  const activeAudioUrl = useMemo(() => {
+    if (!playingVerseId) return '';
+    const currentVerse = verses.find(v => v.id === playingVerseId);
+    return currentVerse?.audioUrl || currentVerse?.link || '';
+  }, [playingVerseId, verses]);
+
   const renderVerseCard = useCallback(
     ({ item, index }: ListRenderItemInfo<ShlokaVerse>) => (
       <ShlokaVerseCard
         item={item}
         index={index}
+        isPlaying={playingVerseId === item.id}
+        onPlayPause={handlePlayPauseVerse}
         onCopy={handleCopyVerse}
         onShare={handleShareVerse}
       />
     ),
-    [handleCopyVerse, handleShareVerse],
+    [handleCopyVerse, handleShareVerse, handlePlayPauseVerse, playingVerseId],
   );
 
   const keyExtractor = useCallback(
@@ -211,7 +270,9 @@ export const ShlokaVerseListScreen: React.FC = () => {
           {categoryIcon}
           <Text style={styles.bannerTitle}>{screenTitle}</Text>
         </View>
-        {screenDesc ? <Text style={styles.bannerDesc}>{screenDesc}</Text> : null}
+        {screenDesc ? (
+          <Text style={styles.bannerDesc}>{screenDesc}</Text>
+        ) : null}
       </View>
     ),
     [categoryIcon, screenTitle, screenDesc],
@@ -247,6 +308,32 @@ export const ShlokaVerseListScreen: React.FC = () => {
           removeClippedSubviews={Platform.OS === 'android'}
         />
       </SafeAreaView>
+
+      {/* Persistent Audio Engine */}
+      {activeAudioUrl ? (
+        <Video
+          ref={videoRef}
+          source={{ uri: activeAudioUrl }}
+          paused={playingVerseId === null}
+          volume={1.0}
+          repeat={false}
+          playInBackground={true}
+          playWhenInactive={true}
+          ignoreSilentSwitch="ignore"
+          onEnd={() => {
+            setPlayingVerseId(null);
+            videoRef.current?.seek(0);
+          }}
+          onError={error => {
+            console.warn('[ShlokaAudio] Playback error:', error);
+            setPlayingVerseId(null);
+            showToast(
+              isHindi ? 'ऑडियो चलाने में त्रुटि हुई' : 'Unable to play audio',
+            );
+          }}
+          style={styles.hiddenAudio}
+        />
+      ) : null}
 
       {/* Floating Copied Toast */}
       {copiedToast && (
@@ -319,5 +406,11 @@ const styles = StyleSheet.create({
     fontSize: fs(12.5),
     fontFamily: fonts.TiroHindiRegular,
     fontWeight: '600',
+  },
+  hiddenAudio: {
+    position: 'absolute',
+    width: 0,
+    height: 0,
+    opacity: 0,
   },
 });

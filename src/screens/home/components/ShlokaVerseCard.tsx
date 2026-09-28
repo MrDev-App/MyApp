@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -12,12 +12,20 @@ import { fs, scale } from '@theme/sizes';
 import { AnimatedListItem } from '@components';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
-import { CopyIcon, ShareIcon } from '@components/icons/SvgIcons';
-import { ShlokaVerse } from '@services/firebaseServices/shlokaService';
+import { triggerHaptic } from '@helper/helper';
+import {
+  CopyIcon,
+  ShareIcon,
+  PlayIcon,
+  PauseIcon,
+} from '@components/icons/SvgIcons';
+import { ShlokaVerse } from '@services/firebaseServices/shlokasService';
 
 export interface ShlokaVerseCardProps {
   item: ShlokaVerse;
   index: number;
+  isPlaying?: boolean;
+  onPlayPause?: (verse: ShlokaVerse) => void;
   onCopy: (verse: ShlokaVerse) => void;
   onShare: (verse: ShlokaVerse) => void;
 }
@@ -25,10 +33,16 @@ export interface ShlokaVerseCardProps {
 export const ShlokaVerseCard: React.FC<ShlokaVerseCardProps> = ({
   item,
   index,
+  isPlaying: controlledIsPlaying,
+  onPlayPause,
   onCopy,
   onShare,
 }) => {
   const { t, isHindi } = useAppLanguage();
+  const [internalPlaying, setInternalPlaying] = useState(false);
+
+  const isPlaying =
+    controlledIsPlaying !== undefined ? controlledIsPlaying : internalPlaying;
 
   const verseTitle = useMemo(
     () => (isHindi ? item.titleHi || item.title : item.title),
@@ -49,6 +63,15 @@ export const ShlokaVerseCard: React.FC<ShlokaVerseCardProps> = ({
     ],
   );
 
+  const handlePlayPause = useCallback(() => {
+    triggerHaptic();
+    if (onPlayPause) {
+      onPlayPause(item);
+    } else {
+      setInternalPlaying(prev => !prev);
+    }
+  }, [onPlayPause, item]);
+
   const handleCopy = useCallback(() => {
     onCopy(item);
   }, [onCopy, item]);
@@ -60,7 +83,7 @@ export const ShlokaVerseCard: React.FC<ShlokaVerseCardProps> = ({
   return (
     <AnimatedListItem index={index} delayStep={45}>
       <View style={styles.verseCard}>
-        {/* Card Header with Verse Index & Title */}
+        {/* Card Header with Verse Index, Title & Play/Pause Button */}
         <View style={styles.cardHeaderRow}>
           <View style={styles.indexBadge}>
             <Text style={styles.indexBadgeText}>{index + 1}</Text>
@@ -68,6 +91,24 @@ export const ShlokaVerseCard: React.FC<ShlokaVerseCardProps> = ({
           <Text style={styles.verseTitle} numberOfLines={2}>
             {verseTitle}
           </Text>
+          <TouchableOpacity
+            style={[
+              styles.playPauseBtn,
+              isPlaying && styles.playPauseBtnActive,
+            ]}
+            activeOpacity={0.75}
+            onPress={handlePlayPause}
+            accessibilityRole="button"
+            accessibilityLabel={isPlaying ? 'Pause' : 'Play'}
+          >
+            {isPlaying ? (
+              <PauseIcon size={scale(15)} color={colors.white} />
+            ) : (
+              <View style={styles.playIconOffset}>
+                <PlayIcon size={scale(15)} color={colors.ring} />
+              </View>
+            )}
+          </TouchableOpacity>
         </View>
 
         {/* Sanskrit Devanagari Verses Box */}
@@ -175,6 +216,36 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.secondary,
     lineHeight: fs(22),
+  },
+  playPauseBtn: {
+    width: scale(34),
+    height: scale(34),
+    borderRadius: scale(17),
+    backgroundColor: colors.accentOrangeBg,
+    borderWidth: 1.5,
+    borderColor: colors.ring,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playPauseBtnActive: {
+    backgroundColor: colors.ring,
+    borderColor: colors.ring,
+    ...Platform.select({
+      ios: {
+        shadowColor: colors.ring,
+        shadowOffset: { width: 0, height: scale(2) },
+        shadowOpacity: 0.35,
+        shadowRadius: scale(4),
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
+  },
+  playIconOffset: {
+    marginLeft: scale(1.5),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sanskritBox: {
     backgroundColor: colors.accentOrangeLight,

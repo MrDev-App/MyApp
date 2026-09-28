@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -18,11 +18,15 @@ import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { GradientBackground, ScreenHeader } from '@components';
+import Skeleton from '@components/Skeleton';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
 import imagePath from '@assets/index';
-import { SHLOKA_CATEGORY_SECTIONS, ShlokaCategory } from '@constants/shlokData';
+import {
+  ShlokaCategory,
+  getAllShlokaCategoriesFromFirebase,
+} from '@services/firebaseServices/shlokasService';
 import ShlokaCategoryCard from './components/ShlokaCategoryCard';
 
 export const AllShlokasScreen: React.FC = () => {
@@ -31,24 +35,44 @@ export const AllShlokasScreen: React.FC = () => {
   const { t } = useAppLanguage();
   const { width: windowWidth } = useWindowDimensions();
 
-  // Flatten all categories across all sections
-  const allCategories = useMemo(() => {
-    return SHLOKA_CATEGORY_SECTIONS.flatMap(section => section.categories);
+  const [categories, setCategories] = useState<ShlokaCategory[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Fetch all categories from Firestore: categories > shlokas > shlokcategory > allshloakcategories
+  useEffect(() => {
+    let isMounted = true;
+    setLoading(true);
+
+    getAllShlokaCategoriesFromFirebase()
+      .then(list => {
+        if (isMounted) {
+          setCategories(list);
+        }
+      })
+      .catch(err => {
+        console.warn(
+          '[AllShlokasScreen] Error fetching categories from Firestore:',
+          err,
+        );
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Primary section header & subtitle info
   const screenTitle = useMemo(() => {
-    const primarySection = SHLOKA_CATEGORY_SECTIONS[0];
-    return primarySection?.title
-      ? t(primarySection.title)
-      : t(Translation.SHLOK_SECTION_OCCASIONS_TITLE);
+    return t(Translation.SHLOK_SECTION_OCCASIONS_TITLE);
   }, [t]);
 
   const screenDesc = useMemo(() => {
-    const primarySection = SHLOKA_CATEGORY_SECTIONS[0];
-    return primarySection?.subtitle
-      ? t(primarySection.subtitle)
-      : t(Translation.SHLOK_SECTION_OCCASIONS_SUBTITLE);
+    return t(Translation.SHLOK_SECTION_OCCASIONS_SUBTITLE);
   }, [t]);
 
   const handleCardPress = useCallback(
@@ -125,6 +149,36 @@ export const AllShlokasScreen: React.FC = () => {
     [gridDimensions.horizontalPadding, insets.bottom],
   );
 
+  // Skeleton Grid placeholders while loading
+  const renderSkeletonGrid = () => {
+    const placeholderCount = 8;
+    return (
+      <View
+        style={[
+          styles.listContent,
+          {
+            paddingHorizontal: gridDimensions.horizontalPadding,
+            paddingTop: scale(12),
+          },
+        ]}
+      >
+        <View style={styles.skeletonGridWrapper}>
+          {Array.from({ length: placeholderCount }).map((_, idx) => (
+            <Skeleton
+              key={`skel_${idx}`}
+              width={gridDimensions.cardWidth}
+              height={gridDimensions.cardHeight}
+              borderRadius={scale(18)}
+              baseColor={colors.skeletonBase}
+              highlightColor={colors.skeletonHighlight}
+              style={{ marginBottom: gridDimensions.gap }}
+            />
+          ))}
+        </View>
+      </View>
+    );
+  };
+
   return (
     <GradientBackground>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -138,12 +192,14 @@ export const AllShlokasScreen: React.FC = () => {
           </View>
         ) : null}
 
-        {/* Card Grid / Empty State */}
+        {/* Card Grid / Skeleton / Empty State */}
         <View style={styles.contentContainer}>
-          {allCategories.length > 0 ? (
+          {loading ? (
+            renderSkeletonGrid()
+          ) : categories.length > 0 ? (
             <FlatList
               key={`grid_${gridDimensions.numColumns}`}
-              data={allCategories}
+              data={categories}
               renderItem={renderCategoryCard}
               keyExtractor={keyExtractor}
               getItemLayout={getItemLayout}
@@ -202,6 +258,11 @@ const styles = StyleSheet.create({
   columnWrapper: {
     justifyContent: 'flex-start',
     marginBottom: scale(12),
+  },
+  skeletonGridWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
   emptyStateContainer: {
     alignItems: 'center',

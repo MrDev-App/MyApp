@@ -56,13 +56,32 @@ export const TempleDetailScreen: React.FC = () => {
   const templeData = useMemo(() => {
     if (!temple) return null;
 
+    let timingStr = '';
+    if (temple.timing && typeof temple.timing === 'object') {
+      const hours = temple.timing.openingTime
+        ? `${temple.timing.openingTime} – ${temple.timing.closingTime || ''}`.trim()
+        : '';
+      const aarti = isHindi
+        ? temple.timing.aartiTimingsHi
+        : temple.timing.aartiTimingsEn;
+      if (hours && aarti) {
+        timingStr = `${hours} (${aarti})`;
+      } else {
+        timingStr = hours || aarti || '';
+      }
+    } else {
+      timingStr = isHindi
+        ? (temple as any).timingHi || ''
+        : (temple as any).timingEn || '';
+    }
+
     return {
       name: isHindi ? temple.nameHi : temple.nameEn,
       location: isHindi ? temple.locationHi : temple.locationEn,
       state: isHindi ? temple.stateHi : temple.stateEn,
       deity: isHindi ? temple.deityHi : temple.deityEn,
       significance: isHindi ? temple.significanceHi : temple.significanceEn,
-      timing: isHindi ? temple.timingHi : temple.timingEn,
+      timing: timingStr,
       description: isHindi ? temple.descriptionHi : temple.descriptionEn,
       nearbyAttractions: isHindi
         ? temple.nearbyAttractionsHi
