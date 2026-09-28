@@ -13,9 +13,9 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { AnimatedListItem } from '@components';
 import Skeleton from '@components/Skeleton';
-import { useAppLanguage } from '@hooks';
 import imagePath from '@assets/index';
-import { ShlokaCategory } from '@services/firebaseServices/shlokasService';
+import { ShlokaCategory } from '@api/shlokaApi';
+import { useAppLanguage } from '@hooks';
 
 const loadedImageCache = new Set<string>();
 

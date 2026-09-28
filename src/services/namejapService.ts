@@ -1,138 +1,15 @@
-// No direct MMKV instance here — all storage goes through the typed Storage facade in storageService
-import {
-  getFirestore,
-  collection,
-  getDocs,
-} from '@react-native-firebase/firestore';
 import { Storage } from './storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 
-export interface MantraSelectorItem {
-  id: string;
-  nameEn: string;
-  nameHi: string;
-  textEn: string;
-  textHi: string;
-  isCustom?: boolean;
-  order?: number;
-}
-
-export const DEFAULT_MANTRA: MantraSelectorItem = {
-  id: 'Radha',
-  nameEn: 'Radha Mantra',
-  nameHi: 'राधा मंत्र',
-  textEn: 'राधा',
-  textHi: 'राधा',
-};
-
-
-export const JAP_MANTRAS_CACHE_KEY = STORAGE_KEYS.JAP_MANTRAS_CACHE;
-
-export const mapMantraItem = (item: any, index = 0): MantraSelectorItem => {
-  return {
-    id: item.id || '',
-    nameEn: item.nameEn || '',
-    nameHi: item.nameHi || '',
-    textEn: item.textEn || '',
-    textHi: item.textHi || '',
-    isCustom: item.isCustom ?? false,
-    order: item.order ?? index,
-  };
-};
-
-// In-memory session flag: ensures Jap Mantras collection is fetched at most once per app launch session
-let hasFetchedJapMantrasThisSession = false;
-
-/**
- * Gets cached Jap Mantras from local MMKV storage if available.
- */
-export const getCachedJapMantrasData = (): MantraSelectorItem[] | null => {
-  try {
-    const cachedData = Storage.getString(JAP_MANTRAS_CACHE_KEY);
-    if (cachedData) {
-      const parsed: any[] = JSON.parse(cachedData);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        const list = parsed.map(mapMantraItem);
-        list.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-        return list;
-      }
-    }
-  } catch (err) {
-    console.error('❌ [JapService] Error reading cached JapMantras:', err);
-  }
-  return null;
-};
-
-/**
- * Fetches all Jap Mantras from Firestore collection 'japMantras' once per app session.
- * Future visits in the same session use local MMKV cache with 0 network calls.
- */
-export const getJapMantrasData = async (
-  forceRefresh: boolean = false,
-): Promise<MantraSelectorItem[]> => {
-  // If already fetched in this session and not explicitly forcing, return cached data
-  if (!forceRefresh && hasFetchedJapMantrasThisSession) {
-    const cached = getCachedJapMantrasData();
-    if (cached && cached.length > 0) {
-      console.log(
-        '⚡ [JapService] Jap Mantras already fetched in this session. Using local MMKV cache (0 network calls).',
-      );
-      return cached;
-    }
-  }
-
-  console.log('----------------------------------------------------');
-  console.log('📿 [JapService] Fetching Jap Mantras from Firestore...');
-
-  try {
-    const db = getFirestore();
-    const snapshot = await getDocs(collection(db, 'japMantras'));
-
-    let rawList: any[] = [];
-    if (!snapshot.empty) {
-      rawList = snapshot.docs.map(docSnap => ({
-        id: docSnap.id,
-        ...docSnap.data(),
-      }));
-    }
-
-    if (rawList.length > 0) {
-      try {
-        Storage.set(JAP_MANTRAS_CACHE_KEY, JSON.stringify(rawList));
-        console.log(
-          '💾 [JapService] Saved JapMantras to local persistent storage (MMKV).',
-        );
-      } catch (saveErr) {
-        console.error('❌ [JapService] Error saving to MMKV:', saveErr);
-      }
-
-      hasFetchedJapMantrasThisSession = true;
-      const list = rawList.map(mapMantraItem);
-      list.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-      console.log(
-        `✅ [JapService] Successfully loaded ${list.length} jap mantras from Firestore.`,
-      );
-      console.log('----------------------------------------------------');
-      return list;
-    }
-
-    const cached = getCachedJapMantrasData();
-    if (cached && cached.length > 0) return cached;
-    return [DEFAULT_MANTRA];
-  } catch (error) {
-    console.warn('⚠️ [JapService] Firestore unavailable, using local jap data:', error);
-    const cached = getCachedJapMantrasData();
-    if (cached && cached.length > 0) {
-      return cached;
-    }
-    console.log('----------------------------------------------------');
-    return [DEFAULT_MANTRA];
-  }
-};
-
-export const clearJapMantrasCache = (): void => {
-  Storage.delete(JAP_MANTRAS_CACHE_KEY);
-};
+export type { MantraSelectorItem } from '@api/japMantrasApi';
+export {
+  DEFAULT_MANTRA,
+  JAP_MANTRAS_CACHE_KEY,
+  mapMantraItem,
+  getCachedJapMantrasData,
+  getJapMantrasData,
+  clearJapMantrasCache,
+} from '@api/japMantrasApi';
 
 export interface MantraRecord {
   count: number;
@@ -232,13 +109,19 @@ export const parseJapaHistory = (): JapaHistory => {
     const raw = Storage.getString(STORAGE_KEYS.JAP_HISTORY, '{}');
     return JSON.parse(raw);
   } catch (e) {
-    console.error('[JapService] Corrupted JAP_HISTORY — resetting to empty.', e);
+    console.error(
+      '[JapService] Corrupted JAP_HISTORY — resetting to empty.',
+      e,
+    );
     Storage.set(STORAGE_KEYS.JAP_HISTORY, '{}');
     return {};
   }
 };
 
-export const getDayWiseStats = (mantraId?: string, history: JapaHistory = parseJapaHistory()) => {
+export const getDayWiseStats = (
+  mantraId?: string,
+  history: JapaHistory = parseJapaHistory(),
+) => {
   try {
     const data = [];
 
@@ -274,7 +157,10 @@ export const getDayWiseStats = (mantraId?: string, history: JapaHistory = parseJ
   }
 };
 
-export const getWeekWiseStats = (mantraId?: string, history: JapaHistory = parseJapaHistory()) => {
+export const getWeekWiseStats = (
+  mantraId?: string,
+  history: JapaHistory = parseJapaHistory(),
+) => {
   try {
     const weeks = [];
 
@@ -309,7 +195,10 @@ export const getWeekWiseStats = (mantraId?: string, history: JapaHistory = parse
   }
 };
 
-export const getMonthWiseStats = (mantraId?: string, history: JapaHistory = parseJapaHistory()) => {
+export const getMonthWiseStats = (
+  mantraId?: string,
+  history: JapaHistory = parseJapaHistory(),
+) => {
   try {
     const months = [];
 
@@ -348,7 +237,10 @@ export const getMonthWiseStats = (mantraId?: string, history: JapaHistory = pars
   }
 };
 
-export const getYearWiseStats = (mantraId?: string, history: JapaHistory = parseJapaHistory()) => {
+export const getYearWiseStats = (
+  mantraId?: string,
+  history: JapaHistory = parseJapaHistory(),
+) => {
   try {
     const years = [];
 

@@ -12,7 +12,7 @@ import {
   ChildrenIcon,
   HeartIcon,
   OmIcon,
-} from '@components/icons/SvgIcons';
+} from '@assets/SvgIcons';
 
 export interface ShlokaCategoryBannerProps {
   slug?: string;
@@ -23,10 +23,7 @@ export const ShlokaCategoryBanner: React.FC<ShlokaCategoryBannerProps> = ({
   slug = 'through-the-day',
   description,
 }) => {
-  const cleanSlug = useMemo(
-    () => slug.replace('occasion-', ''),
-    [slug],
-  );
+  const cleanSlug = useMemo(() => slug.replace('occasion-', ''), [slug]);
 
   const categoryIcon = useMemo(() => {
     const iconSize = scale(24);
@@ -35,13 +32,17 @@ export const ShlokaCategoryBanner: React.FC<ShlokaCategoryBannerProps> = ({
       case 'through-the-day':
         return <SunriseIcon size={iconSize} color={colors.categoryAmber} />;
       case 'health-and-protection':
-        return <ShieldCrossIcon size={iconSize} color={colors.categoryEmerald} />;
+        return (
+          <ShieldCrossIcon size={iconSize} color={colors.categoryEmerald} />
+        );
       case 'money-work-studies':
         return <CoinsIcon size={iconSize} color={colors.categoryBronze} />;
       case 'study-success':
         return <BookStudyIcon size={iconSize} color={colors.categoryBlue} />;
       case 'home-and-family':
-        return <HomeFamilyIcon size={iconSize} color={colors.categoryEmerald} />;
+        return (
+          <HomeFamilyIcon size={iconSize} color={colors.categoryEmerald} />
+        );
       case 'children':
         return <ChildrenIcon size={iconSize} color={colors.categoryBrown} />;
       case 'mind-and-heart':

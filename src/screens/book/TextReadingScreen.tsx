@@ -20,7 +20,7 @@ import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import imagePath from '@assets/index';
-import { HeartIcon, BackIcon as Back } from '@components/icons/SvgIcons';
+import { HeartIcon, BackIcon as Back } from '@assets/SvgIcons';
 import FlipBookCover from './components/FlipBookCover';
 import { GradientBackground } from '@components';
 

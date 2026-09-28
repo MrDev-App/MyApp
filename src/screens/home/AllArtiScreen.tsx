@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
+  RefreshControl,
   useWindowDimensions,
 } from 'react-native';
 import {
@@ -27,7 +28,7 @@ import {
   getCachedAartiCategory,
   Category,
   CategoryItem,
-} from '@services/firebaseServices/categoriesService';
+} from '@api/aartiApi';
 
 export const AllArtiScreen = () => {
   const insets = useSafeAreaInsets();
@@ -46,6 +47,8 @@ export const AllArtiScreen = () => {
       (route.params?.category as Category) || getCachedAartiCategory();
     return !cached || !cached.items || cached.items.length === 0;
   });
+
+  const [refreshing, setRefreshing] = useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -70,6 +73,20 @@ export const AllArtiScreen = () => {
       isMounted = false;
     };
   }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const fresh = await getAartiCategoryData(true);
+      if (fresh) {
+        setCategory(fresh);
+      }
+    } catch (err) {
+      console.warn('[AllArtiScreen] Error refreshing Aarti:', err);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const isLoading =
     loading || !category || !category.items || category.items.length === 0;
@@ -216,6 +233,14 @@ export const AllArtiScreen = () => {
               styles.listContent,
               { paddingBottom: insets.bottom + scale(24) },
             ]}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[colors.ring]}
+                tintColor={colors.ring}
+              />
+            }
             showsVerticalScrollIndicator={false}
           />
         )}

@@ -29,11 +29,7 @@ import { STORAGE_KEYS } from '@constants/storageKeys';
 import { AllBooks } from '@constants/storiesData';
 import { GradientBackground } from '@components';
 import { Translation } from '@i18n/language';
-import {
-  SearchIcon,
-  HeartIcon,
-  BackIcon as Back,
-} from '@components/icons/SvgIcons';
+import { SearchIcon, HeartIcon, BackIcon as Back } from '@assets/SvgIcons';
 import { triggerHaptic } from '@utils';
 import { useAppLanguage } from '@hooks';
 

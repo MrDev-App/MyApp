@@ -14,11 +14,11 @@ import NotificationScreen from '@screens/home/NotificationScreen';
 import ProgressScreen from '@screens/jap/ProgressScreen';
 import MantraScreen from '@screens/home/MantraScreen';
 
-import { AllShlokasScreen } from '@screens/home/AllShlokasScreen';
-import { ShlokaCategoryDetailScreen } from '@screens/home/ShlokaCategoryDetailScreen';
-import { ShlokaVerseListScreen } from '@screens/home/ShlokaVerseListScreen';
-import TempleScreen from '@screens/home/TempleScreen';
-import TempleDetailScreen from '@screens/home/TempleDetailScreen';
+import { AllShlokasScreen } from '@screens/shlok/AllShlokasScreen';
+import { ShlokaCategoryDetailScreen } from '@screens/shlok/ShlokaCategoryDetailScreen';
+import { ShlokaVerseListScreen } from '@screens/shlok/ShlokaVerseListScreen';
+import TempleScreen from '@screens/temple/TempleScreen';
+import TempleDetailScreen from '@screens/temple/TempleDetailScreen';
 import { AllArtiScreen } from '@screens/home/AllArtiScreen';
 import ArtiScreen from '@screens/home/ArtiScreen';
 import CalendarScreen from '@screens/calendar/CalendarScreen';

@@ -21,7 +21,7 @@ import { StoryPageViewProps } from './FlipBookCover.types';
 import { styles } from './FlipBookCover.styles';
 import { GOLD_BORDER } from './FlipBookCover.constants';
 import { getStrings } from './FlipBookCover.strings';
-import { ExpandIcon } from '@components/icons/SvgIcons';
+import { ExpandIcon } from '@assets/SvgIcons';
 
 export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
   ({

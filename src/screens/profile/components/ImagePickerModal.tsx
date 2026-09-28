@@ -9,7 +9,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Translation } from '@i18n/language';
 import OverlayModal, { OverlayModalHandle } from '@components/OverlayModal';
-import { CameraIcon, ImageIcon, TrashIcon } from '@components/icons/SvgIcons';
+import { CameraIcon, ImageIcon, TrashIcon } from '@assets/SvgIcons';
 import { requestCameraPermission } from '@services/permissionService';
 import { suppressNextAppOpenAd } from '@admob/useAppOpenAd';
 import { triggerHaptic } from '@utils/haptics';

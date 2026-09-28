@@ -1,5 +1,5 @@
-import { CategoryItem } from '@services/firebaseServices/categoriesService';
-import { TempleItem } from '@services/firebaseServices/templeService';
+import { CategoryItem } from '@api/aartiApi';
+import { TempleItem } from '@api/templeApi';
 import { NavigatorScreenParams } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 

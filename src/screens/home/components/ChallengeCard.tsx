@@ -20,7 +20,7 @@ import AnimatedButton from '@components/AnimatedButton';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 import OverlayModal, { OverlayModalHandle } from '@components/OverlayModal';
-import { CloseIcon } from '@components/icons/SvgIcons';
+import { CloseIcon } from '@assets/SvgIcons';
 import imagePath from '@assets/index';
 import ContractModal from './ContractModal';
 

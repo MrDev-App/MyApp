@@ -14,69 +14,10 @@ import {
   monthTranslationKeys,
   dayNameTranslationKeys,
 } from '@constants/calendarData';
+import { Festival } from './types';
 
-export interface FestivalTranslation {
-  name: string;
-  tithi?: string;
-  description?: string;
-  story?: string;
-  deity?: string[];
-}
-
-export interface VratDetails {
-  paranTime?: string | null;
-  fastingRule?: string | null;
-}
-
-export interface Festival {
-  id: string;
-  slug?: string;
-  eventKey?: string;
-  type?: 'festival' | 'ekadashi' | 'vrat' | 'other' | string;
-  categoryKey?: string;
-  isMajor?: boolean;
-  name: string;
-  nameHi?: string;
-  englishName: string;
-  hindiName: string;
-  date: string; // e.g. "2026-09-18"
-  year: number;
-  month: number;
-  day: number;
-  dayOfWeek: string;
-  dayOfWeekHi?: string;
-  dayOfWeekNum?: number;
-  dateStrEn: string;
-  dateStrHi?: string;
-  tithi?: string;
-  tithiHi?: string;
-  description?: string;
-  descriptionHi?: string;
-  story?: string;
-  storyHi?: string;
-  deity?: string[];
-  deityHi?: string[];
-  regions?: string[];
-  regionsHi?: string[];
-  category?: string;
-  categoryHi?: string;
-  vratDetails?: VratDetails | null;
-  imageUrl?: string;
-  url?: string;
-  sourceUrl?: string;
-  image?: any;
-  translations?: {
-    en?: FestivalTranslation;
-    hi?: FestivalTranslation;
-  };
-}
-
-// In-memory cache to prevent redundant Firestore queries
 let festivalCache: Festival[] | null = null;
 
-/**
- * Gets cached Festival data from local MMKV storage if available.
- */
 export const getCachedFestivalData = (): Festival[] | null => {
   try {
     const rawCache = Storage.getString(STORAGE_KEYS.FESTIVALS_CACHE, '');
@@ -87,7 +28,7 @@ export const getCachedFestivalData = (): Festival[] | null => {
       }
     }
   } catch (err) {
-    console.error('❌ [FestivalService] Error reading cached Festivals:', err);
+    console.error('❌ [festivalApi] Error reading cached Festivals:', err);
   }
   return null;
 };
@@ -103,13 +44,9 @@ const REGION_TRANSLATION_KEYS: Record<string, string> = {
   WORLDWIDE: Translation.REGION_WORLDWIDE,
 };
 
-/**
- * Resolves festival image directly from remote URL or local assets by ID/eventKey.
- */
 export const resolveFestivalImage = (festival: any): any => {
   if (!festival) return imagePath.greeting;
 
-  // 1. Direct remote Image URL — check 'imageUrl', 'url', or 'sourceUrl'
   const rawUrl = (festival.imageUrl || festival.url || festival.sourceUrl || '')
     .toString()
     .trim();
@@ -117,7 +54,6 @@ export const resolveFestivalImage = (festival: any): any => {
     return { uri: rawUrl };
   }
 
-  // 2. If already a resolved local require() number or object with uri
   if (
     typeof festival.image === 'number' ||
     (festival.image && typeof festival.image === 'object' && festival.image.uri)
@@ -125,7 +61,6 @@ export const resolveFestivalImage = (festival: any): any => {
     return festival.image;
   }
 
-  // 3. Match keys against local assets (eventKey, slug, id, englishName)
   const keysToTry = [
     festival.eventKey,
     festival.slug,
@@ -150,14 +85,9 @@ export const resolveFestivalImage = (festival: any): any => {
       return (imagePath as any)[cleanBaseKey];
   }
 
-  // 4. Default fallback
   return imagePath.greeting;
 };
 
-/**
- * Transforms raw Firestore document (supporting both new nested schema and legacy flat schema)
- * into a strongly typed Festival object.
- */
 export const mapFestivalDoc = (doc: any): Festival => {
   const data = typeof doc.data === 'function' ? doc.data() : doc;
   const id = doc.id || data.slug || data.id || '';
@@ -165,14 +95,12 @@ export const mapFestivalDoc = (doc: any): Festival => {
   const transEn = data.translations?.en || {};
   const transHi = data.translations?.hi || {};
 
-  // Names
   const englishName = transEn.name || data.englishName || data.name || '';
   const hindiName =
     transHi.name || data.hindiName || data.nameHi || englishName;
   const name = englishName || hindiName;
   const nameHi = hindiName || englishName;
 
-  // Date parsing
   const rawDate = data.date || '';
   let year = Number(data.year);
   let month = Number(data.month);
@@ -190,9 +118,7 @@ export const mapFestivalDoc = (doc: any): Festival => {
   month = month || 1;
   day = day || 1;
 
-  // Day of week calculation via i18n
   let dayOfWeekNum: number = 0;
-
   if (typeof data.dayOfWeek === 'number') {
     dayOfWeekNum = Math.max(0, Math.min(6, data.dayOfWeek));
   } else if (typeof data.dayOfWeek === 'string' && data.dayOfWeek.trim()) {
@@ -207,7 +133,6 @@ export const mapFestivalDoc = (doc: any): Festival => {
   const dayOfWeekStrEn = i18n.t(dayKey, { lng: 'en' });
   const dayOfWeekStrHi = data.dayOfWeekHi || i18n.t(dayKey, { lng: 'hi' });
 
-  // Formatted Date Strings via i18n
   const monthKey = monthTranslationKeys[Math.max(0, Math.min(11, month - 1))];
   const monthNameEn = i18n.t(monthKey, { lng: 'en' });
   const monthNameHi = i18n.t(monthKey, { lng: 'hi' });
@@ -217,7 +142,6 @@ export const mapFestivalDoc = (doc: any): Festival => {
   const dateStrHi =
     data.dateStrHi || `${day} ${monthNameHi}, ${dayOfWeekStrHi}`.trim();
 
-  // Tithi, Description, Story
   const tithi = transEn.tithi || data.tithi || '';
   const tithiHi = transHi.tithi || data.tithiHi || tithi;
   const description = transEn.description || data.description || '';
@@ -226,7 +150,6 @@ export const mapFestivalDoc = (doc: any): Festival => {
   const story = transEn.story || data.story || '';
   const storyHi = transHi.story || data.storyHi || story;
 
-  // Deity
   const deityEn =
     transEn.deity ||
     (Array.isArray(data.deity) ? data.deity : data.deity ? [data.deity] : []);
@@ -238,7 +161,6 @@ export const mapFestivalDoc = (doc: any): Festival => {
       ? [data.deityHi]
       : deityEn);
 
-  // Regions translated via i18n
   const rawRegions: string[] = Array.isArray(data.regions)
     ? data.regions
     : data.regions
@@ -252,12 +174,10 @@ export const mapFestivalDoc = (doc: any): Festival => {
         : r,
     );
 
-  // Category
   const categoryKey = data.categoryKey || data.category || data.type || '';
   const category = data.category || categoryKey;
   const categoryHi = data.categoryHi || category;
 
-  // URLs
   const imageUrl = data.imageUrl || data.url || '';
   const url = data.url || data.imageUrl || '';
 
@@ -317,82 +237,43 @@ export const mapFestivalDoc = (doc: any): Festival => {
   };
 };
 
-/**
- * Clears the in-memory festival data cache.
- */
 export const clearFestivalDataCache = (): void => {
   festivalCache = null;
 };
 
-/**
- * Fetches all festivals from the Firestore 'festivals' collection.
- * Uses in-memory caching to avoid duplicate reads.
- *
- * @param forceRefresh - If true, bypasses the cache and fetches fresh data from Firestore.
- */
 export const getFestivalData = async (
   forceRefresh: boolean = false,
 ): Promise<Festival[]> => {
-  // If not forcing refresh, check in-memory cache first, then local MMKV storage
   if (!forceRefresh) {
     if (festivalCache && festivalCache.length > 0) {
-      console.log(
-        `⚡ [FestivalService] Returning ${festivalCache.length} festivals from memory cache.`,
-      );
       return festivalCache;
     }
 
     const localCache = getCachedFestivalData();
     if (localCache && localCache.length > 0) {
       festivalCache = localCache;
-      console.log(
-        `⚡ [FestivalService] Returning ${localCache.length} festivals from local persistent storage.`,
-      );
       return localCache;
     }
   }
-
-  console.log('----------------------------------------------------');
-  console.log(
-    `🎉 [FestivalService] Fetching festivals from Firestore (forceRefresh: ${forceRefresh})...`,
-  );
 
   try {
     const db = getFirestore();
     const festivalsRef = collection(db, 'festivals');
 
-    // Attempt sorted query by date
-    console.log(
-      '🔍 [FestivalService] Querying Firestore collection "festivals"...',
-    );
     let snapshot;
     try {
       const q = query(festivalsRef, orderBy('date', 'asc'));
       snapshot = await getDocs(q);
-      console.log(
-        `📄 [FestivalService] Ordered query succeeded with ${snapshot.size} doc(s).`,
-      );
-    } catch (queryErr) {
-      console.log(
-        '⚠️ [FestivalService] Ordered query failed (index pending?), falling back to basic getDocs:',
-        queryErr,
-      );
+    } catch {
       snapshot = await getDocs(festivalsRef);
-      console.log(
-        `📄 [FestivalService] Basic query returned ${snapshot.size} doc(s).`,
-      );
     }
 
     if (!snapshot || snapshot.empty) {
-      console.warn(
-        '⚠️ [FestivalService] No festival documents found in Firestore.',
-      );
       const localCache = getCachedFestivalData();
       if (localCache && localCache.length > 0) {
         festivalCache = localCache;
         return localCache;
       }
-      console.log('----------------------------------------------------');
       return [];
     }
 
@@ -401,19 +282,14 @@ export const getFestivalData = async (
       ...docSnap.data(),
     }));
 
-    // Persist to local MMKV storage
     try {
       Storage.set(STORAGE_KEYS.FESTIVALS_CACHE, JSON.stringify(rawList));
-      console.log(
-        '💾 [FestivalService] Saved Festivals to local persistent storage (MMKV).',
-      );
     } catch (saveErr) {
-      console.error('❌ [FestivalService] Error saving to storage:', saveErr);
+      console.error('❌ [festivalApi] Error saving to storage:', saveErr);
     }
 
     const festivals: Festival[] = rawList.map(item => mapFestivalDoc(item));
 
-    // Ensure sorted chronologically (by month, then day)
     festivals.sort((a, b) => {
       if (a.month !== b.month) {
         return a.month - b.month;
@@ -422,14 +298,10 @@ export const getFestivalData = async (
     });
 
     festivalCache = festivals;
-    console.log(
-      `✅ [FestivalService] Successfully loaded & sorted ${festivals.length} festivals into memory.`,
-    );
-    console.log('----------------------------------------------------');
     return festivals;
   } catch (error) {
     console.error(
-      '❌ [FestivalService] Error fetching festival data from Firebase Firestore! Checking local cache:',
+      '❌ [festivalApi] Error fetching festival data from Firestore:',
       error,
     );
     const localCache = getCachedFestivalData();
@@ -437,14 +309,10 @@ export const getFestivalData = async (
       festivalCache = localCache;
       return localCache;
     }
-    console.log('----------------------------------------------------');
     return festivalCache || [];
   }
 };
 
-/**
- * Fetches festivals filtered by month (1 = Jan, 12 = Dec).
- */
 export const getFestivalsByMonth = async (
   month: number,
 ): Promise<Festival[]> => {
@@ -452,9 +320,6 @@ export const getFestivalsByMonth = async (
   return allFestivals.filter(item => item.month === month);
 };
 
-/**
- * Fetches upcoming festivals from today onwards.
- */
 export const getUpcomingFestivals = async (
   limitCount: number = 10,
 ): Promise<Festival[]> => {

@@ -26,7 +26,7 @@ import imagePath from '@assets/index';
 import {
   ShlokaCategory,
   getAllShlokaCategoriesFromFirebase,
-} from '@services/firebaseServices/shlokasService';
+} from '@api/shlokaApi';
 import ShlokaCategoryCard from './components/ShlokaCategoryCard';
 
 export const AllShlokasScreen: React.FC = () => {

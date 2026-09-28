@@ -10,7 +10,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '@navigation/types';
-import { CloseIcon, PlusIcon, MinusIcon } from '@components/icons/SvgIcons';
+import { CloseIcon, PlusIcon, MinusIcon } from '@assets/SvgIcons';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 import { triggerHaptic } from '@helper/helper';

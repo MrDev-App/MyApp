@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from 'react';
 import {
   StyleSheet,
   Text,
@@ -33,7 +39,7 @@ import {
   DEFAULT_MANTRA,
   logChant,
   CustomMantra,
-} from '@services/japService';
+} from '@services/namejapService';
 import { Translation } from '@i18n/language';
 import imagePath from '@assets/index';
 import Skeleton from '@components/Skeleton';
@@ -47,7 +53,7 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { RootNavigationProp } from '@navigation/types';
 import { triggerHaptic } from '@helper/helper';
 import { BannerAdComponent } from '@admob';
-import { ResetIcon, ZapIcon, ChartBarIcon } from '@components/icons/SvgIcons';
+import { ResetIcon, ZapIcon, ChartBarIcon } from '@assets/SvgIcons';
 import TempleBell from '@components/TempleBell';
 
 /** Total beads on a mala AND the target count per round — single source of truth. */
@@ -66,8 +72,8 @@ const JapScreen = () => {
     () => (_hasCached ? _initialCache! : [DEFAULT_MANTRA]),
   );
   const [loading, setLoading] = useState<boolean>(() => !_hasCached);
-  const [selectedMantra, setSelectedMantra] = useState<MantraSelectorItem>(
-    () => (_hasCached ? _initialCache![0] : DEFAULT_MANTRA),
+  const [selectedMantra, setSelectedMantra] = useState<MantraSelectorItem>(() =>
+    _hasCached ? _initialCache![0] : DEFAULT_MANTRA,
   );
   const [displayedMantra, setDisplayedMantra] = useState<MantraSelectorItem>(
     () => (_hasCached ? _initialCache![0] : DEFAULT_MANTRA),
@@ -93,7 +99,10 @@ const JapScreen = () => {
             setDefaultMantras(list);
           }
 
-          const parsed = Storage.getJSON<CustomMantra[]>(STORAGE_KEYS.CUSTOM_MANTRAS, []);
+          const parsed = Storage.getJSON<CustomMantra[]>(
+            STORAGE_KEYS.CUSTOM_MANTRAS,
+            [],
+          );
           if (isMounted) {
             setCustomMantras(parsed);
           }
@@ -145,7 +154,9 @@ const JapScreen = () => {
 
   const [totalCount, setTotalCount] = useState(() => {
     const mantraId = DEFAULT_MANTRA.id;
-    return Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`) || 0;
+    return (
+      Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`) || 0
+    );
   });
   // totalMala is persisted but only displayed in ProgressScreen; kept in sync via setTotalMala
   const [totalMala, setTotalMala] = useState(() => {
@@ -154,7 +165,9 @@ const JapScreen = () => {
   });
   const [todayCount, setTodayCount] = useState(() => {
     const mantraId = DEFAULT_MANTRA.id;
-    return Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`) || 0;
+    return (
+      Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`) || 0
+    );
   });
   const [todayMala, setTodayMala] = useState(() => {
     const mantraId = DEFAULT_MANTRA.id;
@@ -400,12 +413,18 @@ const JapScreen = () => {
       const name = select(item.nameHi, item.nameEn);
       return (
         <TouchableOpacity
-          style={[styles.selectorItem, isSelected && styles.selectorItemSelected]}
+          style={[
+            styles.selectorItem,
+            isSelected && styles.selectorItemSelected,
+          ]}
           onPress={() => handleMantraSelect(item)}
           activeOpacity={0.8}
         >
           <Text
-            style={[styles.selectorText, isSelected && styles.selectorTextSelected]}
+            style={[
+              styles.selectorText,
+              isSelected && styles.selectorTextSelected,
+            ]}
           >
             {name}
           </Text>

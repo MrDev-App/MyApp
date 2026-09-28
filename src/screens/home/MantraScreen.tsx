@@ -16,7 +16,7 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { God, GodMantra } from '@services/firebaseServices/godMantras';
+import { God, GodMantra } from '@api/godMantrasApi';
 import {
   AutoScrollFlatList,
   AutoScrollItem,
@@ -65,7 +65,10 @@ const MantraScreen = () => {
     ];
   }, [currentGod]);
 
-  const godName = select(currentGod?.hindiName ?? '', currentGod?.englishName ?? '');
+  const godName = select(
+    currentGod?.hindiName ?? '',
+    currentGod?.englishName ?? '',
+  );
 
   const handleStartJap = (_mantraItem: GodMantra) => {
     setSelectedMantra(null);
@@ -257,7 +260,10 @@ const MantraScreen = () => {
                     )}
                     <View style={styles.modalHeaderInfo}>
                       <Text style={styles.modalTitle} numberOfLines={1}>
-                        {select(selectedMantra.nameHi, selectedMantra.nameEn ?? selectedMantra.nameHi)}
+                        {select(
+                          selectedMantra.nameHi,
+                          selectedMantra.nameEn ?? selectedMantra.nameHi,
+                        )}
                       </Text>
                       <Text style={styles.modalSubtitle} numberOfLines={1}>
                         {godName}

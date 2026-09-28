@@ -19,7 +19,7 @@ import {
   getGodData,
   getCachedGodData,
   God,
-} from '@services/firebaseServices/godMantras';
+} from '@api/godMantrasApi';
 
 const MantrasCard = () => {
   const { t, currentLanguage } = useAppLanguage();
@@ -38,7 +38,6 @@ const MantrasCard = () => {
   }, []);
 
   const naamJapData = gods || [];
-
 
   const pairedGods = React.useMemo(() => {
     const pairs = [];

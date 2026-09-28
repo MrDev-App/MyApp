@@ -26,7 +26,7 @@ import {
   ShlokaCategoryDetail,
   ShlokaSubItem,
   ShlokaCategory,
-} from '@services/firebaseServices/shlokasService';
+} from '@api/shlokaApi';
 
 // Sub-components
 import ShlokaSubItemCard from './components/ShlokaSubItemCard';

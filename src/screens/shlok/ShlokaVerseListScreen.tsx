@@ -36,12 +36,8 @@ import {
   HomeFamilyIcon,
   ChildrenIcon,
   HeartIcon,
-} from '@components/icons/SvgIcons';
-import {
-  ShlokaSubItem,
-  ShlokaVerse,
-  ShlokaCategory,
-} from '@services/firebaseServices/shlokasService';
+} from '@assets/SvgIcons';
+import { ShlokaSubItem, ShlokaVerse, ShlokaCategory } from '@api/shlokaApi';
 
 // Sub-components
 import ShlokaVerseCard from './components/ShlokaVerseCard';

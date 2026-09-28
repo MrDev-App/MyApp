@@ -2,8 +2,6 @@ import {
   getFirestore,
   collection,
   getDocs,
-  query,
-  orderBy,
 } from '@react-native-firebase/firestore';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
@@ -27,9 +25,6 @@ export interface NaamJapItem {
 
 export type God = NaamJapItem;
 
-/**
- * Gets cached GodMantras data from local MMKV storage if available.
- */
 export const getCachedGodData = (): God[] | null => {
   try {
     const rawCache = Storage.getString(STORAGE_KEYS.GOD_DATA_CACHE, '');
@@ -40,14 +35,11 @@ export const getCachedGodData = (): God[] | null => {
       }
     }
   } catch (err) {
-    console.error('❌ [GodService] Error reading cached GodMantras:', err);
+    console.error('❌ [godMantrasApi] Error reading cached GodMantras:', err);
   }
   return null;
 };
 
-/**
- * Resolves local image from imagePath based on deity name / id.
- */
 export const resolveGodImage = (god: any): any => {
   const rawId = (god.id || god.nameEn || '').toLowerCase().trim();
   const cleanId = rawId.replace(/[^a-z0-9]/g, '');
@@ -59,7 +51,6 @@ export const resolveGodImage = (god: any): any => {
     return (imagePath as any)[rawId];
   }
 
-  // Check common deity keywords
   const deityKeywords = [
     'shiva',
     'shiv',
@@ -109,9 +100,6 @@ export const resolveGodImage = (god: any): any => {
   return god.image || imagePath.greeting;
 };
 
-/**
- * Maps Firestore 'GodMantras' document to typed God/NaamJapItem.
- */
 export const mapGodWithImage = (god: any): God => {
   const godId = god.id || '';
   const image = resolveGodImage(god);
@@ -136,98 +124,53 @@ export const mapGodWithImage = (god: any): God => {
 export const getGodData = async (
   forceRefresh: boolean = false,
 ): Promise<God[]> => {
-  // If not forcing refresh, check local MMKV storage first
   if (!forceRefresh) {
     const cached = getCachedGodData();
     if (cached && cached.length > 0) {
-      console.log(
-        `⚡ [GodService] Returning ${cached.length} GodMantras from local persistent storage.`,
-      );
       return cached;
     }
   }
 
-  console.log('----------------------------------------------------');
-  console.log(
-    '🔱 [GodService] Starting fetch for GodMantras from Firestore...',
-  );
   try {
     const db = getFirestore();
-
-    // 1. Primary collection: 'GodMantras'
-    console.log('🔍 [GodService] Querying collection "GodMantras"...');
     let snapshot = await getDocs(collection(db, 'GodMantras'));
-    console.log(
-      `📄 [GodService] 'GodMantras' collection returned ${snapshot.size} document(s).`,
-    );
 
-    // 2. Fallbacks if GodMantras is empty
     if (snapshot.empty) {
-      console.log(
-        '⚠️ [GodService] "GodMantras" was empty, trying fallback "japMantras"...',
-      );
       snapshot = await getDocs(collection(db, 'japMantras'));
     }
 
     let rawList: any[] = [];
     if (!snapshot.empty) {
-      rawList = snapshot.docs.map(docSnap => {
-        const docData = docSnap.data();
-        console.log(
-          `📌 [GodService] Doc [${docSnap.id}] -> ${
-            docData.nameEn || docData.englishName
-          } (${(docData.mantras || []).length} mantras)`,
-        );
-        return {
-          id: docSnap.id,
-          ...docData,
-        };
-      });
+      rawList = snapshot.docs.map(docSnap => ({
+        id: docSnap.id,
+        ...docSnap.data(),
+      }));
     }
 
     if (rawList.length > 0) {
-      // Sort by order field if available
       rawList.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
 
-      // Persist raw list to local MMKV storage
       try {
         Storage.set(STORAGE_KEYS.GOD_DATA_CACHE, JSON.stringify(rawList));
-        console.log(
-          '💾 [GodService] Saved GodMantras to local persistent storage (MMKV).',
-        );
       } catch (saveErr) {
-        console.error('❌ [GodService] Error saving to storage:', saveErr);
+        console.error('❌ [godMantrasApi] Error saving to storage:', saveErr);
       }
 
-      const mappedList = rawList.map(mapGodWithImage);
-      console.log(
-        `✅ [GodService] Successfully mapped ${mappedList.length} deities from Firestore.`,
-      );
-      console.log('----------------------------------------------------');
-      return mappedList;
+      return rawList.map(mapGodWithImage);
     }
 
-    // If Firestore empty, try local persistent cache before static data
     const localCache = getCachedGodData();
     if (localCache && localCache.length > 0) {
       return localCache;
     }
 
-    console.warn(
-      '⚠️ [GodService] No documents found in Firestore.',
-    );
-    console.log('----------------------------------------------------');
     return [];
   } catch (error) {
-    console.error(
-      '❌ [GodService] Firestore fetch failed! Checking local persistent cache:',
-      error,
-    );
+    console.error('❌ [godMantrasApi] Firestore fetch failed:', error);
     const localCache = getCachedGodData();
     if (localCache && localCache.length > 0) {
       return localCache;
     }
-    console.log('----------------------------------------------------');
     return [];
   }
 };

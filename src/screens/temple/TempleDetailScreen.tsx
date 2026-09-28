@@ -18,7 +18,7 @@ import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import imagePath, { FoldedHands } from '@assets/index';
-import { TagIcon, LocationIcon, PinIcon } from '@components/icons/SvgIcons';
+import { TagIcon, LocationIcon, PinIcon } from '@assets/SvgIcons';
 import { ScreenHeader, GradientBackground } from '@components';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
@@ -59,7 +59,9 @@ export const TempleDetailScreen: React.FC = () => {
     let timingStr = '';
     if (temple.timing && typeof temple.timing === 'object') {
       const hours = temple.timing.openingTime
-        ? `${temple.timing.openingTime} – ${temple.timing.closingTime || ''}`.trim()
+        ? `${temple.timing.openingTime} – ${
+            temple.timing.closingTime || ''
+          }`.trim()
         : '';
       const aarti = isHindi
         ? temple.timing.aartiTimingsHi

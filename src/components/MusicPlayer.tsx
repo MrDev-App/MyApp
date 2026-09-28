@@ -17,7 +17,7 @@ import {
   Forward15Icon,
   RepeatIcon,
   ShuffleIcon,
-} from '@components/icons/SvgIcons';
+} from '@assets/SvgIcons';
 import { triggerHaptic } from '@helper/helper';
 import Animated, {
   useSharedValue,

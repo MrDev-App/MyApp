@@ -11,7 +11,7 @@ import {
   SunIcon,
   MoonIcon,
   BackIcon as Back,
-} from '@components/icons/SvgIcons';
+} from '@assets/SvgIcons';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 import { findStoryById } from '@constants/storiesData';

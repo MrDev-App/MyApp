@@ -8,138 +8,11 @@ import {
   getDoc,
 } from '@react-native-firebase/firestore';
 import imagePath from '@assets/index';
-
-export type TempleCategory =
-  | 'chardham'
-  | 'jyotirlinga'
-  | 'shaktipeeth'
-  | 'major'
-  | 'chota_chardham';
-
-export interface GeoLocation {
-  latitude: number;
-  longitude: number;
-}
-
-export interface TempleTiming {
-  openingTime?: string;
-  closingTime?: string;
-  aartiTimingsHi?: string;
-  aartiTimingsEn?: string;
-  bestTimeToVisitHi?: string;
-  bestTimeToVisitEn?: string;
-}
-
-export interface HowToReach {
-  byAirHi?: string;
-  byAirEn?: string;
-  byRailHi?: string;
-  byRailEn?: string;
-  byRoadHi?: string;
-  byRoadEn?: string;
-  nearestAirport?: string;
-  nearestRailwayStation?: string;
-}
-
-export interface TempleFestival {
-  nameHi: string;
-  nameEn: string;
-  dateHi?: string;
-  dateEn?: string;
-  descriptionHi?: string;
-  descriptionEn?: string;
-}
-
-export interface TempleItem {
-  id: string;
-  order?: number;
-  isActive?: boolean;
-  updatedAt?: string;
-
-  // ── Identity ──────────────────────────────────────────────
-  nameHi: string;
-  nameEn: string;
-  aliasNamesHi?: string[];
-  aliasNamesEn?: string[];
-
-  // ── Location ──────────────────────────────────────────────
-  locationHi: string;
-  locationEn: string;
-  addressHi?: string;
-  addressEn?: string;
-  districtHi?: string;
-  districtEn?: string;
-  stateHi: string;
-  stateEn: string;
-  countryHi?: string;
-  countryEn?: string;
-  pincode?: string;
-  geo?: GeoLocation;
-
-  // ── Religious details ─────────────────────────────────────
-  deityHi: string;
-  deityEn: string;
-  otherDeitiesHi?: string[];
-  otherDeitiesEn?: string[];
-  yugaHi?: string;
-  yugaEn?: string;
-  directionHi?: string;
-  directionEn?: string;
-  mythologyHi?: string;
-  mythologyEn?: string;
-
-  // ── Categorization ────────────────────────────────────────
-  category: TempleCategory;
-  categories: TempleCategory[];
-  isCharDham?: boolean;
-  isJyotirlinga?: boolean;
-  isShaktipeeth?: boolean;
-  isChotaCharDham?: boolean;
-  isDivyaDesam?: boolean;
-  tags?: string[];
-
-  // ── History & significance ────────────────────────────────
-  historyHi?: string;
-  historyEn?: string;
-  builtCentury?: string;
-  builtByHi?: string;
-  builtByEn?: string;
-  architectureStyleHi?: string;
-  architectureStyleEn?: string;
-  significanceHi: string;
-  significanceEn: string;
-  descriptionHi: string;
-  descriptionEn: string;
-
-  // ── Visiting info ─────────────────────────────────────────
-  timing: TempleTiming;
-  entryFeeHi?: string;
-  entryFeeEn?: string;
-  dressCodeHi?: string;
-  dressCodeEn?: string;
-  festivals?: TempleFestival[];
-
-  // ── Connectivity ──────────────────────────────────────────
-  howToReach?: HowToReach;
-  nearbyAttractionsHi?: string;
-  nearbyAttractionsEn?: string;
-  nearbyTempleIds?: string[];
-
-  // ── Media ─────────────────────────────────────────────────
-  image: any;
-  imageUrl?: string;
-  galleryImageUrls?: string[];
-  videoUrl?: string;
-  aartiAudioUrl?: string;
-
-  // ── Contact ───────────────────────────────────────────────
-  officialWebsite?: string;
-  contactPhone?: string;
-}
+import { TempleCategory, TempleItem } from './types';
 
 export const FIRESTORE_COLLECTION_NAME = 'templeData';
 
-// In-memory runtime cache for temples (active only until app is killed)
+// In-memory runtime cache for temples
 const memoryTemplesCategoryCache = new Map<string, TempleItem[]>();
 let memoryAllTemplesCache: TempleItem[] | null = null;
 
@@ -147,7 +20,11 @@ let memoryAllTemplesCache: TempleItem[] | null = null;
  * Resolves local image asset fallback if remote imageUrl is not available
  */
 const resolveTempleImage = (id: string, remoteUrl?: string): any => {
-  if (remoteUrl && typeof remoteUrl === 'string' && remoteUrl.trim().length > 0) {
+  if (
+    remoteUrl &&
+    typeof remoteUrl === 'string' &&
+    remoteUrl.trim().length > 0
+  ) {
     return remoteUrl;
   }
   const imageMap: Record<string, any> = {
@@ -187,7 +64,8 @@ export const mapFirestoreDocToTemple = (id: string, data: any): TempleItem => {
     ? [data.category]
     : ['major'];
 
-  const imgUrl = data.imageUrl || (typeof data.image === 'string' ? data.image : '');
+  const imgUrl =
+    data.imageUrl || (typeof data.image === 'string' ? data.image : '');
 
   return {
     id: id || data.id,
@@ -230,7 +108,8 @@ export const mapFirestoreDocToTemple = (id: string, data: any): TempleItem => {
     isCharDham: !!data.isCharDham || categories.includes('chardham'),
     isJyotirlinga: !!data.isJyotirlinga || categories.includes('jyotirlinga'),
     isShaktipeeth: !!data.isShaktipeeth || categories.includes('shaktipeeth'),
-    isChotaCharDham: !!data.isChotaCharDham || categories.includes('chota_chardham'),
+    isChotaCharDham:
+      !!data.isChotaCharDham || categories.includes('chota_chardham'),
     isDivyaDesam: !!data.isDivyaDesam,
     tags: data.tags || [],
     historyHi: data.historyHi || '',
@@ -278,12 +157,15 @@ export interface FetchTemplesOptions {
 
 /**
  * Fetch all temples from Firestore `templeData` collection.
- * Uses in-memory caching to prevent duplicate network calls during app session.
  */
 export const fetchAllTemplesFromFirestore = async (
   forceRefresh = false,
 ): Promise<TempleItem[]> => {
-  if (!forceRefresh && memoryAllTemplesCache && memoryAllTemplesCache.length > 0) {
+  if (
+    !forceRefresh &&
+    memoryAllTemplesCache &&
+    memoryAllTemplesCache.length > 0
+  ) {
     return memoryAllTemplesCache;
   }
 
@@ -311,7 +193,10 @@ export const fetchAllTemplesFromFirestore = async (
       }
     }
   } catch (error) {
-    console.warn('[TempleService] Error fetching all temples from Firestore:', error);
+    console.warn(
+      '[templeApi] Error fetching all temples from Firestore:',
+      error,
+    );
   }
 
   return memoryAllTemplesCache || [];
@@ -319,17 +204,20 @@ export const fetchAllTemplesFromFirestore = async (
 
 /**
  * Fetch temples by Category and/or Search Query with optional limit (e.g. limit 10).
- * Handles category chips: 'all', 'chardham', 'jyotirlinga', 'shaktipeeth', 'major'
  */
 export const fetchTemples = async (
   options: FetchTemplesOptions = {},
 ): Promise<TempleItem[]> => {
-  const { category = 'all', searchQuery = '', limitCount, forceRefresh = false } = options;
+  const {
+    category = 'all',
+    searchQuery = '',
+    limitCount,
+    forceRefresh = false,
+  } = options;
   const cacheKey = `cat:${category}`;
 
   let list: TempleItem[] = [];
 
-  // Check in-memory category cache
   if (!forceRefresh && memoryTemplesCategoryCache.has(cacheKey)) {
     list = memoryTemplesCategoryCache.get(cacheKey)!;
   } else {
@@ -340,7 +228,8 @@ export const fetchTemples = async (
     } else {
       list = all.filter(item => {
         const inCategories =
-          item.categories && item.categories.includes(category as TempleCategory);
+          item.categories &&
+          item.categories.includes(category as TempleCategory);
         const isPrimary = item.category === category;
         const isFlagMatch =
           (category === 'chardham' && item.isCharDham) ||
@@ -354,7 +243,6 @@ export const fetchTemples = async (
     memoryTemplesCategoryCache.set(cacheKey, list);
   }
 
-  // Filter by Search Query if present
   const q = searchQuery.toLowerCase().trim();
   if (q.length > 0) {
     list = list.filter(item => {
@@ -380,7 +268,6 @@ export const fetchTemples = async (
     });
   }
 
-  // Apply Limit if requested (e.g. limit 10)
   if (typeof limitCount === 'number' && limitCount > 0) {
     return list.slice(0, limitCount);
   }
@@ -408,10 +295,10 @@ export const fetchTempleById = async (
       return mapFirestoreDocToTemple(snap.id, snap.data());
     }
   } catch (err) {
-    console.warn(`[TempleService] Error fetching temple by ID (${id}):`, err);
+    console.warn(`[templeApi] Error fetching temple by ID (${id}):`, err);
   }
 
   return null;
 };
 
-
+export default fetchTemples;

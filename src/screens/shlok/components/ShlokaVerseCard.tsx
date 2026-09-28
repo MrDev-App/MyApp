@@ -13,13 +13,8 @@ import { AnimatedListItem } from '@components';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
-import {
-  CopyIcon,
-  ShareIcon,
-  PlayIcon,
-  PauseIcon,
-} from '@components/icons/SvgIcons';
-import { ShlokaVerse } from '@services/firebaseServices/shlokasService';
+import { CopyIcon, ShareIcon, PlayIcon, PauseIcon } from '@assets/SvgIcons';
+import { ShlokaVerse } from '@api/shlokaApi';
 
 export interface ShlokaVerseCardProps {
   item: ShlokaVerse;

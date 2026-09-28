@@ -14,7 +14,7 @@ import {
   getFestivalData,
   getCachedFestivalData,
   Festival,
-} from '@services/firebaseServices/getFestivalData';
+} from '@api/festivalApi';
 import { getMonthShortName } from '@constants/calendarData';
 import { FestivalVideoEntry } from '../../../types/festivalVideo';
 

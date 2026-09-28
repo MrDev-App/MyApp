@@ -22,7 +22,7 @@ import GradientBackground from '@components/GradientBackground';
 import { Translation } from '@i18n/language';
 import ComicShelf from './components/ComicShelf';
 import BookSkeleton from './components/BookSkeleton';
-import { SearchIcon } from '@components/icons/SvgIcons';
+import { SearchIcon } from '@assets/SvgIcons';
 import colors from '@theme/colors';
 import {
   useRewardedAd,

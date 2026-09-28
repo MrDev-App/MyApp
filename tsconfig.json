@@ -6,6 +6,8 @@
     "paths": {
       "@admob": ["src/admob/index"],
       "@admob/*": ["src/admob/*"],
+      "@api": ["src/api/index"],
+      "@api/*": ["src/api/*"],
       "@assets": ["src/assets/index"],
       "@assets/*": ["src/assets/*"],
       "@components": ["src/components/index"],

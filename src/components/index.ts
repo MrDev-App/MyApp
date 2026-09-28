@@ -23,4 +23,4 @@ export { default as TextField } from './TextField';
 export type { TextFieldProps } from './TextField';
 export { default as AnimatedListItem } from './AnimatedListItem';
 export type { AnimatedListItemProps } from './AnimatedListItem';
-export * from './icons/SvgIcons';
+export * from '../assets/SvgIcons';

@@ -18,8 +18,8 @@ import { useAppOpenAd } from '@admob/useAppOpenAd';
 import { isAdMobEnabled } from '@admob/adConfig';
 import colors from '@theme/colors';
 import NetworkBanner from '@components/NetworkBanner';
-import { getFestivalData } from '@services/firebaseServices/getFestivalData';
-import { getGodData } from '@services/firebaseServices/godMantras';
+import { getFestivalData } from '@api/festivalApi';
+import { getGodData } from '@api/godMantrasApi';
 import { initRemoteConfig } from '@services/remoteConfigService';
 
 LogBox.ignoreAllLogs();

@@ -13,13 +13,8 @@ import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import imagePath, { FoldedHands } from '@assets/index';
-import {
-  TagIcon,
-  LocationIcon,
-  PinIcon,
-  CloseIcon,
-} from '@components/icons/SvgIcons';
-import { Festival } from '@services/firebaseServices/getFestivalData';
+import { TagIcon, LocationIcon, PinIcon, CloseIcon } from '@assets/SvgIcons';
+import { Festival } from '@api/festivalApi';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import BlurBackdrop from './BlurBackdrop';

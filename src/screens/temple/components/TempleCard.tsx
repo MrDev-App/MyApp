@@ -7,10 +7,10 @@ import { AnimatedListItem } from '@components';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
-import { LocationIcon } from '@components/icons/SvgIcons';
+import { LocationIcon } from '@assets/SvgIcons';
 import LottieView from 'lottie-react-native';
-import imagePath from '@assets/index';
-import { TempleItem } from '@services/firebaseServices/templeService';
+import { TempleItem } from '@api/templeApi';
+import imagePath from '@assets';
 
 interface TempleAvatarProps {
   source: any;
@@ -105,9 +105,7 @@ export const TempleCard: React.FC<TempleCardProps> = ({
         <View style={styles.deityTagRow}>
           <Text style={styles.deityTagText}>
             {t(Translation.TEMPLE_DEITY_LABEL)}
-            <Text style={styles.deityNameText}>
-              {deity}
-            </Text>
+            <Text style={styles.deityNameText}>{deity}</Text>
           </Text>
         </View>
 

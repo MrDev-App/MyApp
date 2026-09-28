@@ -3,7 +3,7 @@ import { Text, View, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Translation } from '@i18n/language';
 import { Story } from '@constants/storiesData';
-import { CloseIcon } from '@components/icons/SvgIcons';
+import { CloseIcon } from '@assets/SvgIcons';
 import colors from '@theme/colors';
 import { scale } from '@theme/sizes';
 import profileStyles from '../styles/profileStyles';

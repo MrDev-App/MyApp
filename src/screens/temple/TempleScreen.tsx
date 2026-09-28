@@ -21,13 +21,9 @@ import { fs, scale } from '@theme/sizes';
 import { ScreenHeader } from '@components';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
-import { SearchIcon, CloseIcon } from '@components/icons/SvgIcons';
+import { SearchIcon, CloseIcon } from '@assets/SvgIcons';
 import imagePath from '@assets/index';
-import {
-  TempleItem,
-  TempleCategory,
-  fetchTemples,
-} from '@services/firebaseServices/templeService';
+import { TempleItem, TempleCategory, fetchTemples } from '@api/templeApi';
 
 // Extracted sub-components
 import TempleCard from './components/TempleCard';

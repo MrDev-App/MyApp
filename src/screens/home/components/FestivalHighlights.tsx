@@ -22,7 +22,7 @@ import {
   getFestivalData,
   getCachedFestivalData,
   Festival,
-} from '@services/firebaseServices/getFestivalData';
+} from '@api/festivalApi';
 import imagePath from '@assets/index';
 import AnimatedButton from '@components/AnimatedButton';
 import FestivalModal from '@components/FestivalModal';

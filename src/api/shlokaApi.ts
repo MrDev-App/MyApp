@@ -2,73 +2,12 @@ import {
   getFirestore,
   doc,
   getDoc,
-  setDoc,
   collection,
   getDocs,
 } from '@react-native-firebase/firestore';
+import { ShlokaCategory, ShlokaCategoryDetail } from './types';
 
-export interface ShlokaCategory {
-  id: string;
-  slug: string;
-  title?: string;
-  titleEn?: string;
-  titleHi?: string;
-  descriptionEn?: string;
-  descriptionHi?: string;
-  imageUrl: string;
-}
-
-export interface ShlokaVerse {
-  id: string;
-  title: string;
-  titleHi?: string;
-  sanskrit: string;
-  transliteration?: string;
-  translationEn: string;
-  translationHi?: string;
-  meaningEn?: string;
-  meaningHi?: string;
-  deity?: string;
-  image?: any;
-  audioUrl?: string;
-  link?: string;
-}
-
-export interface ShlokaSubItem {
-  id: string;
-  nameEn: string;
-  nameHi: string;
-  headerTitleEn: string;
-  headerTitleHi: string;
-  subtitleEn?: string;
-  subtitleHi?: string;
-  descriptionEn?: string;
-  descriptionHi?: string;
-  sanskrit?: string;
-  transliteration?: string;
-  meaningHi?: string;
-  meaningEn?: string;
-  image?: any;
-  imageUrl?: string;
-  audioUrl?: string;
-  deity?: string;
-  path?: string;
-  verses?: ShlokaVerse[];
-}
-
-export interface ShlokaCategoryDetail {
-  id: string;
-  slug: string;
-  titleEn: string;
-  titleHi: string;
-  descriptionEn: string;
-  descriptionHi: string;
-  imageUrl?: string;
-  path?: string;
-  items: ShlokaSubItem[];
-}
-
-// In-memory runtime cache for detail & all categories (cleared on app kill)
+// In-memory runtime cache for detail & all categories
 const memoryCategoryCache = new Map<string, ShlokaCategoryDetail>();
 let memoryAllCategoriesCache: ShlokaCategory[] | null = null;
 
@@ -80,12 +19,10 @@ export const getShlokaCategoryDetail = async (
     .replace('occasion-', '')
     .trim();
 
-  // Check in-memory session cache (active only until app is killed)
   if (memoryCategoryCache.has(cleanSlug)) {
     return memoryCategoryCache.get(cleanSlug)!;
   }
 
-  // Fetch directly from Firestore subcollection: categories > shlokas > shlokcategory > {slug}
   try {
     const firestore = getFirestore();
     const subDocRef = doc(
@@ -106,12 +43,11 @@ export const getShlokaCategoryDetail = async (
     }
   } catch (err) {
     console.warn(
-      '[ShlokaService] Firestore fetch error from categories/shlokas/shlokcategory:',
+      '[shlokaApi] Firestore fetch error from categories/shlokas/shlokcategory:',
       err,
     );
   }
 
-  // Fallback to 'shloka_categories/{slug}' collection in Firestore
   try {
     const firestore = getFirestore();
     const docRef = doc(firestore, 'shloka_categories', cleanSlug);
@@ -126,7 +62,7 @@ export const getShlokaCategoryDetail = async (
     }
   } catch (err) {
     console.warn(
-      '[ShlokaService] Firestore fetch error from shloka_categories:',
+      '[shlokaApi] Firestore fetch error from shloka_categories:',
       err,
     );
   }
@@ -141,7 +77,6 @@ export const getAllShlokaCategoriesFromFirebase = async (): Promise<
     return memoryAllCategoriesCache;
   }
 
-  //  Try reading the single consolidated doc 'allshloakcategories'
   try {
     const firestore = getFirestore();
     const docRef = doc(
@@ -163,12 +98,11 @@ export const getAllShlokaCategoriesFromFirebase = async (): Promise<
     }
   } catch (err) {
     console.warn(
-      '[ShlokaService] Firestore fetch error from allshloakcategories doc:',
+      '[shlokaApi] Firestore fetch error from allshloakcategories doc:',
       err,
     );
   }
 
-  // Fallback: Query all category documents in subcollection (excluding allshloakcategories doc itself)
   try {
     const firestore = getFirestore();
     const categoriesColRef = collection(
@@ -202,10 +136,12 @@ export const getAllShlokaCategoriesFromFirebase = async (): Promise<
     }
   } catch (err) {
     console.warn(
-      '[ShlokaService] Firestore fetch error from categories/shlokas/shlokcategory:',
+      '[shlokaApi] Firestore fetch error from categories/shlokas/shlokcategory:',
       err,
     );
   }
 
   return [];
 };
+
+export default getAllShlokaCategoriesFromFirebase;

@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { SearchIcon } from '@components/icons/SvgIcons';
+import { SearchIcon } from '@assets/SvgIcons';
 import { useTranslation } from 'react-i18next';
 import { Translation } from '@i18n/language';
 

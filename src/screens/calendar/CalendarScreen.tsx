@@ -27,7 +27,7 @@ import {
   getFestivalData,
   getCachedFestivalData,
   Festival,
-} from '@services/firebaseServices/getFestivalData';
+} from '@api/festivalApi';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { Back } from '@assets/index';
 import imagePath from '@assets/index';

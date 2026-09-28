@@ -25,7 +25,7 @@ import GradientBackground from '@components/GradientBackground';
 import { OverlayModalHandle } from '@components/OverlayModal';
 import imagePath, { Bell } from '@assets/index';
 import colors from '@theme/colors';
-import { CameraIcon, ChevronRight } from '@components/icons/SvgIcons';
+import { CameraIcon, ChevronRight } from '@assets/SvgIcons';
 import { scale } from '@theme/sizes';
 import {
   Storage,
@@ -33,7 +33,10 @@ import {
   getUserJoinedDate,
 } from '@services/storageService';
 import { AllBooks, findStoryById, Story } from '@constants/storiesData';
-import { getJapMantrasData, MantraSelectorItem } from '@services/japService';
+import {
+  getJapMantrasData,
+  MantraSelectorItem,
+} from '@services/namejapService';
 import {
   scheduleMultipleReminders,
   cancelAllReminders,
