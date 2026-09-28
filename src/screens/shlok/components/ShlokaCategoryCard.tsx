@@ -16,17 +16,9 @@ import Skeleton from '@components/Skeleton';
 import imagePath from '@assets/index';
 import { ShlokaCategory } from '@api/shlokaApi';
 import { useAppLanguage } from '@hooks';
+import { ShlokaCategoryCardProps } from '../types';
 
 const loadedImageCache = new Set<string>();
-
-export interface ShlokaCategoryCardProps {
-  item: ShlokaCategory;
-  index: number;
-  numColumns: number;
-  cardWidth: number;
-  cardHeight: number;
-  onPress: (item: ShlokaCategory) => void;
-}
 
 export const ShlokaCategoryCard: React.FC<ShlokaCategoryCardProps> = ({
   item,

@@ -230,7 +230,8 @@ const imagePath = {
   calendarTab: require('./png/calendarTab.png'),
   star: require('./png/star.webp'),
   warning: require('./png/warning.webp'),
-
+  fallBackImage: require('./png/fallbackImage.webp'),
+  Bell: require('./png/Bell.webp'),
   calendar: require('./png/calendar.webp'),
   letter: require('./png/letter.png'),
   lamp: require('./png/lamp.webp'),

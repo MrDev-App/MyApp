@@ -24,8 +24,9 @@ import Svg, {
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { JapLevel } from '@constants/japLevels';
+
 import { triggerHaptic } from '@helper/helper';
+import { JapLevel } from '../types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const NODE_SIZE = scale(68);

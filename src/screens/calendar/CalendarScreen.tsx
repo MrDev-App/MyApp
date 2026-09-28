@@ -157,7 +157,7 @@ const CalendarScreen = () => {
             onPress={() => setDetailFestival(item)}
           >
             <ImageBackground
-              source={item.image || imagePath.greeting}
+              source={item.image || imagePath.fallBackImage}
               style={styles.cardBgImage}
               imageStyle={styles.cardBgImageStyle}
               fadeDuration={0}

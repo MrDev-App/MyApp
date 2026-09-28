@@ -3,10 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import colors from '@theme/colors';
 import { fs, scale } from '@theme/sizes';
 import Skeleton from '@components/Skeleton';
-
-export interface ShlokaSkeletonListProps {
-  count?: number;
-}
+import { ShlokaSkeletonListProps } from '../types';
 
 export const ShlokaSkeletonList: React.FC<ShlokaSkeletonListProps> = ({
   count = 6,

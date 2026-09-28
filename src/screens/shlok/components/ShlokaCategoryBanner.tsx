@@ -13,11 +13,7 @@ import {
   HeartIcon,
   OmIcon,
 } from '@assets/SvgIcons';
-
-export interface ShlokaCategoryBannerProps {
-  slug?: string;
-  description?: string;
-}
+import { ShlokaCategoryBannerProps } from '../types';
 
 export const ShlokaCategoryBanner: React.FC<ShlokaCategoryBannerProps> = ({
   slug = 'through-the-day',

@@ -108,7 +108,7 @@ const FestivalModal: React.FC<FestivalModalProps> = ({
         </TouchableOpacity>
 
         <Image
-          source={festival.image || imagePath.greeting}
+          source={festival.image || imagePath.fallBackImage}
           style={styles.modalImage}
         />
 

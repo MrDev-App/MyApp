@@ -401,4 +401,19 @@ export default {
 
   CONTRACT_CTA_START_JAP: 'जप प्रारंभ करें',
   CONTRACT_DISMISS_LATER: 'बाद में',
+
+  // Book / FlipBook Reader
+  BOOK_PLEASE_WAIT: 'कृपया प्रतीक्षा करें...',
+  BOOK_FLIPPING_PAGES: 'पृष्ठ पलट रहे हैं (+{{count}})...',
+  BOOK_COVER: 'मुख',
+  BOOK_DEDICATION_MANTRA: 'ॐ नमो भगवते वासुदेवाय नमः',
+  BOOK_DEDICATION_TITLE: '॥ पावन समर्पण एवं ज्ञान ॥',
+  BOOK_DEDICATION_BODY_COVER:
+    'यह दिव्य गाथा आत्म-ज्ञान, धर्म और सत्य के मार्ग को प्रकाशित करती है।',
+  BOOK_DEDICATION_BODY_PAGE:
+    'कर्मण्येवाधिकारस्ते मा फलेषु कदाचन — कर्तव्य ही पूजा है।',
+  BOOK_MORAL_HEADER: 'प्रेरणा एवं शिक्षा',
+  BOOK_SHLOKA_TRANSLATION_HEADER: 'भावार्थ',
+  BOOK_OPEN_BOOK: 'पुस्तक खोलें',
+  BOOK_PAGE_OF: 'पृष्ठ {{current}} / {{total}}',
 };

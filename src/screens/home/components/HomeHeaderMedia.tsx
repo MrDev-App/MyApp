@@ -174,7 +174,7 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
   return (
     <View style={styles.imageContainer} pointerEvents="none">
       <Image
-        source={imagePath.greeting}
+        source={imagePath.fallBackImage}
         style={styles.greetingImage}
         resizeMode="cover"
         onLoad={onImageLoad}

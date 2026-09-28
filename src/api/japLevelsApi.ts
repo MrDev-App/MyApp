@@ -8,16 +8,18 @@ import {
   orderBy,
   limit,
 } from '@react-native-firebase/firestore';
-import { JapLevel, JAP_LEVELS } from '@constants/japLevels';
+import { JapLevel } from './types';
 
 export const FIRESTORE_JAP_LEVELS_COLLECTION = 'japLevels';
 
 let memoryJapLevelsCache: JapLevel[] | null = null;
 
 /**
- * Upload all Jap Levels from constant dataset directly into the Firestore 'japLevels' collection
+ * Upload an array of Jap Levels directly into the Firestore 'japLevels' collection
  */
-export const uploadAllJapLevelsToFirestore = async (): Promise<{
+export const uploadAllJapLevelsToFirestore = async (
+  levelsList: JapLevel[],
+): Promise<{
   success: boolean;
   count: number;
   message: string;
@@ -26,7 +28,7 @@ export const uploadAllJapLevelsToFirestore = async (): Promise<{
     const db = getFirestore();
     let count = 0;
 
-    for (const item of JAP_LEVELS) {
+    for (const item of levelsList) {
       const docRef = doc(db, FIRESTORE_JAP_LEVELS_COLLECTION, `level_${item.level}`);
       await setDoc(
         docRef,
@@ -69,7 +71,7 @@ export const uploadAllJapLevelsToFirestore = async (): Promise<{
 
 /**
  * Fetch Jap Levels from Firestore with limit (default 10).
- * Uses in-memory session cache and auto-seeds collection if empty.
+ * Uses in-memory session cache.
  */
 export const fetchJapLevelsFromFirestore = async (
   limitCount: number = 10,
@@ -115,16 +117,13 @@ export const fetchJapLevelsFromFirestore = async (
         memoryJapLevelsCache = items;
         return items.slice(0, limitCount);
       }
-    } else {
-      await uploadAllJapLevelsToFirestore();
-      memoryJapLevelsCache = JAP_LEVELS;
-      return JAP_LEVELS.slice(0, limitCount);
     }
   } catch (error) {
     console.warn('[japLevelsApi] Error fetching jap levels from Firestore:', error);
   }
 
-  return JAP_LEVELS.slice(0, limitCount);
+  return memoryJapLevelsCache || [];
 };
 
 export default fetchJapLevelsFromFirestore;
+

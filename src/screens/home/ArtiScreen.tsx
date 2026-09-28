@@ -382,14 +382,14 @@ const styles = StyleSheet.create({
   },
   leftBell: {
     position: 'absolute',
-    top: 0,
+    top: -10,
     left: scale(22),
     zIndex: 1,
   },
   rightBell: {
     position: 'absolute',
-    top: 0,
-    right: scale(4),
+    top: -10,
+    right: scale(22),
     zIndex: 1,
   },
 });

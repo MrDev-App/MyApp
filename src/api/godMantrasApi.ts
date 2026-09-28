@@ -7,23 +7,9 @@ import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 import imagePath from '@assets/index';
 
-export interface GodMantra {
-  nameEn: string;
-  nameHi: string;
-  mantra: string;
-}
+import { God, GodMantra, NaamJapItem } from './types';
 
-export interface NaamJapItem {
-  id: string;
-  englishName: string;
-  hindiName: string;
-  mantra: string;
-  image?: any;
-  imageUrl?: string;
-  mantras: GodMantra[];
-}
-
-export type God = NaamJapItem;
+export type { God, GodMantra, NaamJapItem } from './types';
 
 export const getCachedGodData = (): God[] | null => {
   try {
@@ -97,7 +83,7 @@ export const resolveGodImage = (god: any): any => {
     return { uri: god.imageUrl.trim() };
   }
 
-  return god.image || imagePath.greeting;
+  return god.image || imagePath.fallBackImage;
 };
 
 export const mapGodWithImage = (god: any): God => {

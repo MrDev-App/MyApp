@@ -14,13 +14,7 @@ import { AnimatedListItem } from '@components';
 import { useAppLanguage } from '@hooks';
 import imagePath from '@assets/index';
 import { ShlokaSubItem } from '@api/shlokaApi';
-
-export interface ShlokaSubItemCardProps {
-  item: ShlokaSubItem;
-  index: number;
-  categoryImageUri?: string;
-  onPress: (item: ShlokaSubItem) => void;
-}
+import { ShlokaSubItemCardProps } from '../types';
 
 export const ShlokaSubItemCard: React.FC<ShlokaSubItemCardProps> = ({
   item,

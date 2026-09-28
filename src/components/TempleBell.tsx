@@ -114,7 +114,7 @@ const TempleBellComponent: React.FC<TempleBellProps> = ({
       pointerEvents="none"
     >
       <Image
-        source={imagePath.temple_bell}
+        source={imagePath.Bell}
         style={styles.bellImage}
         resizeMode="contain"
       />

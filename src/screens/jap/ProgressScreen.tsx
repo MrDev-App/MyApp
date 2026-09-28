@@ -16,7 +16,7 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Translation } from '@i18n/language';
 import { Storage, STORAGE_KEYS } from '@services/storageService';
-import { JAP_LEVELS, getUserLevel, JapLevel } from '@constants/japLevels';
+import { JapLevel, getUserLevel } from './types';
 import { fetchJapLevelsFromFirestore } from '@api/japLevelsApi';
 import PathJourney from './components/PathJourney';
 import { CloseIcon } from '@assets/SvgIcons';
@@ -34,7 +34,7 @@ export const ProgressScreen = () => {
   const hasScrolledRef = useRef(false);
 
   const [totalMala, setTotalMala] = useState(0);
-  const [levels, setLevels] = useState<JapLevel[]>(JAP_LEVELS);
+  const [levels, setLevels] = useState<JapLevel[]>([]);
   const [selectedLevelModal, setSelectedLevelModal] = useState<JapLevel | null>(
     null,
   );
@@ -133,7 +133,7 @@ export const ProgressScreen = () => {
                     onPress={() => setSelectedLevelModal(null)}
                     activeOpacity={0.7}
                   >
-                    <CloseIcon size={scale(18)} color={colors.ring} />
+                    <CloseIcon size={scale(18)} color={colors.white} />
                   </TouchableOpacity>
                 </View>
 
@@ -326,6 +326,13 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     padding: scale(6),
+    backgroundColor: colors.ring,
+    borderRadius: scale(20),
+    width: scale(32),
+    height: scale(32),
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
   },
   modalLevelTitle: {
     fontSize: fs(18),

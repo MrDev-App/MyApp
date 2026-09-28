@@ -155,7 +155,7 @@ const FestivalHighlights = ({ onPress }: any) => {
             const name = select(item.hindiName, item.englishName);
             const dateStr = select(item.dateStrHi, item.dateStrEn);
 
-            const bgImage = item.image || imagePath.greeting;
+            const bgImage = item.image || imagePath.fallBackImage;
 
             return (
               <AnimatedButton

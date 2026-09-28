@@ -7,6 +7,13 @@ import {
 } from '@react-native-firebase/firestore';
 import { ShlokaCategory, ShlokaCategoryDetail } from './types';
 
+export type {
+  ShlokaCategory,
+  ShlokaCategoryDetail,
+  ShlokaSubItem,
+  ShlokaVerse,
+} from './types';
+
 // In-memory runtime cache for detail & all categories
 const memoryCategoryCache = new Map<string, ShlokaCategoryDetail>();
 let memoryAllCategoriesCache: ShlokaCategory[] | null = null;

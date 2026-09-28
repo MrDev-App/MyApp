@@ -10,6 +10,15 @@ import {
 import imagePath from '@assets/index';
 import { TempleCategory, TempleItem } from './types';
 
+export type {
+  TempleCategory,
+  TempleItem,
+  GeoLocation,
+  TempleTiming,
+  HowToReach,
+  TempleFestival,
+} from './types';
+
 export const FIRESTORE_COLLECTION_NAME = 'templeData';
 
 // In-memory runtime cache for temples

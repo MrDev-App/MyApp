@@ -250,6 +250,21 @@ export interface NaamJapItem {
   mantras: GodMantra[];
 }
 
+//japLevelsApi.ts
+export interface JapLevel {
+  level: number;
+  nameEn: string;
+  nameHi: string;
+  titleEn: string;
+  titleHi: string;
+  requiredMalas: number;
+  requiredChants: number;
+  icon: string;
+  badgeColor: string;
+  blessingEn: string;
+  blessingHi: string;
+}
+
 //FestivalApi.ts
 export interface FestivalTranslation {
   name: string;

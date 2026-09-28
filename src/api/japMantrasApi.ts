@@ -10,6 +10,9 @@ import {
   MantraSelectorItem,
 } from './types';
 
+export type { MantraSelectorItem } from './types';
+export { DEFAULT_MANTRA, JAP_MANTRAS_CACHE_KEY } from './types';
+
 export const mapMantraItem = (item: any, index = 0): MantraSelectorItem => {
   return {
     id: item.id || '',

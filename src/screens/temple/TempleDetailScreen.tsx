@@ -94,7 +94,7 @@ export const TempleDetailScreen: React.FC = () => {
   }, [temple, isHindi]);
 
   const imageSource = useMemo(() => {
-    if (!temple) return imagePath.greeting;
+    if (!temple) return imagePath.fallBackImage;
     if (temple.image) {
       return typeof temple.image === 'string'
         ? { uri: temple.image }
@@ -103,7 +103,7 @@ export const TempleDetailScreen: React.FC = () => {
     if (temple.imageUrl) {
       return { uri: temple.imageUrl };
     }
-    return imagePath.greeting;
+    return imagePath.fallBackImage;
   }, [temple]);
 
   if (!temple || !templeData) {

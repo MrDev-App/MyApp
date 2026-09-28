@@ -400,4 +400,19 @@ export default {
 
   CONTRACT_CTA_START_JAP: 'Start Chanting',
   CONTRACT_DISMISS_LATER: 'Maybe later ',
+
+  // Book / FlipBook Reader
+  BOOK_PLEASE_WAIT: 'Please wait...',
+  BOOK_FLIPPING_PAGES: 'Flipping pages (+{{count}})...',
+  BOOK_COVER: 'Cover',
+  BOOK_DEDICATION_MANTRA: 'Om Namo Bhagavate Vasudevaya',
+  BOOK_DEDICATION_TITLE: 'Sacred Dedication & Wisdom',
+  BOOK_DEDICATION_BODY_COVER:
+    'This sacred tale illuminates the eternal path of righteousness, devotion, and inner peace.',
+  BOOK_DEDICATION_BODY_PAGE:
+    'Karmanye Vadhikaraste Ma Phaleshu Kadachana — Duty is worship.',
+  BOOK_MORAL_HEADER: 'Moral & Teaching',
+  BOOK_SHLOKA_TRANSLATION_HEADER: 'Meaning',
+  BOOK_OPEN_BOOK: 'Open Book',
+  BOOK_PAGE_OF: 'Page {{current}} of {{total}}',
 };

@@ -15,15 +15,7 @@ import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
 import { CopyIcon, ShareIcon, PlayIcon, PauseIcon } from '@assets/SvgIcons';
 import { ShlokaVerse } from '@api/shlokaApi';
-
-export interface ShlokaVerseCardProps {
-  item: ShlokaVerse;
-  index: number;
-  isPlaying?: boolean;
-  onPlayPause?: (verse: ShlokaVerse) => void;
-  onCopy: (verse: ShlokaVerse) => void;
-  onShare: (verse: ShlokaVerse) => void;
-}
+import { ShlokaVerseCardProps } from '../types';
 
 export const ShlokaVerseCard: React.FC<ShlokaVerseCardProps> = ({
   item,

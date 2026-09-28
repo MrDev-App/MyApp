@@ -11,13 +11,12 @@ import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import GradientBackground from './GradientBackground';
-
-interface Props {
+export interface Props {
   children: ReactNode;
   fallback?: ReactNode;
 }
 
-interface State {
+export interface State {
   hasError: boolean;
   error: Error | null;
 }
@@ -34,7 +33,11 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     if (__DEV__) {
-      console.warn('[ErrorBoundary] Caught unhandled render error:', error, errorInfo);
+      console.warn(
+        '[ErrorBoundary] Caught unhandled render error:',
+        error,
+        errorInfo,
+      );
     }
   }
 
@@ -71,7 +74,9 @@ export class ErrorBoundary extends Component<Props, State> {
                 onPress={this.handleReset}
                 activeOpacity={0.8}
               >
-                <Text style={styles.retryButtonText}>पुनः प्रयास करें / Try Again</Text>
+                <Text style={styles.retryButtonText}>
+                  पुनः प्रयास करें / Try Again
+                </Text>
               </TouchableOpacity>
             </View>
           </SafeAreaView>

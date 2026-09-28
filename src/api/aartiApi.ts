@@ -4,6 +4,8 @@ import { STORAGE_KEYS } from '@constants/storageKeys';
 import imagePath from '@assets/index';
 import { Category, CategoryItem, deityKeywords } from './types';
 
+export type { Category, CategoryItem, AartiItem, AartiCategory } from './types';
+
 /**
  * Resolves a local image from imagePath for an aarti item.
  * Matches deity keywords and exact image keys.
@@ -31,7 +33,7 @@ export const resolveLocalAartiImage = (item: any): any => {
     }
   }
 
-  return imagePath.Ganesha || imagePath.greeting;
+  return imagePath.Ganesha || imagePath.fallBackImage;
 };
 
 /**

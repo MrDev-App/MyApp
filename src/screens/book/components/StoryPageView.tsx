@@ -20,7 +20,8 @@ import { ZoomableImage } from './ZoomableImage';
 import { StoryPageViewProps } from './FlipBookCover.types';
 import { styles } from './FlipBookCover.styles';
 import { GOLD_BORDER } from './FlipBookCover.constants';
-import { getStrings } from './FlipBookCover.strings';
+import { useAppLanguage } from '@hooks';
+import { Translation } from '@i18n/language';
 import { ExpandIcon } from '@assets/SvgIcons';
 
 export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
@@ -33,7 +34,7 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
     isInteractive,
     totalPages: _totalPages,
   }) => {
-    const strings = getStrings(currentLang);
+    const { t } = useAppLanguage();
     const insets = useSafeAreaInsets();
     const { width: windowWidth } = useWindowDimensions();
     const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
@@ -172,7 +173,7 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
               <View style={styles.shlokaBox}>
                 <View style={styles.shlokaHeaderPill}>
                   <Text style={styles.shlokaTagText}>
-                    ✦ {strings.shlokaTranslationHeader} ✦
+                    ✦ {t(Translation.BOOK_SHLOKA_TRANSLATION_HEADER)} ✦
                   </Text>
                 </View>
                 <Text
@@ -290,7 +291,7 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
             {pageMoral ? (
               <View style={styles.moralCard}>
                 <Text style={styles.moralCardHeader}>
-                  ⚜ {strings.moralHeader} ⚜
+                  ⚜ {t(Translation.BOOK_MORAL_HEADER)} ⚜
                 </Text>
                 <Text
                   style={[

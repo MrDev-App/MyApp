@@ -33,7 +33,7 @@ export type ExpandableCardHandle = {
   close: () => void;
 };
 
-type Props<T> = {
+export type Props<T> = {
   getImage?: (data: T) => ImageSourcePropType;
   renderContent: (data: T, close: () => void) => React.ReactNode;
   expandedWidth?: number;

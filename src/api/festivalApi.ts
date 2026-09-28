@@ -5,8 +5,6 @@ import {
   query,
   orderBy,
 } from '@react-native-firebase/firestore';
-import { Storage } from '@services/storageService';
-import { STORAGE_KEYS } from '@constants/storageKeys';
 import imagePath from '@assets/index';
 import i18n from '@i18n/index';
 import { Translation } from '@i18n/language';
@@ -16,21 +14,13 @@ import {
 } from '@constants/calendarData';
 import { Festival } from './types';
 
+export type { Festival, FestivalTranslation, VratDetails } from './types';
+
+// In-memory runtime cache for festivals
 let festivalCache: Festival[] | null = null;
 
 export const getCachedFestivalData = (): Festival[] | null => {
-  try {
-    const rawCache = Storage.getString(STORAGE_KEYS.FESTIVALS_CACHE, '');
-    if (rawCache) {
-      const parsed = JSON.parse(rawCache);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.map(item => mapFestivalDoc(item));
-      }
-    }
-  } catch (err) {
-    console.error('❌ [festivalApi] Error reading cached Festivals:', err);
-  }
-  return null;
+  return festivalCache;
 };
 
 const REGION_TRANSLATION_KEYS: Record<string, string> = {
@@ -45,7 +35,7 @@ const REGION_TRANSLATION_KEYS: Record<string, string> = {
 };
 
 export const resolveFestivalImage = (festival: any): any => {
-  if (!festival) return imagePath.greeting;
+  if (!festival) return imagePath.fallBackImage;
 
   const rawUrl = (festival.imageUrl || festival.url || festival.sourceUrl || '')
     .toString()
@@ -85,7 +75,7 @@ export const resolveFestivalImage = (festival: any): any => {
       return (imagePath as any)[cleanBaseKey];
   }
 
-  return imagePath.greeting;
+  return imagePath.fallBackImage;
 };
 
 export const mapFestivalDoc = (doc: any): Festival => {
@@ -244,16 +234,8 @@ export const clearFestivalDataCache = (): void => {
 export const getFestivalData = async (
   forceRefresh: boolean = false,
 ): Promise<Festival[]> => {
-  if (!forceRefresh) {
-    if (festivalCache && festivalCache.length > 0) {
-      return festivalCache;
-    }
-
-    const localCache = getCachedFestivalData();
-    if (localCache && localCache.length > 0) {
-      festivalCache = localCache;
-      return localCache;
-    }
+  if (!forceRefresh && festivalCache && festivalCache.length > 0) {
+    return festivalCache;
   }
 
   try {
@@ -269,24 +251,13 @@ export const getFestivalData = async (
     }
 
     if (!snapshot || snapshot.empty) {
-      const localCache = getCachedFestivalData();
-      if (localCache && localCache.length > 0) {
-        festivalCache = localCache;
-        return localCache;
-      }
-      return [];
+      return festivalCache || [];
     }
 
     const rawList = snapshot.docs.map(docSnap => ({
       id: docSnap.id,
       ...docSnap.data(),
     }));
-
-    try {
-      Storage.set(STORAGE_KEYS.FESTIVALS_CACHE, JSON.stringify(rawList));
-    } catch (saveErr) {
-      console.error('❌ [festivalApi] Error saving to storage:', saveErr);
-    }
 
     const festivals: Festival[] = rawList.map(item => mapFestivalDoc(item));
 
@@ -304,11 +275,6 @@ export const getFestivalData = async (
       '❌ [festivalApi] Error fetching festival data from Firestore:',
       error,
     );
-    const localCache = getCachedFestivalData();
-    if (localCache && localCache.length > 0) {
-      festivalCache = localCache;
-      return localCache;
-    }
     return festivalCache || [];
   }
 };
