@@ -18,6 +18,14 @@ interface TempleAvatarProps {
 
 const TempleAvatar: React.FC<TempleAvatarProps> = React.memo(({ source }) => {
   const [imageLoading, setImageLoading] = useState(true);
+  const [imgSrc, setImgSrc] = useState(
+    typeof source === 'string' ? { uri: source } : source,
+  );
+
+  useEffect(() => {
+    setImgSrc(typeof source === 'string' ? { uri: source } : source);
+    setImageLoading(true);
+  }, [source]);
 
   useEffect(() => {
     if (imageLoading) {
@@ -26,7 +34,7 @@ const TempleAvatar: React.FC<TempleAvatarProps> = React.memo(({ source }) => {
       }, 1200);
       return () => clearTimeout(timer);
     }
-  }, [imageLoading, source]);
+  }, [imageLoading]);
 
   return (
     <View style={styles.avatarWrapper}>
@@ -41,12 +49,15 @@ const TempleAvatar: React.FC<TempleAvatarProps> = React.memo(({ source }) => {
         </View>
       )}
       <Image
-        source={typeof source === 'string' ? { uri: source } : source}
+        source={imgSrc || imagePath.fallBackImage}
         style={styles.avatarImage}
         resizeMode="cover"
         onLoad={() => setImageLoading(false)}
         onLoadEnd={() => setImageLoading(false)}
-        onError={() => setImageLoading(false)}
+        onError={() => {
+          setImageLoading(false);
+          setImgSrc(imagePath.fallBackImage);
+        }}
       />
     </View>
   );

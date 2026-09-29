@@ -20,30 +20,67 @@ export const TempleSkeletonList: React.FC<TempleSkeletonListProps> = ({
       {items.map(index => (
         <View key={`temple_skel_${index}`} style={styles.templeCard}>
           <View style={styles.cardHeaderRow}>
-            <Skeleton circle width={scale(48)} height={scale(48)} />
+            <Skeleton
+              circle
+              width={scale(48)}
+              height={scale(48)}
+              baseColor="rgba(183, 168, 151, 0.25)"
+              highlightColor="rgba(255, 255, 255, 0.7)"
+            />
             <View style={styles.headerTextCol}>
-              <Skeleton width="65%" height={fs(16)} borderRadius={scale(4)} />
+              <Skeleton
+                width="65%"
+                height={fs(16)}
+                borderRadius={scale(4)}
+                baseColor="rgba(183, 168, 151, 0.25)"
+                highlightColor="rgba(255, 255, 255, 0.7)"
+              />
               <Skeleton
                 width="45%"
                 height={fs(12)}
                 borderRadius={scale(4)}
+                baseColor="rgba(183, 168, 151, 0.22)"
+                highlightColor="rgba(255, 255, 255, 0.7)"
                 style={styles.locationSkeleton}
               />
             </View>
           </View>
+
           <Skeleton
             width={scale(110)}
-            height={fs(18)}
+            height={fs(20)}
             borderRadius={scale(8)}
+            baseColor="rgba(251, 148, 55, 0.12)"
+            highlightColor="rgba(255, 255, 255, 0.7)"
             style={styles.deitySkeleton}
           />
+
           <View style={styles.significanceBox}>
-            <Skeleton width="96%" height={fs(13)} borderRadius={scale(4)} />
+            <Skeleton
+              width="96%"
+              height={fs(13)}
+              borderRadius={scale(4)}
+              baseColor="rgba(183, 168, 151, 0.22)"
+              highlightColor="rgba(255, 255, 255, 0.7)"
+            />
             <Skeleton
               width="80%"
               height={fs(13)}
               borderRadius={scale(4)}
+              baseColor="rgba(183, 168, 151, 0.22)"
+              highlightColor="rgba(255, 255, 255, 0.7)"
               style={styles.significanceSecondLine}
+            />
+          </View>
+
+          {/* Card Footer Action Skeleton */}
+          <View style={styles.cardFooter}>
+            <Skeleton
+              width={scale(85)}
+              height={fs(12)}
+              borderRadius={scale(4)}
+              baseColor="rgba(251, 148, 55, 0.15)"
+              highlightColor="rgba(255, 255, 255, 0.7)"
             />
           </View>
         </View>
@@ -60,17 +97,17 @@ const styles = StyleSheet.create({
     paddingTop: scale(4),
   },
   templeCard: {
-    backgroundColor: colors.white,
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderRadius: scale(18),
     padding: scale(16),
     marginBottom: scale(14),
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: colors.borderSubtle,
     shadowColor: colors.cardOverlay,
-    shadowOffset: { width: 0, height: scale(3) },
-    shadowOpacity: 0.08,
-    shadowRadius: scale(6),
-    elevation: 2,
+    shadowOffset: { width: 0, height: scale(2) },
+    shadowOpacity: 0.04,
+    shadowRadius: scale(4),
+    elevation: 1,
   },
   cardHeaderRow: {
     flexDirection: 'row',
@@ -92,5 +129,13 @@ const styles = StyleSheet.create({
   },
   significanceSecondLine: {
     marginTop: scale(6),
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    borderTopWidth: 1,
+    borderTopColor: colors.borderSubtle,
+    paddingTop: scale(8),
+    marginTop: scale(2),
   },
 });

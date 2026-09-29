@@ -10,7 +10,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '@navigation/types';
-import { CloseIcon, PlusIcon, MinusIcon } from '@assets/SvgIcons';
+import { CloseIcon } from '@assets/SvgIcons';
+import imagePath from '@assets';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 import { triggerHaptic } from '@helper/helper';
@@ -191,6 +192,22 @@ export const ArtiScreen: React.FC = () => {
 
         {/* Music Player & Font Size Control */}
         <View style={styles.playerWithFontRow}>
+          <TouchableOpacity
+            style={[
+              styles.fontBtn,
+              fontSize <= MIN_FONT_SIZE && styles.fontBtnDisabled,
+            ]}
+            onPress={() => adjustFontSize(-2)}
+            disabled={fontSize <= MIN_FONT_SIZE}
+            activeOpacity={0.7}
+            hitSlop={FONT_BTN_HIT_SLOP}
+          >
+            <Image
+              source={imagePath.TextDecrease}
+              style={styles.fontIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
           <MusicPlayer
             isPlaying={isPlaying}
             onTogglePlay={onTogglePlay}
@@ -201,46 +218,23 @@ export const ArtiScreen: React.FC = () => {
             isShuffle={isShuffle}
             onToggleShuffle={handleToggleShuffle}
           />
-          <View style={styles.fontSizeControlPill}>
-            <TouchableOpacity
-              style={styles.fontBtn}
-              onPress={() => adjustFontSize(-2)}
-              disabled={fontSize <= MIN_FONT_SIZE}
-              activeOpacity={0.7}
-              hitSlop={FONT_BTN_HIT_SLOP}
-            >
-              <MinusIcon
-                size={scale(16)}
-                color={
-                  fontSize <= MIN_FONT_SIZE
-                    ? colors.neutralDisabled
-                    : colors.ring
-                }
-                strokeWidth={2.4}
-              />
-            </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[
-                styles.fontBtn,
-                fontSize >= MAX_FONT_SIZE && styles.fontBtnDisabled,
-              ]}
-              onPress={() => adjustFontSize(2)}
-              disabled={fontSize >= MAX_FONT_SIZE}
-              activeOpacity={0.7}
-              hitSlop={FONT_BTN_HIT_SLOP}
-            >
-              <PlusIcon
-                size={scale(16)}
-                color={
-                  fontSize >= MAX_FONT_SIZE
-                    ? colors.neutralDisabled
-                    : colors.ring
-                }
-                strokeWidth={2.4}
-              />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={[
+              styles.fontBtn,
+              fontSize >= MAX_FONT_SIZE && styles.fontBtnDisabled,
+            ]}
+            onPress={() => adjustFontSize(2)}
+            disabled={fontSize >= MAX_FONT_SIZE}
+            activeOpacity={0.7}
+            hitSlop={FONT_BTN_HIT_SLOP}
+          >
+            <Image
+              source={imagePath.TextIncrease}
+              style={styles.fontIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
         </View>
 
         {/* Scrollable Aarti Lyrics Card */}
@@ -285,8 +279,8 @@ const styles = StyleSheet.create({
   playerWithFontRow: {
     flexDirection: 'row',
     marginBottom: scale(5),
-    gap: scale(15),
-    marginLeft: scale(45),
+
+    justifyContent: 'space-around',
   },
   fontSizeControlPill: {
     alignItems: 'center',
@@ -294,11 +288,14 @@ const styles = StyleSheet.create({
   },
   fontBtn: {
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
   },
   fontBtnDisabled: {
-    backgroundColor: 'transparent',
-    opacity: 0.3,
+    opacity: 0.35,
+  },
+  fontIcon: {
+    width: scale(16),
+    height: scale(16),
   },
   modalHeaderCloseBtn: {
     position: 'absolute',

@@ -1,11 +1,12 @@
 import {
   getFirestore,
   collection,
-  getDocs,
+  getDocsFromServer,
   query,
   orderBy,
+  limit,
   doc,
-  getDoc,
+  getDocFromServer,
 } from '@react-native-firebase/firestore';
 import imagePath from '@assets/index';
 import { TempleCategory, TempleItem } from './types';
@@ -21,8 +22,7 @@ export type {
 
 export const FIRESTORE_COLLECTION_NAME = 'templeData';
 
-// In-memory runtime cache for temples
-const memoryTemplesCategoryCache = new Map<string, TempleItem[]>();
+// In-memory runtime session cache for temples (stored in RAM only; not saved in device storage/SQLite; wiped when app is closed/killed)
 let memoryAllTemplesCache: TempleItem[] | null = null;
 
 /**
@@ -60,7 +60,7 @@ const resolveTempleImage = (id: string, remoteUrl?: string): any => {
     siddhivinayak_mumbai: imagePath.Ganesha,
     kamakhya_temple: imagePath.Kali,
   };
-  return imageMap[id] || imagePath.templeBell || imagePath.lotus;
+  return imageMap[id] || imagePath.fallBackImage;
 };
 
 /**
@@ -165,9 +165,12 @@ export interface FetchTemplesOptions {
 }
 
 /**
- * Fetch all temples from Firestore `templeData` collection.
+ * Fetch temples strictly from Firestore server over network with limit (default 10).
+ * If offline or no internet, it fails/returns empty array to allow skeleton loading.
+ * Stores strictly in RAM memory during runtime.
  */
 export const fetchAllTemplesFromFirestore = async (
+  limitCount?: number,
   forceRefresh = false,
 ): Promise<TempleItem[]> => {
   if (
@@ -175,7 +178,13 @@ export const fetchAllTemplesFromFirestore = async (
     memoryAllTemplesCache &&
     memoryAllTemplesCache.length > 0
   ) {
-    return memoryAllTemplesCache;
+    if (typeof limitCount === 'number' && limitCount > 0) {
+      if (memoryAllTemplesCache.length >= limitCount) {
+        return memoryAllTemplesCache.slice(0, limitCount);
+      }
+    } else {
+      return memoryAllTemplesCache;
+    }
   }
 
   try {
@@ -184,35 +193,63 @@ export const fetchAllTemplesFromFirestore = async (
     let snapshot;
 
     try {
-      const q = query(templesRef, orderBy('order', 'asc'));
-      snapshot = await getDocs(q);
+      const q =
+        typeof limitCount === 'number' && limitCount > 0
+          ? query(templesRef, orderBy('order', 'asc'), limit(limitCount))
+          : query(templesRef, orderBy('order', 'asc'));
+      snapshot = await getDocsFromServer(q);
     } catch {
-      snapshot = await getDocs(templesRef);
+      const q =
+        typeof limitCount === 'number' && limitCount > 0
+          ? query(templesRef, limit(limitCount))
+          : templesRef;
+      snapshot = await getDocsFromServer(q as any);
     }
 
-    if (!snapshot.empty) {
+    if (snapshot && !snapshot.empty) {
       const items: TempleItem[] = snapshot.docs
         .map(docSnap => mapFirestoreDocToTemple(docSnap.id, docSnap.data()))
         .filter(item => item.isActive !== false)
         .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
 
       if (items.length > 0) {
-        memoryAllTemplesCache = items;
-        return items;
+        if (memoryAllTemplesCache && memoryAllTemplesCache.length > 0) {
+          const idMap = new Map<string, TempleItem>();
+          memoryAllTemplesCache.forEach(t => idMap.set(t.id, t));
+          items.forEach(t => idMap.set(t.id, t));
+          memoryAllTemplesCache = Array.from(idMap.values()).sort(
+            (a, b) => (a.order ?? 999) - (b.order ?? 999),
+          );
+        } else {
+          memoryAllTemplesCache = items;
+        }
+
+        return typeof limitCount === 'number' && limitCount > 0
+          ? items.slice(0, limitCount)
+          : items;
       }
     }
   } catch (error) {
     console.warn(
-      '[templeApi] Error fetching all temples from Firestore:',
+      `⚠️ [templeApi] Offline/Server error fetching from '${FIRESTORE_COLLECTION_NAME}':`,
       error,
     );
+  }
+
+  if (
+    typeof limitCount === 'number' &&
+    limitCount > 0 &&
+    memoryAllTemplesCache
+  ) {
+    return memoryAllTemplesCache.slice(0, limitCount);
   }
 
   return memoryAllTemplesCache || [];
 };
 
 /**
- * Fetch temples by Category and/or Search Query with optional limit (e.g. limit 10).
+ * Fetch temples by Category and/or Search Query with optional limit (e.g. initial 10 items).
+ * Does not store searches or data in device persistent storage, only in RAM.
  */
 export const fetchTemples = async (
   options: FetchTemplesOptions = {},
@@ -220,36 +257,32 @@ export const fetchTemples = async (
   const {
     category = 'all',
     searchQuery = '',
-    limitCount,
+    limitCount = 10,
     forceRefresh = false,
   } = options;
-  const cacheKey = `cat:${category}`;
+
+  const all = await fetchAllTemplesFromFirestore(limitCount, forceRefresh);
+
+  if (all.length === 0) {
+    return [];
+  }
 
   let list: TempleItem[] = [];
 
-  if (!forceRefresh && memoryTemplesCategoryCache.has(cacheKey)) {
-    list = memoryTemplesCategoryCache.get(cacheKey)!;
+  if (category === 'all') {
+    list = all;
   } else {
-    const all = await fetchAllTemplesFromFirestore(forceRefresh);
+    list = all.filter(item => {
+      const inCategories =
+        item.categories && item.categories.includes(category as TempleCategory);
+      const isPrimary = item.category === category;
+      const isFlagMatch =
+        (category === 'chardham' && item.isCharDham) ||
+        (category === 'jyotirlinga' && item.isJyotirlinga) ||
+        (category === 'shaktipeeth' && item.isShaktipeeth);
 
-    if (category === 'all') {
-      list = all;
-    } else {
-      list = all.filter(item => {
-        const inCategories =
-          item.categories &&
-          item.categories.includes(category as TempleCategory);
-        const isPrimary = item.category === category;
-        const isFlagMatch =
-          (category === 'chardham' && item.isCharDham) ||
-          (category === 'jyotirlinga' && item.isJyotirlinga) ||
-          (category === 'shaktipeeth' && item.isShaktipeeth);
-
-        return inCategories || isPrimary || isFlagMatch;
-      });
-    }
-
-    memoryTemplesCategoryCache.set(cacheKey, list);
+      return inCategories || isPrimary || isFlagMatch;
+    });
   }
 
   const q = searchQuery.toLowerCase().trim();
@@ -285,7 +318,7 @@ export const fetchTemples = async (
 };
 
 /**
- * Fetch a single temple by its ID from Firestore
+ * Fetch a single temple by its ID from Firestore server
  */
 export const fetchTempleById = async (
   id: string,
@@ -298,7 +331,7 @@ export const fetchTempleById = async (
   try {
     const db = getFirestore();
     const docRef = doc(db, FIRESTORE_COLLECTION_NAME, id);
-    const snap = await getDoc(docRef);
+    const snap = await getDocFromServer(docRef);
 
     if (snap.exists()) {
       return mapFirestoreDocToTemple(snap.id, snap.data());

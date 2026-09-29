@@ -1,5 +1,7 @@
 import { CategoryItem } from '@api/aartiApi';
 import { TempleItem } from '@api/templeApi';
+import { ComicBookItem } from '@api/comicBooksApi';
+import { Story } from '@constants/storiesData';
 import { NavigatorScreenParams } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -10,8 +12,8 @@ export type RootStackParamList = {
   AllFestivals: undefined;
   CalendarScreen: undefined;
   Calendar?: undefined;
-  ReadingScreen: { storyId?: string };
-  Reading?: { storyId?: string };
+  ReadingScreen: { storyId?: string; story?: Story | ComicBookItem };
+  Reading?: { storyId?: string; story?: Story | ComicBookItem };
   TextReadingScreen: { storyId: string };
   SearchScreen: undefined;
   Search?: undefined;

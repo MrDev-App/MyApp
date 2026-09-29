@@ -93,7 +93,7 @@ export const TempleDetailScreen: React.FC = () => {
     };
   }, [temple, isHindi]);
 
-  const imageSource = useMemo(() => {
+  const [imgSrc, setImgSrc] = useState<any>(() => {
     if (!temple) return imagePath.fallBackImage;
     if (temple.image) {
       return typeof temple.image === 'string'
@@ -104,6 +104,20 @@ export const TempleDetailScreen: React.FC = () => {
       return { uri: temple.imageUrl };
     }
     return imagePath.fallBackImage;
+  });
+
+  useEffect(() => {
+    if (temple) {
+      const src = temple.image
+        ? typeof temple.image === 'string'
+          ? { uri: temple.image }
+          : temple.image
+        : temple.imageUrl
+        ? { uri: temple.imageUrl }
+        : imagePath.fallBackImage;
+      setImgSrc(src);
+      setImageLoading(true);
+    }
   }, [temple]);
 
   if (!temple || !templeData) {
@@ -172,12 +186,15 @@ export const TempleDetailScreen: React.FC = () => {
               </View>
             )}
             <Image
-              source={imageSource}
+              source={imgSrc || imagePath.fallBackImage}
               style={styles.templeImage}
               resizeMode="cover"
               onLoad={() => setImageLoading(false)}
               onLoadEnd={() => setImageLoading(false)}
-              onError={() => setImageLoading(false)}
+              onError={() => {
+                setImageLoading(false);
+                setImgSrc(imagePath.fallBackImage);
+              }}
             />
           </View>
 

@@ -8,18 +8,20 @@ import {
   FlatList,
   TextInput,
   Platform,
+  ActivityIndicator,
   ListRenderItemInfo,
 } from 'react-native';
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { ScreenHeader } from '@components';
-import { useAppLanguage } from '@hooks';
+import Skeleton from '@components/Skeleton';
+import { useAppLanguage, useNetworkStatus } from '@hooks';
 import { Translation } from '@i18n/language';
 import { SearchIcon, CloseIcon } from '@assets/SvgIcons';
 import imagePath from '@assets/index';
@@ -30,50 +32,117 @@ import TempleCard from './components/TempleCard';
 import TempleSkeletonList from './components/TempleSkeletonList';
 import TempleFilterChips from './components/TempleFilterChips';
 
+const PAGE_SIZE = 10;
+
 export const TempleScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const { t } = useAppLanguage();
+  const isOffline = useNetworkStatus();
 
-  const [templesList, setTemplesList] = useState<TempleItem[]>([]);
+  const [allTemples, setAllTemples] = useState<TempleItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
   const [selectedTag, setSelectedTag] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Fetch from Firebase dynamically based on selected chip / search query / screen load
-  useEffect(() => {
-    let isMounted = true;
-    setLoading(true);
+  const loadTemples = useCallback(
+    (force = false) => {
+      let isMounted = true;
+      if (allTemples.length === 0) {
+        setLoading(true);
+      }
 
-    const limitCount =
-      selectedTag === 'all' && !searchQuery.trim() ? 10 : undefined;
+      fetchTemples({
+        category: selectedTag,
+        searchQuery,
+        limitCount: PAGE_SIZE,
+        forceRefresh: force,
+      })
+        .then(data => {
+          console.log('Dataaaa=>', data);
+          if (isMounted) {
+            const list = data || [];
+            setAllTemples(list);
+            setHasMore(list.length >= PAGE_SIZE);
+          }
+        })
+        .catch(err => {
+          console.warn(
+            '[TempleScreen] Error fetching temples from Firebase:',
+            err,
+          );
+        })
+        .finally(() => {
+          if (isMounted) {
+            setLoading(false);
+          }
+        });
+
+      return () => {
+        isMounted = false;
+      };
+    },
+    [selectedTag, searchQuery, allTemples.length],
+  );
+
+  // Fetch / filter dynamically on tag / search change
+  useEffect(() => {
+    setHasMore(true);
+    const cleanup = loadTemples();
+    return cleanup;
+  }, [selectedTag, searchQuery]);
+
+  // Auto-fetch when internet is restored if list is empty
+  useEffect(() => {
+    if (!isOffline && allTemples.length === 0) {
+      loadTemples(true);
+    }
+  }, [isOffline, allTemples.length, loadTemples]);
+
+  // Refetch when screen comes into focus ONLY if list is empty
+  useFocusEffect(
+    useCallback(() => {
+      if (allTemples.length === 0) {
+        loadTemples(true);
+      }
+    }, [allTemples.length, loadTemples]),
+  );
+
+  const handleEndReached = useCallback(() => {
+    if (loading || loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    const nextLimit = allTemples.length + PAGE_SIZE;
 
     fetchTemples({
       category: selectedTag,
       searchQuery,
-      limitCount,
+      limitCount: nextLimit,
     })
       .then(data => {
-        if (isMounted) {
-          setTemplesList(data || []);
+        const list = data || [];
+        if (list.length === allTemples.length) {
+          setHasMore(false);
+        } else {
+          setAllTemples(list);
+          setHasMore(list.length >= nextLimit);
         }
       })
       .catch(err => {
-        console.warn(
-          '[TempleScreen] Error fetching temples from Firebase:',
-          err,
-        );
+        console.warn('[TempleScreen] Error loading more temples:', err);
       })
       .finally(() => {
-        if (isMounted) {
-          setLoading(false);
-        }
+        setLoadingMore(false);
       });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [selectedTag, searchQuery]);
+  }, [
+    loading,
+    loadingMore,
+    hasMore,
+    allTemples.length,
+    selectedTag,
+    searchQuery,
+  ]);
 
   const screenTitle = useMemo(() => t(Translation.TEMPLE_SCREEN_TITLE), [t]);
 
@@ -95,53 +164,95 @@ export const TempleScreen: React.FC = () => {
     [handleTemplePress],
   );
 
+  const renderFooter = useCallback(() => {
+    if (!loadingMore) return null;
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color={colors.ring} />
+      </View>
+    );
+  }, [loadingMore]);
+
   const keyExtractor = useCallback((item: TempleItem) => item.id, []);
+
+  const showSkeleton =
+    (loading && allTemples.length === 0) ||
+    (isOffline && allTemples.length === 0);
 
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScreenHeader title={screenTitle} />
 
-        {/* Search Bar */}
-        <View style={styles.searchBarWrapper}>
-          <View style={styles.searchBar}>
-            <SearchIcon size={scale(16)} color={colors.ring} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder={t(Translation.TEMPLE_SEARCH_PLACEHOLDER)}
-              placeholderTextColor={colors.warmTaupe}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              clearButtonMode="while-editing"
-              autoCorrect={false}
-              returnKeyType="search"
+        {/* Search Bar / Skeleton */}
+        {showSkeleton ? (
+          <View style={styles.searchBarWrapper}>
+            <Skeleton
+              width="100%"
+              height={scale(42)}
+              borderRadius={scale(12)}
+              baseColor="rgba(183, 168, 151, 0.25)"
+              highlightColor="rgba(255, 255, 255, 0.7)"
+              style={styles.searchBarSkeleton}
             />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity
-                onPress={handleClearSearch}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                accessibilityRole="button"
-                accessibilityLabel="Clear search"
-              >
-                <CloseIcon size={scale(14)} color={colors.secondary} />
-              </TouchableOpacity>
-            )}
           </View>
-        </View>
+        ) : (
+          <View style={styles.searchBarWrapper}>
+            <View style={styles.searchBar}>
+              <SearchIcon size={scale(16)} color={colors.ring} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder={t(Translation.TEMPLE_SEARCH_PLACEHOLDER)}
+                placeholderTextColor={colors.warmTaupe}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                clearButtonMode="while-editing"
+                autoCorrect={false}
+                returnKeyType="search"
+              />
+              {searchQuery.length > 0 && (
+                <TouchableOpacity
+                  onPress={handleClearSearch}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  accessibilityRole="button"
+                  accessibilityLabel="Clear search"
+                >
+                  <CloseIcon size={scale(14)} color={colors.secondary} />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        )}
 
-        {/* Filter Chips */}
-        <TempleFilterChips
-          selectedTag={selectedTag}
-          onSelectTag={setSelectedTag}
-        />
+        {/* Filter Chips / Skeleton */}
+        {showSkeleton ? (
+          <View style={styles.chipsSkeletonRow}>
+            {[scale(74), scale(70), scale(82), scale(76)].map((w, idx) => (
+              <Skeleton
+                key={`chip_skel_${idx}`}
+                width={w}
+                height={scale(32)}
+                borderRadius={scale(20)}
+                baseColor="rgba(183, 168, 151, 0.25)"
+                highlightColor="rgba(255, 255, 255, 0.7)"
+                style={styles.chipSkeleton}
+              />
+            ))}
+          </View>
+        ) : (
+          <TempleFilterChips
+            selectedTag={selectedTag}
+            onSelectTag={setSelectedTag}
+          />
+        )}
 
         {/* Temples List / Skeleton */}
         <View style={styles.contentContainer}>
-          {loading ? (
+          {showSkeleton ? (
             <TempleSkeletonList count={3} />
           ) : (
             <FlatList
-              data={templesList}
+              data={allTemples}
               renderItem={renderTempleCard}
               keyExtractor={keyExtractor}
               contentContainerStyle={[
@@ -151,13 +262,19 @@ export const TempleScreen: React.FC = () => {
               showsVerticalScrollIndicator={false}
               keyboardDismissMode="on-drag"
               keyboardShouldPersistTaps="handled"
-              initialNumToRender={6}
-              maxToRenderPerBatch={6}
+              initialNumToRender={PAGE_SIZE}
+              maxToRenderPerBatch={PAGE_SIZE}
               windowSize={5}
               removeClippedSubviews={Platform.OS === 'android'}
+              onEndReached={handleEndReached}
+              onEndReachedThreshold={0.4}
+              ListFooterComponent={renderFooter}
               ListEmptyComponent={
                 <View style={styles.emptyContainer}>
-                  <Image source={imagePath.lotus} style={styles.emptyImage} />
+                  <Image
+                    source={imagePath.fallBackImage}
+                    style={styles.emptyImage}
+                  />
                   <Text style={styles.emptyTitle}>
                     {t(Translation.TEMPLE_NO_FOUND_TITLE)}
                   </Text>
@@ -189,6 +306,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
     marginBottom: scale(8),
   },
+  chipsSkeletonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: scale(16),
+    marginBottom: scale(8),
+  },
+  searchBarSkeleton: {
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
+  chipSkeleton: {
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -213,6 +345,11 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: scale(16),
     paddingTop: scale(4),
+  },
+  footerLoader: {
+    paddingVertical: scale(14),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyContainer: {
     alignItems: 'center',

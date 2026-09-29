@@ -1,4 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from 'react';
 import {
   StyleSheet,
   View,
@@ -6,13 +12,17 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
   useWindowDimensions,
-  StatusBar,
+  Platform,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 import { useAppLanguage } from '@hooks';
 import { triggerHaptic } from '@helper/helper';
-import { MahaBharatStories } from '@constants/storiesData';
+import {
+  fetchComicBooksFromFirestore,
+  ComicBookItem,
+} from '@api/comicBooksApi';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 import colors from '@theme/colors';
@@ -29,32 +39,111 @@ const ReadingScreen = () => {
   const { currentLanguage: currentLang } = useAppLanguage();
   const { width: windowWidth } = useWindowDimensions();
 
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    const saved = Storage.getString(STORAGE_KEYS.READER_THEME);
-    return saved !== 'light';
-  });
-
   const [isZoomed, setIsZoomed] = useState(false);
 
-  const { storyId } = route.params || {};
-  const story =
-    MahaBharatStories.find(s => s.id === storyId) || MahaBharatStories[0];
+  const { storyId, story: passedStory } = route.params || {};
+  const [story, setStory] = useState<ComicBookItem | null>(passedStory || null);
 
-  const pages: any[] = story ? [story.image, ...(story.imagePages || [])] : [];
+  useEffect(() => {
+    if (!story && storyId) {
+      fetchComicBooksFromFirestore().then(books => {
+        const found = books.find(s => s.id === storyId) || books[0];
+        if (found) setStory(found);
+      });
+    }
+  }, [storyId, story]);
+
+  const rawPages: any[] = useMemo(() => {
+    if (!story) return [];
+    return [
+      story.image,
+      ...(Array.isArray(story.imagePages) ? story.imagePages : []),
+    ].filter(p => p !== undefined && p !== null && p !== '');
+  }, [story]);
+
+  const pages: any[] = useMemo(() => {
+    if (rawPages.length === 0) return [imagePath.fallBackImage];
+    return rawPages.map(p =>
+      typeof p === 'string' && p.trim().length > 0 ? { uri: p.trim() } : p,
+    );
+  }, [rawPages]);
+
   const totalComicPages =
     story?.imagePages?.length || Math.max(pages.length - 1, 1);
 
-  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  // Resume previous reading progress if available
+  const initialPageIndex = useMemo(() => {
+    if (!storyId) return 0;
+    try {
+      const raw = Storage.getString(STORAGE_KEYS.STORY_PROGRESS, '{}');
+      const progressMap = JSON.parse(raw) || {};
+      const saved = Number(progressMap[storyId]);
+      if (saved && saved > 0 && saved < (rawPages.length || 100)) {
+        return saved;
+      }
+    } catch {}
+    return 0;
+  }, [storyId, rawPages.length]);
+
+  const [currentPageIndex, setCurrentPageIndex] = useState(initialPageIndex);
   const [containerWidth, setContainerWidth] = useState(windowWidth);
   const flatListRef = useRef<FlatList>(null);
+  const hasAppliedInitialScroll = useRef(false);
 
-  const handlePageChange = (index: number) => {
-    if (index === currentPageIndex || index < 0 || index >= pages.length) {
-      return;
+  // Auto-scroll to saved reading position on first mount once dimensions are ready
+  useEffect(() => {
+    if (
+      !hasAppliedInitialScroll.current &&
+      initialPageIndex > 0 &&
+      pages.length > initialPageIndex
+    ) {
+      hasAppliedInitialScroll.current = true;
+      setTimeout(() => {
+        flatListRef.current?.scrollToIndex({
+          index: initialPageIndex,
+          animated: false,
+        });
+      }, 100);
     }
-    setCurrentPageIndex(index);
-    triggerHaptic();
-  };
+  }, [initialPageIndex, pages.length]);
+
+  // Smart lookahead prefetching for the next 2 upcoming pages
+  useEffect(() => {
+    if (pages && pages.length > 0) {
+      const nextPages = [
+        pages[currentPageIndex + 1],
+        pages[currentPageIndex + 2],
+      ];
+
+      nextPages.forEach(p => {
+        const uri = typeof p === 'string' ? p : p?.uri;
+        if (uri && typeof uri === 'string' && uri.startsWith('http')) {
+          Image.prefetch(uri).catch(() => {});
+        }
+      });
+    }
+  }, [currentPageIndex, pages]);
+
+  const handlePageChange = useCallback(
+    (index: number) => {
+      if (index === currentPageIndex || index < 0 || index >= pages.length) {
+        return;
+      }
+      setCurrentPageIndex(index);
+      triggerHaptic();
+
+      // Persist reading progress
+      if (storyId) {
+        try {
+          const raw = Storage.getString(STORAGE_KEYS.STORY_PROGRESS, '{}');
+          const map = JSON.parse(raw) || {};
+          map[storyId] = index;
+          Storage.set(STORAGE_KEYS.STORY_PROGRESS, JSON.stringify(map));
+        } catch {}
+      }
+    },
+    [currentPageIndex, pages.length, storyId],
+  );
 
   const handleScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetX = e.nativeEvent.contentOffset.x;
@@ -87,12 +176,10 @@ const ReadingScreen = () => {
     }
   };
 
-  const bgColor = isDarkMode ? colors.readerDarkBg : colors.readerLightBg;
-
   return (
     <GradientBackground>
       <SafeAreaView style={styles.safeAreaContainer} edges={['top', 'bottom']}>
-        <ReadingHeader />
+        <ReadingHeader story={story} />
 
         <View
           style={styles.contentArea}
@@ -121,16 +208,24 @@ const ReadingScreen = () => {
               scrollEnabled={!isZoomed}
               showsHorizontalScrollIndicator={false}
               bounces={false}
-              initialNumToRender={3}
-              maxToRenderPerBatch={3}
+              initialNumToRender={2}
+              maxToRenderPerBatch={2}
               windowSize={5}
-              removeClippedSubviews={true}
               keyExtractor={(_, index) => `comic_page_${index}`}
               getItemLayout={(_, index) => ({
-                length: containerWidth,
-                offset: containerWidth * index,
+                length: containerWidth > 0 ? containerWidth : windowWidth,
+                offset:
+                  (containerWidth > 0 ? containerWidth : windowWidth) * index,
                 index,
               })}
+              onScrollToIndexFailed={info => {
+                setTimeout(() => {
+                  flatListRef.current?.scrollToIndex({
+                    index: info.index,
+                    animated: false,
+                  });
+                }, 100);
+              }}
               onMomentumScrollEnd={handleScrollEnd}
               renderItem={({ item }) => (
                 <View
@@ -160,7 +255,6 @@ const ReadingScreen = () => {
           onPrev={handlePrevPage}
           onNext={handleNextPage}
           currentLang={currentLang}
-          isDarkMode={isDarkMode}
         />
       </SafeAreaView>
     </GradientBackground>

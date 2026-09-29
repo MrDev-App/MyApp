@@ -12,11 +12,15 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { useAppLanguage } from '@hooks';
+import { useAppLanguage, useNetworkStatus } from '@hooks';
 
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { MahaBharatStories, TextBooks, Story } from '@constants/storiesData';
+import { TextBooks, Story } from '@constants/storiesData';
+import {
+  fetchComicBooksFromFirestore,
+  ComicBookItem,
+} from '@api/comicBooksApi';
 import GradientBackground from '@components/GradientBackground';
 
 import { Translation } from '@i18n/language';
@@ -40,31 +44,70 @@ const BookScreen = () => {
   const navigation = useNavigation<RootNavigationProp>();
 
   const [loading, setLoading] = useState(true);
+  const [isComicLoading, setIsComicLoading] = useState(true);
+  const [comicBooks, setComicBooks] = useState<ComicBookItem[]>([]);
 
-  const [pendingStory, setPendingStory] = useState<Story | null>(null);
-  const [openingStory, setOpeningStory] = useState<Story | null>(null);
+  const [pendingStory, setPendingStory] = useState<
+    Story | ComicBookItem | null
+  >(null);
+  const [openingStory, setOpeningStory] = useState<
+    Story | ComicBookItem | null
+  >(null);
   const {
     isLoaded: isRewardedLoaded,
     loadAd: loadRewardedAd,
     show: showRewardedAd,
   } = useRewardedAd(AD_UNITS.REWARDED_BOOK);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1800);
-    return () => clearTimeout(timer);
+  const isOffline = useNetworkStatus();
+
+  const loadComics = useCallback((isMounted = true) => {
+    setIsComicLoading(true);
+    fetchComicBooksFromFirestore()
+      .then(books => {
+        if (isMounted && books && books.length > 0) {
+          setComicBooks(books);
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching comic books:', err);
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsComicLoading(false);
+          setLoading(false);
+        }
+      });
   }, []);
 
-  // Reset opening book loading state whenever BookScreen comes into focus
+  // Initial fetch on mount
+  useEffect(() => {
+    let isMounted = true;
+    loadComics(isMounted);
+    return () => {
+      isMounted = false;
+    };
+  }, [loadComics]);
+
+  // Auto-fetch as soon as internet connection is restored
+  useEffect(() => {
+    if (!isOffline && comicBooks.length === 0) {
+      loadComics(true);
+    }
+  }, [isOffline, comicBooks.length, loadComics]);
+
+  // Reset opening book loading state and retry if empty whenever BookScreen comes into focus
   useFocusEffect(
     useCallback(() => {
       setOpeningStory(null);
       loadRewardedAd();
-    }, [loadRewardedAd]),
+      if (comicBooks.length === 0) {
+        loadComics(true);
+      }
+    }, [loadRewardedAd, comicBooks.length, loadComics]),
   );
 
-  const openStoryReader = (story: Story) => {
+  const openStoryReader = (story: Story | ComicBookItem) => {
     if (isBookUnlockedToday(story.id)) {
       triggerHaptic();
       setOpeningStory(story);
@@ -72,7 +115,10 @@ const BookScreen = () => {
         if (story.type === 'text') {
           navigation.navigate('TextReadingScreen', { storyId: story.id });
         } else {
-          navigation.navigate('ReadingScreen', { storyId: story.id });
+          navigation.navigate('ReadingScreen', {
+            storyId: story.id,
+            story,
+          });
         }
       }, 550);
       return;
@@ -100,7 +146,10 @@ const BookScreen = () => {
             storyId: storyToUnlock.id,
           });
         } else {
-          navigation.navigate('ReadingScreen', { storyId: storyToUnlock.id });
+          navigation.navigate('ReadingScreen', {
+            storyId: storyToUnlock.id,
+            story: storyToUnlock,
+          });
         }
       }, 550);
     };
@@ -176,7 +225,8 @@ const BookScreen = () => {
             {/* Illustrated Comics Shelf List */}
             <ComicShelf
               title={t(Translation.BOOK_ILLUSTRATED_COMICS)}
-              data={MahaBharatStories}
+              data={comicBooks}
+              isLoading={isComicLoading || comicBooks.length === 0}
               onPressBook={openStoryReader}
               currentLang={currentLang}
               loadingStoryId={openingStory?.id}

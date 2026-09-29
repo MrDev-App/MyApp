@@ -7,3 +7,4 @@ export * from './japLevelsApi';
 export * from './festivalApi';
 export * from './japMantrasApi';
 export * from './godMantrasApi';
+export * from './comicBooksApi';

@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   },
   filterScroll: {
     paddingHorizontal: scale(16),
-    gap: scale(8),
+    gap: scale(15),
   },
   filterChip: {
     paddingHorizontal: scale(14),

@@ -2,19 +2,23 @@ import React from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { Story } from '@constants/storiesData';
+import { ComicBookItem } from '@api/comicBooksApi';
 import { fs, scale } from '@theme/sizes';
 import fonts from '@theme/fonts';
 import colors from '@theme/colors';
 import AnimatedButton from '@components/AnimatedButton';
 import Loader from '@components/Loader';
+import Skeleton from '@components/Skeleton';
+import imagePath from '@assets';
 import { useAppLanguage } from '@hooks';
 
 interface ComicShelfProps {
   title: string;
-  data: Story[];
-  onPressBook: (story: Story) => void;
+  data: (Story | ComicBookItem)[];
+  onPressBook: (story: Story | ComicBookItem) => void;
   currentLang?: 'en' | 'hi';
   loadingStoryId?: string | null;
+  isLoading?: boolean;
 }
 
 export const ComicShelf: React.FC<ComicShelfProps> = ({
@@ -22,10 +26,45 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
   data,
   onPressBook,
   loadingStoryId,
+  isLoading = false,
 }) => {
   const { select } = useAppLanguage();
-  if (!data || data.length === 0) {
-    return null;
+
+  if (isLoading || !data || data.length === 0) {
+    return (
+      <View style={styles.comicsSection}>
+        <Text style={styles.sectionTitle}>{title}</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.comicsScroll}
+        >
+          {[1, 2, 3].map(item => (
+            <View key={item} style={styles.comicCard}>
+              <View style={styles.comicImageContainer}>
+                <Skeleton
+                  width="100%"
+                  height="100%"
+                  borderRadius={scale(14)}
+                />
+              </View>
+              <Skeleton
+                width={scale(100)}
+                height={scale(12)}
+                borderRadius={3}
+                style={{ marginTop: scale(4) }}
+              />
+              <Skeleton
+                width={scale(65)}
+                height={scale(9)}
+                borderRadius={3}
+                style={{ marginTop: scale(4) }}
+              />
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+    );
   }
 
   return (
@@ -38,6 +77,14 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
       >
         {data.map(story => {
           const isLoadingThis = loadingStoryId === story.id;
+          const imageSource =
+            typeof story.image === 'string' && story.image.trim().length > 0
+              ? { uri: story.image.trim() }
+              : typeof story.image === 'number' ||
+                (story.image && typeof story.image === 'object' && story.image.uri)
+              ? story.image
+              : imagePath.fallBackImage;
+
           return (
             <AnimatedButton
               key={story.id}
@@ -49,7 +96,7 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
             >
               <View style={styles.comicImageContainer}>
                 <Animated.Image
-                  source={story.image}
+                  source={imageSource}
                   style={styles.comicImage}
                   sharedTransitionTag={`story_image_${story.id}`}
                 />

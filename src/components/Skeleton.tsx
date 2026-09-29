@@ -100,7 +100,11 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     <View onLayout={onLayout} style={[containerStyle, style]}>
       {layoutWidth > 0 && (
         <AnimatedLinearGradient
-          colors={['transparent', highlightColor, 'transparent']}
+          colors={[
+            'rgba(255, 255, 255, 0)',
+            highlightColor,
+            'rgba(255, 255, 255, 0)',
+          ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={[

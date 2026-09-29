@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useMemo,
+} from 'react';
 import {
   View,
   StyleSheet,
@@ -34,6 +40,9 @@ const SPRING_CONFIG = {
   mass: 0.8,
 };
 
+// Global session cache of URLs that have already loaded successfully
+const loadedImageUrlsSet = new Set<string>();
+
 export const ZoomableImage: React.FC<ZoomableImageProps> = ({
   source,
   width = '100%',
@@ -48,7 +57,63 @@ export const ZoomableImage: React.FC<ZoomableImageProps> = ({
     typeof source === 'number' ||
     (typeof source === 'object' && source !== null && !('uri' in source));
 
-  const [isLoading, setIsLoading] = useState(!isLocalAsset);
+  const sourceKey = useMemo(() => {
+    const rawSource = source as any;
+    if (typeof rawSource === 'string') return rawSource.trim();
+    if (typeof rawSource === 'number') return `${rawSource}`;
+    if (rawSource && typeof rawSource === 'object' && 'uri' in rawSource) {
+      return rawSource.uri || '';
+    }
+    return '';
+  }, [source]);
+
+  const alreadyLoaded =
+    isLocalAsset || (sourceKey ? loadedImageUrlsSet.has(sourceKey) : false);
+
+  const [isLoaded, setIsLoaded] = useState<boolean>(alreadyLoaded);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const loadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (isLocalAsset || (sourceKey && loadedImageUrlsSet.has(sourceKey))) {
+      setIsLoaded(true);
+      setIsLoading(false);
+      if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+      return;
+    }
+
+    setIsLoaded(false);
+    setIsLoading(false);
+    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+  }, [sourceKey, isLocalAsset]);
+
+  const handleLoadStart = () => {
+    if (
+      isLoaded ||
+      isLocalAsset ||
+      (sourceKey && loadedImageUrlsSet.has(sourceKey))
+    ) {
+      return;
+    }
+    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+    loadTimerRef.current = setTimeout(() => {
+      if (!isLoaded && !(sourceKey && loadedImageUrlsSet.has(sourceKey))) {
+        setIsLoading(true);
+      }
+    }, 350);
+  };
+
+  const handleLoadSuccess = () => {
+    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+    if (sourceKey) loadedImageUrlsSet.add(sourceKey);
+    setIsLoaded(true);
+    setIsLoading(false);
+  };
+
+  const handleLoadError = () => {
+    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+    setIsLoading(false);
+  };
 
   const containerWidth = useSharedValue(0);
   const containerHeight = useSharedValue(0);
@@ -177,7 +242,7 @@ export const ZoomableImage: React.FC<ZoomableImageProps> = ({
 
   // 2. Pan Gesture (Active only when zoomed in)
   const panGesture = Gesture.Pan()
-    .enabled(isZoomed || isCurrentlyZoomed.value)
+    .enabled(isZoomed)
     .onUpdate(e => {
       if (savedScale.value > minScale) {
         const maxBoundX = (containerWidth.value * (scale.value - 1)) / 2;
@@ -272,7 +337,7 @@ export const ZoomableImage: React.FC<ZoomableImageProps> = ({
 
   return (
     <View style={[styles.container, { width, height }]} onLayout={onLayout}>
-      {isLoading && (
+      {!isLoaded && isLoading && (
         <View style={styles.loaderContainer} pointerEvents="none">
           <LottieView
             source={imagePath.loading}
@@ -287,14 +352,10 @@ export const ZoomableImage: React.FC<ZoomableImageProps> = ({
           source={resolvedSource}
           style={[styles.image, animatedStyle]}
           resizeMode="contain"
-          onLoadStart={() => {
-            if (!isLocalAsset) {
-              setIsLoading(true);
-            }
-          }}
-          onLoad={() => setIsLoading(false)}
-          onLoadEnd={() => setIsLoading(false)}
-          onError={() => setIsLoading(false)}
+          onLoadStart={handleLoadStart}
+          onLoad={handleLoadSuccess}
+          onLoadEnd={handleLoadSuccess}
+          onError={handleLoadError}
         />
       </GestureDetector>
     </View>
@@ -311,6 +372,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
+    zIndex: 1,
   },
   loaderContainer: {
     position: 'absolute',
@@ -320,7 +382,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 2,
+    zIndex: 0,
   },
   lottieLoader: {
     width: scale(65),
