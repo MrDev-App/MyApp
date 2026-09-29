@@ -21,6 +21,7 @@ import { fs, scale } from '@theme/sizes';
 import fonts from '@theme/fonts';
 import colors from '@theme/colors';
 import { useAppLanguage } from '@hooks';
+import { Translation } from '@i18n/language';
 
 export interface LoaderProps {
   /**
@@ -83,13 +84,11 @@ export interface LoaderProps {
 
   /**
    * Overlay tint color on top of blur.
-   * @default 'rgba(0, 0, 0, 0.35)'
    */
   overlayColor?: string;
 
   /**
    * Fallback background color when reduced transparency is active.
-   * @default 'rgba(0, 0, 0, 0.35)'
    */
   reducedTransparencyFallbackColor?: string;
 
@@ -152,13 +151,11 @@ export interface LoaderProps {
 
   /**
    * Hindi text fallback.
-   * @default 'कृपया प्रतीक्षा करें...'
    */
   textHi?: string;
 
   /**
    * English text fallback.
-   * @default 'Please wait...'
    */
   textEn?: string;
 
@@ -217,8 +214,8 @@ export const Loader: React.FC<LoaderProps> = ({
   showBlur = true,
   blurType = 'dark',
   blurAmount = 6,
-  overlayColor = 'rgba(0, 0, 0, 0.35)',
-  reducedTransparencyFallbackColor = 'rgba(0, 0, 0, 0.35)',
+  overlayColor = colors.overlayBackdrop,
+  reducedTransparencyFallbackColor = colors.overlayBackdrop,
   blurStyle,
 
   source = imagePath.loading,
@@ -231,8 +228,8 @@ export const Loader: React.FC<LoaderProps> = ({
   speed = 1,
 
   text,
-  textHi = 'कृपया प्रतीक्षा करें...',
-  textEn = 'Please wait...',
+  textHi,
+  textEn,
   showText = true,
   textColor = colors.white,
   fontSize = fs(9.5),
@@ -245,13 +242,18 @@ export const Loader: React.FC<LoaderProps> = ({
     .damping(100)
     .stiffness(120),
 }) => {
-  const { select } = useAppLanguage();
+  const { t, select } = useAppLanguage();
 
   if (!visible) {
     return null;
   }
 
-  const resolvedText = text ?? select(textHi, textEn);
+  const defaultLocalizedText = t(Translation.PLEASE_WAIT);
+  const resolvedText =
+    text ??
+    (textHi || textEn
+      ? select(textHi || defaultLocalizedText, textEn || defaultLocalizedText)
+      : defaultLocalizedText);
 
   const containerDynamicStyle: StyleProp<ViewStyle> = [
     fullscreen ? styles.fullscreen : styles.absoluteContainer,
@@ -352,7 +354,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.TiroHindiRegular,
     marginTop: scale(2),
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.85)',
+    textShadowColor: colors.overlayDarkStrong,
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },

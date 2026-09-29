@@ -24,23 +24,23 @@ export const TempleSkeletonList: React.FC<TempleSkeletonListProps> = ({
               circle
               width={scale(48)}
               height={scale(48)}
-              baseColor="rgba(183, 168, 151, 0.25)"
-              highlightColor="rgba(255, 255, 255, 0.7)"
+              baseColor={colors.skeletonBase}
+              highlightColor={colors.skeletonHighlight}
             />
             <View style={styles.headerTextCol}>
               <Skeleton
                 width="65%"
                 height={fs(16)}
                 borderRadius={scale(4)}
-                baseColor="rgba(183, 168, 151, 0.25)"
-                highlightColor="rgba(255, 255, 255, 0.7)"
+                baseColor={colors.skeletonBase}
+                highlightColor={colors.skeletonHighlight}
               />
               <Skeleton
                 width="45%"
                 height={fs(12)}
                 borderRadius={scale(4)}
-                baseColor="rgba(183, 168, 151, 0.22)"
-                highlightColor="rgba(255, 255, 255, 0.7)"
+                baseColor={colors.skeletonTextSubtle}
+                highlightColor={colors.skeletonHighlight}
                 style={styles.locationSkeleton}
               />
             </View>
@@ -50,8 +50,8 @@ export const TempleSkeletonList: React.FC<TempleSkeletonListProps> = ({
             width={scale(110)}
             height={fs(20)}
             borderRadius={scale(8)}
-            baseColor="rgba(251, 148, 55, 0.12)"
-            highlightColor="rgba(255, 255, 255, 0.7)"
+            baseColor={colors.accentOrangeSubtle}
+            highlightColor={colors.skeletonHighlight}
             style={styles.deitySkeleton}
           />
 
@@ -60,15 +60,15 @@ export const TempleSkeletonList: React.FC<TempleSkeletonListProps> = ({
               width="96%"
               height={fs(13)}
               borderRadius={scale(4)}
-              baseColor="rgba(183, 168, 151, 0.22)"
-              highlightColor="rgba(255, 255, 255, 0.7)"
+              baseColor={colors.skeletonTextSubtle}
+              highlightColor={colors.skeletonHighlight}
             />
             <Skeleton
               width="80%"
               height={fs(13)}
               borderRadius={scale(4)}
-              baseColor="rgba(183, 168, 151, 0.22)"
-              highlightColor="rgba(255, 255, 255, 0.7)"
+              baseColor={colors.skeletonTextSubtle}
+              highlightColor={colors.skeletonHighlight}
               style={styles.significanceSecondLine}
             />
           </View>
@@ -79,8 +79,8 @@ export const TempleSkeletonList: React.FC<TempleSkeletonListProps> = ({
               width={scale(85)}
               height={fs(12)}
               borderRadius={scale(4)}
-              baseColor="rgba(251, 148, 55, 0.15)"
-              highlightColor="rgba(255, 255, 255, 0.7)"
+              baseColor={colors.skeletonAccentBase}
+              highlightColor={colors.skeletonHighlight}
             />
           </View>
         </View>
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     paddingTop: scale(4),
   },
   templeCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    // backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderRadius: scale(18),
     padding: scale(16),
     marginBottom: scale(14),
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: scale(2) },
     shadowOpacity: 0.04,
     shadowRadius: scale(4),
-    elevation: 1,
+    // elevation: 1,
   },
   cardHeaderRow: {
     flexDirection: 'row',

@@ -415,4 +415,7 @@ export default {
   BOOK_SHLOKA_TRANSLATION_HEADER: 'Meaning',
   BOOK_OPEN_BOOK: 'Open Book',
   BOOK_PAGE_OF: 'Page {{current}} of {{total}}',
+  DONE: 'Done',
+  PLEASE_WAIT: 'Please wait...',
+  CLOSE: 'Close',
 };

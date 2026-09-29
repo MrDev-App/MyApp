@@ -4,7 +4,12 @@ import {
   getDocs,
   query,
   orderBy,
+  where,
+  limit,
 } from '@react-native-firebase/firestore';
+import { AppState } from 'react-native';
+import { Storage } from '@services/storageService';
+import { STORAGE_KEYS } from '@constants/storageKeys';
 import imagePath from '@assets/index';
 import i18n from '@i18n/index';
 import { Translation } from '@i18n/language';
@@ -16,11 +21,33 @@ import { Festival } from './types';
 
 export type { Festival, FestivalTranslation, VratDetails } from './types';
 
-// In-memory runtime cache for festivals
+// In-memory runtime RAM cache
 let festivalCache: Festival[] | null = null;
 
 export const getCachedFestivalData = (): Festival[] | null => {
-  return festivalCache;
+  if (festivalCache && festivalCache.length > 0) {
+    return festivalCache;
+  }
+  try {
+    const rawCache = Storage.getString(STORAGE_KEYS.FESTIVALS_CACHE, '');
+    if (rawCache) {
+      const parsed = JSON.parse(rawCache);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const mapped = parsed.map(item => mapFestivalDoc(item));
+        mapped.sort((a, b) => {
+          if (a.month !== b.month) {
+            return a.month - b.month;
+          }
+          return a.day - b.day;
+        });
+        festivalCache = mapped;
+        return festivalCache;
+      }
+    }
+  } catch (err) {
+    console.error('❌ [festivalApi] Error reading cached festivals from MMKV:', err);
+  }
+  return null;
 };
 
 const REGION_TRANSLATION_KEYS: Record<string, string> = {
@@ -229,13 +256,25 @@ export const mapFestivalDoc = (doc: any): Festival => {
 
 export const clearFestivalDataCache = (): void => {
   festivalCache = null;
+  try {
+    Storage.delete(STORAGE_KEYS.FESTIVALS_CACHE);
+  } catch (e) {
+    console.error('❌ [festivalApi] Error clearing MMKV festival cache:', e);
+  }
 };
 
-export const getFestivalData = async (
+/**
+ * Fetch ALL festivals from Firestore and persist into MMKV storage.
+ * If offline or non-forced, returns cached MMKV data immediately.
+ */
+export const getAllFestivals = async (
   forceRefresh: boolean = false,
 ): Promise<Festival[]> => {
-  if (!forceRefresh && festivalCache && festivalCache.length > 0) {
-    return festivalCache;
+  if (!forceRefresh) {
+    const cached = getCachedFestivalData();
+    if (cached && cached.length > 0) {
+      return cached;
+    }
   }
 
   try {
@@ -251,13 +290,20 @@ export const getFestivalData = async (
     }
 
     if (!snapshot || snapshot.empty) {
-      return festivalCache || [];
+      return getCachedFestivalData() || [];
     }
 
     const rawList = snapshot.docs.map(docSnap => ({
       id: docSnap.id,
       ...docSnap.data(),
     }));
+
+    // Save into MMKV storage for persistence across app closes
+    try {
+      Storage.set(STORAGE_KEYS.FESTIVALS_CACHE, JSON.stringify(rawList));
+    } catch (mmkvErr) {
+      console.warn('❌ [festivalApi] Error saving festivals to MMKV:', mmkvErr);
+    }
 
     const festivals: Festival[] = rawList.map(item => mapFestivalDoc(item));
 
@@ -272,41 +318,75 @@ export const getFestivalData = async (
     return festivals;
   } catch (error) {
     console.error(
-      '❌ [festivalApi] Error fetching festival data from Firestore:',
+      '❌ [festivalApi] Error fetching all festival data from Firestore:',
       error,
     );
-    return festivalCache || [];
+    const cachedFallback = getCachedFestivalData();
+    if (cachedFallback && cachedFallback.length > 0) {
+      return cachedFallback;
+    }
+    throw error;
+  }
+};
+
+export const getFestivalData = getAllFestivals;
+
+/**
+ * Fetch upcoming festivals for Home Screen (starting from today)
+ */
+export const getHomeScreenFestivals = async (
+  limitCount: number = 10,
+  forceRefresh: boolean = false,
+): Promise<Festival[]> => {
+  try {
+    const all = await getAllFestivals(forceRefresh);
+    if (!all || all.length === 0) {
+      return [];
+    }
+
+    const today = new Date();
+    const todayStart = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+    ).getTime();
+
+    const upcoming = all.filter(item => {
+      const festivalDate = new Date(
+        item.year || today.getFullYear(),
+        item.month - 1,
+        item.day,
+      ).getTime();
+      return festivalDate >= todayStart;
+    });
+
+    return (upcoming.length > 0 ? upcoming : all).slice(0, limitCount);
+  } catch {
+    const cached = getCachedFestivalData() || [];
+    return cached.slice(0, limitCount);
   }
 };
 
 export const getFestivalsByMonth = async (
   month: number,
 ): Promise<Festival[]> => {
-  const allFestivals = await getFestivalData();
+  const allFestivals = await getAllFestivals();
   return allFestivals.filter(item => item.month === month);
 };
 
 export const getUpcomingFestivals = async (
   limitCount: number = 10,
 ): Promise<Festival[]> => {
-  const allFestivals = await getFestivalData();
-  const today = new Date();
-  const todayStart = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate(),
-  ).getTime();
-
-  const upcoming = allFestivals.filter(item => {
-    const festivalDate = new Date(
-      item.year || today.getFullYear(),
-      item.month - 1,
-      item.day,
-    ).getTime();
-    return festivalDate >= todayStart;
-  });
-
-  return (upcoming.length > 0 ? upcoming : allFestivals).slice(0, limitCount);
+  return getHomeScreenFestivals(limitCount);
 };
 
-export default getFestivalData;
+// Automatic foreground sync: when user comes back or opens the app, fetch updated festival data and save to MMKV
+AppState.addEventListener('change', nextState => {
+  if (nextState === 'active') {
+    getAllFestivals(true).catch(err => {
+      console.warn('⚠️ [festivalApi] Background festival sync on app resume failed:', err);
+    });
+  }
+});
+
+export default getAllFestivals;

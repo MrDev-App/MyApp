@@ -18,7 +18,6 @@ import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { GradientBackground, ScreenHeader } from '@components';
-import Skeleton from '@components/Skeleton';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
@@ -28,6 +27,7 @@ import {
   getAllShlokaCategoriesFromFirebase,
 } from '@api/shlokaApi';
 import ShlokaCategoryCard from './components/ShlokaCategoryCard';
+import ShlokaGridSkeleton from './components/ShlokaGridSkeleton';
 
 export const AllShlokasScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
@@ -149,36 +149,6 @@ export const AllShlokasScreen: React.FC = () => {
     [gridDimensions.horizontalPadding, insets.bottom],
   );
 
-  // Skeleton Grid placeholders while loading
-  const renderSkeletonGrid = () => {
-    const placeholderCount = 8;
-    return (
-      <View
-        style={[
-          styles.listContent,
-          {
-            paddingHorizontal: gridDimensions.horizontalPadding,
-            paddingTop: scale(12),
-          },
-        ]}
-      >
-        <View style={styles.skeletonGridWrapper}>
-          {Array.from({ length: placeholderCount }).map((_, idx) => (
-            <Skeleton
-              key={`skel_${idx}`}
-              width={gridDimensions.cardWidth}
-              height={gridDimensions.cardHeight}
-              borderRadius={scale(18)}
-              baseColor={colors.skeletonBase}
-              highlightColor={colors.skeletonHighlight}
-              style={{ marginBottom: gridDimensions.gap }}
-            />
-          ))}
-        </View>
-      </View>
-    );
-  };
-
   return (
     <GradientBackground>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -195,7 +165,13 @@ export const AllShlokasScreen: React.FC = () => {
         {/* Card Grid / Skeleton / Empty State */}
         <View style={styles.contentContainer}>
           {loading ? (
-            renderSkeletonGrid()
+            <ShlokaGridSkeleton
+              count={8}
+              horizontalPadding={gridDimensions.horizontalPadding}
+              gap={gridDimensions.gap}
+              cardWidth={gridDimensions.cardWidth}
+              cardHeight={gridDimensions.cardHeight}
+            />
           ) : categories.length > 0 ? (
             <FlatList
               key={`grid_${gridDimensions.numColumns}`}
@@ -258,11 +234,6 @@ const styles = StyleSheet.create({
   columnWrapper: {
     justifyContent: 'flex-start',
     marginBottom: scale(12),
-  },
-  skeletonGridWrapper: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
   },
   emptyStateContainer: {
     alignItems: 'center',

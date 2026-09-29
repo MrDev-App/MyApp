@@ -35,6 +35,32 @@ const FestivalModal: React.FC<FestivalModalProps> = ({
   const insets = useSafeAreaInsets();
   const { t, select } = useAppLanguage();
 
+  const [modalImgSrc, setModalImgSrc] = React.useState<any>(() => {
+    const raw = festival?.image;
+    return typeof raw === 'string' && raw.trim().length > 0
+      ? { uri: raw.trim() }
+      : typeof raw === 'number' ||
+        (raw && typeof raw === 'object' && (raw as any).uri)
+      ? raw
+      : imagePath.fallBackImage;
+  });
+
+  React.useEffect(() => {
+    if (festival?.image) {
+      const raw = festival.image;
+      const nextModalImage =
+        typeof raw === 'string' && raw.trim().length > 0
+          ? { uri: raw.trim() }
+          : typeof raw === 'number' ||
+            (raw && typeof raw === 'object' && (raw as any).uri)
+          ? raw
+          : imagePath.fallBackImage;
+      setModalImgSrc(nextModalImage);
+    } else {
+      setModalImgSrc(imagePath.fallBackImage);
+    }
+  }, [festival?.image]);
+
   if (!visible || !festival) {
     return null;
   }
@@ -103,13 +129,15 @@ const FestivalModal: React.FC<FestivalModalProps> = ({
           onPress={onClose}
           activeOpacity={0.7}
           hitSlop={CLOSE_BTN_HIT_SLOP}
+          accessibilityLabel={t(Translation.CLOSE)}
         >
           <CloseIcon size={scale(16)} color={colors.white} strokeWidth={2.4} />
         </TouchableOpacity>
 
         <Image
-          source={festival.image || imagePath.fallBackImage}
+          source={modalImgSrc || imagePath.fallBackImage}
           style={styles.modalImage}
+          onError={() => setModalImgSrc(imagePath.fallBackImage)}
         />
 
         <ScrollView
@@ -224,7 +252,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(18),
     backgroundColor: colors.ring,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: colors.whiteTransparent20,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 20,
@@ -306,7 +334,7 @@ const styles = StyleSheet.create({
   storyContainer: {
     marginTop: scale(14),
     padding: scale(12),
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.whiteTransparent05,
     borderRadius: scale(10),
     borderLeftWidth: scale(3),
     borderLeftColor: colors.ring,

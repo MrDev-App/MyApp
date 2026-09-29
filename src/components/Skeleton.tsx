@@ -101,9 +101,9 @@ export const Skeleton: React.FC<SkeletonProps> = ({
       {layoutWidth > 0 && (
         <AnimatedLinearGradient
           colors={[
-            'rgba(255, 255, 255, 0)',
+            colors.skeletonTransparent,
             highlightColor,
-            'rgba(255, 255, 255, 0)',
+            colors.skeletonTransparent,
           ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}

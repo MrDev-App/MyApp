@@ -39,7 +39,14 @@ export default function BannerAdComponent({
     : unitId;
 
   return (
-    <View style={[styles.container, style]}>
+    <View
+      style={[
+        styles.container,
+        !adLoaded && styles.hiddenContainer,
+        adLoaded && styles.visibleContainer,
+        adLoaded && style,
+      ]}
+    >
       <BannerAd
         unitId={resolvedUnitId}
         size={size}
@@ -62,9 +69,18 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  hiddenContainer: {
+    height: 0,
+    width: 0,
+    overflow: 'hidden',
+    marginVertical: 0,
+    padding: 0,
+    opacity: 0,
+  },
+  visibleContainer: {
     width: '100%',
     marginVertical: 10,
-    minHeight: 50,
   },
 });
 

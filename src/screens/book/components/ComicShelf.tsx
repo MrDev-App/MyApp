@@ -39,14 +39,10 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.comicsScroll}
         >
-          {[1, 2, 3].map(item => (
+          {/* {[1, 2, 3].map(item => (
             <View key={item} style={styles.comicCard}>
               <View style={styles.comicImageContainer}>
-                <Skeleton
-                  width="100%"
-                  height="100%"
-                  borderRadius={scale(14)}
-                />
+                <Skeleton width="100%" height="100%" borderRadius={scale(14)} />
               </View>
               <Skeleton
                 width={scale(100)}
@@ -61,7 +57,41 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
                 style={{ marginTop: scale(4) }}
               />
             </View>
-          ))}
+          ))} */}
+
+          <View style={styles.horizontalRow}>
+            {[1, 2, 3].map(item => (
+              <View
+                key={`skel_book_2_${item}`}
+                style={styles.comicCardSkeleton}
+              >
+                <Skeleton
+                  width={scale(130)}
+                  height={scale(180)}
+                  borderRadius={scale(14)}
+                  baseColor={colors.skeletonBase}
+                  highlightColor={colors.skeletonHighlight}
+                  style={styles.bookCoverSkeleton}
+                />
+                <Skeleton
+                  width={scale(110)}
+                  height={fs(12)}
+                  borderRadius={scale(3)}
+                  baseColor={colors.skeletonBase}
+                  highlightColor={colors.skeletonHighlight}
+                  style={styles.mt4}
+                />
+                <Skeleton
+                  width={scale(70)}
+                  height={fs(10)}
+                  borderRadius={scale(3)}
+                  baseColor={colors.skeletonAccentBase}
+                  highlightColor={colors.skeletonHighlight}
+                  style={styles.mt4}
+                />
+              </View>
+            ))}
+          </View>
         </ScrollView>
       </View>
     );
@@ -81,7 +111,9 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
             typeof story.image === 'string' && story.image.trim().length > 0
               ? { uri: story.image.trim() }
               : typeof story.image === 'number' ||
-                (story.image && typeof story.image === 'object' && story.image.uri)
+                (story.image &&
+                  typeof story.image === 'object' &&
+                  story.image.uri)
               ? story.image
               : imagePath.fallBackImage;
 
@@ -152,6 +184,22 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 2,
     marginBottom: scale(4),
+  },
+  horizontalRow: {
+    flexDirection: 'row',
+
+    gap: scale(16),
+  },
+  comicCardSkeleton: {
+    width: scale(130),
+  },
+
+  bookCoverSkeleton: {
+    borderWidth: 1,
+    borderColor: colors.skeletonBase,
+  },
+  mt4: {
+    marginTop: scale(4),
   },
   comicImage: {
     width: '100%',

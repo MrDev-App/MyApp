@@ -142,17 +142,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.charcoal,
 
     borderColor: colors.borderSubtle,
-    ...Platform.select({
-      ios: {
-        shadowColor: colors.cardOverlay,
-        shadowOffset: { width: 0, height: scale(2) },
-        shadowOpacity: 0.08,
-        shadowRadius: scale(5),
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
+
+    shadowColor: colors.cardOverlay,
+    shadowOffset: { width: 0, height: scale(2) },
+    shadowOpacity: 0.08,
+    shadowRadius: scale(5),
   },
   cardInner: {
     ...StyleSheet.absoluteFill,

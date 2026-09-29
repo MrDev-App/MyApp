@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import Video from 'react-native-video';
-import Skeleton from '@components/Skeleton';
 import imagePath from '@assets/index';
 import colors from '@theme/colors';
 import { verticalScale } from '@theme/sizes';
@@ -205,16 +204,6 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
             }
           }}
           onError={handleVideoError}
-        />
-      )}
-
-      {loading && (
-        <Skeleton
-          width="100%"
-          height={verticalScale(310)}
-          baseColor={colors.foreground}
-          highlightColor={colors.skeletonHighlight}
-          style={styles.absoluteSkeleton}
         />
       )}
     </View>

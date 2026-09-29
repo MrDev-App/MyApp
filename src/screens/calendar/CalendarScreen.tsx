@@ -8,8 +8,8 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useAppLanguage } from '@hooks';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useAppLanguage, useNetworkStatus } from '@hooks';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -24,7 +24,7 @@ import {
   AnimatedListItem,
 } from '@components';
 import {
-  getFestivalData,
+  getAllFestivals,
   getCachedFestivalData,
   Festival,
 } from '@api/festivalApi';
@@ -32,27 +32,172 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { Back } from '@assets/index';
 import imagePath from '@assets/index';
 import { getMonthName, getCalendarLocaleConfig } from '@constants/calendarData';
+import Skeleton from '@components/Skeleton';
+import CalendarSkeleton from './components/CalendarSkeleton';
+
+interface CalendarFestivalCardProps {
+  item: Festival;
+  index: number;
+  currentMonthDate: string;
+  onPress: (item: Festival) => void;
+}
+
+const CalendarFestivalCard: React.FC<CalendarFestivalCardProps> = React.memo(
+  ({ item, index, currentMonthDate, onPress }) => {
+    const { select } = useAppLanguage();
+    const rawImage = item.image;
+    const initialSource =
+      typeof rawImage === 'string' && rawImage.trim().length > 0
+        ? { uri: rawImage.trim() }
+        : typeof rawImage === 'number' ||
+          (rawImage && typeof rawImage === 'object' && (rawImage as any).uri)
+        ? rawImage
+        : imagePath.fallBackImage;
+
+    const [imgSrc, setImgSrc] = React.useState(initialSource);
+
+    React.useEffect(() => {
+      const nextSource =
+        typeof item.image === 'string' && item.image.trim().length > 0
+          ? { uri: item.image.trim() }
+          : typeof item.image === 'number' ||
+            (item.image &&
+              typeof item.image === 'object' &&
+              (item.image as any).uri)
+          ? item.image
+          : imagePath.fallBackImage;
+      setImgSrc(nextSource);
+    }, [item.image]);
+
+    const name = select(item.hindiName, item.englishName);
+    const dateStr = select(item.dateStrHi, item.dateStrEn);
+    const tithi = select(
+      item.tithiHi || item.tithi,
+      item.tithi || item.tithiHi,
+    );
+    const category = select(
+      item.categoryHi || item.category,
+      item.category || item.categoryHi,
+    );
+
+    return (
+      <AnimatedListItem
+        key={`${currentMonthDate}_${item.id}_${index}`}
+        index={index}
+        delayStep={40}
+      >
+        <View style={styles.festivalCardWrapper}>
+          <AnimatedButton
+            style={styles.festivalCardContainer}
+            activeOpacity={0.85}
+            onPress={() => onPress(item)}
+          >
+            <ImageBackground
+              source={imgSrc || imagePath.fallBackImage}
+              style={styles.cardBgImage}
+              imageStyle={styles.cardBgImageStyle}
+              fadeDuration={0}
+              onError={() => setImgSrc(imagePath.fallBackImage)}
+            >
+              <View style={styles.cardTintOverlay} pointerEvents="none">
+                {/* Top Row: Date capsule & Category Badge */}
+                <View style={styles.cardTopRow}>
+                  <View style={styles.dateCapsule}>
+                    <Text style={styles.dateCapsuleText}>{dateStr}</Text>
+                  </View>
+                  {category ? (
+                    <View style={styles.categoryBadge}>
+                      <Text style={styles.categoryBadgeText} numberOfLines={1}>
+                        {category}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+
+                {/* Bottom Row: Festival Name & Sub-details */}
+                <View style={styles.cardBottomRow}>
+                  <Text style={styles.cardFestivalName} numberOfLines={1}>
+                    {name}
+                  </Text>
+                  {tithi ? (
+                    <View style={styles.tithiRow}>
+                      <Image
+                        source={imagePath.lotus}
+                        style={styles.sakuraIcon}
+                      />
+                      <Text style={styles.cardFestivalTithi} numberOfLines={1}>
+                        {tithi}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+              </View>
+            </ImageBackground>
+          </AnimatedButton>
+        </View>
+      </AnimatedListItem>
+    );
+  },
+);
+
+CalendarFestivalCard.displayName = 'CalendarFestivalCard';
 
 const CalendarScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const { currentLanguage } = useAppLanguage();
+  const isOffline = useNetworkStatus();
 
   const [festivals, setFestivals] = React.useState<Festival[]>(() => {
     return getCachedFestivalData() || [];
   });
+  const [loading, setLoading] = React.useState<boolean>(
+    () => !festivals || festivals.length === 0,
+  );
 
   LocaleConfig.locales[currentLanguage] =
     getCalendarLocaleConfig(currentLanguage);
   LocaleConfig.defaultLocale = currentLanguage;
 
-  useEffect(() => {
-    getFestivalData().then(data => {
+  const loadFestivals = React.useCallback(async (force = false) => {
+    if (festivals.length === 0) {
+      setLoading(true);
+    }
+    try {
+      const data = await getAllFestivals(force);
       if (data && data.length > 0) {
         setFestivals(data);
       }
-    });
-  }, []);
+    } catch (e) {
+      console.warn('[CalendarScreen] Error fetching all festivals:', e);
+    } finally {
+      setLoading(false);
+    }
+  }, [festivals.length]);
+
+  useEffect(() => {
+    loadFestivals();
+  }, [loadFestivals]);
+
+  // Auto-fetch when internet is restored if list is empty
+  useEffect(() => {
+    if (!isOffline && festivals.length === 0) {
+      loadFestivals(true);
+    }
+  }, [isOffline, festivals.length, loadFestivals]);
+
+  // Focus effect: if list is empty, retry fetching
+  useFocusEffect(
+    React.useCallback(() => {
+      if (festivals.length === 0) {
+        loadFestivals(true);
+      }
+    }, [festivals.length, loadFestivals]),
+  );
+
+  const showSkeleton =
+    (loading && festivals.length === 0) ||
+    (isOffline && festivals.length === 0);
 
   const getTodayString = () => {
     const d = new Date();
@@ -133,72 +278,14 @@ const CalendarScreen = () => {
   }, [festivals, currentYearNum, selectedDate]);
 
   const renderFestivalCard = (item: Festival, index: number) => {
-    const name = currentLanguage === 'hi' ? item.hindiName : item.englishName;
-    const dateStr = currentLanguage === 'hi' ? item.dateStrHi : item.dateStrEn;
-    const tithi =
-      currentLanguage === 'hi'
-        ? item.tithiHi || item.tithi
-        : item.tithi || item.tithiHi;
-    const category =
-      currentLanguage === 'hi'
-        ? item.categoryHi || item.category
-        : item.category || item.categoryHi;
-
     return (
-      <AnimatedListItem
+      <CalendarFestivalCard
         key={`${currentMonthDate}_${item.id}_${index}`}
+        item={item}
         index={index}
-        delayStep={40}
-      >
-        <View style={styles.festivalCardWrapper}>
-          <AnimatedButton
-            style={styles.festivalCardContainer}
-            activeOpacity={0.85}
-            onPress={() => setDetailFestival(item)}
-          >
-            <ImageBackground
-              source={item.image || imagePath.fallBackImage}
-              style={styles.cardBgImage}
-              imageStyle={styles.cardBgImageStyle}
-              fadeDuration={0}
-            >
-              <View style={styles.cardTintOverlay} pointerEvents="none">
-                {/* Top Row: Date capsule & Category Badge */}
-                <View style={styles.cardTopRow}>
-                  <View style={styles.dateCapsule}>
-                    <Text style={styles.dateCapsuleText}>{dateStr}</Text>
-                  </View>
-                  {category ? (
-                    <View style={styles.categoryBadge}>
-                      <Text style={styles.categoryBadgeText} numberOfLines={1}>
-                        {category}
-                      </Text>
-                    </View>
-                  ) : null}
-                </View>
-
-                {/* Bottom Row: Festival Name & Sub-details */}
-                <View style={styles.cardBottomRow}>
-                  <Text style={styles.cardFestivalName} numberOfLines={1}>
-                    {name}
-                  </Text>
-                  {tithi ? (
-                    <View style={styles.tithiRow}>
-                      <Image
-                        source={imagePath.lotus}
-                        style={styles.sakuraIcon}
-                      />
-                      <Text style={styles.cardFestivalTithi} numberOfLines={1}>
-                        {tithi}
-                      </Text>
-                    </View>
-                  ) : null}
-                </View>
-              </View>
-            </ImageBackground>
-          </AnimatedButton>
-        </View>
-      </AnimatedListItem>
+        currentMonthDate={currentMonthDate}
+        onPress={setDetailFestival}
+      />
     );
   };
 
@@ -222,83 +309,95 @@ const CalendarScreen = () => {
           >
             <Back width={scale(12)} height={scale(12)} stroke={colors.white} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{currentMonthName}</Text>
+          {showSkeleton ? (
+            <Skeleton
+              width={scale(160)}
+              height={fs(18)}
+              borderRadius={scale(4)}
+            />
+          ) : (
+            <Text style={styles.headerTitle}>{currentMonthName}</Text>
+          )}
         </View>
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingBottom: insets.bottom + scale(80) },
-          ]}
-        >
-          {/* Calendar Calendar view */}
-          <Calendar
-            key={`${currentLanguage}-${currentMonthDate.substring(0, 7)}`}
-            current={currentMonthDate}
-            onDayPress={day => {
-              setSelectedDate(day.dateString);
-              setCurrentMonthDate(day.dateString);
-            }}
-            hideArrows={false}
-            renderHeader={() => null}
-            onMonthChange={month => {
-              setCurrentMonthDate(month.dateString);
-            }}
-            markedDates={calendarMarkedDates}
-            theme={{
-              calendarBackground: 'transparent',
-              textDisabledColor: colors.neutralDisabled,
-              textSectionTitleColor: colors.ring,
-              textDayFontSize: fs(14),
-              textMonthFontSize: fs(20),
-              textDayHeaderFontSize: fs(12),
-              monthTextColor: colors.secondary,
-              todayTextColor: colors.ring,
-              dayTextColor: colors.secondary,
-              selectedDayBackgroundColor: colors.ring,
-              selectedDayTextColor: colors.white,
-              textDayFontFamily: 'CormorantGaramond_700Bold',
-              textMonthFontFamily: 'CormorantGaramond_700Bold',
-              textDayHeaderFontFamily: 'CormorantGaramond_700Bold',
-              arrowColor: colors.ring,
-            }}
-          />
+        {showSkeleton ? (
+          <CalendarSkeleton />
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingBottom: insets.bottom + scale(80) },
+            ]}
+          >
+            {/* Calendar Calendar view */}
+            <Calendar
+              key={`${currentLanguage}-${currentMonthDate.substring(0, 7)}`}
+              current={currentMonthDate}
+              onDayPress={day => {
+                setSelectedDate(day.dateString);
+                setCurrentMonthDate(day.dateString);
+              }}
+              hideArrows={false}
+              renderHeader={() => null}
+              onMonthChange={month => {
+                setCurrentMonthDate(month.dateString);
+              }}
+              markedDates={calendarMarkedDates}
+              theme={{
+                calendarBackground: 'transparent',
+                textDisabledColor: colors.neutralDisabled,
+                textSectionTitleColor: colors.ring,
+                textDayFontSize: fs(14),
+                textMonthFontSize: fs(20),
+                textDayHeaderFontSize: fs(12),
+                monthTextColor: colors.secondary,
+                todayTextColor: colors.ring,
+                dayTextColor: colors.secondary,
+                selectedDayBackgroundColor: colors.ring,
+                selectedDayTextColor: colors.white,
+                textDayFontFamily: 'CormorantGaramond_700Bold',
+                textMonthFontFamily: 'CormorantGaramond_700Bold',
+                textDayHeaderFontFamily: 'CormorantGaramond_700Bold',
+                arrowColor: colors.ring,
+              }}
+            />
 
-          {/* Selected Date Festival(s) if user tapped a date with festival */}
-          {selectedDayFestivals.length > 0 && (
+            {/* Selected Date Festival(s) if user tapped a date with festival */}
+            {selectedDayFestivals.length > 0 && (
+              <View style={styles.sectionContainer}>
+                <View style={styles.sectionHeaderRow}>
+                  <Text style={styles.sectionTitle}>
+                    {currentLanguage === 'hi'
+                      ? `चयनित तिथि के विशेष पर्व (${selectedDayFestivals.length})`
+                      : `Selected Date Festivals (${selectedDayFestivals.length})`}
+                  </Text>
+                </View>
+                {selectedDayFestivals.map(renderFestivalCard)}
+              </View>
+            )}
+
+            {/* Month's Full Festivals Section */}
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeaderRow}>
                 <Text style={styles.sectionTitle}>
                   {currentLanguage === 'hi'
-                    ? `चयनित तिथि के विशेष पर्व (${selectedDayFestivals.length})`
-                    : `Selected Date Festivals (${selectedDayFestivals.length})`}
+                    ? `${monthOnlyName} के समस्त त्यौहार (${monthFestivals.length})`
+                    : `All Festivals in ${monthOnlyName} (${monthFestivals.length})`}
                 </Text>
               </View>
-              {selectedDayFestivals.map(renderFestivalCard)}
+              {monthFestivals.length === 0 ? (
+                <Text style={styles.noDataText}>
+                  {currentLanguage === 'hi'
+                    ? 'इस महीने कोई त्योहार नहीं है'
+                    : 'No festivals this month'}
+                </Text>
+              ) : (
+                monthFestivals.map(renderFestivalCard)
+              )}
             </View>
-          )}
-
-          {/* Month's Full Festivals Section */}
-          <View style={styles.sectionContainer}>
-            <View style={styles.sectionHeaderRow}>
-              <Text style={styles.sectionTitle}>
-                {currentLanguage === 'hi'
-                  ? `${monthOnlyName} के समस्त त्यौहार (${monthFestivals.length})`
-                  : `All Festivals in ${monthOnlyName} (${monthFestivals.length})`}
-              </Text>
-            </View>
-            {monthFestivals.length === 0 ? (
-              <Text style={styles.noDataText}>
-                {currentLanguage === 'hi'
-                  ? 'इस महीने कोई त्योहार नहीं है'
-                  : 'No festivals this month'}
-              </Text>
-            ) : (
-              monthFestivals.map(renderFestivalCard)
-            )}
-          </View>
-        </ScrollView>
+          </ScrollView>
+        )}
 
         <FestivalModal
           visible={detailFestival !== null}

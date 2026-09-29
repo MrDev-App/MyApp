@@ -14,15 +14,31 @@ export const ShlokaSkeletonList: React.FC<ShlokaSkeletonListProps> = ({
     <View style={styles.skeletonList}>
       {items.map(index => (
         <View key={`shlok_skel_${index}`} style={styles.cardContainer}>
-          <Skeleton width={scale(58)} height="100%" borderRadius={0} />
+          <Skeleton
+            width={scale(58)}
+            height="100%"
+            borderRadius={0}
+            baseColor={colors.skeletonBase}
+            highlightColor={colors.skeletonHighlight}
+          />
           <View style={styles.textContainer}>
             <Skeleton
-              width="70%"
+              width="65%"
               height={fs(14)}
               borderRadius={scale(4)}
+              baseColor={colors.skeletonBase}
+              highlightColor={colors.skeletonHighlight}
               style={styles.titleSkeleton}
             />
-            <Skeleton width="45%" height={fs(10)} borderRadius={scale(3)} />
+
+            <Skeleton
+              width="45%"
+              height={fs(12)}
+              borderRadius={scale(4)}
+              baseColor={colors.skeletonAccentBase}
+              highlightColor={colors.skeletonHighlight}
+              style={styles.skeletonAction}
+            />
           </View>
         </View>
       ))}
@@ -39,7 +55,6 @@ const styles = StyleSheet.create({
   cardContainer: {
     width: '100%',
     height: scale(64),
-    backgroundColor: colors.white,
     borderRadius: scale(14),
     flexDirection: 'row',
     alignItems: 'center',
@@ -54,5 +69,8 @@ const styles = StyleSheet.create({
   },
   titleSkeleton: {
     marginBottom: scale(6),
+  },
+  skeletonAction: {
+    marginTop: scale(4),
   },
 });

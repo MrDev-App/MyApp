@@ -19,7 +19,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { ScreenHeader } from '@components';
+import { GradientBackground, ScreenHeader } from '@components';
 import Skeleton from '@components/Skeleton';
 import { useAppLanguage, useNetworkStatus } from '@hooks';
 import { Translation } from '@i18n/language';
@@ -180,7 +180,8 @@ export const TempleScreen: React.FC = () => {
     (isOffline && allTemples.length === 0);
 
   return (
-    <View style={styles.container}>
+    // <View style={styles.container}>
+    <GradientBackground>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScreenHeader title={screenTitle} />
 
@@ -287,7 +288,8 @@ export const TempleScreen: React.FC = () => {
           )}
         </View>
       </SafeAreaView>
-    </View>
+    </GradientBackground>
+    // </View>
   );
 };
 
@@ -300,7 +302,6 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    backgroundColor: colors.primary,
   },
   searchBarWrapper: {
     paddingHorizontal: scale(16),

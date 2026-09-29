@@ -26,6 +26,7 @@ import GradientBackground from '@components/GradientBackground';
 import { Translation } from '@i18n/language';
 import ComicShelf from './components/ComicShelf';
 import BookSkeleton from './components/BookSkeleton';
+import Skeleton from '@components/Skeleton';
 import { SearchIcon } from '@assets/SvgIcons';
 import colors from '@theme/colors';
 import {
@@ -179,29 +180,42 @@ const BookScreen = () => {
           </View>
         </View>
 
-        {/* Search Bar Button Trigger */}
-        <TouchableOpacity
-          style={styles.searchContainer}
-          onPress={() => {
-            triggerHaptic();
-            navigation.navigate('SearchScreen');
-          }}
-          activeOpacity={0.9}
-        >
-          <View style={styles.searchBar}>
-            <SearchIcon size={scale(18)} color={colors.ring} />
-            <Text
-              style={[
-                styles.searchInput,
-                {
-                  color: colors.neutralDisabled,
-                },
-              ]}
-            >
-              {t(Translation.BOOK_SEARCH_PLACEHOLDER)}
-            </Text>
+        {/* Search Bar Button Trigger / Skeleton */}
+        {loading ? (
+          <View style={styles.searchContainer}>
+            <Skeleton
+              width="100%"
+              height={scale(44)}
+              borderRadius={scale(14)}
+              baseColor={colors.skeletonBase}
+              highlightColor={colors.skeletonHighlight}
+              style={styles.searchSkeleton}
+            />
           </View>
-        </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.searchContainer}
+            onPress={() => {
+              triggerHaptic();
+              navigation.navigate('SearchScreen');
+            }}
+            activeOpacity={0.9}
+          >
+            <View style={styles.searchBar}>
+              <SearchIcon size={scale(18)} color={colors.ring} />
+              <Text
+                style={[
+                  styles.searchInput,
+                  {
+                    color: colors.neutralDisabled,
+                  },
+                ]}
+              >
+                {t(Translation.BOOK_SEARCH_PLACEHOLDER)}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
 
         {loading ? (
           <BookSkeleton />
@@ -365,6 +379,10 @@ const styles = StyleSheet.create({
   searchContainer: {
     paddingHorizontal: scale(20),
     marginVertical: scale(10),
+  },
+  searchSkeleton: {
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
   },
   searchBar: {
     flexDirection: 'row',

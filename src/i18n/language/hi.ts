@@ -416,4 +416,7 @@ export default {
   BOOK_SHLOKA_TRANSLATION_HEADER: 'भावार्थ',
   BOOK_OPEN_BOOK: 'पुस्तक खोलें',
   BOOK_PAGE_OF: 'पृष्ठ {{current}} / {{total}}',
+  DONE: 'संपन्न',
+  PLEASE_WAIT: 'कृपया प्रतीक्षा करें...',
+  CLOSE: 'बंद करें',
 };

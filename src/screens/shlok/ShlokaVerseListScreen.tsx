@@ -24,6 +24,7 @@ import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { GradientBackground, ScreenHeader } from '@components';
+import Skeleton from '@components/Skeleton';
 import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
@@ -284,6 +285,92 @@ export const ShlokaVerseListScreen: React.FC = () => {
     [insets.bottom],
   );
 
+  const renderVerseSkeletonList = () => (
+    <View style={styles.listContent}>
+      {listHeaderComponent}
+      {[1, 2, 3].map(idx => (
+        <View key={`verse_skel_${idx}`} style={styles.verseSkeletonCard}>
+          <View style={styles.verseSkeletonHeader}>
+            <Skeleton
+              circle
+              width={scale(28)}
+              height={scale(28)}
+              baseColor={colors.skeletonBase}
+              highlightColor={colors.skeletonHighlight}
+            />
+            <Skeleton
+              width="60%"
+              height={fs(16)}
+              borderRadius={scale(4)}
+              baseColor={colors.skeletonBase}
+              highlightColor={colors.skeletonHighlight}
+            />
+            <Skeleton
+              circle
+              width={scale(34)}
+              height={scale(34)}
+              baseColor={colors.skeletonBase}
+              highlightColor={colors.skeletonHighlight}
+            />
+          </View>
+
+          <View style={styles.verseSanskritSkeletonBox}>
+            <Skeleton
+              width="92%"
+              height={fs(14)}
+              borderRadius={scale(4)}
+              baseColor={colors.skeletonAccentBase}
+              highlightColor={colors.skeletonHighlight}
+            />
+            <Skeleton
+              width="80%"
+              height={fs(14)}
+              borderRadius={scale(4)}
+              baseColor={colors.skeletonAccentBase}
+              highlightColor={colors.skeletonHighlight}
+              style={{ marginTop: scale(6) }}
+            />
+          </View>
+
+          <View style={styles.verseMeaningSkeletonBox}>
+            <Skeleton
+              width={scale(70)}
+              height={fs(11)}
+              borderRadius={scale(4)}
+              baseColor={colors.skeletonTextSubtle}
+              highlightColor={colors.skeletonHighlight}
+              style={{ marginBottom: scale(6) }}
+            />
+            <Skeleton
+              width="95%"
+              height={fs(12)}
+              borderRadius={scale(4)}
+              baseColor={colors.skeletonTextSubtle}
+              highlightColor={colors.skeletonHighlight}
+            />
+          </View>
+
+          <View style={styles.verseActionsSkeletonRow}>
+            <Skeleton
+              width={scale(80)}
+              height={scale(32)}
+              borderRadius={scale(10)}
+              baseColor={colors.borderLight}
+              highlightColor={colors.skeletonHighlight}
+            />
+            <Skeleton
+              width={scale(80)}
+              height={scale(32)}
+              borderRadius={scale(10)}
+              baseColor={colors.accentOrangeMedium}
+              highlightColor={colors.skeletonHighlight}
+            />
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+
   return (
     <GradientBackground>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -291,18 +378,22 @@ export const ShlokaVerseListScreen: React.FC = () => {
         <ScreenHeader title={screenTitle} />
 
         {/* Verses List */}
-        <FlatList
-          data={verses}
-          renderItem={renderVerseCard}
-          keyExtractor={keyExtractor}
-          ListHeaderComponent={listHeaderComponent}
-          contentContainerStyle={contentContainerStyle}
-          showsVerticalScrollIndicator={false}
-          initialNumToRender={5}
-          maxToRenderPerBatch={5}
-          windowSize={5}
-          removeClippedSubviews={Platform.OS === 'android'}
-        />
+        {!verses || verses.length === 0 ? (
+          renderVerseSkeletonList()
+        ) : (
+          <FlatList
+            data={verses}
+            renderItem={renderVerseCard}
+            keyExtractor={keyExtractor}
+            ListHeaderComponent={listHeaderComponent}
+            contentContainerStyle={contentContainerStyle}
+            showsVerticalScrollIndicator={false}
+            initialNumToRender={5}
+            maxToRenderPerBatch={5}
+            windowSize={5}
+            removeClippedSubviews={Platform.OS === 'android'}
+          />
+        )}
       </SafeAreaView>
 
       {/* Persistent Audio Engine */}
@@ -376,6 +467,9 @@ const styles = StyleSheet.create({
     color: colors.secondary,
     lineHeight: fs(19),
   },
+  skeletonAction: {
+    marginTop: scale(4),
+  },
   toastContainer: {
     position: 'absolute',
     alignSelf: 'center',
@@ -408,5 +502,40 @@ const styles = StyleSheet.create({
     width: 0,
     height: 0,
     opacity: 0,
+  },
+  verseSkeletonCard: {
+    borderRadius: scale(18),
+    padding: scale(16),
+    marginBottom: scale(14),
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
+  verseSkeletonHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: scale(12),
+  },
+  verseSanskritSkeletonBox: {
+    borderRadius: scale(12),
+    paddingHorizontal: scale(14),
+    paddingVertical: scale(12),
+    marginBottom: scale(12),
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
+  verseMeaningSkeletonBox: {
+    borderRadius: scale(12),
+    paddingHorizontal: scale(14),
+    paddingVertical: scale(12),
+    marginBottom: scale(12),
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
+  verseActionsSkeletonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: scale(10),
   },
 });
