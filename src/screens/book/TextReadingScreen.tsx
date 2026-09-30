@@ -12,8 +12,8 @@ import { triggerHaptic } from '@helper/helper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useAppLanguage } from '@hooks';
-
-import { findStoryById, TextBooks } from '@constants/storiesData';
+import { Story } from '@api/types';
+import { findStoryById, fetchTextBookById } from '@api/textBooksApi';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 import colors from '@theme/colors';
@@ -29,10 +29,23 @@ export const TextReadingScreen = () => {
   const navigation = useNavigation<any>();
   const { currentLanguage: currentLang } = useAppLanguage();
 
-  const { storyId } = route.params || {};
-  const story = useMemo(() => {
-    return findStoryById(storyId) || TextBooks[0];
-  }, [storyId]);
+  const { storyId, story: paramStory } = route.params || {};
+
+  const [activeStory, setActiveStory] = useState<Story | null>(
+    paramStory || findStoryById(storyId) || null,
+  );
+
+  useEffect(() => {
+    if (!activeStory && storyId) {
+      fetchTextBookById(storyId).then(book => {
+        if (book) {
+          setActiveStory(book);
+        }
+      });
+    }
+  }, [activeStory, storyId]);
+
+  const story = activeStory || paramStory || findStoryById(storyId);
 
   const [isCoverReady, setIsCoverReady] = useState<boolean>(false);
   const [fontSize] = useState<number>(15);

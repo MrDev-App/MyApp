@@ -59,20 +59,32 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
 
     // Normalize all illustrations on this page
     const allPageImages: any[] = useMemo(() => {
+      let rawList: any[] = [];
       if (
         pageData.imagePages &&
         Array.isArray(pageData.imagePages) &&
         pageData.imagePages.length > 0
       ) {
-        return pageData.imagePages;
+        rawList = pageData.imagePages;
+      } else if (Array.isArray(pageData.image) && pageData.image.length > 0) {
+        rawList = pageData.image;
+      } else if (pageData.image) {
+        rawList = [pageData.image];
       }
-      if (Array.isArray(pageData.image) && pageData.image.length > 0) {
-        return pageData.image;
-      }
-      if (pageData.image) {
-        return [pageData.image];
-      }
-      return [];
+
+      return rawList.map(img => {
+        if (typeof img === 'string' && img.trim().length > 0) {
+          const trimmed = img.trim();
+          if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+            return { uri: trimmed };
+          }
+          if ((imagePath as any)[trimmed]) {
+            return (imagePath as any)[trimmed];
+          }
+          return imagePath.fallBackImage;
+        }
+        return img;
+      });
     }, [pageData.image, pageData.imagePages]);
 
     const handleOpenFullscreen = useCallback((idx: number) => {

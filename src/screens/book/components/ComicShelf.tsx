@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { Story } from '@constants/storiesData';
+import { Story } from '@api/types';
 import { ComicBookItem } from '@api/comicBooksApi';
 import { fs, scale } from '@theme/sizes';
 import fonts from '@theme/fonts';
@@ -39,26 +39,6 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.comicsScroll}
         >
-          {/* {[1, 2, 3].map(item => (
-            <View key={item} style={styles.comicCard}>
-              <View style={styles.comicImageContainer}>
-                <Skeleton width="100%" height="100%" borderRadius={scale(14)} />
-              </View>
-              <Skeleton
-                width={scale(100)}
-                height={scale(12)}
-                borderRadius={3}
-                style={{ marginTop: scale(4) }}
-              />
-              <Skeleton
-                width={scale(65)}
-                height={scale(9)}
-                borderRadius={3}
-                style={{ marginTop: scale(4) }}
-              />
-            </View>
-          ))} */}
-
           <View style={styles.horizontalRow}>
             {[1, 2, 3].map(item => (
               <View
@@ -107,14 +87,20 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
       >
         {data.map(story => {
           const isLoadingThis = loadingStoryId === story.id;
+          const rawStoryImage =
+            (story as any).CoverPage || (story as any).coverPage || story.image;
           const imageSource =
-            typeof story.image === 'string' && story.image.trim().length > 0
-              ? { uri: story.image.trim() }
-              : typeof story.image === 'number' ||
-                (story.image &&
-                  typeof story.image === 'object' &&
-                  story.image.uri)
-              ? story.image
+            typeof rawStoryImage === 'string' && rawStoryImage.trim().length > 0
+              ? rawStoryImage.trim().startsWith('http://') ||
+                rawStoryImage.trim().startsWith('https://')
+                ? { uri: rawStoryImage.trim() }
+                : (imagePath as any)[rawStoryImage.trim()] ||
+                  imagePath.fallBackImage
+              : typeof rawStoryImage === 'number' ||
+                (rawStoryImage &&
+                  typeof rawStoryImage === 'object' &&
+                  rawStoryImage.uri)
+              ? rawStoryImage
               : imagePath.fallBackImage;
 
           return (

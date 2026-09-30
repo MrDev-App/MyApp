@@ -26,7 +26,7 @@ import fonts from '@theme/fonts';
 import { fs, scale, verticalScale } from '@theme/sizes';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
-import { AllBooks } from '@constants/storiesData';
+import { AllBooks } from '@api/textBooksApi';
 import { GradientBackground } from '@components';
 import { Translation } from '@i18n/language';
 import { SearchIcon, HeartIcon, BackIcon as Back } from '@assets/SvgIcons';

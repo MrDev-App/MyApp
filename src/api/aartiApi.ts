@@ -1,66 +1,55 @@
 import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
-import { Storage } from '@services/storageService';
-import { STORAGE_KEYS } from '@constants/storageKeys';
 import imagePath from '@assets/index';
-import { Category, CategoryItem, deityKeywords } from './types';
+import { Category, CategoryItem } from './types';
 
 export type { Category, CategoryItem, AartiItem, AartiCategory } from './types';
 
-/**
- * Resolves a local image from imagePath for an aarti item.
- * Matches deity keywords and exact image keys.
- */
-export const resolveLocalAartiImage = (item: any): any => {
-  const rawId = (item.id || item.nameEn || '').toLowerCase().trim();
-  const cleanId = rawId.replace(/[^a-z0-9]/g, '');
+let memoryAartiCache: Category | null = null;
 
-  if (cleanId && (imagePath as any)[cleanId]) {
-    return (imagePath as any)[cleanId];
+export const resolveAartiImage = (item: any): any => {
+  if (item?.imageUrl) {
+    return { uri: item.imageUrl };
   }
-
-  const deityKey = rawId
-    .replace(/_aarti|_chalisa|_shlok|_mantra|_stotram/g, '')
-    .trim();
-  const cleanDeityKey = deityKey.replace(/[^a-z0-9]/g, '');
-
-  if (cleanDeityKey && (imagePath as any)[cleanDeityKey]) {
-    return (imagePath as any)[cleanDeityKey];
-  }
-
-  for (const keyword of deityKeywords) {
-    if (rawId.includes(keyword) && (imagePath as any)[keyword]) {
-      return (imagePath as any)[keyword];
-    }
-  }
-
-  return imagePath.Ganesha || imagePath.fallBackImage;
+  return imagePath.fallBackImage;
 };
 
-/**
- * Maps Firestore document data to a typed Category object with resolved local images.
- */
 export const mapAartiDoc = (docId: string, data: any): Category => {
   const rawItems = Array.isArray(data.items) ? data.items : [];
-  const items: CategoryItem[] = rawItems.map((item: any, index: number) => ({
-    id: item.id || `aarti_item_${index}`,
-    nameEn: item.nameEn || item.name || '',
-    nameHi: item.nameHi || '',
-    subtitleEn: item.subtitleEn || '',
-    subtitleHi: item.subtitleHi || '',
-    textEn: item.textEn || '',
-    textHi: item.textHi || item.text || '',
-    headerTitleEn: item.headerTitleEn || '',
-    headerTitleHi: item.headerTitleHi || '',
-    isJyotirlinga: Boolean(item.isJyotirlinga),
-    image: resolveLocalAartiImage(item),
-  }));
+
+  const items: CategoryItem[] = rawItems.map((item: any, index: number) => {
+    return {
+      id: item.id || `aarti_item_${index}`,
+      nameEn: item.nameEn || item.name || '',
+      nameHi: item.nameHi || '',
+      subtitleEn: item.subtitleEn || '',
+      subtitleHi: item.subtitleHi || '',
+      textEn: item.textEn || '',
+      textHi: item.textHi || item.text || '',
+      headerTitleEn: item.headerTitleEn || '',
+      headerTitleHi: item.headerTitleHi || '',
+      isJyotirlinga: Boolean(item.isJyotirlinga),
+      order: typeof item.order === 'number' ? item.order : index,
+      audioUrl: item.audioUrl || '',
+      image: resolveAartiImage(item),
+    };
+  });
+
+  // Sort items by order if defined
+  items.sort((a, b) => {
+    const orderA = typeof a.order === 'number' ? a.order : 0;
+    const orderB = typeof b.order === 'number' ? b.order : 0;
+    return orderA - orderB;
+  });
 
   return {
     id: docId || 'aarti',
     titleEn: data.titleEn || data.nameEn || 'Aarti Sangrah',
     titleHi: data.titleHi || data.nameHi || 'आरती संग्रह',
     icon: imagePath.lamp,
-    coverImage: imagePath.Ganesha,
+    coverImage:
+      data.coverImageUrl || data.imageUrl
+        ? { uri: data.coverImageUrl || data.imageUrl }
+        : imagePath.fallBackImage,
     descriptionEn: data.descriptionEn || '',
     descriptionHi: data.descriptionHi || '',
     items,
@@ -68,36 +57,35 @@ export const mapAartiDoc = (docId: string, data: any): Category => {
 };
 
 /**
- * Returns cached Aarti data from local MMKV storage if available.
+ * Returns in-memory cached Aarti data from RAM if available during the current app session.
  */
 export const getCachedAartiCategory = (): Category | null => {
-  try {
-    const rawCache = Storage.getString(STORAGE_KEYS.AARTI_DATA_CACHE, '');
-    if (rawCache) {
-      const parsed = JSON.parse(rawCache);
-      if (parsed && typeof parsed === 'object') {
-        return mapAartiDoc('aarti', parsed);
-      }
-    }
-  } catch (err) {
-    console.error('❌ [aartiApi] Error reading cached Aarti:', err);
-  }
-  return null;
+  return memoryAartiCache;
+};
+
+/**
+ * Clears the in-memory Aarti cache.
+ */
+export const clearAartiMemoryCache = (): void => {
+  memoryAartiCache = null;
 };
 
 /**
  * Fetches the Aarti category document from Firestore ('categories/aarti').
- * Only called when the user opens/clicks the Aarti screen.
- * Persists the result into local storage for offline access and instant subsequent loads.
+ * - Only called when the user opens/clicks the Aarti screen.
+ * - Keeps data in RAM only during the current app session (not persisted in MMKV).
+ * - When the app is closed/killed, RAM is cleared.
  */
 export const getAartiCategoryData = async (
   forceRefresh: boolean = false,
 ): Promise<Category | null> => {
-  if (!forceRefresh) {
-    const cached = getCachedAartiCategory();
-    if (cached && cached.items && cached.items.length > 0) {
-      return cached;
-    }
+  if (
+    !forceRefresh &&
+    memoryAartiCache &&
+    memoryAartiCache.items &&
+    memoryAartiCache.items.length > 0
+  ) {
+    return memoryAartiCache;
   }
 
   try {
@@ -107,23 +95,17 @@ export const getAartiCategoryData = async (
 
     if (docSnap && docSnap.exists()) {
       const docData = docSnap.data();
+      const mapped = mapAartiDoc(docSnap.id, docData);
 
-      try {
-        Storage.set(
-          STORAGE_KEYS.AARTI_DATA_CACHE,
-          JSON.stringify({ ...docData, id: docSnap.id }),
-        );
-      } catch (saveErr) {
-        console.error('❌ [aartiApi] Failed to cache Aarti:', saveErr);
-      }
-
-      return mapAartiDoc(docSnap.id, docData);
+      // Store strictly in RAM memory cache for the active session
+      memoryAartiCache = mapped;
+      return mapped;
     }
 
-    return getCachedAartiCategory();
+    return memoryAartiCache;
   } catch (error) {
     console.error('❌ [aartiApi] Error fetching Aarti from Firestore:', error);
-    return getCachedAartiCategory();
+    return memoryAartiCache;
   }
 };
 

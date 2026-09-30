@@ -15,11 +15,7 @@ import { fs, scale } from '@theme/sizes';
 import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
 import AutoScrollFlatList from '@components/AutoScrollFlatList';
-import {
-  getGodData,
-  getCachedGodData,
-  God,
-} from '@api/godMantrasApi';
+import { getGodData, getCachedGodData, God } from '@api/godMantrasApi';
 
 const MantrasCard = () => {
   const { t, currentLanguage } = useAppLanguage();
@@ -37,21 +33,20 @@ const MantrasCard = () => {
     });
   }, []);
 
-  const naamJapData = gods || [];
-
   const pairedGods = React.useMemo(() => {
     const pairs = [];
-    for (let i = 0; i < naamJapData.length; i += 2) {
-      pairs.push([naamJapData[i], naamJapData[i + 1]].filter(Boolean));
+    const list = gods || [];
+    for (let i = 0; i < list.length; i += 2) {
+      pairs.push([list[i], list[i + 1]].filter(Boolean));
     }
     return pairs;
-  }, [naamJapData]);
+  }, [gods]);
 
   const handleDeityPress = (god: God) => {
     triggerHaptic();
     navigation.navigate('MantraScreen', {
       god,
-      allGods: naamJapData,
+      allGods: gods || [],
     });
   };
 
@@ -134,7 +129,7 @@ const styles = StyleSheet.create({
     height: scale(85),
     borderRadius: scale(50),
     overflow: 'hidden',
-    backgroundColor: colors.white,
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: colors.black,

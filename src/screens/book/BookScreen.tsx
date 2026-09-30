@@ -16,11 +16,15 @@ import { useAppLanguage, useNetworkStatus } from '@hooks';
 
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { TextBooks, Story } from '@constants/storiesData';
+import { Story } from '@api/types';
 import {
   fetchComicBooksFromFirestore,
   ComicBookItem,
 } from '@api/comicBooksApi';
+import {
+  syncTextBooksOnBookScreenOpen,
+  uploadAllTextBooksToFirestore,
+} from '@api/textBooksApi';
 import GradientBackground from '@components/GradientBackground';
 
 import { Translation } from '@i18n/language';
@@ -47,6 +51,8 @@ const BookScreen = () => {
   const [loading, setLoading] = useState(true);
   const [isComicLoading, setIsComicLoading] = useState(true);
   const [comicBooks, setComicBooks] = useState<ComicBookItem[]>([]);
+  const [textBooksList, setTextBooksList] = useState<Story[]>([]);
+  const [isTextBooksLoading, setIsTextBooksLoading] = useState<boolean>(true);
 
   const [pendingStory, setPendingStory] = useState<
     Story | ComicBookItem | null
@@ -81,21 +87,52 @@ const BookScreen = () => {
       });
   }, []);
 
+  const syncAndLoadTextBooks = useCallback((isMounted = true) => {
+    setIsTextBooksLoading(true);
+    syncTextBooksOnBookScreenOpen()
+      .then(books => {
+        if (isMounted && books && books.length > 0) {
+          setTextBooksList(books);
+        }
+      })
+      .catch(err => {
+        console.warn('⚠️ [BookScreen] Error syncing textBooks:', err);
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsTextBooksLoading(false);
+          setLoading(false);
+        }
+      });
+  }, []);
+
   // Initial fetch on mount
   useEffect(() => {
     let isMounted = true;
     loadComics(isMounted);
+    syncAndLoadTextBooks(isMounted);
     return () => {
       isMounted = false;
     };
-  }, [loadComics]);
+  }, [loadComics, syncAndLoadTextBooks]);
 
   // Auto-fetch as soon as internet connection is restored
   useEffect(() => {
-    if (!isOffline && comicBooks.length === 0) {
-      loadComics(true);
+    if (!isOffline) {
+      if (comicBooks.length === 0) {
+        loadComics(true);
+      }
+      if (textBooksList.length === 0) {
+        syncAndLoadTextBooks(true);
+      }
     }
-  }, [isOffline, comicBooks.length, loadComics]);
+  }, [
+    isOffline,
+    comicBooks.length,
+    textBooksList.length,
+    loadComics,
+    syncAndLoadTextBooks,
+  ]);
 
   // Reset opening book loading state and retry if empty whenever BookScreen comes into focus
   useFocusEffect(
@@ -105,7 +142,16 @@ const BookScreen = () => {
       if (comicBooks.length === 0) {
         loadComics(true);
       }
-    }, [loadRewardedAd, comicBooks.length, loadComics]),
+      if (textBooksList.length === 0) {
+        syncAndLoadTextBooks(true);
+      }
+    }, [
+      loadRewardedAd,
+      comicBooks.length,
+      textBooksList.length,
+      loadComics,
+      syncAndLoadTextBooks,
+    ]),
   );
 
   const openStoryReader = (story: Story | ComicBookItem) => {
@@ -114,7 +160,10 @@ const BookScreen = () => {
       setOpeningStory(story);
       setTimeout(() => {
         if (story.type === 'text') {
-          navigation.navigate('TextReadingScreen', { storyId: story.id });
+          navigation.navigate('TextReadingScreen', {
+            storyId: story.id,
+            story: story as Story,
+          });
         } else {
           navigation.navigate('ReadingScreen', {
             storyId: story.id,
@@ -145,6 +194,7 @@ const BookScreen = () => {
         if (storyToUnlock.type === 'text') {
           navigation.navigate('TextReadingScreen', {
             storyId: storyToUnlock.id,
+            story: storyToUnlock as Story,
           });
         } else {
           navigation.navigate('ReadingScreen', {
@@ -230,7 +280,8 @@ const BookScreen = () => {
             {/* Sacred Scriptures (Text Books) */}
             <ComicShelf
               title={t(Translation.BOOK_SACRED_SCRIPTURES)}
-              data={TextBooks}
+              data={textBooksList}
+              isLoading={isTextBooksLoading || textBooksList.length === 0}
               onPressBook={openStoryReader}
               currentLang={currentLang}
               loadingStoryId={openingStory?.id}

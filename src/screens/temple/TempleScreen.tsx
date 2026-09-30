@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from 'react';
 import {
   StyleSheet,
   Text,
@@ -25,7 +31,7 @@ import { useAppLanguage, useNetworkStatus } from '@hooks';
 import { Translation } from '@i18n/language';
 import { SearchIcon, CloseIcon } from '@assets/SvgIcons';
 import imagePath from '@assets/index';
-import { TempleItem, TempleCategory, fetchTemples } from '@api/templeApi';
+import { TempleItem, fetchTemples } from '@api/templeApi';
 
 // Extracted sub-components
 import TempleCard from './components/TempleCard';
@@ -47,57 +53,55 @@ export const TempleScreen: React.FC = () => {
   const [selectedTag, setSelectedTag] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const loadTemples = useCallback(
-    (force = false) => {
-      let isMounted = true;
-      if (allTemples.length === 0) {
-        setLoading(true);
-      }
+  const lastDocRef = useRef<any>(null);
 
-      fetchTemples({
-        category: selectedTag,
-        searchQuery,
-        limitCount: PAGE_SIZE,
-        forceRefresh: force,
+  const loadTemples = useCallback(() => {
+    let isMounted = true;
+    setLoading(true);
+    lastDocRef.current = null;
+
+    fetchTemples({
+      category: selectedTag,
+      searchQuery,
+      limitCount: PAGE_SIZE,
+      lastDoc: null,
+    })
+      .then(res => {
+        if (isMounted) {
+          const list = res?.items || [];
+          setAllTemples(list);
+          lastDocRef.current = res?.lastDoc || null;
+          setHasMore(res?.hasMore ?? list.length >= PAGE_SIZE);
+        }
       })
-        .then(data => {
-          console.log('Dataaaa=>', data);
-          if (isMounted) {
-            const list = data || [];
-            setAllTemples(list);
-            setHasMore(list.length >= PAGE_SIZE);
-          }
-        })
-        .catch(err => {
-          console.warn(
-            '[TempleScreen] Error fetching temples from Firebase:',
-            err,
-          );
-        })
-        .finally(() => {
-          if (isMounted) {
-            setLoading(false);
-          }
-        });
+      .catch(err => {
+        console.warn(
+          '[TempleScreen] Error fetching temples from Firebase:',
+          err,
+        );
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      });
 
-      return () => {
-        isMounted = false;
-      };
-    },
-    [selectedTag, searchQuery, allTemples.length],
-  );
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedTag, searchQuery]);
 
   // Fetch / filter dynamically on tag / search change
   useEffect(() => {
     setHasMore(true);
     const cleanup = loadTemples();
     return cleanup;
-  }, [selectedTag, searchQuery]);
+  }, [loadTemples]);
 
   // Auto-fetch when internet is restored if list is empty
   useEffect(() => {
     if (!isOffline && allTemples.length === 0) {
-      loadTemples(true);
+      loadTemples();
     }
   }, [isOffline, allTemples.length, loadTemples]);
 
@@ -105,28 +109,37 @@ export const TempleScreen: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       if (allTemples.length === 0) {
-        loadTemples(true);
+        loadTemples();
       }
     }, [allTemples.length, loadTemples]),
   );
 
   const handleEndReached = useCallback(() => {
-    if (loading || loadingMore || !hasMore) return;
+    if (loading || loadingMore || !hasMore || !lastDocRef.current) return;
     setLoadingMore(true);
-    const nextLimit = allTemples.length + PAGE_SIZE;
+    console.log(
+      '📜 [TempleScreen] onEndReached fired! Fetching next 10 temples after doc:',
+      lastDocRef.current?.id,
+    );
 
     fetchTemples({
       category: selectedTag,
       searchQuery,
-      limitCount: nextLimit,
+      limitCount: PAGE_SIZE,
+      lastDoc: lastDocRef.current,
     })
-      .then(data => {
-        const list = data || [];
-        if (list.length === allTemples.length) {
+      .then(res => {
+        const newItems = res?.items || [];
+        if (newItems.length === 0) {
           setHasMore(false);
         } else {
-          setAllTemples(list);
-          setHasMore(list.length >= nextLimit);
+          setAllTemples(prev => {
+            const existingIds = new Set(prev.map(t => t.id));
+            const uniqueNew = newItems.filter(t => !existingIds.has(t.id));
+            return [...prev, ...uniqueNew];
+          });
+          lastDocRef.current = res?.lastDoc || null;
+          setHasMore(res?.hasMore ?? newItems.length >= PAGE_SIZE);
         }
       })
       .catch(err => {
@@ -135,14 +148,7 @@ export const TempleScreen: React.FC = () => {
       .finally(() => {
         setLoadingMore(false);
       });
-  }, [
-    loading,
-    loadingMore,
-    hasMore,
-    allTemples.length,
-    selectedTag,
-    searchQuery,
-  ]);
+  }, [loading, loadingMore, hasMore, selectedTag, searchQuery]);
 
   const screenTitle = useMemo(() => t(Translation.TEMPLE_SCREEN_TITLE), [t]);
 

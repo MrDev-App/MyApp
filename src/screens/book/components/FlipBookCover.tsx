@@ -11,7 +11,7 @@ import { GestureDetector } from 'react-native-gesture-handler';
 
 import colors from '@theme/colors';
 import { scale } from '@theme/sizes';
-import { StoryPage } from '@constants/storiesData';
+import { StoryPage } from '@api/types';
 import { Back } from '@assets/index';
 import { formatPageNumber } from '@helper/helper';
 

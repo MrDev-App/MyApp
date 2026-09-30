@@ -3,87 +3,32 @@ import {
   collection,
   getDocs,
 } from '@react-native-firebase/firestore';
-import { Storage } from '@services/storageService';
-import { STORAGE_KEYS } from '@constants/storageKeys';
 import imagePath from '@assets/index';
 
-import { God, GodMantra, NaamJapItem } from './types';
+import { God, GodMantra } from './types';
 
 export type { God, GodMantra, NaamJapItem } from './types';
 
+// In-memory runtime RAM cache (session-only; wiped when app is closed/killed)
+let memoryGodDataCache: God[] | null = null;
+
 export const getCachedGodData = (): God[] | null => {
-  try {
-    const rawCache = Storage.getString(STORAGE_KEYS.GOD_DATA_CACHE, '');
-    if (rawCache) {
-      const parsed = JSON.parse(rawCache);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.map(mapGodWithImage);
-      }
-    }
-  } catch (err) {
-    console.error('❌ [godMantrasApi] Error reading cached GodMantras:', err);
-  }
-  return null;
+  return memoryGodDataCache;
+};
+
+export const clearGodDataMemoryCache = (): void => {
+  memoryGodDataCache = null;
 };
 
 export const resolveGodImage = (god: any): any => {
-  const rawId = (god.id || god.nameEn || '').toLowerCase().trim();
-  const cleanId = rawId.replace(/[^a-z0-9]/g, '');
+  if (!god) return imagePath.fallBackImage;
 
-  if (cleanId && (imagePath as any)[cleanId]) {
-    return (imagePath as any)[cleanId];
-  }
-  if (rawId && (imagePath as any)[rawId]) {
-    return (imagePath as any)[rawId];
+  const rawUrl = (god.imageUrl || god.url || '').toString().trim();
+  if (rawUrl.startsWith('http')) {
+    return { uri: rawUrl };
   }
 
-  const deityKeywords = [
-    'shiva',
-    'shiv',
-    'bhole',
-    'bholenath',
-    'mahadev',
-    'vishnu',
-    'narayan',
-    'krishna',
-    'kanha',
-    'radha',
-    'rama',
-    'ram',
-    'shriram',
-    'hanuman',
-    'bajrangbali',
-    'ganesha',
-    'ganesh',
-    'ganpati',
-    'durga',
-    'kali',
-    'laxmi',
-    'lakshmi',
-    'saraswati',
-    'gayatri',
-    'surya',
-    'brahma',
-    'shani',
-    'kubera',
-    'kuber',
-  ];
-
-  for (const keyword of deityKeywords) {
-    if (rawId.includes(keyword) && (imagePath as any)[keyword]) {
-      return (imagePath as any)[keyword];
-    }
-  }
-
-  if (
-    god.imageUrl &&
-    typeof god.imageUrl === 'string' &&
-    god.imageUrl.trim().startsWith('http')
-  ) {
-    return { uri: god.imageUrl.trim() };
-  }
-
-  return god.image || imagePath.fallBackImage;
+  return imagePath.fallBackImage;
 };
 
 export const mapGodWithImage = (god: any): God => {
@@ -102,6 +47,7 @@ export const mapGodWithImage = (god: any): God => {
     englishName: god.nameEn || god.englishName || '',
     hindiName: god.nameHi || god.hindiName || '',
     mantra: god.primaryMantra || god.mantra || mantras[0]?.mantra || '',
+    imageUrl: god.imageUrl || '',
     image,
     mantras,
   };
@@ -110,11 +56,8 @@ export const mapGodWithImage = (god: any): God => {
 export const getGodData = async (
   forceRefresh: boolean = false,
 ): Promise<God[]> => {
-  if (!forceRefresh) {
-    const cached = getCachedGodData();
-    if (cached && cached.length > 0) {
-      return cached;
-    }
+  if (!forceRefresh && memoryGodDataCache && memoryGodDataCache.length > 0) {
+    return memoryGodDataCache;
   }
 
   try {
@@ -135,29 +78,16 @@ export const getGodData = async (
 
     if (rawList.length > 0) {
       rawList.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
-
-      try {
-        Storage.set(STORAGE_KEYS.GOD_DATA_CACHE, JSON.stringify(rawList));
-      } catch (saveErr) {
-        console.error('❌ [godMantrasApi] Error saving to storage:', saveErr);
-      }
-
-      return rawList.map(mapGodWithImage);
+      const mapped = rawList.map(mapGodWithImage);
+      // Store in RAM memory cache for the active session only
+      memoryGodDataCache = mapped;
+      return mapped;
     }
 
-    const localCache = getCachedGodData();
-    if (localCache && localCache.length > 0) {
-      return localCache;
-    }
-
-    return [];
+    return memoryGodDataCache || [];
   } catch (error) {
     console.error('❌ [godMantrasApi] Firestore fetch failed:', error);
-    const localCache = getCachedGodData();
-    if (localCache && localCache.length > 0) {
-      return localCache;
-    }
-    return [];
+    return memoryGodDataCache || [];
   }
 };
 

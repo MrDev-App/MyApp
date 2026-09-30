@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, View, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Translation } from '@i18n/language';
-import { Story } from '@constants/storiesData';
+import { Story } from '@api/types';
 import { CloseIcon } from '@assets/SvgIcons';
 import colors from '@theme/colors';
 import { scale } from '@theme/sizes';

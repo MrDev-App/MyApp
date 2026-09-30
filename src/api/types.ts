@@ -1,5 +1,56 @@
 import { STORAGE_KEYS } from '@constants/storageKeys';
 
+export type BookType = 'comic' | 'text' | 'pdf';
+
+export interface StoryPage {
+  page?: number;
+  sourceHi?: string;
+  sourceEn?: string;
+  contentHi?: string;
+  contentEn?: string;
+  shloka?: string;
+  shlokaTranslationHi?: string;
+  shlokaTranslationEn?: string;
+  moralHi?: string;
+  moralEn?: string;
+  titleHi?: string;
+  titleEn?: string;
+  image?: any;
+  imagePages?: any[];
+}
+
+export interface Story {
+  id: string;
+  type?: BookType;
+  titleEn: string;
+  titleHi: string;
+  subtitleEn?: string;
+  subtitleHi?: string;
+  descriptionEn?: string;
+  descriptionHi?: string;
+  contentEn?: string;
+  contentHi?: string;
+  categoryEn?: string;
+  categoryHi?: string;
+  CoverPage?: string;
+  coverPage?: string;
+  image?: any;
+  imagePages?: any[];
+  pdfUrl?: string;
+  readingTimeMin?: number;
+  sourceEn?: string;
+  sourceHi?: string;
+  difficultyEn?: string;
+  difficultyHi?: string;
+  moralEn?: string;
+  moralHi?: string;
+  shloka?: string;
+  shlokaTranslationEn?: string;
+  shlokaTranslationHi?: string;
+  keywords?: string;
+  pages?: StoryPage[];
+}
+
 export interface CategoryItem {
   id: string;
   nameEn: string;
@@ -9,6 +60,9 @@ export interface CategoryItem {
   textEn?: string;
   textHi?: string;
   image: any;
+  imageUrl?: string;
+  audioUrl?: string;
+  order?: number;
   headerTitleEn?: string;
   headerTitleHi?: string;
   isJyotirlinga?: boolean;

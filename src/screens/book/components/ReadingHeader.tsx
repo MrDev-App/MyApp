@@ -13,7 +13,7 @@ import {
 } from '@assets/SvgIcons';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
-import { findStoryById } from '@constants/storiesData';
+import { findStoryById } from '@api/textBooksApi';
 import AnimatedButton from '@components/AnimatedButton';
 
 import { RootNavigationProp } from '@navigation/types';

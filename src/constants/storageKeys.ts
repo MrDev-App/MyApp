@@ -37,12 +37,9 @@ export const STORAGE_KEYS = {
   // Remote Data Caches (Firestore mirrors)
   EKADASHI_DATA_CACHE: 'ekadashi_2026_data_cache',
   JAP_MANTRAS_CACHE: 'jap_mantras_data_cache',
-  GOD_DATA_CACHE: 'god_data_cache',
   NAAM_JAP_DATA_CACHE: 'naam_jap_data_cache',
   FESTIVALS_CACHE: 'festivals_data_cache_v4',
   CATEGORIES_CACHE: 'categories_data_cache',
-  AARTI_DATA_CACHE: 'aarti_data_cache_v1',
-  TEMPLES_CACHE: 'temples_data_cache_v1',
 } as const;
 
 export type StorageKey = keyof typeof STORAGE_KEYS;

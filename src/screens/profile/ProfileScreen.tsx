@@ -32,7 +32,8 @@ import {
   STORAGE_KEYS,
   getUserJoinedDate,
 } from '@services/storageService';
-import { AllBooks, findStoryById, Story } from '@constants/storiesData';
+import { Story } from '@api/types';
+import { AllBooks, findStoryById } from '@api/textBooksApi';
 import {
   getJapMantrasData,
   MantraSelectorItem,
@@ -392,7 +393,7 @@ const ProfileScreen = () => {
                   source={
                     profileImageUri
                       ? { uri: profileImageUri }
-                      : imagePath.Krishna
+                      : imagePath.user
                   }
                   style={profileStyles.avatarImage}
                 />

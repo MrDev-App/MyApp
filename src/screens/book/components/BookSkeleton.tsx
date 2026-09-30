@@ -40,7 +40,7 @@ const BookSkeleton: React.FC = () => {
               width={scale(70)}
               height={fs(10)}
               borderRadius={scale(3)}
-              baseColor={colors.skeletonTextSubtle}
+              baseColor={colors.skeletonAccentBase}
               highlightColor={colors.skeletonHighlight}
               style={styles.mt4}
             />
@@ -81,7 +81,7 @@ const BookSkeleton: React.FC = () => {
               width={scale(70)}
               height={fs(10)}
               borderRadius={scale(3)}
-              baseColor={colors.skeletonTextSubtle}
+              baseColor={colors.skeletonAccentBase}
               highlightColor={colors.skeletonHighlight}
               style={styles.mt4}
             />
@@ -119,4 +119,3 @@ const styles = StyleSheet.create({
 });
 
 export default React.memo(BookSkeleton);
-
