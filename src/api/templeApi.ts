@@ -157,7 +157,7 @@ export const fetchTemples = async (
   } = options;
 
   try {
-    console.log('🔍 [templeApi] fetchTemples called:', {
+    console.log('  fetchTemples called:', {
       category,
       searchQuery,
       limitCount,
@@ -166,6 +166,7 @@ export const fetchTemples = async (
     });
 
     const db = getFirestore();
+
     const templesRef = collection(db, FIRESTORE_COLLECTION_NAME);
 
     const constraints: any[] = [];
@@ -188,7 +189,7 @@ export const fetchTemples = async (
       snapshot = await getDocs(q);
     } catch (orderErr) {
       console.warn(
-        '⚠️ [templeApi] Primary query failed, using fallback query without orderBy:',
+        ' Primary query failed, using fallback query without orderBy:',
         orderErr,
       );
       const fallbackConstraints: any[] = [];
@@ -206,7 +207,7 @@ export const fetchTemples = async (
     }
 
     if (!snapshot || snapshot.empty) {
-      console.log('ℹ️ [templeApi] Snapshot is empty, no temples returned.');
+      console.log(' Snapshot is empty, no temples returned.');
       return {
         items: [],
         lastDoc: null,
@@ -219,7 +220,7 @@ export const fetchTemples = async (
     const hasMore = docs.length === limitCount;
 
     console.log(
-      `📦 [templeApi] Fetched ${docs.length} docs from Firestore. Last doc ID: ${newLastDoc?.id}. hasMore: ${hasMore}`,
+      ` Fetched ${docs.length} docs from Firestore. Last doc ID: ${newLastDoc?.id}. hasMore: ${hasMore}`,
     );
 
     let items: TempleItem[] = docs
@@ -251,9 +252,7 @@ export const fetchTemples = async (
       });
     }
 
-    console.log(
-      `✅ [templeApi] Returning ${items.length} items to screen.`,
-    );
+    console.log(` Returning ${items.length} items to screen.`);
 
     return {
       items,
@@ -261,7 +260,7 @@ export const fetchTemples = async (
       hasMore,
     };
   } catch (error) {
-    console.error('❌ [templeApi] Error fetching temples page:', error);
+    console.error(' Error fetching temples page:', error);
     return {
       items: [],
       lastDoc: null,

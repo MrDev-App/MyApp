@@ -45,7 +45,10 @@ export const getCachedFestivalData = (): Festival[] | null => {
       }
     }
   } catch (err) {
-    console.error('❌ [festivalApi] Error reading cached festivals from MMKV:', err);
+    console.error(
+      '❌ [festivalApi] Error reading cached festivals from MMKV:',
+      err,
+    );
   }
   return null;
 };
@@ -384,7 +387,10 @@ export const getUpcomingFestivals = async (
 AppState.addEventListener('change', nextState => {
   if (nextState === 'active') {
     getAllFestivals(true).catch(err => {
-      console.warn('⚠️ [festivalApi] Background festival sync on app resume failed:', err);
+      console.warn(
+        '⚠️ [festivalApi] Background festival sync on app resume failed:',
+        err,
+      );
     });
   }
 });
