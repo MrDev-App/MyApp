@@ -63,14 +63,44 @@ export const useFlipBookController = ({
   const isAnimatingRef = useRef<boolean>(false);
   const isJumpingRef = useRef<boolean>(false);
   const actionQueueRef = useRef<Array<'next' | 'prev'>>([]);
+  const loaderTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // React state for UI rendering only
   const [displayPage, setDisplayPage] = useState<number>(0);
   const [isFlipping, setIsFlipping] = useState<boolean>(false);
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState<boolean>(false);
   const [activeFlipDir, setActiveFlipDir] = useState<
     'forward' | 'backward' | null
   >(null);
   const [queueLength, setQueueLength] = useState<number>(0);
+
+  const clearPostFlipLoader = useCallback(() => {
+    if (loaderTimeoutRef.current) {
+      clearTimeout(loaderTimeoutRef.current);
+      loaderTimeoutRef.current = null;
+    }
+    setShowLoadingOverlay(false);
+  }, []);
+
+  const triggerPostFlipLoader = useCallback(() => {
+    if (loaderTimeoutRef.current) {
+      clearTimeout(loaderTimeoutRef.current);
+    }
+    setShowLoadingOverlay(true);
+    loaderTimeoutRef.current = setTimeout(() => {
+      setShowLoadingOverlay(false);
+      loaderTimeoutRef.current = null;
+    }, 1000);
+  }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (loaderTimeoutRef.current) {
+        clearTimeout(loaderTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Story Change Reset: cancels running springs and resets all sheets to page 0
   useEffect(() => {
@@ -88,7 +118,8 @@ export const useFlipBookController = ({
     setQueueLength(0);
     setIsFlipping(false);
     setActiveFlipDir(null);
-  }, [storyId, currentPageShared, isAnimatingShared]);
+    clearPostFlipLoader();
+  }, [storyId, currentPageShared, isAnimatingShared, clearPostFlipLoader]);
 
   // Refs to break circular callback dependencies cleanly
   const processNextQueueRef = useRef<() => void>(() => {});
@@ -99,7 +130,7 @@ export const useFlipBookController = ({
     (fromPage: number, isQueued?: boolean) => void
   >(() => {});
 
-  // Complete turn callbacks
+  // Complete turn callbacks — show loader for 1s only after page has completely flipped
   const onForwardTurnFinish = useCallback(
     (sheetIdx: number) => {
       const nextPage = sheetIdx + 1;
@@ -108,9 +139,10 @@ export const useFlipBookController = ({
       setDisplayPage(nextPage);
       onPageChangeRef.current?.(nextPage, totalPages);
 
+      triggerPostFlipLoader();
       processNextQueueRef.current();
     },
-    [totalPages, currentPageShared],
+    [totalPages, currentPageShared, triggerPostFlipLoader],
   );
 
   const onBackwardTurnFinish = useCallback(
@@ -121,9 +153,10 @@ export const useFlipBookController = ({
       setDisplayPage(prevPage);
       onPageChangeRef.current?.(prevPage, totalPages);
 
+      triggerPostFlipLoader();
       processNextQueueRef.current();
     },
-    [totalPages, currentPageShared],
+    [totalPages, currentPageShared, triggerPostFlipLoader],
   );
 
   const onFlipCancel = useCallback(
@@ -140,8 +173,9 @@ export const useFlipBookController = ({
       isAnimatingShared.value = false;
       setIsFlipping(false);
       setActiveFlipDir(null);
+      clearPostFlipLoader();
     },
-    [totalPages, currentPageShared, isAnimatingShared],
+    [totalPages, currentPageShared, isAnimatingShared, clearPostFlipLoader],
   );
 
   // Midway crossing callback: fired by useAnimatedReaction when progress crosses 0.5
@@ -221,11 +255,12 @@ export const useFlipBookController = ({
   // Process next action in multi-tap queue
   const processNextQueue = useCallback(() => {
     if (actionQueueRef.current.length === 0) {
+      // Release animation lock immediately so new flips are never blocked
       isAnimatingRef.current = false;
       isAnimatingShared.value = false;
+      setQueueLength(0);
       setIsFlipping(false);
       setActiveFlipDir(null);
-      setQueueLength(0);
       return;
     }
 
@@ -296,10 +331,12 @@ export const useFlipBookController = ({
       setIsFlipping(false);
       setActiveFlipDir(null);
 
+      triggerPostFlipLoader();
+
       // Drain any queued taps that arrived during jump animation
       processNextQueueRef.current();
     },
-    [totalPages, currentPageShared, isAnimatingShared],
+    [totalPages, currentPageShared, isAnimatingShared, triggerPostFlipLoader],
   );
 
   // Jump to specific page via dots - Smooth multi-sheet transition
@@ -492,6 +529,7 @@ export const useFlipBookController = ({
     sheetProgressList,
     displayPage,
     isFlipping,
+    showLoadingOverlay,
     activeFlipDir,
     queueLength,
     panGesture,

@@ -30,6 +30,7 @@ import BookSheet from './BookSheet';
 import StoryPageView from './StoryPageView';
 import CoverFrontView from './CoverFrontView';
 import BackFaceView from './BackFaceView';
+import BookEndPage from './BookEndPage';
 
 export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
   story,
@@ -89,6 +90,7 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
     sheetProgressList,
     displayPage,
     isFlipping,
+    showLoadingOverlay,
     activeFlipDir,
     queueLength,
     panGesture,
@@ -193,15 +195,12 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
             ]}
           />
 
-          {/* BASE UNDERNEATH PAGE: Last Page in stack */}
-          <StoryPageView
-            pageData={lastPageData}
-            fontSize={fontSize}
-            category={category}
+          {/* BASE UNDERNEATH PAGE: Decorative "End of Book" page — visible when all sheets have flipped */}
+          <BookEndPage
+            title={story?.titleEn}
+            titleHi={story?.titleHi}
             source={source}
             currentLang={currentLang}
-            isInteractive={displayPage === totalPages}
-            totalPages={totalPages}
           />
 
           {/* Sheet 0: Cover (Turns to reveal Page 1) */}
@@ -255,7 +254,7 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
           })}
 
           {/* Floating Page-Turning Status Indicator with Queue Backlog Counter */}
-          {isFlipping && (
+          {showLoadingOverlay && (
             <View style={styles.loadingOverlay} pointerEvents="none">
               <View
                 style={[
