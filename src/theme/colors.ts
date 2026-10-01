@@ -97,6 +97,8 @@ export const colors = {
   overlayMedium: 'rgba(255, 255, 255, 0.85)',
   overlayStrong: 'rgba(255, 255, 255, 0.9)',
   overlaySemiTransparent: 'rgba(255, 255, 255, 0.6)',
+  whiteTransparent20: 'rgba(255, 255, 255, 0.2)',
+  whiteTransparent05: 'rgba(255, 255, 255, 0.05)',
   borderWhiteSubtle: 'rgba(255, 255, 255, 0.8)',
   cardWhiteMedium: 'rgba(255, 255, 255, 0.8)',
   cardWhiteHigh: 'rgba(255, 255, 255, 0.92)',
@@ -154,8 +156,11 @@ export const colors = {
   chipBg: '#ECEFF1',
   chipText: '#455A64',
   gradientStart: 'rgba(255, 254, 254, 0.2)',
-  skeletonBase: '#F5EFE4',
-  skeletonHighlight: 'rgba(255, 255, 255, 0.95)',
+  skeletonBase: 'rgba(183, 168, 151, 0.25)',
+  skeletonHighlight: 'rgba(255, 255, 255, 0.7)',
+  skeletonAccentBase: 'rgba(251, 148, 55, 0.15)',
+  skeletonTextSubtle: 'rgba(183, 168, 151, 0.22)',
+  skeletonTransparent: 'rgba(255, 255, 255, 0)',
   backgroundLight: '#f5ecd6',
   neutralDark: '#2e1c0c',
   pathActiveLine: '#FB9437',
@@ -195,6 +200,16 @@ export const colors = {
   // Floating Toast Notifications
   toastBg: 'rgba(30, 27, 24, 0.94)',
   toastBorder: 'rgba(251, 148, 55, 0.3)',
+
+  // Contract Modal Tokens
+  contractCardBg: 'rgba(255, 246, 220, 0.97)',
+  contractDarkOverlay: 'rgba(20, 8, 0, 0.72)',
+  contractBorder: 'rgba(251, 148, 55, 0.45)',
+  contractDismissText: 'rgba(255, 255, 255, 0.45)',
+  contractParchmentBrown: '#2a1708',
+  contractOrnament: '#8a5323',
+  contractDivider: 'rgba(138, 83, 35, 0.25)',
+  contractBackdrop: 'rgba(0, 0, 0, 0.72)',
 };
 
 export const bannerGradients = {

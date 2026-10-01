@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
+  RefreshControl,
   useWindowDimensions,
 } from 'react-native';
 import {
@@ -13,7 +14,6 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { Back } from '@assets/index';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
@@ -21,13 +21,17 @@ import { useAppLanguage } from '@hooks';
 import { Translation } from '@i18n/language';
 import { RootNavigationProp } from '@navigation/types';
 import Skeleton from '@components/Skeleton';
-import { AnimatedListItem } from '@components';
+import {
+  AnimatedListItem,
+  GradientBackground,
+  ScreenHeader,
+} from '@components';
 import {
   getAartiCategoryData,
   getCachedAartiCategory,
   Category,
   CategoryItem,
-} from '@services/firebaseServices/categoriesService';
+} from '@api/aartiApi';
 
 export const AllArtiScreen = () => {
   const insets = useSafeAreaInsets();
@@ -46,6 +50,8 @@ export const AllArtiScreen = () => {
       (route.params?.category as Category) || getCachedAartiCategory();
     return !cached || !cached.items || cached.items.length === 0;
   });
+
+  const [refreshing, setRefreshing] = useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -70,6 +76,20 @@ export const AllArtiScreen = () => {
       isMounted = false;
     };
   }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const fresh = await getAartiCategoryData(true);
+      if (fresh) {
+        setCategory(fresh);
+      }
+    } catch (err) {
+      console.warn('[AllArtiScreen] Error refreshing Aarti:', err);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const isLoading =
     loading || !category || !category.items || category.items.length === 0;
@@ -142,31 +162,39 @@ export const AllArtiScreen = () => {
           {skeletonItems.map(item => (
             <View
               key={`skeleton_${item}`}
-              style={[
-                styles.aartiCard,
-                styles.skeletonCard,
-                { width: cardWidth },
-              ]}
+              style={[styles.aartiCardSkeleton, { width: cardWidth }]}
             >
               <View style={styles.skeletonImageWrapper}>
-                <Skeleton circle width={scale(88)} height={scale(88)} />
+                <Skeleton
+                  circle
+                  width={scale(88)}
+                  height={scale(88)}
+                  baseColor={colors.skeletonBase}
+                  highlightColor={colors.skeletonHighlight}
+                />
               </View>
               <Skeleton
                 width="75%"
                 height={fs(14)}
                 borderRadius={scale(4)}
+                baseColor={colors.skeletonBase}
+                highlightColor={colors.skeletonHighlight}
                 style={styles.skeletonName}
               />
               <Skeleton
                 width="50%"
                 height={fs(10.5)}
                 borderRadius={scale(4)}
+                baseColor={colors.skeletonTextSubtle}
+                highlightColor={colors.skeletonHighlight}
                 style={styles.skeletonSubtitle}
               />
               <Skeleton
                 width="60%"
                 height={fs(12)}
                 borderRadius={scale(4)}
+                baseColor={colors.skeletonAccentBase}
+                highlightColor={colors.skeletonHighlight}
                 style={styles.skeletonAction}
               />
             </View>
@@ -177,50 +205,47 @@ export const AllArtiScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      {/* Top Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.8}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Back width={scale(14)} height={scale(14)} stroke={colors.white} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          {screenTitle}
-        </Text>
-        <View style={{ width: scale(34) }} />
-      </View>
+    <GradientBackground>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        {/* Top Header */}
+        <ScreenHeader title={screenTitle} />
 
-      {/* Description Banner */}
-      {screenDesc ? (
-        <View style={styles.descriptionBanner}>
-          <Text style={styles.descriptionText}>{screenDesc}</Text>
+        {/* Description Banner */}
+        {screenDesc ? (
+          <View style={styles.descriptionBanner}>
+            <Text style={styles.descriptionText}>{screenDesc}</Text>
+          </View>
+        ) : null}
+
+        {/* Aarti Items 2-Column Grid */}
+        <View style={styles.contentContainer}>
+          {isLoading ? (
+            renderSkeletonGrid()
+          ) : (
+            <FlatList
+              data={category?.items || []}
+              renderItem={renderAartiItem}
+              keyExtractor={item => item.id}
+              numColumns={2}
+              columnWrapperStyle={styles.columnWrapper}
+              contentContainerStyle={[
+                styles.listContent,
+                { paddingBottom: insets.bottom + scale(24) },
+              ]}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  colors={[colors.ring]}
+                  tintColor={colors.ring}
+                />
+              }
+              showsVerticalScrollIndicator={false}
+            />
+          )}
         </View>
-      ) : null}
-
-      {/* Aarti Items 2-Column Grid */}
-      <View style={styles.contentContainer}>
-        {isLoading ? (
-          renderSkeletonGrid()
-        ) : (
-          <FlatList
-            data={category?.items || []}
-            renderItem={renderAartiItem}
-            keyExtractor={item => item.id}
-            numColumns={2}
-            columnWrapperStyle={styles.columnWrapper}
-            contentContainerStyle={[
-              styles.listContent,
-              { paddingBottom: insets.bottom + scale(24) },
-            ]}
-            showsVerticalScrollIndicator={false}
-          />
-        )}
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </GradientBackground>
   );
 };
 
@@ -229,38 +254,6 @@ export default AllArtiScreen;
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: scale(16),
-    paddingVertical: scale(12),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderSubtle,
-    backgroundColor: colors.primary,
-  },
-  backButton: {
-    width: scale(34),
-    height: scale(34),
-    borderRadius: scale(17),
-    backgroundColor: colors.ring,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  headerTitle: {
-    fontSize: fs(18),
-    fontFamily: fonts.TiroHindiRegular,
-    color: colors.secondary,
-    flex: 1,
-    textAlign: 'center',
-    marginHorizontal: scale(8),
   },
   descriptionBanner: {
     paddingHorizontal: scale(16),
@@ -346,7 +339,13 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  skeletonCard: {
+  aartiCardSkeleton: {
+    borderRadius: scale(16),
+    padding: scale(14),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
     marginBottom: scale(14),
   },
   skeletonImageWrapper: {

@@ -8,6 +8,7 @@ module.exports = {
         alias: {
           src: './src',
           '@admob': './src/admob',
+          '@api': './src/api',
           '@assets': './src/assets',
           '@components': './src/components',
           '@constants': './src/constants',
@@ -15,7 +16,6 @@ module.exports = {
           '@hooks': './src/hooks',
           '@i18n': './src/i18n',
           '@navigation': './src/navigation',
-          '@redux': './src/redux',
           '@screens': './src/screens',
           '@services': './src/services',
           '@theme': './src/theme',

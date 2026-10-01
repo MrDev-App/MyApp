@@ -12,17 +12,26 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { useAppLanguage } from '@hooks';
+import { useAppLanguage, useNetworkStatus } from '@hooks';
 
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { MahaBharatStories, TextBooks, Story } from '@constants/storiesData';
+import { Story } from '@api/types';
+import {
+  fetchComicBooksFromFirestore,
+  ComicBookItem,
+} from '@api/comicBooksApi';
+import {
+  syncTextBooksOnBookScreenOpen,
+  uploadAllTextBooksToFirestore,
+} from '@api/textBooksApi';
 import GradientBackground from '@components/GradientBackground';
 
 import { Translation } from '@i18n/language';
 import ComicShelf from './components/ComicShelf';
 import BookSkeleton from './components/BookSkeleton';
-import { SearchIcon } from '@components/icons/SvgIcons';
+import Skeleton from '@components/Skeleton';
+import { SearchIcon } from '@assets/SvgIcons';
 import colors from '@theme/colors';
 import {
   useRewardedAd,
@@ -40,39 +49,126 @@ const BookScreen = () => {
   const navigation = useNavigation<RootNavigationProp>();
 
   const [loading, setLoading] = useState(true);
+  const [isComicLoading, setIsComicLoading] = useState(true);
+  const [comicBooks, setComicBooks] = useState<ComicBookItem[]>([]);
+  const [textBooksList, setTextBooksList] = useState<Story[]>([]);
+  const [isTextBooksLoading, setIsTextBooksLoading] = useState<boolean>(true);
 
-  const [pendingStory, setPendingStory] = useState<Story | null>(null);
-  const [openingStory, setOpeningStory] = useState<Story | null>(null);
+  const [pendingStory, setPendingStory] = useState<
+    Story | ComicBookItem | null
+  >(null);
+  const [openingStory, setOpeningStory] = useState<
+    Story | ComicBookItem | null
+  >(null);
   const {
     isLoaded: isRewardedLoaded,
     loadAd: loadRewardedAd,
     show: showRewardedAd,
   } = useRewardedAd(AD_UNITS.REWARDED_BOOK);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1800);
-    return () => clearTimeout(timer);
+  const isOffline = useNetworkStatus();
+
+  const loadComics = useCallback((isMounted = true) => {
+    setIsComicLoading(true);
+    fetchComicBooksFromFirestore()
+      .then(books => {
+        if (isMounted && books && books.length > 0) {
+          setComicBooks(books);
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching comic books:', err);
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsComicLoading(false);
+          setLoading(false);
+        }
+      });
   }, []);
 
-  // Reset opening book loading state whenever BookScreen comes into focus
+  const syncAndLoadTextBooks = useCallback((isMounted = true) => {
+    setIsTextBooksLoading(true);
+    syncTextBooksOnBookScreenOpen()
+      .then(books => {
+        if (isMounted && books && books.length > 0) {
+          setTextBooksList(books);
+        }
+      })
+      .catch(err => {
+        console.warn('⚠️ [BookScreen] Error syncing textBooks:', err);
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsTextBooksLoading(false);
+          setLoading(false);
+        }
+      });
+  }, []);
+
+  // Initial fetch on mount
+  useEffect(() => {
+    let isMounted = true;
+    loadComics(isMounted);
+    syncAndLoadTextBooks(isMounted);
+    return () => {
+      isMounted = false;
+    };
+  }, [loadComics, syncAndLoadTextBooks]);
+
+  // Auto-fetch as soon as internet connection is restored
+  useEffect(() => {
+    if (!isOffline) {
+      if (comicBooks.length === 0) {
+        loadComics(true);
+      }
+      if (textBooksList.length === 0) {
+        syncAndLoadTextBooks(true);
+      }
+    }
+  }, [
+    isOffline,
+    comicBooks.length,
+    textBooksList.length,
+    loadComics,
+    syncAndLoadTextBooks,
+  ]);
+
+  // Reset opening book loading state and retry if empty whenever BookScreen comes into focus
   useFocusEffect(
     useCallback(() => {
       setOpeningStory(null);
       loadRewardedAd();
-    }, [loadRewardedAd]),
+      if (comicBooks.length === 0) {
+        loadComics(true);
+      }
+      if (textBooksList.length === 0) {
+        syncAndLoadTextBooks(true);
+      }
+    }, [
+      loadRewardedAd,
+      comicBooks.length,
+      textBooksList.length,
+      loadComics,
+      syncAndLoadTextBooks,
+    ]),
   );
 
-  const openStoryReader = (story: Story) => {
+  const openStoryReader = (story: Story | ComicBookItem) => {
     if (isBookUnlockedToday(story.id)) {
       triggerHaptic();
       setOpeningStory(story);
       setTimeout(() => {
         if (story.type === 'text') {
-          navigation.navigate('TextReadingScreen', { storyId: story.id });
+          navigation.navigate('TextReadingScreen', {
+            storyId: story.id,
+            story: story as Story,
+          });
         } else {
-          navigation.navigate('ReadingScreen', { storyId: story.id });
+          navigation.navigate('ReadingScreen', {
+            storyId: story.id,
+            story,
+          });
         }
       }, 550);
       return;
@@ -98,9 +194,13 @@ const BookScreen = () => {
         if (storyToUnlock.type === 'text') {
           navigation.navigate('TextReadingScreen', {
             storyId: storyToUnlock.id,
+            story: storyToUnlock as Story,
           });
         } else {
-          navigation.navigate('ReadingScreen', { storyId: storyToUnlock.id });
+          navigation.navigate('ReadingScreen', {
+            storyId: storyToUnlock.id,
+            story: storyToUnlock,
+          });
         }
       }, 550);
     };
@@ -130,29 +230,42 @@ const BookScreen = () => {
           </View>
         </View>
 
-        {/* Search Bar Button Trigger */}
-        <TouchableOpacity
-          style={styles.searchContainer}
-          onPress={() => {
-            triggerHaptic();
-            navigation.navigate('SearchScreen');
-          }}
-          activeOpacity={0.9}
-        >
-          <View style={styles.searchBar}>
-            <SearchIcon size={scale(18)} color={colors.ring} />
-            <Text
-              style={[
-                styles.searchInput,
-                {
-                  color: colors.neutralDisabled,
-                },
-              ]}
-            >
-              {t(Translation.BOOK_SEARCH_PLACEHOLDER)}
-            </Text>
+        {/* Search Bar Button Trigger / Skeleton */}
+        {loading ? (
+          <View style={styles.searchContainer}>
+            <Skeleton
+              width="100%"
+              height={scale(44)}
+              borderRadius={scale(14)}
+              baseColor={colors.skeletonBase}
+              highlightColor={colors.skeletonHighlight}
+              style={styles.searchSkeleton}
+            />
           </View>
-        </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.searchContainer}
+            onPress={() => {
+              triggerHaptic();
+              navigation.navigate('SearchScreen');
+            }}
+            activeOpacity={0.9}
+          >
+            <View style={styles.searchBar}>
+              <SearchIcon size={scale(18)} color={colors.ring} />
+              <Text
+                style={[
+                  styles.searchInput,
+                  {
+                    color: colors.neutralDisabled,
+                  },
+                ]}
+              >
+                {t(Translation.BOOK_SEARCH_PLACEHOLDER)}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
 
         {loading ? (
           <BookSkeleton />
@@ -167,7 +280,8 @@ const BookScreen = () => {
             {/* Sacred Scriptures (Text Books) */}
             <ComicShelf
               title={t(Translation.BOOK_SACRED_SCRIPTURES)}
-              data={TextBooks}
+              data={textBooksList}
+              isLoading={isTextBooksLoading || textBooksList.length === 0}
               onPressBook={openStoryReader}
               currentLang={currentLang}
               loadingStoryId={openingStory?.id}
@@ -176,7 +290,8 @@ const BookScreen = () => {
             {/* Illustrated Comics Shelf List */}
             <ComicShelf
               title={t(Translation.BOOK_ILLUSTRATED_COMICS)}
-              data={MahaBharatStories}
+              data={comicBooks}
+              isLoading={isComicLoading || comicBooks.length === 0}
               onPressBook={openStoryReader}
               currentLang={currentLang}
               loadingStoryId={openingStory?.id}
@@ -315,6 +430,10 @@ const styles = StyleSheet.create({
   searchContainer: {
     paddingHorizontal: scale(20),
     marginVertical: scale(10),
+  },
+  searchSkeleton: {
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
   },
   searchBar: {
     flexDirection: 'row',

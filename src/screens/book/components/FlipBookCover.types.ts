@@ -1,5 +1,5 @@
 import { SharedValue } from 'react-native-reanimated';
-import { Story, StoryPage } from '@constants/storiesData';
+import { Story, StoryPage } from '@api/types';
 
 export interface FlipBookCoverProps {
   story: Story;

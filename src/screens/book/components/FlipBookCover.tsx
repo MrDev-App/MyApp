@@ -11,7 +11,7 @@ import { GestureDetector } from 'react-native-gesture-handler';
 
 import colors from '@theme/colors';
 import { scale } from '@theme/sizes';
-import { StoryPage } from '@constants/storiesData';
+import { StoryPage } from '@api/types';
 import { Back } from '@assets/index';
 import { formatPageNumber } from '@helper/helper';
 
@@ -22,13 +22,15 @@ import {
   GOLD_ACCENT,
   GOLD_BORDER,
 } from './FlipBookCover.constants';
-import { getStrings } from './FlipBookCover.strings';
 import { useFlipBookController } from './useFlipBookController';
+import { useAppLanguage } from '@hooks';
+import { Translation } from '@i18n/language';
 
 import BookSheet from './BookSheet';
 import StoryPageView from './StoryPageView';
 import CoverFrontView from './CoverFrontView';
 import BackFaceView from './BackFaceView';
+import BookEndPage from './BookEndPage';
 
 export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
   story,
@@ -37,13 +39,12 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
   onPageChange,
   onCoverImageLoaded,
 }) => {
+  const { t } = useAppLanguage();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const { bookWidth, bookHeight } = useMemo(
     () => getBookDimensions(windowWidth, windowHeight),
     [windowWidth, windowHeight],
   );
-
-  const strings = getStrings(currentLang);
 
   // Preload and memoize all story pages safely with defensive chaining
   const pages: StoryPage[] = useMemo(() => {
@@ -89,6 +90,7 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
     sheetProgressList,
     displayPage,
     isFlipping,
+    showLoadingOverlay,
     activeFlipDir,
     queueLength,
     panGesture,
@@ -193,15 +195,12 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
             ]}
           />
 
-          {/* BASE UNDERNEATH PAGE: Last Page in stack */}
-          <StoryPageView
-            pageData={lastPageData}
-            fontSize={fontSize}
-            category={category}
+          {/* BASE UNDERNEATH PAGE: Decorative "End of Book" page — visible when all sheets have flipped */}
+          <BookEndPage
+            title={story?.titleEn}
+            titleHi={story?.titleHi}
             source={source}
             currentLang={currentLang}
-            isInteractive={displayPage === totalPages}
-            totalPages={totalPages}
           />
 
           {/* Sheet 0: Cover (Turns to reveal Page 1) */}
@@ -255,7 +254,7 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
           })}
 
           {/* Floating Page-Turning Status Indicator with Queue Backlog Counter */}
-          {isFlipping && (
+          {showLoadingOverlay && (
             <View style={styles.loadingOverlay} pointerEvents="none">
               <View
                 style={[
@@ -273,8 +272,8 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
                 />
                 <Text style={styles.loadingText}>
                   {queueLength >= 2
-                    ? strings.flippingPages(queueLength)
-                    : strings.pleaseWait}
+                    ? t(Translation.BOOK_FLIPPING_PAGES, { count: queueLength })
+                    : t(Translation.BOOK_PLEASE_WAIT)}
                 </Text>
               </View>
             </View>
@@ -320,7 +319,7 @@ export const FlipBookCover: React.FC<FlipBookCoverProps> = ({
                   displayPage === 0 && styles.dotLabelActive,
                 ]}
               >
-                {strings.cover}
+                {t(Translation.BOOK_COVER)}
               </Text>
             </TouchableOpacity>
 

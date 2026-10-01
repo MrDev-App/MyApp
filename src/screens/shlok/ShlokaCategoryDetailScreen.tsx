@@ -1,0 +1,244 @@
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  FlatList,
+  Platform,
+  ListRenderItemInfo,
+} from 'react-native';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import colors from '@theme/colors';
+import fonts from '@theme/fonts';
+import { fs, scale } from '@theme/sizes';
+import { GradientBackground, ScreenHeader } from '@components';
+import { useAppLanguage } from '@hooks';
+import { Translation } from '@i18n/language';
+import { triggerHaptic } from '@helper/helper';
+import imagePath from '@assets/index';
+import {
+  getShlokaCategoryDetail,
+  ShlokaCategoryDetail,
+  ShlokaSubItem,
+  ShlokaCategory,
+} from '@api/shlokaApi';
+
+// Sub-components
+import ShlokaSubItemCard from './components/ShlokaSubItemCard';
+import ShlokaCategoryBanner from './components/ShlokaCategoryBanner';
+import ShlokaSkeletonList from './components/ShlokaSkeletonList';
+
+const CARD_TOTAL_HEIGHT = scale(74); // scale(64) card height + scale(10) margin
+
+export const ShlokaCategoryDetailScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
+  const route = useRoute<any>();
+  const navigation = useNavigation<any>();
+  const { t, isHindi } = useAppLanguage();
+
+  const categoryParam: ShlokaCategory = useMemo(() => {
+    return route.params?.category;
+  }, [route.params?.category]);
+
+  const slug = useMemo(() => {
+    return (categoryParam?.slug || categoryParam?.id || '').replace(
+      'occasion-',
+      '',
+    );
+  }, [categoryParam]);
+
+  const [categoryData, setCategoryData] = useState<ShlokaCategoryDetail | null>(
+    null,
+  );
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    setLoading(true);
+    getShlokaCategoryDetail(slug)
+      .then(data => {
+        if (isMounted && data) {
+          setCategoryData(data);
+        }
+      })
+      .catch(err => {
+        console.warn(
+          '[ShlokaCategoryDetailScreen] Error fetching category detail from Firebase:',
+          err,
+        );
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [slug]);
+
+  const screenTitle = useMemo(() => {
+    if (categoryData) {
+      return isHindi ? categoryData.titleHi : categoryData.titleEn;
+    }
+    if (isHindi && categoryParam?.titleHi) {
+      return categoryParam.titleHi;
+    }
+    if (!isHindi && categoryParam?.titleEn) {
+      return categoryParam.titleEn;
+    }
+    if (categoryParam?.title) {
+      return t(categoryParam.title);
+    }
+    return categoryParam?.titleEn || categoryParam?.titleHi || '';
+  }, [categoryData, categoryParam, isHindi, t]);
+
+  const screenDesc = useMemo(() => {
+    if (categoryData) {
+      return isHindi ? categoryData.descriptionHi : categoryData.descriptionEn;
+    }
+    return '';
+  }, [categoryData, isHindi]);
+
+  const categoryImageUri = useMemo(() => {
+    return categoryParam?.imageUrl || categoryData?.imageUrl;
+  }, [categoryParam?.imageUrl, categoryData?.imageUrl]);
+
+  const handleCardPress = useCallback(
+    (item: ShlokaSubItem) => {
+      triggerHaptic();
+      navigation.navigate('ShlokaVerseListScreen', {
+        subcategory: item,
+        category: categoryParam,
+      });
+    },
+    [navigation, categoryParam],
+  );
+
+  const renderSubItemCard = useCallback(
+    ({ item, index }: ListRenderItemInfo<ShlokaSubItem>) => (
+      <ShlokaSubItemCard
+        item={item}
+        index={index}
+        categoryImageUri={categoryImageUri}
+        onPress={handleCardPress}
+      />
+    ),
+    [categoryImageUri, handleCardPress],
+  );
+
+  const keyExtractor = useCallback((item: ShlokaSubItem) => item.id, []);
+
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({
+      length: CARD_TOTAL_HEIGHT,
+      offset: CARD_TOTAL_HEIGHT * index,
+      index,
+    }),
+    [],
+  );
+
+  const listHeaderComponent = useMemo(
+    () => <ShlokaCategoryBanner slug={slug} description={screenDesc} />,
+    [slug, screenDesc],
+  );
+
+  const listEmptyComponent = useMemo(
+    () => (
+      <View style={styles.emptyStateContainer}>
+        <Image source={imagePath.lotus} style={styles.emptyLotus} />
+        <Text style={styles.emptyStateTitle}>
+          {t(Translation.SHLOK_NO_FOUND_TITLE)}
+        </Text>
+        <Text style={styles.emptyStateDesc}>
+          {t(Translation.SHLOK_NO_FOUND_DESC)}
+        </Text>
+      </View>
+    ),
+    [t],
+  );
+
+  const contentContainerStyle = useMemo(
+    () => [
+      styles.scrollContent,
+      {
+        paddingBottom: Math.max(insets.bottom, scale(16)) + scale(30),
+      },
+    ],
+    [insets.bottom],
+  );
+
+  return (
+    <GradientBackground>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        {/* Navigation Screen Header */}
+        <ScreenHeader title={screenTitle} />
+
+        {loading ? (
+          <View style={styles.scrollContent}>
+            {listHeaderComponent}
+            <ShlokaSkeletonList count={6} />
+          </View>
+        ) : (
+          <FlatList
+            data={categoryData?.items || []}
+            renderItem={renderSubItemCard}
+            keyExtractor={keyExtractor}
+            getItemLayout={getItemLayout}
+            ListHeaderComponent={listHeaderComponent}
+            ListEmptyComponent={listEmptyComponent}
+            contentContainerStyle={contentContainerStyle}
+            showsVerticalScrollIndicator={false}
+            initialNumToRender={8}
+            maxToRenderPerBatch={8}
+            windowSize={5}
+            removeClippedSubviews={Platform.OS === 'android'}
+          />
+        )}
+      </SafeAreaView>
+    </GradientBackground>
+  );
+};
+
+export default React.memo(ShlokaCategoryDetailScreen);
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: scale(16),
+    paddingTop: scale(8),
+    flexGrow: 1,
+  },
+  emptyStateContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: scale(40),
+  },
+  emptyLotus: {
+    width: scale(70),
+    height: scale(70),
+    opacity: 0.6,
+    marginBottom: scale(12),
+  },
+  emptyStateTitle: {
+    fontSize: fs(16),
+    fontFamily: fonts.TiroHindiRegular,
+    fontWeight: '700',
+    color: colors.secondary,
+    marginBottom: scale(4),
+  },
+  emptyStateDesc: {
+    fontSize: fs(12),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.warmTaupe,
+    textAlign: 'center',
+  },
+});

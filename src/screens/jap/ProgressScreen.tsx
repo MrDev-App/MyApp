@@ -16,24 +16,25 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Translation } from '@i18n/language';
 import { Storage, STORAGE_KEYS } from '@services/storageService';
-import { JAP_LEVELS, getUserLevel, JapLevel } from '@constants/japLevels';
+import { JapLevel, getUserLevel } from './types';
+import { fetchJapLevelsFromFirestore } from '@api/japLevelsApi';
 import PathJourney from './components/PathJourney';
-import { CloseIcon } from '@components/icons/SvgIcons';
+import { CloseIcon } from '@assets/SvgIcons';
 import { Back } from '@assets/index';
 
 export const ProgressScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
-  const currentLanguage = (
-    i18n.language?.startsWith('en') ? 'en' : 'hi'
-  ) as 'en' | 'hi';
+  const currentLanguage = (i18n.language?.startsWith('en') ? 'en' : 'hi') as
+    | 'en'
+    | 'hi';
 
   const scrollViewRef = useRef<ScrollView>(null);
   const hasScrolledRef = useRef(false);
 
   const [totalMala, setTotalMala] = useState(0);
-
+  const [levels, setLevels] = useState<JapLevel[]>([]);
   const [selectedLevelModal, setSelectedLevelModal] = useState<JapLevel | null>(
     null,
   );
@@ -42,11 +43,27 @@ export const ProgressScreen = () => {
     Storage.checkAndResetTodayStats();
     const tMala = Storage.getNumber(STORAGE_KEYS.JAP_TOTAL_MALA, 0);
     setTotalMala(tMala);
+
+    // Fetch 10 levels from Firebase Firestore
+    let isMounted = true;
+    fetchJapLevelsFromFirestore(10)
+      .then(fetchedLevels => {
+        if (isMounted && fetchedLevels && fetchedLevels.length > 0) {
+          setLevels(fetchedLevels);
+        }
+      })
+      .catch(err => {
+        console.warn('[ProgressScreen] Error fetching levels:', err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const { currentLevel } = useMemo(() => {
-    return getUserLevel(totalMala);
-  }, [totalMala]);
+    return getUserLevel(totalMala, levels);
+  }, [totalMala, levels]);
 
   return (
     <GradientBackground>
@@ -74,7 +91,7 @@ export const ProgressScreen = () => {
       >
         {/* ── Candy Crush Style Serpentine Journey Path ── */}
         <PathJourney
-          levels={JAP_LEVELS}
+          levels={levels}
           currentLevel={currentLevel}
           totalMalas={totalMala}
           currentLanguage={currentLanguage}
@@ -116,7 +133,7 @@ export const ProgressScreen = () => {
                     onPress={() => setSelectedLevelModal(null)}
                     activeOpacity={0.7}
                   >
-                    <CloseIcon size={scale(18)} color={colors.ring} />
+                    <CloseIcon size={scale(18)} color={colors.white} />
                   </TouchableOpacity>
                 </View>
 
@@ -309,6 +326,13 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     padding: scale(6),
+    backgroundColor: colors.ring,
+    borderRadius: scale(20),
+    width: scale(32),
+    height: scale(32),
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
   },
   modalLevelTitle: {
     fontSize: fs(18),

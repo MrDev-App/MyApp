@@ -6,11 +6,13 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '@navigation/types';
-import { CloseIcon, PlusIcon, MinusIcon } from '@components/icons/SvgIcons';
+import { CloseIcon } from '@assets/SvgIcons';
+import imagePath from '@assets';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 import { triggerHaptic } from '@helper/helper';
@@ -18,6 +20,8 @@ import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { useAppLanguage } from '@hooks';
+import Translation from '@i18n/language/constantLangKeys';
+import NetInfo from '@react-native-community/netinfo';
 import MusicPlayer from '@components/MusicPlayer';
 import { Loader, TempleBell } from '@components';
 
@@ -36,7 +40,7 @@ export const ArtiScreen: React.FC = () => {
 
   const route = useRoute<ArtiScreenRouteProp>();
   const navigation = useNavigation<any>();
-  const { isHindi } = useAppLanguage();
+  const { t, isHindi } = useAppLanguage();
   const scrollViewRef = useRef<ScrollView>(null);
 
   const selectedItem = route.params?.arti;
@@ -53,10 +57,92 @@ export const ArtiScreen: React.FC = () => {
   const [isLooping, setIsLooping] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
 
-  const onTogglePlay = useCallback(() => {
-    triggerHaptic();
-    setIsPlaying(prev => !prev);
+  // Floating Toast State
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimeoutRef = useRef<any>(null);
+
+  const showToast = useCallback((msg: string) => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setToastMessage(msg);
+    toastTimeoutRef.current = setTimeout(() => {
+      setToastMessage(null);
+    }, 10000);
   }, []);
+
+  // Cleanup on unmount
+  React.useEffect(() => {
+    return () => {
+      setIsPlaying(false);
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const onTogglePlay = useCallback(async () => {
+    triggerHaptic();
+
+    // If starting playback, validate audio URL & network connectivity
+    if (!isPlaying) {
+      const audioUrl = selectedItem?.audioUrl;
+      if (!audioUrl || !audioUrl.trim()) {
+        showToast(t(Translation.AARTI_AUDIO_NOT_AVAILABLE));
+        return;
+      }
+
+      if (audioUrl.startsWith('http://') || audioUrl.startsWith('https://')) {
+        let isOnline = false;
+        try {
+          const netState = await NetInfo.fetch();
+          if (netState.isConnected === true) {
+            isOnline = true;
+          }
+        } catch {
+          // ignore
+        }
+
+        // If NetInfo reports offline/stale, verify with actual probe
+        if (!isOnline) {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            const res = await fetch('https://clients3.google.com/generate_204', {
+              method: 'HEAD',
+              signal: controller.signal,
+            });
+            clearTimeout(timeoutId);
+            if (res.status >= 200 && res.status < 400) {
+              isOnline = true;
+            }
+          } catch {
+            isOnline = false;
+          }
+        }
+
+        if (!isOnline) {
+          showToast(t(Translation.NO_INTERNET_CONNECTION));
+          return;
+        }
+      }
+    }
+
+    setIsPlaying(prev => !prev);
+  }, [isPlaying, selectedItem?.audioUrl, showToast, t]);
+
+  const handleAudioError = useCallback(
+    (error: any) => {
+      console.warn('[ArtiScreen] Audio playback error:', error);
+      setIsPlaying(false);
+      if (error?.type === 'URL_ABSENT') {
+        showToast(t(Translation.AARTI_AUDIO_NOT_AVAILABLE));
+      } else {
+        showToast(t(Translation.AARTI_AUDIO_ERROR));
+      }
+    },
+    [showToast, t],
+  );
 
   const handlePrevious = useCallback(() => {
     triggerHaptic();
@@ -191,6 +277,22 @@ export const ArtiScreen: React.FC = () => {
 
         {/* Music Player & Font Size Control */}
         <View style={styles.playerWithFontRow}>
+          <TouchableOpacity
+            style={[
+              styles.fontBtn,
+              fontSize <= MIN_FONT_SIZE && styles.fontBtnDisabled,
+            ]}
+            onPress={() => adjustFontSize(-2)}
+            disabled={fontSize <= MIN_FONT_SIZE}
+            activeOpacity={0.7}
+            hitSlop={FONT_BTN_HIT_SLOP}
+          >
+            <Image
+              source={imagePath.TextDecrease}
+              style={styles.fontIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
           <MusicPlayer
             isPlaying={isPlaying}
             onTogglePlay={onTogglePlay}
@@ -200,47 +302,26 @@ export const ArtiScreen: React.FC = () => {
             onToggleLoop={handleToggleLoop}
             isShuffle={isShuffle}
             onToggleShuffle={handleToggleShuffle}
+            audioUrl={selectedItem.audioUrl}
+            onError={handleAudioError}
           />
-          <View style={styles.fontSizeControlPill}>
-            <TouchableOpacity
-              style={styles.fontBtn}
-              onPress={() => adjustFontSize(-2)}
-              disabled={fontSize <= MIN_FONT_SIZE}
-              activeOpacity={0.7}
-              hitSlop={FONT_BTN_HIT_SLOP}
-            >
-              <MinusIcon
-                size={scale(16)}
-                color={
-                  fontSize <= MIN_FONT_SIZE
-                    ? colors.neutralDisabled
-                    : colors.ring
-                }
-                strokeWidth={2.4}
-              />
-            </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[
-                styles.fontBtn,
-                fontSize >= MAX_FONT_SIZE && styles.fontBtnDisabled,
-              ]}
-              onPress={() => adjustFontSize(2)}
-              disabled={fontSize >= MAX_FONT_SIZE}
-              activeOpacity={0.7}
-              hitSlop={FONT_BTN_HIT_SLOP}
-            >
-              <PlusIcon
-                size={scale(16)}
-                color={
-                  fontSize >= MAX_FONT_SIZE
-                    ? colors.neutralDisabled
-                    : colors.ring
-                }
-                strokeWidth={2.4}
-              />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={[
+              styles.fontBtn,
+              fontSize >= MAX_FONT_SIZE && styles.fontBtnDisabled,
+            ]}
+            onPress={() => adjustFontSize(2)}
+            disabled={fontSize >= MAX_FONT_SIZE}
+            activeOpacity={0.7}
+            hitSlop={FONT_BTN_HIT_SLOP}
+          >
+            <Image
+              source={imagePath.TextIncrease}
+              style={styles.fontIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
         </View>
 
         {/* Scrollable Aarti Lyrics Card */}
@@ -268,6 +349,16 @@ export const ArtiScreen: React.FC = () => {
           </ScrollView>
         </View>
       </View>
+
+      {/* Floating Bottom Toast */}
+      {toastMessage && (
+        <View
+          style={[styles.toastContainer, { bottom: safeBottom + scale(20) }]}
+          pointerEvents="none"
+        >
+          <Text style={styles.toastText}>{toastMessage}</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -285,8 +376,8 @@ const styles = StyleSheet.create({
   playerWithFontRow: {
     flexDirection: 'row',
     marginBottom: scale(5),
-    gap: scale(15),
-    marginLeft: scale(45),
+
+    justifyContent: 'space-around',
   },
   fontSizeControlPill: {
     alignItems: 'center',
@@ -294,11 +385,14 @@ const styles = StyleSheet.create({
   },
   fontBtn: {
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
   },
   fontBtnDisabled: {
-    backgroundColor: 'transparent',
-    opacity: 0.3,
+    opacity: 0.35,
+  },
+  fontIcon: {
+    width: scale(16),
+    height: scale(16),
   },
   modalHeaderCloseBtn: {
     position: 'absolute',
@@ -382,14 +476,53 @@ const styles = StyleSheet.create({
   },
   leftBell: {
     position: 'absolute',
+<<<<<<< HEAD
     top: scale(-13),
     left: scale(25),
+=======
+    top: -10,
+    left: scale(22),
+>>>>>>> 122482f9731fbc92bd5222792938d7c590a9d292
     zIndex: 1,
   },
   rightBell: {
     position: 'absolute',
+<<<<<<< HEAD
     top: scale(-13),
     right: scale(25),
+=======
+    top: -10,
+    right: scale(22),
+>>>>>>> 122482f9731fbc92bd5222792938d7c590a9d292
     zIndex: 1,
+  },
+  toastContainer: {
+    position: 'absolute',
+    alignSelf: 'center',
+    backgroundColor: colors.toastBg,
+    paddingHorizontal: scale(18),
+    paddingVertical: scale(10),
+    borderRadius: scale(20),
+    borderWidth: 1,
+    borderColor: colors.toastBorder,
+    zIndex: 999,
+    ...Platform.select({
+      ios: {
+        shadowColor: colors.black,
+        shadowOffset: { width: 0, height: scale(4) },
+        shadowOpacity: 0.35,
+        shadowRadius: scale(6),
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  toastText: {
+    color: colors.white,
+    fontSize: fs(12.5),
+    fontFamily: fonts.TiroHindiRegular,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

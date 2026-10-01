@@ -1,17 +1,28 @@
 import React, { useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import imagePath from '@assets/index';
 
 import { CoverFrontViewProps } from './FlipBookCover.types';
 import { styles } from './FlipBookCover.styles';
 
 export const CoverFrontView: React.FC<CoverFrontViewProps> = React.memo(
   ({ story, title, subtitle, category, onOpenBook, onCoverImageLoaded }) => {
-    const coverImageSource = story?.image
-      ? Array.isArray(story.image)
-        ? story.image[0]
-        : story.image
-      : null;
+    const rawCover =
+      story?.CoverPage ||
+      story?.coverPage ||
+      (story?.image
+        ? Array.isArray(story.image)
+          ? story.image[0]
+          : story.image
+        : null);
+
+    const coverImageSource =
+      typeof rawCover === 'string' && rawCover.trim().length > 0
+        ? rawCover.startsWith('http://') || rawCover.startsWith('https://')
+          ? { uri: rawCover.trim() }
+          : (imagePath as any)[rawCover.trim()] || imagePath.fallBackImage
+        : rawCover;
 
     useEffect(() => {
       if (!coverImageSource) {

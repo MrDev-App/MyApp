@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: scale(20),
     paddingVertical: scale(10),
-    borderTopWidth: 1,
+
     width: '100%',
     borderTopColor: colors.readerDarkBorder,
   },

@@ -20,8 +20,9 @@ import { ZoomableImage } from './ZoomableImage';
 import { StoryPageViewProps } from './FlipBookCover.types';
 import { styles } from './FlipBookCover.styles';
 import { GOLD_BORDER } from './FlipBookCover.constants';
-import { getStrings } from './FlipBookCover.strings';
-import { ExpandIcon } from '@components/icons/SvgIcons';
+import { useAppLanguage } from '@hooks';
+import { Translation } from '@i18n/language';
+import { ExpandIcon } from '@assets/SvgIcons';
 
 export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
   ({
@@ -33,7 +34,7 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
     isInteractive,
     totalPages: _totalPages,
   }) => {
-    const strings = getStrings(currentLang);
+    const { t } = useAppLanguage();
     const insets = useSafeAreaInsets();
     const { width: windowWidth } = useWindowDimensions();
     const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
@@ -58,20 +59,32 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
 
     // Normalize all illustrations on this page
     const allPageImages: any[] = useMemo(() => {
+      let rawList: any[] = [];
       if (
         pageData.imagePages &&
         Array.isArray(pageData.imagePages) &&
         pageData.imagePages.length > 0
       ) {
-        return pageData.imagePages;
+        rawList = pageData.imagePages;
+      } else if (Array.isArray(pageData.image) && pageData.image.length > 0) {
+        rawList = pageData.image;
+      } else if (pageData.image) {
+        rawList = [pageData.image];
       }
-      if (Array.isArray(pageData.image) && pageData.image.length > 0) {
-        return pageData.image;
-      }
-      if (pageData.image) {
-        return [pageData.image];
-      }
-      return [];
+
+      return rawList.map(img => {
+        if (typeof img === 'string' && img.trim().length > 0) {
+          const trimmed = img.trim();
+          if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+            return { uri: trimmed };
+          }
+          if ((imagePath as any)[trimmed]) {
+            return (imagePath as any)[trimmed];
+          }
+          return imagePath.fallBackImage;
+        }
+        return img;
+      });
     }, [pageData.image, pageData.imagePages]);
 
     const handleOpenFullscreen = useCallback((idx: number) => {
@@ -172,7 +185,7 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
               <View style={styles.shlokaBox}>
                 <View style={styles.shlokaHeaderPill}>
                   <Text style={styles.shlokaTagText}>
-                    ✦ {strings.shlokaTranslationHeader} ✦
+                    ✦ {t(Translation.BOOK_SHLOKA_TRANSLATION_HEADER)} ✦
                   </Text>
                 </View>
                 <Text
@@ -290,7 +303,7 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
             {pageMoral ? (
               <View style={styles.moralCard}>
                 <Text style={styles.moralCardHeader}>
-                  ⚜ {strings.moralHeader} ⚜
+                  ⚜ {t(Translation.BOOK_MORAL_HEADER)} ⚜
                 </Text>
                 <Text
                   style={[

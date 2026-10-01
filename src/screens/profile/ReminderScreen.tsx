@@ -27,7 +27,7 @@ import { Translation } from '@i18n/language';
 import colors from '@theme/colors';
 import { scale, verticalScale, fs } from '@theme/sizes';
 import fonts from '@theme/fonts';
-import { PlusIcon, TrashIcon, ChevronRight } from '@components/icons/SvgIcons';
+import { PlusIcon, TrashIcon, ChevronRight } from '@assets/SvgIcons';
 import GradientBackground from '@components/GradientBackground';
 import TextField from '@components/TextField';
 import AnimatedListItem from '@components/AnimatedListItem';
@@ -287,258 +287,258 @@ const ReminderScreen: React.FC = () => {
           keyboardDismissMode="on-drag"
           automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
         >
-            {/* ── 1. Time Wheel & Custom Message Card ── */}
-            <View style={styles.card}>
-              {Platform.OS !== 'ios' && (
-                <Text style={styles.sectionLabel}>
-                  {t(Translation.PROFILE_REMINDER_SELECT_TIME)}
-                </Text>
-              )}
-
-              {Platform.OS === 'ios' ? (
-                <View style={styles.pickerWrapper}>
-                  <View style={styles.selectionHighlight} />
-                  <DateTimePicker
-                    value={selectedTime}
-                    mode="time"
-                    display="spinner"
-                    onChange={(_, date) => {
-                      if (date) setSelectedTime(date);
-                    }}
-                    themeVariant="light"
-                    style={styles.picker}
-                  />
-                </View>
-              ) : (
-                <View style={styles.androidPickerBtnContainer}>
-                  <TouchableOpacity
-                    style={styles.androidTimeBtn}
-                    onPress={openAndroidTimePicker}
-                    activeOpacity={0.8}
-                  >
-                    <View style={styles.androidClockBadge}>
-                      <Bell width={scale(22)} height={scale(22)} />
-                    </View>
-
-                    <View style={styles.androidTimeInfo}>
-                      <Text style={styles.androidTimeLabel}>
-                        {t(Translation.PROFILE_REMINDER_SELECTED_TIME)}
-                      </Text>
-                      <Text style={styles.androidTimeBtnText}>
-                        {formatReminderTime(
-                          selectedTime.getHours(),
-                          selectedTime.getMinutes(),
-                          selectedTime.getHours() >= 12,
-                        )}
-                      </Text>
-                    </View>
-
-                    <View style={styles.androidChangeChip}>
-                      <Text style={styles.androidChangeChipText}>
-                        {t(Translation.PROFILE_REMINDER_CHANGE)}
-                      </Text>
-                      <ChevronRight
-                        size={scale(11)}
-                        color={colors.white}
-                        strokeWidth={2.5}
-                      />
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              )}
-
-              {/* ── Custom Message Inputs ── */}
-              <View style={styles.inputSection}>
-                <TextField
-                  testID="reminder-title-input"
-                  label={t(Translation.PROFILE_REMINDER_TITLE_LABEL)}
-                  isRequired={true}
-                  error={titleError}
-                  placeholder={t(Translation.PROFILE_REMINDER_TITLE_PLACEHOLDER)}
-                  value={customTitle}
-                  onChangeText={text => {
-                    setCustomTitle(text);
-                    if (titleError) setTitleError('');
-                  }}
-                  maxLength={40}
-                  returnKeyType="next"
-                  reserveErrorSpace={false}
-                />
-
-                <TextField
-                  testID="reminder-subtitle-input"
-                  label={t(Translation.PROFILE_REMINDER_MSG_LABEL)}
-                  isRequired={true}
-                  error={subtitleError}
-                  placeholder={t(Translation.PROFILE_REMINDER_MSG_PLACEHOLDER)}
-                  value={customSubtitle}
-                  onChangeText={text => {
-                    setCustomSubtitle(text);
-                    if (subtitleError) setSubtitleError('');
-                  }}
-                  maxLength={80}
-                  multiline
-                  numberOfLines={2}
-                  returnKeyType="done"
-                  reserveErrorSpace={false}
-                />
-              </View>
-
-              {/* ── Add This Time Button ── */}
-              {reminders.length < MAX_REMINDERS ? (
-                <TouchableOpacity
-                  testID="set-reminder-btn"
-                  style={styles.addBtn}
-                  onPress={() => handleAddReminder(selectedTime)}
-                  activeOpacity={0.8}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <LottieView
-                      source={imagePath.loading}
-                      autoPlay
-                      loop
-                      style={styles.btnLottie}
-                    />
-                  ) : (
-                    <>
-                      <PlusIcon
-                        size={scale(15)}
-                        color={colors.white}
-                        strokeWidth={2}
-                      />
-                      <Text style={styles.addBtnText}>
-                        {t(Translation.PROFILE_SET_REMINDER)}
-                      </Text>
-                    </>
-                  )}
-                </TouchableOpacity>
-              ) : (
-                <Text style={styles.maxLimitText}>
-                  {t(Translation.PROFILE_MAX_REMINDERS_REACHED, {
-                    count: MAX_REMINDERS,
-                  })}
-                </Text>
-              )}
-            </View>
-
-            {/* ── 2. Saved Reminders Section ── */}
-            <View style={styles.savedSectionHeader}>
-              <Text style={styles.savedSectionTitle}>
-                {t(Translation.PROFILE_SAVED_REMINDERS)}
+          {/* ── 1. Time Wheel & Custom Message Card ── */}
+          <View style={styles.card}>
+            {Platform.OS !== 'ios' && (
+              <Text style={styles.sectionLabel}>
+                {t(Translation.PROFILE_REMINDER_SELECT_TIME)}
               </Text>
-              <View style={styles.activeBadge}>
-                <Text style={styles.activeBadgeText}>
-                  {t(Translation.PROFILE_ACTIVE_REMINDERS_COUNT, {
-                    count: activeCount,
-                  })}
-                </Text>
-              </View>
-            </View>
+            )}
 
-            {reminders.length === 0 ? (
-              <View style={styles.emptyContainer}>
-                <Bell width={scale(36)} height={scale(36)} />
-                <Text style={styles.emptyText}>
-                  {t(Translation.PROFILE_NO_REMINDERS_YET)}
-                </Text>
+            {Platform.OS === 'ios' ? (
+              <View style={styles.pickerWrapper}>
+                <View style={styles.selectionHighlight} />
+                <DateTimePicker
+                  value={selectedTime}
+                  mode="time"
+                  display="spinner"
+                  onChange={(_, date) => {
+                    if (date) setSelectedTime(date);
+                  }}
+                  themeVariant="light"
+                  style={styles.picker}
+                />
               </View>
             ) : (
-              reminders.map((item, index) => (
-                <AnimatedListItem
-                  key={item.id || index}
-                  index={index}
-                  delayStep={40}
+              <View style={styles.androidPickerBtnContainer}>
+                <TouchableOpacity
+                  style={styles.androidTimeBtn}
+                  onPress={openAndroidTimePicker}
+                  activeOpacity={0.8}
                 >
-                  <View style={styles.reminderCard}>
-                    {/* Left: Bell icon */}
-                    <View style={styles.bellIconCircle}>
-                      <Bell width={scale(16)} height={scale(16)} />
-                    </View>
+                  <View style={styles.androidClockBadge}>
+                    <Bell width={scale(22)} height={scale(22)} />
+                  </View>
 
-                    {/* Middle: Details */}
-                    <View style={styles.reminderInfo}>
+                  <View style={styles.androidTimeInfo}>
+                    <Text style={styles.androidTimeLabel}>
+                      {t(Translation.PROFILE_REMINDER_SELECTED_TIME)}
+                    </Text>
+                    <Text style={styles.androidTimeBtnText}>
+                      {formatReminderTime(
+                        selectedTime.getHours(),
+                        selectedTime.getMinutes(),
+                        selectedTime.getHours() >= 12,
+                      )}
+                    </Text>
+                  </View>
+
+                  <View style={styles.androidChangeChip}>
+                    <Text style={styles.androidChangeChipText}>
+                      {t(Translation.PROFILE_REMINDER_CHANGE)}
+                    </Text>
+                    <ChevronRight
+                      size={scale(11)}
+                      color={colors.white}
+                      strokeWidth={2.5}
+                    />
+                  </View>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* ── Custom Message Inputs ── */}
+            <View style={styles.inputSection}>
+              <TextField
+                testID="reminder-title-input"
+                label={t(Translation.PROFILE_REMINDER_TITLE_LABEL)}
+                isRequired={true}
+                error={titleError}
+                placeholder={t(Translation.PROFILE_REMINDER_TITLE_PLACEHOLDER)}
+                value={customTitle}
+                onChangeText={text => {
+                  setCustomTitle(text);
+                  if (titleError) setTitleError('');
+                }}
+                maxLength={40}
+                returnKeyType="next"
+                reserveErrorSpace={false}
+              />
+
+              <TextField
+                testID="reminder-subtitle-input"
+                label={t(Translation.PROFILE_REMINDER_MSG_LABEL)}
+                isRequired={true}
+                error={subtitleError}
+                placeholder={t(Translation.PROFILE_REMINDER_MSG_PLACEHOLDER)}
+                value={customSubtitle}
+                onChangeText={text => {
+                  setCustomSubtitle(text);
+                  if (subtitleError) setSubtitleError('');
+                }}
+                maxLength={80}
+                multiline
+                numberOfLines={2}
+                returnKeyType="done"
+                reserveErrorSpace={false}
+              />
+            </View>
+
+            {/* ── Add This Time Button ── */}
+            {reminders.length < MAX_REMINDERS ? (
+              <TouchableOpacity
+                testID="set-reminder-btn"
+                style={styles.addBtn}
+                onPress={() => handleAddReminder(selectedTime)}
+                activeOpacity={0.8}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <LottieView
+                    source={imagePath.loading}
+                    autoPlay
+                    loop
+                    style={styles.btnLottie}
+                  />
+                ) : (
+                  <>
+                    <PlusIcon
+                      size={scale(15)}
+                      color={colors.white}
+                      strokeWidth={2}
+                    />
+                    <Text style={styles.addBtnText}>
+                      {t(Translation.PROFILE_SET_REMINDER)}
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            ) : (
+              <Text style={styles.maxLimitText}>
+                {t(Translation.PROFILE_MAX_REMINDERS_REACHED, {
+                  count: MAX_REMINDERS,
+                })}
+              </Text>
+            )}
+          </View>
+
+          {/* ── 2. Saved Reminders Section ── */}
+          <View style={styles.savedSectionHeader}>
+            <Text style={styles.savedSectionTitle}>
+              {t(Translation.PROFILE_SAVED_REMINDERS)}
+            </Text>
+            <View style={styles.activeBadge}>
+              <Text style={styles.activeBadgeText}>
+                {t(Translation.PROFILE_ACTIVE_REMINDERS_COUNT, {
+                  count: activeCount,
+                })}
+              </Text>
+            </View>
+          </View>
+
+          {reminders.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Bell width={scale(36)} height={scale(36)} />
+              <Text style={styles.emptyText}>
+                {t(Translation.PROFILE_NO_REMINDERS_YET)}
+              </Text>
+            </View>
+          ) : (
+            reminders.map((item, index) => (
+              <AnimatedListItem
+                key={item.id || index}
+                index={index}
+                delayStep={40}
+              >
+                <View style={styles.reminderCard}>
+                  {/* Left: Bell icon */}
+                  <View style={styles.bellIconCircle}>
+                    <Bell width={scale(16)} height={scale(16)} />
+                  </View>
+
+                  {/* Middle: Details */}
+                  <View style={styles.reminderInfo}>
+                    <Text
+                      style={[
+                        styles.reminderTimeText,
+                        !item.enabled && styles.disabledText,
+                      ]}
+                    >
+                      {formatReminderTime(item.hour, item.minute, item.isPm)}
+                    </Text>
+
+                    {item.title ? (
                       <Text
                         style={[
-                          styles.reminderTimeText,
+                          styles.reminderCustomTitle,
+                          !item.enabled && styles.disabledText,
+                        ]}
+                        numberOfLines={1}
+                      >
+                        {item.title}
+                      </Text>
+                    ) : null}
+
+                    {item.subtitle ? (
+                      <Text
+                        style={[
+                          styles.reminderCustomSubtitle,
+                          !item.enabled && styles.disabledText,
+                        ]}
+                        numberOfLines={2}
+                      >
+                        {item.subtitle}
+                      </Text>
+                    ) : (
+                      <Text
+                        style={[
+                          styles.reminderDefaultSub,
                           !item.enabled && styles.disabledText,
                         ]}
                       >
-                        {formatReminderTime(item.hour, item.minute, item.isPm)}
+                        {t(Translation.PROFILE_DAILY_SADHANA_REMINDERS)}
                       </Text>
-
-                      {item.title ? (
-                        <Text
-                          style={[
-                            styles.reminderCustomTitle,
-                            !item.enabled && styles.disabledText,
-                          ]}
-                          numberOfLines={1}
-                        >
-                          {item.title}
-                        </Text>
-                      ) : null}
-
-                      {item.subtitle ? (
-                        <Text
-                          style={[
-                            styles.reminderCustomSubtitle,
-                            !item.enabled && styles.disabledText,
-                          ]}
-                          numberOfLines={2}
-                        >
-                          {item.subtitle}
-                        </Text>
-                      ) : (
-                        <Text
-                          style={[
-                            styles.reminderDefaultSub,
-                            !item.enabled && styles.disabledText,
-                          ]}
-                        >
-                          {t(Translation.PROFILE_DAILY_SADHANA_REMINDERS)}
-                        </Text>
-                      )}
-                    </View>
-
-                    {/* Right: Toggle & Delete */}
-                    <View style={styles.itemRightActions}>
-                      <Switch
-                        testID={`reminder-switch-${item.id}`}
-                        trackColor={{
-                          false: colors.switchTrackFalse,
-                          true: colors.ring,
-                        }}
-                        thumbColor={
-                          item.enabled ? colors.white : colors.switchThumbFalse
-                        }
-                        onValueChange={v => handleToggleItem(item.id, v)}
-                        value={item.enabled}
-                        style={{
-                          transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
-
-                          alignSelf: 'center',
-                        }}
-                      />
-                      <TouchableOpacity
-                        testID={`reminder-delete-${item.id}`}
-                        onPress={() => handleDeleteItem(item.id)}
-                        style={styles.deleteBtn}
-                        activeOpacity={0.7}
-                      >
-                        <TrashIcon
-                          size={scale(15)}
-                          color={colors.destructive || colors.danger}
-                        />
-                      </TouchableOpacity>
-                    </View>
+                    )}
                   </View>
-                </AnimatedListItem>
-              ))
-            )}
 
-            <View style={{ height: verticalScale(40) }} />
-          </ScrollView>
+                  {/* Right: Toggle & Delete */}
+                  <View style={styles.itemRightActions}>
+                    <Switch
+                      testID={`reminder-switch-${item.id}`}
+                      trackColor={{
+                        false: colors.switchTrackFalse,
+                        true: colors.ring,
+                      }}
+                      thumbColor={
+                        item.enabled ? colors.white : colors.switchThumbFalse
+                      }
+                      onValueChange={v => handleToggleItem(item.id, v)}
+                      value={item.enabled}
+                      style={{
+                        transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
+
+                        alignSelf: 'center',
+                      }}
+                    />
+                    <TouchableOpacity
+                      testID={`reminder-delete-${item.id}`}
+                      onPress={() => handleDeleteItem(item.id)}
+                      style={styles.deleteBtn}
+                      activeOpacity={0.7}
+                    >
+                      <TrashIcon
+                        size={scale(15)}
+                        color={colors.destructive || colors.danger}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </AnimatedListItem>
+            ))
+          )}
+
+          <View style={{ height: verticalScale(40) }} />
+        </ScrollView>
       </SafeAreaView>
     </GradientBackground>
   );

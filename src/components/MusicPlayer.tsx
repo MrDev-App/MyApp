@@ -17,7 +17,7 @@ import {
   Forward15Icon,
   RepeatIcon,
   ShuffleIcon,
-} from '@components/icons/SvgIcons';
+} from '@assets/SvgIcons';
 import { triggerHaptic } from '@helper/helper';
 import Animated, {
   useSharedValue,
@@ -30,7 +30,6 @@ import Animated, {
   cancelAnimation,
 } from 'react-native-reanimated';
 import Video from 'react-native-video';
-import imagePath from '@assets';
 
 export interface MusicPlayerProps {
   isPlaying: boolean;
@@ -49,6 +48,7 @@ export interface MusicPlayerProps {
   style?: StyleProp<ViewStyle>;
   showTimers?: boolean;
   audioUrl?: string;
+  onError?: (error: any) => void;
 }
 
 const STATIC_BAR_HEIGHTS = [
@@ -160,10 +160,26 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
   style,
   showTimers = true,
   audioUrl,
+  onError,
 }) => {
   const videoRef = useRef<any>(null);
   const [currentProgress, setCurrentProgress] = useState(0);
   const [totalDuration, setTotalDuration] = useState(duration);
+  const [playerKey, setPlayerKey] = useState(0);
+  const [hasInitiatedPlay, setHasInitiatedPlay] = useState(false);
+
+  useEffect(() => {
+    if (isPlaying) {
+      setHasInitiatedPlay(true);
+    }
+  }, [isPlaying]);
+
+  useEffect(() => {
+    setCurrentProgress(0);
+    setTotalDuration(duration);
+    setHasInitiatedPlay(false);
+    setPlayerKey(k => k + 1);
+  }, [audioUrl, duration]);
 
   const formattedCurrent = useMemo(
     () => formatTime(currentProgress),
@@ -188,6 +204,15 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
     videoRef.current?.seek(newTime);
     setCurrentProgress(newTime);
     onNext?.();
+  };
+
+  const handlePlayPause = () => {
+    triggerHaptic();
+    if (!isPlaying && (!audioUrl || !audioUrl.trim())) {
+      onError?.({ type: 'URL_ABSENT' });
+      return;
+    }
+    onTogglePlay();
   };
 
   return (
@@ -229,39 +254,39 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
         </View>
       </View>
 
-      <Video
-        ref={videoRef}
-        source={
-          audioUrl
-            ? {
-                uri: audioUrl.startsWith('file://')
-                  ? audioUrl
-                  : `file://${audioUrl}`,
-              }
-            : imagePath.artiDemo
-        }
-        paused={!isPlaying}
-        repeat={isLooping}
-        onProgress={data => {
-          setCurrentProgress(data.currentTime);
-        }}
-        onLoad={data => {
-          if (data.duration && data.duration > 0) {
-            setTotalDuration(data.duration);
-          }
-        }}
-        onEnd={() => {
-          if (!isLooping) {
-            onTogglePlay();
-            setCurrentProgress(0);
-            videoRef.current?.seek(0);
-          }
-        }}
-        style={styles.hiddenVideo}
-        ignoreSilentSwitch="ignore"
-        playInBackground={true}
-        playWhenInactive={true}
-      />
+      {audioUrl && audioUrl.trim().length > 0 && hasInitiatedPlay ? (
+        <Video
+          key={`audio_player_${playerKey}`}
+          ref={videoRef}
+          source={{ uri: audioUrl.trim() }}
+          paused={!isPlaying}
+          repeat={isLooping}
+          onProgress={data => {
+            setCurrentProgress(data.currentTime);
+          }}
+          onLoad={data => {
+            if (data.duration && data.duration > 0) {
+              setTotalDuration(data.duration);
+            }
+          }}
+          onError={error => {
+            console.warn('[MusicPlayer] Audio playback error:', error);
+            setPlayerKey(k => k + 1);
+            onError?.(error);
+          }}
+          onEnd={() => {
+            if (!isLooping) {
+              onTogglePlay();
+              setCurrentProgress(0);
+              videoRef.current?.seek(0);
+            }
+          }}
+          style={styles.hiddenVideo}
+          ignoreSilentSwitch="ignore"
+          playInBackground={true}
+          playWhenInactive={true}
+        />
+      ) : null}
 
       {/* 5-Button Audio Controls Row: Shuffle | 15s Rewind | Play/Pause | 15s Forward | Repeat */}
       <View style={styles.controlsRow}>
@@ -285,10 +310,7 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
         {/* Hero Play / Pause Button */}
         <TouchableOpacity
           style={styles.playPauseButton}
-          onPress={() => {
-            triggerHaptic();
-            onTogglePlay();
-          }}
+          onPress={handlePlayPause}
           activeOpacity={0.85}
         >
           <View style={styles.playPauseInner}>

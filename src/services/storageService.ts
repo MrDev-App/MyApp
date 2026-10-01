@@ -1,9 +1,26 @@
 import { createMMKV } from 'react-native-mmkv';
+import { AppState } from 'react-native';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 
 const mmkvStorage = createMMKV();
 
+/**
+ * Module-level session flag — ensures the expensive getAllKeys() scan runs
+ * at most ONCE per app launch, not on every Storage.get/set call.
+ * Reset when the app returns to foreground so a midnight date-change is caught.
+ */
+let _todayResetChecked = false;
+
+AppState.addEventListener('change', nextState => {
+  if (nextState === 'active') {
+    _todayResetChecked = false;
+  }
+});
+
 const checkAndResetTodayStats = (): boolean => {
+  if (_todayResetChecked) return false; // short-circuit after first pass per session
+  _todayResetChecked = true;
+
   const todayStr = new Date().toDateString();
   const lastSavedDate = mmkvStorage.getString(STORAGE_KEYS.JAP_LAST_DATE) || '';
   if (lastSavedDate !== todayStr) {
@@ -25,25 +42,43 @@ const checkAndResetTodayStats = (): boolean => {
 
 export const Storage = {
   set: (key: string, value: string | number | boolean): void => {
-    checkAndResetTodayStats();
     mmkvStorage.set(key, value);
   },
 
   getString: (key: string, defaultValue = ''): string => {
-    checkAndResetTodayStats();
     return mmkvStorage.getString(key) ?? defaultValue;
   },
 
   getNumber: (key: string, defaultValue = 0): number => {
-    checkAndResetTodayStats();
     return mmkvStorage.getNumber(key) ?? defaultValue;
   },
 
   getBoolean: (key: string, defaultValue = false): boolean => {
-    checkAndResetTodayStats();
     return mmkvStorage.getBoolean(key) ?? defaultValue;
   },
 
+  /**
+   * Typed JSON helper. Parses stored JSON and returns it as T.
+   * On corrupt/missing data: logs the error, removes the bad key, returns fallback.
+   * Use this instead of raw JSON.parse(Storage.getString(...)) everywhere.
+   */
+  getJSON: <T>(key: string, fallback: T): T => {
+    try {
+      const raw = mmkvStorage.getString(key);
+      if (!raw) return fallback;
+      return JSON.parse(raw) as T;
+    } catch (e) {
+      console.error(`[Storage] Corrupted JSON at key "${key}" — resetting.`, e);
+      mmkvStorage.remove(key);
+      return fallback;
+    }
+  },
+
+  /**
+   * Removes a key from storage.
+   * Does NOT trigger the daily reset check (intentional — use
+   * Storage.checkAndResetTodayStats() explicitly when needed).
+   */
   delete: (key: string): void => {
     mmkvStorage.remove(key);
   },
@@ -51,6 +86,7 @@ export const Storage = {
   /**
    * Run the date check and reset today's keys if the date has changed.
    * Returns true if today's stats were reset, false otherwise.
+   * Call this explicitly at app startup and on screen focus — not on every read/write.
    */
   checkAndResetTodayStats: (): boolean => {
     return checkAndResetTodayStats();

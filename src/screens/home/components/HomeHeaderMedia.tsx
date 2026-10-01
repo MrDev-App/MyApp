@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  StyleSheet,
-  View,
-  Image,
-  AppState,
-  AppStateStatus,
-} from 'react-native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { StyleSheet, View, AppState, AppStateStatus } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import Video from 'react-native-video';
-import Skeleton from '@components/Skeleton';
 import imagePath from '@assets/index';
 import colors from '@theme/colors';
 import { verticalScale } from '@theme/sizes';
@@ -23,7 +22,7 @@ import {
 import { FestivalVideoEntry } from '../../../types/festivalVideo';
 
 interface HomeHeaderMediaProps {
-  loading: boolean;
+  loading?: boolean;
   onVideoLoad: () => void;
   onImageLoad: () => void;
   onVideoError: () => void;
@@ -31,7 +30,7 @@ interface HomeHeaderMediaProps {
 }
 
 export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
-  loading,
+  loading: _loading,
   onVideoLoad,
   onImageLoad,
   onVideoError,
@@ -56,6 +55,33 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryCountRef = useRef(0);
   const videoRef = useRef<any>(null);
+  const isFadingRef = useRef(false);
+
+  // Reanimated shared values for high performance UI-thread animation
+  const videoOpacity = useSharedValue(0);
+  const imageOpacity = useSharedValue(1);
+
+  const videoAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: videoOpacity.value,
+  }));
+
+  const imageAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: imageOpacity.value,
+  }));
+
+  const startFadeTransition = useCallback(() => {
+    if (isFadingRef.current) return;
+    isFadingRef.current = true;
+
+    videoOpacity.value = withTiming(1, {
+      duration: 900,
+      easing: Easing.out(Easing.cubic),
+    });
+    imageOpacity.value = withTiming(0, {
+      duration: 1100,
+      easing: Easing.inOut(Easing.quad),
+    });
+  }, [videoOpacity, imageOpacity]);
 
   // Sync video source dynamically whenever Remote Config is fetched or updated
   useEffect(() => {
@@ -68,9 +94,12 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
       }
       setVideoSource(source);
       setVideoError(false);
+      isFadingRef.current = false;
+      videoOpacity.value = 0;
+      imageOpacity.value = 1;
     });
     return unsubscribe;
-  }, [onFestivalActiveChange]);
+  }, [onFestivalActiveChange, videoOpacity, imageOpacity]);
 
   // AppState check: Only allow video to mount/play when app is not in background
   useEffect(() => {
@@ -120,6 +149,20 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
     };
   }, [isAppActive, isReady, videoError]);
 
+  const handleVideoReady = useCallback(() => {
+    retryCountRef.current = 0;
+    onVideoLoad();
+    if (activeFestival) {
+      onFestivalActiveChange?.(activeFestival);
+    }
+    startFadeTransition();
+  }, [
+    activeFestival,
+    onFestivalActiveChange,
+    onVideoLoad,
+    startFadeTransition,
+  ]);
+
   const handleVideoError = (e: any) => {
     const errorMsg =
       e?.error?.errorException || e?.error?.message || e?.errorString || '';
@@ -155,10 +198,16 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
       setVideoSource(imagePath.bhaktiVideo);
       setActiveFestival(null);
       onFestivalActiveChange?.(null);
+      isFadingRef.current = false;
+      videoOpacity.value = 0;
+      imageOpacity.value = 1;
       return;
     }
 
     setVideoError(true);
+    isFadingRef.current = false;
+    videoOpacity.value = 0;
+    imageOpacity.value = 1;
     setActiveFestival(null);
     onFestivalActiveChange?.(null);
     onVideoError();
@@ -172,50 +221,40 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
       : String(videoSource);
 
   return (
-    <View style={styles.imageContainer} pointerEvents="none">
-      <Image
-        source={imagePath.greeting}
-        style={styles.greetingImage}
+    <View style={styles.imageContainer}>
+      <Animated.Image
+        source={imagePath.fallBackImage}
+        style={[styles.greetingImage, imageAnimatedStyle]}
         resizeMode="cover"
         onLoad={onImageLoad}
       />
 
       {shouldRenderVideo && (
-        <Video
-          key={videoKey}
-          ref={videoRef}
-          source={videoSource}
-          style={[styles.greetingImage, styles.absoluteVideo]}
-          resizeMode="cover"
-          repeat={true}
-          muted={true}
-          paused={!isFocused || !isAppActive}
-          playInBackground={false}
-          playWhenInactive={false}
-          disableFocus={true}
-          mixWithOthers="mix"
-          ignoreSilentSwitch="ignore"
-          shutterColor="transparent"
-          preventsDisplaySleepDuringVideoPlayback={false}
-          onLoad={() => {
-            retryCountRef.current = 0;
-            onVideoLoad();
-            if (activeFestival) {
-              onFestivalActiveChange?.(activeFestival);
-            }
-          }}
-          onError={handleVideoError}
-        />
-      )}
-
-      {loading && (
-        <Skeleton
-          width="100%"
-          height={verticalScale(310)}
-          baseColor={colors.foreground}
-          highlightColor={colors.skeletonHighlight}
-          style={styles.absoluteSkeleton}
-        />
+        <Animated.View
+          style={[styles.absoluteVideo, videoAnimatedStyle]}
+          pointerEvents="none"
+        >
+          <Video
+            key={videoKey}
+            ref={videoRef}
+            source={videoSource}
+            style={styles.greetingImage}
+            resizeMode="cover"
+            repeat={true}
+            muted={true}
+            paused={!isFocused || !isAppActive}
+            playInBackground={false}
+            playWhenInactive={false}
+            disableFocus={true}
+            mixWithOthers="mix"
+            ignoreSilentSwitch="ignore"
+            shutterColor="transparent"
+            preventsDisplaySleepDuringVideoPlayback={false}
+            onLoad={handleVideoReady}
+            onReadyForDisplay={handleVideoReady}
+            onError={handleVideoError}
+          />
+        </Animated.View>
       )}
     </View>
   );

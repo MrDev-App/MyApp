@@ -286,6 +286,8 @@ export default {
   AARTI_SANGRAH_DEFAULT_DESC:
     'देवी-देवताओं की स्तुति और आशीर्वाद प्राप्त करने के लिए पावन आरतियां।',
   READ_AARTI_ACTION: 'आरती पढ़ें →',
+  AARTI_AUDIO_NOT_AVAILABLE: 'इस आरती का ऑडियो उपलब्ध नहीं है',
+  AARTI_AUDIO_ERROR: 'ऑडियो चलाने में समस्या हुई, कृपया नेटवर्क जांचें',
 
   // Festival Modal & Details
   FESTIVAL_TITHI_LABEL: 'तिथि / नक्षत्र: ',
@@ -389,4 +391,34 @@ export default {
   SHLOK_CAT_CHILDREN: 'बच्चों के लिए',
   SHLOK_CAT_MIND_HEART: 'मन एवं शांति',
   SHLOK_CAT_SPIRITUAL_PATH: 'आध्यात्मिक मार्ग',
+  SHLOK_WAKING_NAME: 'प्रातः जागरण श्लोक',
+  SHLOK_WAKING_DESC:
+    'प्रातः जागरण का प्रथम क्षण चिंताओं के स्थान पर प्रभु स्मरण से दिन की शुरुआत करने का पावन अवसर है। शय्या त्यागने से पूर्व हथेलियों के दर्शन, प्रभु जागरण व नवप्रभात के इन श्लोकों का स्मरण कर दिन का शुभारंभ कृतज्ञता से करें।',
+
+  // Contract / Vow Modal
+  CONTRACT_INVOCATION: '॥ श्री हरि ॥',
+  CONTRACT_TITLE: 'साधना संकल्प',
+  CONTRACT_VOW_TEXT:
+    '“हे प्रभु, मैं आज यह प्रतिज्ञा लेता हूँ कि प्रतिदिन श्रद्धा और प्रेम से आपके पवित्र नाम का जप करूँगा। अपने मन, वचन और कर्म को आपकी भक्ति में समर्पित रखूँगा और हर परिस्थिति में आपके नाम का स्मरण करता रहूँगा। हे प्रभु, मुझे इस संकल्प को सच्चे मन से निभाने की शक्ति और भक्ति प्रदान करें।”',
+
+  CONTRACT_CTA_START_JAP: 'जप प्रारंभ करें',
+  CONTRACT_DISMISS_LATER: 'बाद में',
+
+  // Book / FlipBook Reader
+  BOOK_PLEASE_WAIT: 'कृपया प्रतीक्षा करें...',
+  BOOK_FLIPPING_PAGES: 'पृष्ठ पलट रहे हैं (+{{count}})...',
+  BOOK_COVER: 'मुख',
+  BOOK_DEDICATION_MANTRA: 'ॐ नमो भगवते वासुदेवाय नमः',
+  BOOK_DEDICATION_TITLE: '॥ पावन समर्पण एवं ज्ञान ॥',
+  BOOK_DEDICATION_BODY_COVER:
+    'यह दिव्य गाथा आत्म-ज्ञान, धर्म और सत्य के मार्ग को प्रकाशित करती है।',
+  BOOK_DEDICATION_BODY_PAGE:
+    'कर्मण्येवाधिकारस्ते मा फलेषु कदाचन — कर्तव्य ही पूजा है।',
+  BOOK_MORAL_HEADER: 'प्रेरणा एवं शिक्षा',
+  BOOK_SHLOKA_TRANSLATION_HEADER: 'भावार्थ',
+  BOOK_OPEN_BOOK: 'पुस्तक खोलें',
+  BOOK_PAGE_OF: 'पृष्ठ {{current}} / {{total}}',
+  DONE: 'संपन्न',
+  PLEASE_WAIT: 'कृपया प्रतीक्षा करें...',
+  CLOSE: 'बंद करें',
 };

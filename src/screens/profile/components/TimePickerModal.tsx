@@ -21,7 +21,7 @@ import { Translation } from '@i18n/language';
 import colors from '@theme/colors';
 import { scale, verticalScale, fs } from '@theme/sizes';
 import fonts from '@theme/fonts';
-import { CloseIcon, PlusIcon, TrashIcon } from '@components/icons/SvgIcons';
+import { CloseIcon, PlusIcon, TrashIcon } from '@assets/SvgIcons';
 import { ReminderItem } from '@services/notificationService';
 import { triggerHaptic } from '@helper/helper';
 

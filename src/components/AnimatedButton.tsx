@@ -7,19 +7,7 @@ import {
   GestureResponderEvent,
   Insets,
 } from 'react-native';
-
-type AnimatedBtnProps = {
-  onPress?: (event: GestureResponderEvent) => void;
-  style?: StyleProp<ViewStyle>;
-  children: React.ReactNode;
-  disabled?: boolean;
-  pressDepth?: number;
-  scaleDown?: number;
-  enableHaptics?: boolean;
-  hitSlop?: Insets;
-  activeOpacity?: number;
-  testID?: string;
-};
+import { AnimatedBtnProps } from './types';
 
 const AnimatedButton: React.FC<AnimatedBtnProps> = ({
   onPress,

@@ -16,6 +16,8 @@ import {
 import colors from '@theme/colors';
 import { scale, verticalScale, fs } from '@theme/sizes';
 import fonts from '@theme/fonts';
+import { useAppLanguage } from '@hooks';
+import { Translation } from '@i18n/language';
 
 export interface TextFieldProps extends TextInputProps {
   label?: string;
@@ -48,6 +50,7 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
     },
     ref,
   ) => {
+    const { t } = useAppLanguage();
     const defaultAccessoryIdRef = useRef(
       `input_accessory_${Math.random().toString(36).substring(2, 9)}`,
     );
@@ -107,7 +110,7 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
                 activeOpacity={0.7}
                 hitSlop={{ top: 8, bottom: 8, left: 16, right: 16 }}
               >
-                <Text style={styles.accessoryDoneText}>Done</Text>
+                <Text style={styles.accessoryDoneText}>{t(Translation.DONE)}</Text>
               </TouchableOpacity>
             </View>
           </InputAccessoryView>
@@ -148,15 +151,15 @@ const styles = StyleSheet.create({
   requiredAsterisk: {
     fontSize: fs(13),
     fontWeight: '700',
-    color: colors.destructive || colors.danger,
+    color: colors.destructive,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(251, 148, 55, 0.08)',
+    backgroundColor: colors.accentOrangeLight,
     borderRadius: scale(10),
     borderWidth: 1,
-    borderColor: 'rgba(251, 148, 55, 0.25)',
+    borderColor: colors.accentOrangeMedium,
     paddingHorizontal: scale(12),
     minHeight: scale(42),
   },
@@ -166,7 +169,7 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(8),
   },
   inputWrapperError: {
-    borderColor: colors.destructive || colors.danger,
+    borderColor: colors.destructive,
   },
   input: {
     flex: 1,
@@ -192,7 +195,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: fs(11),
-    color: colors.destructive || colors.danger,
+    color: colors.destructive,
     marginLeft: scale(4),
     fontFamily: fonts.TiroHindiRegular,
   },
@@ -204,9 +207,9 @@ const styles = StyleSheet.create({
   },
   accessoryContainer: {
     height: verticalScale(42),
-    backgroundColor: '#f2f2f6',
+    backgroundColor: colors.accessoryBg,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(0, 0, 0, 0.2)',
+    borderTopColor: colors.borderSubtle,
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',

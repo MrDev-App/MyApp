@@ -285,6 +285,8 @@ export default {
   AARTI_SANGRAH_DEFAULT_DESC:
     'Devotional prayers sung in praise of deities to invoke their blessings.',
   READ_AARTI_ACTION: 'Read Aarti →',
+  AARTI_AUDIO_NOT_AVAILABLE: 'Audio not available for this aarti',
+  AARTI_AUDIO_ERROR: 'Unable to play audio. Please check network connection.',
 
   // Festival Modal & Details
   FESTIVAL_TITHI_LABEL: 'Tithi / Astro: ',
@@ -388,4 +390,34 @@ export default {
   SHLOK_CAT_CHILDREN: 'For Children',
   SHLOK_CAT_MIND_HEART: 'Mind & Heart',
   SHLOK_CAT_SPIRITUAL_PATH: 'The Spiritual Path',
+  SHLOK_WAKING_NAME: 'Shlokas for Waking Up',
+  SHLOK_WAKING_DESC:
+    'The very first moment of waking is a chance to begin the day with God rather than with our worries. These verses greet the morning — gazing at the palms of the hands, waking the Lord, remembering Ganesha and the gods. Chant these prayers quietly before you rise, so the day starts in gratitude.',
+
+  // Contract / Vow Modal
+  CONTRACT_INVOCATION: '॥ Shri Hari ॥',
+  CONTRACT_TITLE: 'Sadhana Resolve',
+  CONTRACT_VOW_TEXT:
+    '“O Lord, today I make this promise that I will chant Your holy name every day with faith and love. I will dedicate my thoughts, words, and actions to Your devotion, and in every circumstance, I will continue to remember Your name. O Lord, please grant me the strength and devotion to sincerely uphold this resolve.”',
+
+  CONTRACT_CTA_START_JAP: 'Start Chanting',
+  CONTRACT_DISMISS_LATER: 'Maybe later ',
+
+  // Book / FlipBook Reader
+  BOOK_PLEASE_WAIT: 'Please wait...',
+  BOOK_FLIPPING_PAGES: 'Flipping pages (+{{count}})...',
+  BOOK_COVER: 'Cover',
+  BOOK_DEDICATION_MANTRA: 'Om Namo Bhagavate Vasudevaya',
+  BOOK_DEDICATION_TITLE: 'Sacred Dedication & Wisdom',
+  BOOK_DEDICATION_BODY_COVER:
+    'This sacred tale illuminates the eternal path of righteousness, devotion, and inner peace.',
+  BOOK_DEDICATION_BODY_PAGE:
+    'Karmanye Vadhikaraste Ma Phaleshu Kadachana — Duty is worship.',
+  BOOK_MORAL_HEADER: 'Moral & Teaching',
+  BOOK_SHLOKA_TRANSLATION_HEADER: 'Meaning',
+  BOOK_OPEN_BOOK: 'Open Book',
+  BOOK_PAGE_OF: 'Page {{current}} of {{total}}',
+  DONE: 'Done',
+  PLEASE_WAIT: 'Please wait...',
+  CLOSE: 'Close',
 };

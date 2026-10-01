@@ -72,6 +72,7 @@ export default NetworkBanner;
 
 const styles = StyleSheet.create({
   banner: {
+    height: scale(20),
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -85,7 +86,9 @@ const styles = StyleSheet.create({
   },
   text: {
     color: colors.white,
-    fontSize: fs(11),
+    fontSize: fs(10),
+
+    padding: scale(4),
     fontFamily: fonts.TiroHindiRegular,
     textAlign: 'center',
     includeFontPadding: false,

@@ -1,48 +1,90 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Skeleton from '@components/Skeleton';
-import { scale } from '@theme/sizes';
+import { fs, scale } from '@theme/sizes';
+import colors from '@theme/colors';
 
 const BookSkeleton: React.FC = () => {
   return (
     <View style={styles.container}>
-      {/* Featured Banner Skeleton */}
-      <View style={styles.featuredSkeleton}>
-        <Skeleton width="100%" height={scale(200)} borderRadius={scale(16)} />
-      </View>
-
-      {/* Row 1 Section */}
+      {/* ── Shelf 1: Sacred Scriptures ── */}
       <View style={styles.sectionHeader}>
-        <Skeleton width={140} height={18} borderRadius={4} />
+        <Skeleton
+          width={scale(160)}
+          height={fs(16)}
+          borderRadius={scale(4)}
+          baseColor={colors.skeletonBase}
+          highlightColor={colors.skeletonHighlight}
+        />
       </View>
       <View style={styles.horizontalRow}>
         {[1, 2, 3].map(item => (
-          <View key={item} style={styles.comicCardSkeleton}>
+          <View key={`skel_book_1_${item}`} style={styles.comicCardSkeleton}>
             <Skeleton
               width={scale(130)}
               height={scale(180)}
               borderRadius={scale(14)}
+              baseColor={colors.skeletonBase}
+              highlightColor={colors.skeletonHighlight}
+              style={styles.bookCoverSkeleton}
             />
-            <Skeleton width={110} height={14} borderRadius={3} />
-            <Skeleton width={70} height={10} borderRadius={3} />
+            <Skeleton
+              width={scale(110)}
+              height={fs(12)}
+              borderRadius={scale(3)}
+              baseColor={colors.skeletonBase}
+              highlightColor={colors.skeletonHighlight}
+              style={styles.mt4}
+            />
+            <Skeleton
+              width={scale(70)}
+              height={fs(10)}
+              borderRadius={scale(3)}
+              baseColor={colors.skeletonAccentBase}
+              highlightColor={colors.skeletonHighlight}
+              style={styles.mt4}
+            />
           </View>
         ))}
       </View>
 
-      {/* Row 2 Section */}
+      {/* ── Shelf 2: Illustrated Comics ── */}
       <View style={styles.sectionHeader}>
-        <Skeleton width={160} height={18} borderRadius={4} />
+        <Skeleton
+          width={scale(180)}
+          height={fs(16)}
+          borderRadius={scale(4)}
+          baseColor={colors.skeletonBase}
+          highlightColor={colors.skeletonHighlight}
+        />
       </View>
       <View style={styles.horizontalRow}>
         {[1, 2, 3].map(item => (
-          <View key={item} style={styles.comicCardSkeleton}>
+          <View key={`skel_book_2_${item}`} style={styles.comicCardSkeleton}>
             <Skeleton
               width={scale(130)}
               height={scale(180)}
               borderRadius={scale(14)}
+              baseColor={colors.skeletonBase}
+              highlightColor={colors.skeletonHighlight}
+              style={styles.bookCoverSkeleton}
             />
-            <Skeleton width={110} height={14} borderRadius={3} />
-            <Skeleton width={70} height={10} borderRadius={3} />
+            <Skeleton
+              width={scale(110)}
+              height={fs(12)}
+              borderRadius={scale(3)}
+              baseColor={colors.skeletonBase}
+              highlightColor={colors.skeletonHighlight}
+              style={styles.mt4}
+            />
+            <Skeleton
+              width={scale(70)}
+              height={fs(10)}
+              borderRadius={scale(3)}
+              baseColor={colors.skeletonAccentBase}
+              highlightColor={colors.skeletonHighlight}
+              style={styles.mt4}
+            />
           </View>
         ))}
       </View>
@@ -52,10 +94,8 @@ const BookSkeleton: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    gap: scale(16),
-  },
-  featuredSkeleton: {
-    paddingHorizontal: scale(20),
+    gap: scale(14),
+    marginTop: scale(6),
   },
   sectionHeader: {
     paddingHorizontal: scale(20),
@@ -67,7 +107,14 @@ const styles = StyleSheet.create({
     gap: scale(16),
   },
   comicCardSkeleton: {
-    gap: scale(6),
+    width: scale(130),
+  },
+  bookCoverSkeleton: {
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
+  mt4: {
+    marginTop: scale(4),
   },
 });
 

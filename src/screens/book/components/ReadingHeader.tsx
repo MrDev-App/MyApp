@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
 
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
@@ -11,42 +10,46 @@ import {
   SunIcon,
   MoonIcon,
   BackIcon as Back,
-} from '@components/icons/SvgIcons';
+} from '@assets/SvgIcons';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
-import { findStoryById } from '@constants/storiesData';
+import { findStoryById } from '@api/textBooksApi';
 import AnimatedButton from '@components/AnimatedButton';
 
 import { RootNavigationProp } from '@navigation/types';
-import { Translation } from '@i18n/language';
 import { triggerHaptic } from '@helper/helper';
+import { useAppLanguage } from '@hooks';
 
-const ReadingHeader = () => {
+interface ReadingHeaderProps {
+  story?: any;
+}
+
+const ReadingHeader: React.FC<ReadingHeaderProps> = ({ story: propStory }) => {
   const navigation = useNavigation<RootNavigationProp>();
   const route = useRoute<any>();
-  const { t, i18n } = useTranslation();
-  const currentLang = (i18n.language === 'hi' ? 'hi' : 'en') as 'en' | 'hi';
+  const { select } = useAppLanguage();
 
-  const { storyId } = route.params || {};
-  const story = findStoryById(storyId);
+  const { storyId, story: routeStory } = route.params || {};
+  const currentStory = propStory || routeStory || findStoryById(storyId);
+  const currentStoryId = currentStory?.id || storyId;
 
   const [isFav, setIsFav] = useState(false);
 
   useEffect(() => {
-    if (!storyId) {
+    if (!currentStoryId) {
       return;
     }
     try {
       const raw = Storage.getString(STORAGE_KEYS.STORY_BOOKMARKS, '[]');
       const list = JSON.parse(raw);
       if (Array.isArray(list)) {
-        setIsFav(list.includes(storyId));
+        setIsFav(list.includes(currentStoryId));
       }
     } catch {}
-  }, [storyId]);
+  }, [currentStoryId]);
 
   const toggleBookmark = () => {
-    if (!storyId) {
+    if (!currentStoryId) {
       return;
     }
     triggerHaptic('impactMedium');
@@ -57,22 +60,20 @@ const ReadingHeader = () => {
         list = [];
       }
 
-      if (list.includes(storyId)) {
-        list = list.filter(id => id !== storyId);
+      if (list.includes(currentStoryId)) {
+        list = list.filter(id => id !== currentStoryId);
         setIsFav(false);
       } else {
-        list.push(storyId);
+        list.push(currentStoryId);
         setIsFav(true);
       }
       Storage.set(STORAGE_KEYS.STORY_BOOKMARKS, JSON.stringify(list));
     } catch {}
   };
 
-  const title = story
-    ? currentLang === 'hi'
-      ? story.titleHi
-      : story.titleEn
-    : t(Translation.BOOK_SCREEN_TITLE);
+  const title = currentStory
+    ? select(currentStory.titleHi, currentStory.titleEn)
+    : '';
 
   return (
     <View style={styles.headerRow}>

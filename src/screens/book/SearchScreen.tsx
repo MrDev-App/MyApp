@@ -26,21 +26,17 @@ import fonts from '@theme/fonts';
 import { fs, scale, verticalScale } from '@theme/sizes';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
-import { AllBooks } from '@constants/storiesData';
+import { AllBooks } from '@api/textBooksApi';
 import { GradientBackground } from '@components';
 import { Translation } from '@i18n/language';
-import {
-  SearchIcon,
-  HeartIcon,
-  BackIcon as Back,
-} from '@components/icons/SvgIcons';
+import { SearchIcon, HeartIcon, BackIcon as Back } from '@assets/SvgIcons';
 import { triggerHaptic } from '@utils';
 import { useAppLanguage } from '@hooks';
 
 const SearchScreen = () => {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
-  const { t, lang: currentLang } = useAppLanguage();
+  const { t, currentLanguage: currentLang } = useAppLanguage();
   const labels = {
     searchPlaceholder: t(Translation.BOOK_SEARCH_PLACEHOLDER),
     noResults: t(Translation.BOOK_NO_STORIES_FOUND),

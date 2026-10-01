@@ -19,14 +19,91 @@ import { Translation } from '@i18n/language';
 import { RootStackParamList } from '@navigation/types';
 import { navigate } from '@navigation/navigationRef';
 import {
-  getFestivalData,
+  getHomeScreenFestivals,
   getCachedFestivalData,
   Festival,
-} from '@services/firebaseServices/getFestivalData';
+} from '@api/festivalApi';
 import imagePath from '@assets/index';
 import AnimatedButton from '@components/AnimatedButton';
 import FestivalModal from '@components/FestivalModal';
 import Skeleton from '@components/Skeleton';
+
+interface FestivalHighlightCardProps {
+  item: Festival;
+  onPress: (item: Festival) => void;
+}
+
+const FestivalHighlightCard: React.FC<FestivalHighlightCardProps> = React.memo(
+  ({ item, onPress }) => {
+    const { select } = useAppLanguage();
+    const name = select(item.hindiName, item.englishName);
+    const dateStr = select(item.dateStrHi, item.dateStrEn);
+
+    const rawImage = item.image;
+    const initialSource =
+      typeof rawImage === 'string' && rawImage.trim().length > 0
+        ? { uri: rawImage.trim() }
+        : typeof rawImage === 'number' ||
+          (rawImage && typeof rawImage === 'object' && (rawImage as any).uri)
+        ? rawImage
+        : imagePath.fallBackImage;
+
+    const [imgSrc, setImgSrc] = React.useState(initialSource);
+
+    React.useEffect(() => {
+      const nextSource =
+        typeof item.image === 'string' && item.image.trim().length > 0
+          ? { uri: item.image.trim() }
+          : typeof item.image === 'number' ||
+            (item.image &&
+              typeof item.image === 'object' &&
+              (item.image as any).uri)
+          ? item.image
+          : imagePath.fallBackImage;
+      setImgSrc(nextSource);
+    }, [item.image]);
+
+    return (
+      <AnimatedButton
+        style={styles.cardContainer}
+        activeOpacity={0.8}
+        onPress={() => onPress(item)}
+      >
+        <ImageBackground
+          source={imgSrc || imagePath.fallBackImage}
+          style={styles.card}
+          imageStyle={styles.cardImageStyle}
+          resizeMode="cover"
+          fadeDuration={0}
+          onError={() => setImgSrc(imagePath.fallBackImage)}
+        >
+          {/* Gradient overlay pinned to bottom */}
+          <LinearGradient
+            colors={cardGradients.festivalCard}
+            style={styles.cardOverlay}
+          >
+            <View style={styles.contentWrapper}>
+              <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+                {name}
+              </Text>
+              {dateStr ? (
+                <Text
+                  style={styles.date}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {dateStr}
+                </Text>
+              ) : null}
+            </View>
+          </LinearGradient>
+        </ImageBackground>
+      </AnimatedButton>
+    );
+  },
+);
+
+FestivalHighlightCard.displayName = 'FestivalHighlightCard';
 
 const FestivalHighlights = ({ onPress }: any) => {
   const navigation =
@@ -39,7 +116,7 @@ const FestivalHighlights = ({ onPress }: any) => {
   const [loading, setLoading] = useState<boolean>(festivals.length === 0);
 
   useEffect(() => {
-    getFestivalData()
+    getHomeScreenFestivals(10)
       .then(data => {
         if (data && data.length > 0) {
           setFestivals(data);
@@ -149,58 +226,15 @@ const FestivalHighlights = ({ onPress }: any) => {
           initialNumToRender={10}
           maxToRenderPerBatch={10}
           windowSize={5}
-          removeClippedSubviews={Platform.OS === 'android'}
-          contentContainerStyle={styles.listContent}
-          renderItem={({ item }) => {
-            const name = select(item.hindiName, item.englishName);
-            const dateStr = select(item.dateStrHi, item.dateStrEn);
-
-            const bgImage = item.image || imagePath.greeting;
-
-            return (
-              <AnimatedButton
-                style={styles.cardContainer}
-                activeOpacity={0.8}
-                onPress={() => {
-                  setSelectedFestival(item);
-                  if (onPress) onPress(item);
-                }}
-              >
-                <ImageBackground
-                  source={bgImage}
-                  style={styles.card}
-                  imageStyle={styles.cardImageStyle}
-                  resizeMode="cover"
-                  fadeDuration={0}
-                >
-                  {/* Gradient overlay pinned to bottom */}
-                  <LinearGradient
-                    colors={cardGradients.festivalCard}
-                    style={styles.cardOverlay}
-                  >
-                    <View style={styles.contentWrapper}>
-                      <Text
-                        style={styles.name}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {name}
-                      </Text>
-                      {dateStr ? (
-                        <Text
-                          style={styles.date}
-                          numberOfLines={1}
-                          ellipsizeMode="tail"
-                        >
-                          {dateStr}
-                        </Text>
-                      ) : null}
-                    </View>
-                  </LinearGradient>
-                </ImageBackground>
-              </AnimatedButton>
-            );
-          }}
+          renderItem={({ item }) => (
+            <FestivalHighlightCard
+              item={item}
+              onPress={selected => {
+                setSelectedFestival(selected);
+                if (onPress) onPress(selected);
+              }}
+            />
+          )}
         />
       )}
 

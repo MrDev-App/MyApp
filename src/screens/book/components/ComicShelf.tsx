@@ -1,20 +1,24 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { Story } from '@constants/storiesData';
+import { Story } from '@api/types';
+import { ComicBookItem } from '@api/comicBooksApi';
 import { fs, scale } from '@theme/sizes';
 import fonts from '@theme/fonts';
 import colors from '@theme/colors';
 import AnimatedButton from '@components/AnimatedButton';
 import Loader from '@components/Loader';
+import Skeleton from '@components/Skeleton';
+import imagePath from '@assets';
 import { useAppLanguage } from '@hooks';
 
 interface ComicShelfProps {
   title: string;
-  data: Story[];
-  onPressBook: (story: Story) => void;
+  data: (Story | ComicBookItem)[];
+  onPressBook: (story: Story | ComicBookItem) => void;
   currentLang?: 'en' | 'hi';
   loadingStoryId?: string | null;
+  isLoading?: boolean;
 }
 
 export const ComicShelf: React.FC<ComicShelfProps> = ({
@@ -22,10 +26,55 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
   data,
   onPressBook,
   loadingStoryId,
+  isLoading = false,
 }) => {
   const { select } = useAppLanguage();
-  if (!data || data.length === 0) {
-    return null;
+
+  if (isLoading || !data || data.length === 0) {
+    return (
+      <View style={styles.comicsSection}>
+        <Text style={styles.sectionTitle}>{title}</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.comicsScroll}
+        >
+          <View style={styles.horizontalRow}>
+            {[1, 2, 3].map(item => (
+              <View
+                key={`skel_book_2_${item}`}
+                style={styles.comicCardSkeleton}
+              >
+                <Skeleton
+                  width={scale(130)}
+                  height={scale(180)}
+                  borderRadius={scale(14)}
+                  baseColor={colors.skeletonBase}
+                  highlightColor={colors.skeletonHighlight}
+                  style={styles.bookCoverSkeleton}
+                />
+                <Skeleton
+                  width={scale(110)}
+                  height={fs(12)}
+                  borderRadius={scale(3)}
+                  baseColor={colors.skeletonBase}
+                  highlightColor={colors.skeletonHighlight}
+                  style={styles.mt4}
+                />
+                <Skeleton
+                  width={scale(70)}
+                  height={fs(10)}
+                  borderRadius={scale(3)}
+                  baseColor={colors.skeletonAccentBase}
+                  highlightColor={colors.skeletonHighlight}
+                  style={styles.mt4}
+                />
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+      </View>
+    );
   }
 
   return (
@@ -38,6 +87,22 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
       >
         {data.map(story => {
           const isLoadingThis = loadingStoryId === story.id;
+          const rawStoryImage =
+            (story as any).CoverPage || (story as any).coverPage || story.image;
+          const imageSource =
+            typeof rawStoryImage === 'string' && rawStoryImage.trim().length > 0
+              ? rawStoryImage.trim().startsWith('http://') ||
+                rawStoryImage.trim().startsWith('https://')
+                ? { uri: rawStoryImage.trim() }
+                : (imagePath as any)[rawStoryImage.trim()] ||
+                  imagePath.fallBackImage
+              : typeof rawStoryImage === 'number' ||
+                (rawStoryImage &&
+                  typeof rawStoryImage === 'object' &&
+                  rawStoryImage.uri)
+              ? rawStoryImage
+              : imagePath.fallBackImage;
+
           return (
             <AnimatedButton
               key={story.id}
@@ -49,7 +114,7 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
             >
               <View style={styles.comicImageContainer}>
                 <Animated.Image
-                  source={story.image}
+                  source={imageSource}
                   style={styles.comicImage}
                   sharedTransitionTag={`story_image_${story.id}`}
                 />
@@ -105,6 +170,22 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 2,
     marginBottom: scale(4),
+  },
+  horizontalRow: {
+    flexDirection: 'row',
+
+    gap: scale(16),
+  },
+  comicCardSkeleton: {
+    width: scale(130),
+  },
+
+  bookCoverSkeleton: {
+    borderWidth: 1,
+    borderColor: colors.skeletonBase,
+  },
+  mt4: {
+    marginTop: scale(4),
   },
   comicImage: {
     width: '100%',
