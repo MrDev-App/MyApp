@@ -71,7 +71,6 @@ const imagePath = {
 
   // audio and video
   bhaktiVideo: require('./video/bhakti.mp4'),
-  artiDemo: require('./audio/ArtiDemo.mp3'),
 };
 
 export { Back, Forward, Bell, FoldedHands };

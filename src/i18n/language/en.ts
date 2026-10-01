@@ -285,6 +285,8 @@ export default {
   AARTI_SANGRAH_DEFAULT_DESC:
     'Devotional prayers sung in praise of deities to invoke their blessings.',
   READ_AARTI_ACTION: 'Read Aarti →',
+  AARTI_AUDIO_NOT_AVAILABLE: 'Audio not available for this aarti',
+  AARTI_AUDIO_ERROR: 'Unable to play audio. Please check network connection.',
 
   // Festival Modal & Details
   FESTIVAL_TITHI_LABEL: 'Tithi / Astro: ',

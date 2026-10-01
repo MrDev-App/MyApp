@@ -29,7 +29,7 @@ export const mapAartiDoc = (docId: string, data: any): Category => {
       headerTitleHi: item.headerTitleHi || '',
       isJyotirlinga: Boolean(item.isJyotirlinga),
       order: typeof item.order === 'number' ? item.order : index,
-      audioUrl: item.audioUrl || '',
+      audioUrl: item.audioUrl || item.audio || item.audio_url || '',
       image: resolveAartiImage(item),
     };
   });
