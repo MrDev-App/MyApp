@@ -8,6 +8,7 @@ import BottomNavigation from './BottomNavigation';
 import '@i18n/index';
 import ReadingScreen from '@screens/book/ReadingScreen';
 import TextReadingScreen from '@screens/book/TextReadingScreen';
+import BookListScreen from '@screens/book/BookListScreen';
 import SearchScreen from '@screens/book/SearchScreen';
 import NotificationScreen from '@screens/home/NotificationScreen';
 // import SeedScreen from '@screens/SeedScreen';
@@ -48,6 +49,11 @@ const StackNavigation = () => {
       <Stack.Screen
         name="TextReadingScreen"
         component={TextReadingScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="BookListScreen"
+        component={BookListScreen}
         options={{ animation: 'slide_from_right' }}
       />
       <Stack.Screen

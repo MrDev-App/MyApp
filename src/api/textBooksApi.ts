@@ -196,60 +196,6 @@ export interface FetchTextBooksResult {
   hasMore: boolean;
 }
 
-let isUploading = false;
-
-/**
- * Upload an array of TextBooks to Firestore 'textBooks' collection.
- */
-export const uploadAllTextBooksToFirestore = async (
-  booksList: Story[] = [],
-): Promise<{
-  success: boolean;
-  count: number;
-}> => {
-  if (isUploading) {
-    console.log('⏳ [textBooksApi] Upload already in progress, skipping...');
-    return { success: false, count: 0 };
-  }
-
-  if (!booksList || booksList.length === 0) {
-    return { success: false, count: 0 };
-  }
-
-  isUploading = true;
-  console.log(
-    `🚀 [textBooksApi] Starting upload of ${booksList.length} textbooks to Firestore '${FIRESTORE_TEXT_BOOKS_COLLECTION}'...`,
-  );
-
-  try {
-    const db = getFirestore();
-    let count = 0;
-
-    for (let i = 0; i < booksList.length; i++) {
-      const book = booksList[i];
-      const docRef = doc(db, FIRESTORE_TEXT_BOOKS_COLLECTION, book.id);
-      const dataToSave = formatStoryForFirestore(book);
-
-      await setDoc(docRef, dataToSave, { merge: true });
-      count++;
-      console.log(
-        `✅ [textBooksApi] Uploaded (${count}/${booksList.length}): ${book.id} - ${book.titleEn}`,
-      );
-    }
-
-    console.log(
-      `🎉 [textBooksApi] Successfully uploaded all ${count} textbooks to Firestore collection '${FIRESTORE_TEXT_BOOKS_COLLECTION}'!`,
-    );
-
-    return { success: true, count };
-  } catch (error) {
-    console.error('❌ [textBooksApi] Error uploading textbooks to Firestore:', error);
-    return { success: false, count: 0 };
-  } finally {
-    isUploading = false;
-  }
-};
-
 /**
  * Fetch TextBooks from Firestore 'textBooks' collection with limit (default 10).
  * Uses Firestore limit() and startAfter() cursor pagination.
@@ -301,7 +247,10 @@ export const fetchTextBooksFromFirestore = async (
     // Merge into memoryLoadedBooks
     const currentMemory = getLoadedBooks();
     const existingIds = new Set(currentMemory.map(b => b.id));
-    const merged = [...currentMemory, ...books.filter(b => !existingIds.has(b.id))];
+    const merged = [
+      ...currentMemory,
+      ...books.filter(b => !existingIds.has(b.id)),
+    ];
     setLoadedBooks(merged);
 
     return {
@@ -348,14 +297,140 @@ export const fetchTextBookById = async (id: string): Promise<Story | null> => {
 };
 
 /**
- * Fetches the first 10 textbooks from Firestore on screen open.
+ * Fetches textbooks from Firestore on screen open (up to 100 books for all shelves).
  */
 export const syncTextBooksOnBookScreenOpen = async (): Promise<Story[]> => {
   try {
-    const res = await fetchTextBooksFromFirestore({ limitCount: 10 });
+    const res = await fetchTextBooksFromFirestore({ limitCount: 100 });
     return res.items;
   } catch (err) {
     console.warn('⚠️ [textBooksApi] syncTextBooksOnBookScreenOpen error:', err);
     return [];
   }
+};
+
+const KRISHNA_KEYWORDS = [
+  'krishna',
+  'कृष्ण',
+  'kanha',
+  'कान्हा',
+  'radha',
+  'राधा',
+  'gokul',
+  'गोकुल',
+  'mathura',
+  'मथुरा',
+  'dwarka',
+  'द्वारका',
+  'vrindavan',
+  'वृन्दावन',
+  'वृंदावन',
+  'bhagavad',
+  'gita',
+  'गीता',
+  'yashoda',
+  'यशोदा',
+  'makhan',
+  'माखन',
+  'govind',
+  'गोविंद',
+  'gopal',
+  'गोपाल',
+  'madhav',
+  'माधव',
+  'kansa',
+  'कंस',
+];
+
+const HANUMAN_KEYWORDS = [
+  'hanuman',
+  'हनुमान',
+  'bajrang',
+  'बजरंग',
+  'maruti',
+  'मारुति',
+  'pavanputra',
+  'पवनपुत्र',
+  'sundarkand',
+  'सुंदरकांड',
+  'सुंदरकाण्ड',
+  'surasa',
+  'सुरसा',
+  'sanjivani',
+  'संजीवनी',
+  'keshari',
+  'केसरी',
+  'anjani',
+  'अंजनी',
+  'sita search',
+  'lanka',
+  'लंका',
+  'ramayana',
+  'रामायण',
+  'sugriva',
+  'सुग्रीव',
+];
+
+/**
+ * Checks if a story is related to Lord Krishna.
+ */
+export const isKrishnaStory = (story: Story | any): boolean => {
+  if (!story) return false;
+  const textToSearch = [
+    story.titleEn,
+    story.titleHi,
+    story.subtitleEn,
+    story.subtitleHi,
+    story.descriptionEn,
+    story.descriptionHi,
+    story.categoryEn,
+    story.categoryHi,
+    story.sourceEn,
+    story.sourceHi,
+    story.keywords,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  return KRISHNA_KEYWORDS.some(kw => textToSearch.includes(kw.toLowerCase()));
+};
+
+/**
+ * Checks if a story is related to Lord Hanuman.
+ */
+export const isHanumanStory = (story: Story | any): boolean => {
+  if (!story) return false;
+  const textToSearch = [
+    story.titleEn,
+    story.titleHi,
+    story.subtitleEn,
+    story.subtitleHi,
+    story.descriptionEn,
+    story.descriptionHi,
+    story.categoryEn,
+    story.categoryHi,
+    story.sourceEn,
+    story.sourceHi,
+    story.keywords,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  return HANUMAN_KEYWORDS.some(kw => textToSearch.includes(kw.toLowerCase()));
+};
+
+/**
+ * Filter Krishna stories from a list of books.
+ */
+export const filterKrishnaStories = (books: (Story | any)[]): Story[] => {
+  return (books as Story[]).filter(isKrishnaStory);
+};
+
+/**
+ * Filter Hanuman stories from a list of books.
+ */
+export const filterHanumanStories = (books: (Story | any)[]): Story[] => {
+  return (books as Story[]).filter(isHanumanStory);
 };

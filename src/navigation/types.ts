@@ -15,6 +15,11 @@ export type RootStackParamList = {
   ReadingScreen: { storyId?: string; story?: Story | ComicBookItem };
   Reading?: { storyId?: string; story?: Story | ComicBookItem };
   TextReadingScreen: { storyId: string; story?: Story };
+  BookListScreen: {
+    title: string;
+    shelfType?: 'text' | 'comic' | 'krishna' | 'hanuman' | 'all';
+    initialBooks?: (Story | ComicBookItem)[];
+  };
   SearchScreen: undefined;
   Search?: undefined;
   Notification: undefined;

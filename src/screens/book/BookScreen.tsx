@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   StyleSheet,
   Text,
@@ -23,7 +23,8 @@ import {
 } from '@api/comicBooksApi';
 import {
   syncTextBooksOnBookScreenOpen,
-  uploadAllTextBooksToFirestore,
+  filterKrishnaStories,
+  filterHanumanStories,
 } from '@api/textBooksApi';
 import GradientBackground from '@components/GradientBackground';
 
@@ -67,6 +68,15 @@ const BookScreen = () => {
   } = useRewardedAd(AD_UNITS.REWARDED_BOOK);
 
   const isOffline = useNetworkStatus();
+
+  // Filtered stories for Krishna & Hanuman shelves
+  const krishnaStories = useMemo(() => {
+    return filterKrishnaStories(textBooksList);
+  }, [textBooksList]);
+
+  const hanumanStories = useMemo(() => {
+    return filterHanumanStories(textBooksList);
+  }, [textBooksList]);
 
   const loadComics = useCallback((isMounted = true) => {
     setIsComicLoading(true);
@@ -159,6 +169,7 @@ const BookScreen = () => {
       triggerHaptic();
       setOpeningStory(story);
       setTimeout(() => {
+        setOpeningStory(null);
         if (story.type === 'text') {
           navigation.navigate('TextReadingScreen', {
             storyId: story.id,
@@ -178,6 +189,19 @@ const BookScreen = () => {
     setPendingStory(story);
   };
 
+  const handleSeeAll = (
+    shelfTitle: string,
+    shelfType: 'text' | 'comic' | 'krishna' | 'hanuman',
+    initialData: (Story | ComicBookItem)[],
+  ) => {
+    triggerHaptic();
+    navigation.navigate('BookListScreen', {
+      title: shelfTitle,
+      shelfType,
+      initialBooks: initialData,
+    });
+  };
+
   const handleCancelUnlock = () => setPendingStory(null);
 
   const handleWatchAd = () => {
@@ -191,6 +215,7 @@ const BookScreen = () => {
       triggerHaptic();
       setOpeningStory(storyToUnlock);
       setTimeout(() => {
+        setOpeningStory(null);
         if (storyToUnlock.type === 'text') {
           navigation.navigate('TextReadingScreen', {
             storyId: storyToUnlock.id,
@@ -277,25 +302,60 @@ const BookScreen = () => {
               { paddingBottom: insets.bottom + scale(80) },
             ]}
           >
-            {/* Sacred Scriptures (Text Books) */}
-            <ComicShelf
-              title={t(Translation.BOOK_SACRED_SCRIPTURES)}
-              data={textBooksList}
-              isLoading={isTextBooksLoading || textBooksList.length === 0}
-              onPressBook={openStoryReader}
-              currentLang={currentLang}
-              loadingStoryId={openingStory?.id}
-            />
-
             {/* Illustrated Comics Shelf List */}
             <ComicShelf
               title={t(Translation.BOOK_ILLUSTRATED_COMICS)}
               data={comicBooks}
               isLoading={isComicLoading || comicBooks.length === 0}
               onPressBook={openStoryReader}
+              onPressSeeAll={() =>
+                handleSeeAll(
+                  t(Translation.BOOK_ILLUSTRATED_COMICS),
+                  'comic',
+                  comicBooks,
+                )
+              }
               currentLang={currentLang}
               loadingStoryId={openingStory?.id}
             />
+
+            {/* Krishna Stories Shelf */}
+            {krishnaStories.length > 0 || isTextBooksLoading ? (
+              <ComicShelf
+                title={t(Translation.BOOK_KRISHNA_STORIES)}
+                data={krishnaStories}
+                isLoading={isTextBooksLoading}
+                onPressBook={openStoryReader}
+                onPressSeeAll={() =>
+                  handleSeeAll(
+                    t(Translation.BOOK_KRISHNA_STORIES),
+                    'krishna',
+                    krishnaStories,
+                  )
+                }
+                currentLang={currentLang}
+                loadingStoryId={openingStory?.id}
+              />
+            ) : null}
+
+            {/* Hanuman Stories Shelf */}
+            {hanumanStories.length > 0 || isTextBooksLoading ? (
+              <ComicShelf
+                title={t(Translation.BOOK_HANUMAN_STORIES)}
+                data={hanumanStories}
+                isLoading={isTextBooksLoading}
+                onPressBook={openStoryReader}
+                onPressSeeAll={() =>
+                  handleSeeAll(
+                    t(Translation.BOOK_HANUMAN_STORIES),
+                    'hanuman',
+                    hanumanStories,
+                  )
+                }
+                currentLang={currentLang}
+                loadingStoryId={openingStory?.id}
+              />
+            ) : null}
           </ScrollView>
         )}
       </SafeAreaView>

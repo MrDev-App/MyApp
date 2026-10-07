@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { Story } from '@api/types';
 import { ComicBookItem } from '@api/comicBooksApi';
@@ -11,29 +11,37 @@ import Loader from '@components/Loader';
 import Skeleton from '@components/Skeleton';
 import imagePath from '@assets';
 import { useAppLanguage } from '@hooks';
+import { Translation } from '@i18n/language';
+import { ChevronRight } from '@assets/SvgIcons';
 
 interface ComicShelfProps {
   title: string;
   data: (Story | ComicBookItem)[];
   onPressBook: (story: Story | ComicBookItem) => void;
+  onPressSeeAll?: () => void;
   currentLang?: 'en' | 'hi';
   loadingStoryId?: string | null;
   isLoading?: boolean;
+  maxDisplayCount?: number;
 }
 
 export const ComicShelf: React.FC<ComicShelfProps> = ({
   title,
   data,
   onPressBook,
+  onPressSeeAll,
   loadingStoryId,
   isLoading = false,
+  maxDisplayCount = 10,
 }) => {
-  const { select } = useAppLanguage();
+  const { t, select } = useAppLanguage();
 
   if (isLoading || !data || data.length === 0) {
     return (
       <View style={styles.comicsSection}>
-        <Text style={styles.sectionTitle}>{title}</Text>
+        <View style={styles.shelfHeader}>
+          <Text style={styles.sectionTitle}>{title}</Text>
+        </View>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -77,15 +85,35 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
     );
   }
 
+  const displayBooks = data.slice(0, maxDisplayCount);
+
   return (
     <View style={styles.comicsSection}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+      <View style={styles.shelfHeader}>
+        <Text style={styles.sectionTitle}>{title}</Text>
+        {onPressSeeAll ? (
+          <TouchableOpacity
+            style={styles.seeAllButton}
+            onPress={onPressSeeAll}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 12, right: 12 }}
+          >
+            <Text style={styles.seeAllText}>{t(Translation.SEE_ALL)}</Text>
+            <ChevronRight
+              size={scale(12)}
+              color={colors.ring}
+              strokeWidth={2.4}
+            />
+          </TouchableOpacity>
+        ) : null}
+      </View>
+
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.comicsScroll}
       >
-        {data.map(story => {
+        {displayBooks.map(story => {
           const isLoadingThis = loadingStoryId === story.id;
           const rawStoryImage =
             (story as any).CoverPage || (story as any).coverPage || story.image;
@@ -124,7 +152,7 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
               <Text style={styles.comicCardTitle} numberOfLines={1}>
                 {select(story.titleHi, story.titleEn)}
               </Text>
-              <Text style={styles.comicCardMeta}>
+              <Text style={styles.comicCardMeta} numberOfLines={1}>
                 {select(story.sourceHi, story.sourceEn)}
               </Text>
             </AnimatedButton>
@@ -138,14 +166,32 @@ export const ComicShelf: React.FC<ComicShelfProps> = ({
 const styles = StyleSheet.create({
   comicsSection: {
     width: '100%',
-    marginTop: scale(8),
+    marginTop: scale(10),
+  },
+  shelfHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: scale(20),
+    marginBottom: scale(6),
   },
   sectionTitle: {
     fontSize: fs(16),
     fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
-    paddingHorizontal: scale(20),
-    marginBottom: scale(4),
+    flex: 1,
+  },
+  seeAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(3),
+    paddingVertical: scale(2),
+    paddingHorizontal: scale(4),
+  },
+  seeAllText: {
+    fontSize: fs(12),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.ring,
   },
   comicsScroll: {
     paddingHorizontal: scale(20),
@@ -173,13 +219,11 @@ const styles = StyleSheet.create({
   },
   horizontalRow: {
     flexDirection: 'row',
-
     gap: scale(16),
   },
   comicCardSkeleton: {
     width: scale(130),
   },
-
   bookCoverSkeleton: {
     borderWidth: 1,
     borderColor: colors.skeletonBase,

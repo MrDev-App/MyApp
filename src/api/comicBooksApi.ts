@@ -31,11 +31,8 @@ export interface ComicBookItem {
 
 let memoryComicBooksCache: ComicBookItem[] | null = null;
 
-/**
- * Fetch comic books strictly from Firestore server over network.
- * If offline or no internet connection, it will reject and return an empty array []
- * so that the skeleton shimmer is displayed instead of loading stale SQLite data.
- */
+
+
 export const fetchComicBooksFromFirestore = async (
   forceRefresh: boolean = false,
 ): Promise<ComicBookItem[]> => {

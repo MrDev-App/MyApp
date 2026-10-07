@@ -270,6 +270,7 @@ export const styles = StyleSheet.create({
     lineHeight: fs(16),
     textAlign: 'center',
     color: colors.secondary,
+    padding: scale(4),
   },
 
   narrativeParagraph: {

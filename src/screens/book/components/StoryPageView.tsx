@@ -166,12 +166,12 @@ export const StoryPageView: React.FC<StoryPageViewProps> = React.memo(
                     <Image
                       source={imgSrc}
                       style={styles.pageImage}
-                      resizeMode="contain"
+                      resizeMode="cover"
                     />
                     <View style={styles.imageZoomBadge}>
                       <ExpandIcon
                         size={scale(13)}
-                        color={colors.ring}
+                        color={colors.white}
                         strokeWidth={2.4}
                       />
                     </View>

@@ -12,30 +12,18 @@ import {
 import imagePath from '@assets/index';
 
 interface BookEndPageProps {
-  /** English title of the book */
   title?: string;
-  /** Hindi title of the book */
+
   titleHi?: string;
-  /** Scripture / source text (e.g. "Bhagavat Purana") */
+
   source?: string;
   currentLang?: 'hi' | 'en';
 }
 
-/**
- * BookEndPage — A reusable "The End" page that can be placed at the back
- * of any book in the app. Styled identically to a regular StoryPageView page.
- *
- * Shows:
- *  - Book title (in the current language)
- *  - "The End" / "समाप्त" as the main headline
- *  - Decorative Sanskrit colophon
- *  - Scripture source (if available)
- */
 export const BookEndPage: React.FC<BookEndPageProps> = React.memo(
   ({ title, titleHi, source, currentLang = 'hi' }) => {
     const isHi = currentLang === 'hi';
 
-    // Display the title in the user's language, fall back to whichever exists
     const displayTitle = isHi ? titleHi || title || '' : title || titleHi || '';
     const displaySource = source || '';
 
@@ -64,67 +52,50 @@ export const BookEndPage: React.FC<BookEndPageProps> = React.memo(
 
           {/* ── Main Body ────────────────────────────────────────────────── */}
           <View style={styles.endBody}>
-            {/* Ornament top rule */}
-            {/* <View style={styles.ornamentRow}>
+            {/* Top Ornate Flourish & OM */}
+            <View style={styles.ornamentRow}>
               <View style={styles.ornamentLine} />
               <Text style={styles.ornamentDot}>✦</Text>
               <View style={styles.ornamentLine} />
-            </View> */}
+            </View>
 
-            {/* OM symbol */}
+            {/* OM Symbol */}
             <Text style={styles.omText}>ॐ</Text>
 
             {/* Thin gold rule */}
             <View style={styles.thinRule} />
 
-            {/* Book name label */}
-            <Text style={styles.bookLabel}>
-              {isHi ? 'पुस्तक का नाम' : 'Book Name'}
-            </Text>
-
-            {/* Book title — primary display */}
+            {/* Book Title with Ornate Framing */}
             {displayTitle ? (
-              <Text style={styles.bookTitle} numberOfLines={3}>
-                {displayTitle}
-              </Text>
+              <View style={styles.titleContainer}>
+                <Text style={styles.titlePrefix}>
+                  {isHi ? '॥ पावन कथा ॥' : '॥ Sacred Tale ॥'}
+                </Text>
+                <Text style={styles.bookTitle} numberOfLines={4}>
+                  {displayTitle}
+                </Text>
+              </View>
             ) : null}
 
-            {/* Thick gold rule separating title from "The End" */}
-            {/* <View style={styles.thickRule} /> */}
+            {/* Thick gold rule */}
+            <View style={styles.thickRule} />
 
-            {/* THE END — main message */}
-            {/* <Text style={styles.theEndLabel}>
-              {isHi ? 'समाप्त' : 'The End'}
-            </Text>
-            <Text style={styles.theEndSub}>
-              {isHi ? '— इस कथा का अंत —' : '— End of this story —'}
-            </Text> */}
-
-            {/* Sanskrit colophon */}
-            {/* <View style={styles.colophonBox}>
+            {/* Sanskrit colophon / Conclusion Blessing */}
+            <View style={styles.colophonBox}>
               <Text style={styles.colophonText}>
-                {isHi
-                  ? 'इति श्रीमद् कथायाः समाप्तिः'
-                  : 'Iti Shrimad Kathāyāḥ Samāptiḥ'}
+                {isHi ? '॥ इति कथा सम्पूर्णा ॥' : '॥ Iti Kathā Sampūrṇā ॥'}
               </Text>
-            </View> */}
+              <Text style={styles.blessingText}>
+                {isHi ? 'हरि ॐ तत् सत्' : 'Hari OM Tat Sat'}
+              </Text>
+            </View>
 
-            {/* Scripture source (if any) */}
-            {/* {displaySource ? (
-              <Text style={styles.sourceText}>{displaySource}</Text>
-            ) : null} */}
-
-            {/* Closing blessing */}
-            {/* <Text style={styles.blessingText}>
-              {isHi ? 'हरि ॐ तत् सत्' : 'Hari OM Tat Sat'}
-            </Text> */}
-
-            {/* Ornament bottom rule */}
-            {/* <View style={[styles.ornamentRow, { marginTop: scale(8) }]}>
+            {/* Bottom Ornate Flourish */}
+            <View style={[styles.ornamentRow, { marginTop: scale(4) }]}>
               <View style={styles.ornamentLine} />
               <Text style={styles.ornamentDot}>✦</Text>
               <View style={styles.ornamentLine} />
-            </View> */}
+            </View>
           </View>
 
           {/* ── Footer (same as StoryPageView) ───────────────────────────── */}
@@ -197,21 +168,21 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: scale(10),
-    gap: scale(6),
+    paddingHorizontal: scale(8),
+    gap: scale(8),
   },
 
   ornamentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
+    width: '90%',
     gap: scale(6),
   },
   ornamentLine: {
     flex: 1,
     height: 0.8,
     backgroundColor: GOLD_ACCENT,
-    opacity: 0.5,
+    opacity: 0.45,
   },
   ornamentDot: {
     fontSize: fs(10),
@@ -221,101 +192,80 @@ const styles = StyleSheet.create({
 
   omText: {
     fontFamily: fonts.TiroHindiRegular,
-    fontSize: fs(36),
+    fontSize: fs(38),
     color: GOLD_ACCENT,
     textAlign: 'center',
-    lineHeight: fs(44),
+    lineHeight: fs(46),
     textShadowColor: 'rgba(218, 165, 32, 0.25)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 5,
   },
 
   thinRule: {
-    width: scale(60),
+    width: scale(70),
     height: 0.8,
     backgroundColor: GOLD_ACCENT,
     opacity: 0.4,
   },
 
-  // Book name section
-  bookLabel: {
+  // Book title section
+  titleContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: scale(6),
+    marginVertical: scale(2),
+  },
+  titlePrefix: {
     fontFamily: fonts.TiroHindiRegular,
-    fontSize: fs(8),
-    color: colors.secondary,
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
-    opacity: 0.65,
+    fontSize: fs(9),
+    color: colors.ring,
+    letterSpacing: 1.2,
+    marginBottom: scale(4),
   },
   bookTitle: {
     fontFamily: fonts.TiroHindiRegular,
-    fontSize: fs(16),
-    color: '#3D2A0A',
+    fontSize: fs(16.5),
+    color: colors.secondary,
     textAlign: 'center',
-    lineHeight: fs(23),
-    letterSpacing: 0.3,
-    paddingHorizontal: scale(8),
+    lineHeight: fs(24),
+    letterSpacing: 0.2,
+    paddingHorizontal: scale(4),
   },
 
   thickRule: {
-    width: '70%',
-    height: 1.5,
+    width: scale(90),
+    height: 1.2,
     backgroundColor: GOLD_ACCENT,
-    opacity: 0.55,
+    opacity: 0.5,
     borderRadius: 2,
-  },
-
-  // "The End" headline
-  theEndLabel: {
-    fontFamily: fonts.TiroHindiRegular,
-    fontSize: fs(24),
-    color: colors.ring,
-    textAlign: 'center',
-    letterSpacing: 1.5,
-    lineHeight: fs(30),
-  },
-  theEndSub: {
-    fontFamily: fonts.TiroHindiRegular,
-    fontSize: fs(9.5),
-    color: colors.secondary,
-    textAlign: 'center',
-    fontStyle: 'italic',
-    opacity: 0.75,
-    letterSpacing: 0.5,
+    marginVertical: scale(2),
   },
 
   // Sanskrit colophon pill
   colophonBox: {
-    paddingHorizontal: scale(10),
-    paddingVertical: scale(5),
+    paddingHorizontal: scale(14),
+    paddingVertical: scale(7),
     borderWidth: 1,
-    borderColor: `${GOLD_ACCENT}50`,
-    borderRadius: scale(6),
-    backgroundColor: 'rgba(218,165,32,0.06)',
+    borderColor: `${GOLD_ACCENT}55`,
+    borderRadius: scale(8),
+    backgroundColor: 'rgba(218,165,32,0.07)',
+    alignItems: 'center',
+    gap: scale(3),
   },
   colophonText: {
     fontFamily: fonts.TiroHindiRegular,
-    fontSize: fs(9),
-    color: '#7A5020',
-    textAlign: 'center',
-    letterSpacing: 0.6,
-    fontStyle: 'italic',
-  },
-
-  sourceText: {
-    fontFamily: fonts.TiroHindiRegular,
-    fontSize: fs(8.5),
+    fontSize: fs(11),
     color: colors.secondary,
     textAlign: 'center',
-    opacity: 0.7,
-    fontStyle: 'italic',
+    letterSpacing: 0.5,
+    lineHeight: fs(16),
   },
-
   blessingText: {
     fontFamily: fonts.TiroHindiRegular,
-    fontSize: fs(11),
-    color: GOLD_ACCENT,
+    fontSize: fs(10),
+    color: colors.ring,
     textAlign: 'center',
-    letterSpacing: 1,
+    letterSpacing: 0.8,
   },
 
   // ── Identical to StoryPageView's insideFooterRow ───────────────────────────
