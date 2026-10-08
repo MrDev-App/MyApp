@@ -18,12 +18,12 @@ import Animated, {
   withTiming,
   Easing,
   interpolate,
+  cancelAnimation,
 } from 'react-native-reanimated';
 import colors, { bannerGradients } from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import imagePath, { Forward } from '@assets/index';
-import { navigate } from '@navigation/navigationRef';
 import { getMonthName, getMonthShortName } from '@constants/calendarData';
 import { Translation } from '@i18n/language';
 
@@ -96,6 +96,15 @@ const HinduCalendarBanner: React.FC = () => {
       -1,
       true,
     );
+
+    // M3: Cancel all infinite animations on unmount to prevent memory leak
+    return () => {
+      cancelAnimation(shimmerProgress);
+      cancelAnimation(floatY);
+      cancelAnimation(auraScale);
+      cancelAnimation(arrowX);
+      cancelAnimation(dotOpacity);
+    };
   }, [shimmerProgress, floatY, auraScale, arrowX, dotOpacity]);
 
   const shimmerStyle = useAnimatedStyle(() => ({
@@ -131,16 +140,9 @@ const HinduCalendarBanner: React.FC = () => {
       : `${getMonthShortName(month, currentLanguage)} ${day}`;
   }, [isHi, currentLanguage]);
 
+  // H4: Single typed navigation — no triple try/catch
   const handlePress = () => {
-    try {
-      (navigation as any).navigate('Calendar');
-    } catch {}
-    try {
-      (navigation as any).navigate('BottomTabs', { screen: 'Calendar' });
-    } catch {}
-    try {
-      navigate('BottomTabs', { screen: 'Calendar' });
-    } catch {}
+    navigation.navigate('BottomTabs', { screen: 'Calendar' } as any);
   };
 
   return (

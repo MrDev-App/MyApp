@@ -18,7 +18,7 @@ import { useAppOpenAd } from '@admob/useAppOpenAd';
 import { isAdMobEnabled } from '@admob/adConfig';
 import colors from '@theme/colors';
 import NetworkBanner from '@components/NetworkBanner';
-import { getFestivalData } from '@api/festivalApi';
+import { getFestivalData, initFestivalBackgroundSync } from '@api/festivalApi';
 import { getGodData } from '@api/godMantrasApi';
 import { initRemoteConfig } from '@services/remoteConfigService';
 
@@ -36,7 +36,9 @@ const App = () => {
       mobileAds()
         .initialize()
         .then(adapterStatuses => {
-          console.log('Mobile Ads SDK initialized:', adapterStatuses);
+          if (__DEV__) {
+            console.log('Mobile Ads SDK initialized:', adapterStatuses);
+          }
         })
         .catch(err => {
           console.warn('Mobile Ads initialization error:', err);
@@ -66,9 +68,13 @@ const App = () => {
       }
     });
 
+    // Controlled background sync with 5-min cooldown (C1 fix)
+    const stopFestivalSync = initFestivalBackgroundSync();
+
     return () => {
       interactionPromise.cancel();
       unsubscribe();
+      stopFestivalSync();
     };
   }, []);
 

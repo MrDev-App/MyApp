@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import Video from 'react-native-video';
+import type { VideoRef } from 'react-native-video';
 import imagePath from '@assets/index';
 import colors from '@theme/colors';
 import { verticalScale } from '@theme/sizes';
@@ -54,8 +55,11 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
   });
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryCountRef = useRef(0);
-  const videoRef = useRef<any>(null);
+  // C2: properly typed ref instead of any
+  const videoRef = useRef<VideoRef | null>(null);
   const isFadingRef = useRef(false);
+  // H2: guard to ensure handleVideoReady fires only once per video load
+  const videoReadyFiredRef = useRef(false);
 
   // Reanimated shared values for high performance UI-thread animation
   const videoOpacity = useSharedValue(0);
@@ -95,6 +99,7 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
       setVideoSource(source);
       setVideoError(false);
       isFadingRef.current = false;
+      videoReadyFiredRef.current = false; // H2: reset on source change
       videoOpacity.value = 0;
       imageOpacity.value = 1;
     });
@@ -112,7 +117,7 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
 
     return () => {
       subscription.remove();
-      videoRef.current = null;
+      // C2: don't null the ref — the paused prop handles cleanup
       if (retryTimeoutRef.current) {
         clearTimeout(retryTimeoutRef.current);
       }
@@ -122,7 +127,7 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
   // Screen transition cleanup: unmount video when screen is removed/left
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', () => {
-      videoRef.current = null;
+      // C2: don't null ref — rely on paused prop and unmount
       if (retryTimeoutRef.current) {
         clearTimeout(retryTimeoutRef.current);
       }
@@ -150,6 +155,9 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
   }, [isAppActive, isReady, videoError]);
 
   const handleVideoReady = useCallback(() => {
+    // H2: guard against double-fire from onLoad + onReadyForDisplay
+    if (videoReadyFiredRef.current) return;
+    videoReadyFiredRef.current = true;
     retryCountRef.current = 0;
     onVideoLoad();
     if (activeFestival) {
@@ -167,7 +175,9 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
     const errorMsg =
       e?.error?.errorException || e?.error?.message || e?.errorString || '';
 
-    console.log('[Video] Error loading video:', errorMsg || e);
+    if (__DEV__) {
+      console.log('[Video] Error loading video:', errorMsg || e);
+    }
 
     // If Activity is null (race condition during launch/transition), retry mounting after Activity attaches
     if (
@@ -176,9 +186,11 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
     ) {
       if (retryCountRef.current < 3) {
         retryCountRef.current += 1;
-        console.log(
-          `[Video] Activity not ready yet (attempt ${retryCountRef.current}/3), retrying in 300ms...`,
-        );
+        if (__DEV__) {
+          console.log(
+            `[Video] Activity not ready yet (attempt ${retryCountRef.current}/3), retrying in 300ms...`,
+          );
+        }
         setIsReady(false);
         if (retryTimeoutRef.current) {
           clearTimeout(retryTimeoutRef.current);
@@ -192,13 +204,11 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
 
     // If remote festival video failed, fallback to local default video
     if (typeof videoSource === 'object' && videoSource?.uri) {
-      console.log(
-        '[Video] Remote video failed, falling back to local default video',
-      );
       setVideoSource(imagePath.bhaktiVideo);
       setActiveFestival(null);
       onFestivalActiveChange?.(null);
       isFadingRef.current = false;
+      videoReadyFiredRef.current = false; // H2: reset for fallback load
       videoOpacity.value = 0;
       imageOpacity.value = 1;
       return;
@@ -250,7 +260,6 @@ export const HomeHeaderMedia: React.FC<HomeHeaderMediaProps> = ({
             ignoreSilentSwitch="ignore"
             shutterColor="transparent"
             preventsDisplaySleepDuringVideoPlayback={false}
-            onLoad={handleVideoReady}
             onReadyForDisplay={handleVideoReady}
             onError={handleVideoError}
           />
@@ -279,13 +288,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'transparent',
   },
-  absoluteSkeleton: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
+  // L2: absoluteSkeleton removed — was defined but never used
 });
 
 export default React.memo(HomeHeaderMedia);

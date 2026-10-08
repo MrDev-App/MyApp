@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,7 +8,6 @@ import {
   ImageBackground,
   Platform,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAppLanguage } from '@hooks';
@@ -17,17 +16,26 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Translation } from '@i18n/language';
 import { RootStackParamList } from '@navigation/types';
-import { navigate } from '@navigation/navigationRef';
-import {
-  getHomeScreenFestivals,
-  getCachedFestivalData,
-  Festival,
-} from '@api/festivalApi';
+import { Festival } from '@api/festivalApi';
 import imagePath from '@assets/index';
+import LinearGradient from 'react-native-linear-gradient';
 import AnimatedButton from '@components/AnimatedButton';
 import FestivalModal from '@components/FestivalModal';
 import Skeleton from '@components/Skeleton';
 
+// M4: Extracted helper to avoid duplicated image resolution logic
+const resolveImageSource = (rawImage: any) => {
+  if (typeof rawImage === 'string' && rawImage.trim().length > 0)
+    return { uri: rawImage.trim() };
+  if (
+    typeof rawImage === 'number' ||
+    (rawImage && typeof rawImage === 'object' && (rawImage as any).uri)
+  )
+    return rawImage;
+  return imagePath.fallBackImage;
+};
+
+// L4: Proper component prop types
 interface FestivalHighlightCardProps {
   item: Festival;
   onPress: (item: Festival) => void;
@@ -39,28 +47,13 @@ const FestivalHighlightCard: React.FC<FestivalHighlightCardProps> = React.memo(
     const name = select(item.hindiName, item.englishName);
     const dateStr = select(item.dateStrHi, item.dateStrEn);
 
-    const rawImage = item.image;
-    const initialSource =
-      typeof rawImage === 'string' && rawImage.trim().length > 0
-        ? { uri: rawImage.trim() }
-        : typeof rawImage === 'number' ||
-          (rawImage && typeof rawImage === 'object' && (rawImage as any).uri)
-        ? rawImage
-        : imagePath.fallBackImage;
-
-    const [imgSrc, setImgSrc] = React.useState(initialSource);
+    // M4: Use extracted helper — no duplication between useState init and useEffect
+    const [imgSrc, setImgSrc] = React.useState(() =>
+      resolveImageSource(item.image),
+    );
 
     React.useEffect(() => {
-      const nextSource =
-        typeof item.image === 'string' && item.image.trim().length > 0
-          ? { uri: item.image.trim() }
-          : typeof item.image === 'number' ||
-            (item.image &&
-              typeof item.image === 'object' &&
-              (item.image as any).uri)
-          ? item.image
-          : imagePath.fallBackImage;
-      setImgSrc(nextSource);
+      setImgSrc(resolveImageSource(item.image));
     }, [item.image]);
 
     return (
@@ -105,28 +98,22 @@ const FestivalHighlightCard: React.FC<FestivalHighlightCardProps> = React.memo(
 
 FestivalHighlightCard.displayName = 'FestivalHighlightCard';
 
-const FestivalHighlights = ({ onPress }: any) => {
+// L4: Typed prop interface for FestivalHighlights
+interface FestivalHighlightsProps {
+  festivals?: Festival[];
+  onPress?: (festival: Festival) => void;
+}
+
+const FestivalHighlights: React.FC<FestivalHighlightsProps> = ({
+  festivals = [],
+  onPress,
+}) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t, select } = useAppLanguage();
 
-  const [festivals, setFestivals] = useState<Festival[]>(() => {
-    return getCachedFestivalData() || [];
-  });
-  const [loading, setLoading] = useState<boolean>(festivals.length === 0);
-
-  useEffect(() => {
-    getHomeScreenFestivals(10)
-      .then(data => {
-        if (data && data.length > 0) {
-          setFestivals(data);
-        }
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  }, []);
+  // H1: festivals now received as prop from HomeScreen — no local fetch needed
+  const loading = festivals.length === 0;
 
   const [selectedFestival, setSelectedFestival] = useState<Festival | null>(
     null,
@@ -168,24 +155,12 @@ const FestivalHighlights = ({ onPress }: any) => {
   // Already sliced to 10 in filteredFestivals — direct display
   const paginatedFestivals = filteredFestivals;
 
-  console.log('paginatedFestivals', paginatedFestivals);
-
+  // H4: Single typed navigation call — no triple try/catch
   const handlePressAll = () => {
-    try {
-      (navigation as any).navigate('Calendar');
-    } catch {}
-    try {
-      (navigation as any).navigate('BottomTabs', { screen: 'Calendar' });
-    } catch {}
-    try {
-      navigate('BottomTabs', { screen: 'Calendar' });
-    } catch {}
+    navigation.navigate('BottomTabs', { screen: 'Calendar' });
   };
 
-  const renderFooter = () => {
-    // Hard cap at 10 on home screen — no load-more footer needed
-    return null;
-  };
+  // L3: renderFooter removed — always returned null and was unused
 
   const renderSkeleton = () => (
     <View style={styles.skeletonContainer}>
@@ -271,8 +246,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   listContent: {
-    paddingHorizontal: scale(4),
-    paddingBottom: scale(10),
+    // L3: removed — FlatList had no contentContainerStyle using this
   },
   skeletonContainer: {
     flexDirection: 'row',
@@ -282,9 +256,7 @@ const styles = StyleSheet.create({
   skeletonCard: {
     marginRight: scale(12),
   },
-  footerSkeleton: {
-    marginRight: scale(12),
-  },
+  // L3: footerSkeleton removed — unused style
   cardContainer: {
     marginRight: scale(12),
     width: scale(130),

@@ -28,7 +28,10 @@ const GodItem = React.memo(
     currentLanguage: string;
     onPress: (god: God) => void;
   }) => {
-    const [imageSource, setImageSource] = useState<any>(() => {
+    // L6: typed image source instead of any
+    const [imageSource, setImageSource] = useState<
+      { uri: string } | number
+    >(() => {
       const rawUrl = (god?.imageUrl || (god as any)?.url || '').toString().trim();
       if (rawUrl.startsWith('http')) {
         return { uri: rawUrl };
@@ -79,11 +82,15 @@ const MantrasCard = () => {
   });
 
   useEffect(() => {
-    getGodData().then(data => {
-      if (data && data.length > 0) {
-        setGods(data);
-      }
-    });
+    getGodData()
+      .then(data => {
+        if (data && data.length > 0) {
+          setGods(data);
+        }
+      })
+      .catch(() => {
+        // M2: silent fail — cached data already shown from getCachedGodData()
+      });
   }, []);
 
   const pairedGods = React.useMemo(() => {

@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Gesture } from 'react-native-gesture-handler';
+
 import {
   useSharedValue,
   withSpring,
@@ -139,10 +140,16 @@ export const useFlipBookController = ({
       setDisplayPage(nextPage);
       onPageChangeRef.current?.(nextPage, totalPages);
 
-      triggerPostFlipLoader();
+      isAnimatingRef.current = false;
+      isAnimatingShared.value = false;
+      setIsFlipping(false);
+      setActiveFlipDir(null);
+
+      // triggerPostFlipLoader();
       processNextQueueRef.current();
     },
-    [totalPages, currentPageShared, triggerPostFlipLoader],
+    [totalPages, currentPageShared, isAnimatingShared],
+    // [totalPages, currentPageShared, triggerPostFlipLoader],
   );
 
   const onBackwardTurnFinish = useCallback(
@@ -153,10 +160,16 @@ export const useFlipBookController = ({
       setDisplayPage(prevPage);
       onPageChangeRef.current?.(prevPage, totalPages);
 
-      triggerPostFlipLoader();
+      isAnimatingRef.current = false;
+      isAnimatingShared.value = false;
+      setIsFlipping(false);
+      setActiveFlipDir(null);
+
+      // triggerPostFlipLoader();
       processNextQueueRef.current();
     },
-    [totalPages, currentPageShared, triggerPostFlipLoader],
+    [totalPages, currentPageShared, isAnimatingShared],
+    // [totalPages, currentPageShared, triggerPostFlipLoader],
   );
 
   const onFlipCancel = useCallback(
@@ -213,7 +226,10 @@ export const useFlipBookController = ({
 
       const config = isQueued ? QUEUED_SPRING_CONFIG : SPRING_CONFIG;
       progressVal.value = withSpring(1, config, finished => {
+        'worklet';
         if (finished) {
+          // Unlock gesture on UI thread immediately — no JS round-trip wait
+          isAnimatingShared.value = false;
           runOnJS(onForwardTurnFinish)(targetSheet);
         }
       });
@@ -243,7 +259,10 @@ export const useFlipBookController = ({
 
       const config = isQueued ? QUEUED_SPRING_CONFIG : SPRING_CONFIG;
       progressVal.value = withSpring(0, config, finished => {
+        'worklet';
         if (finished) {
+          // Unlock gesture on UI thread immediately — no JS round-trip wait
+          isAnimatingShared.value = false;
           runOnJS(onBackwardTurnFinish)(targetSheet);
         }
       });
@@ -417,7 +436,10 @@ export const useFlipBookController = ({
   // Stable Pan Gesture
   const panGesture = useMemo(() => {
     return Gesture.Pan()
-      .activeOffsetX([-10, 10])
+      .activeOffsetX([-6, 6])
+      .failOffsetY([-20, 20])
+      .minPointers(1)
+      .maxPointers(1)
       .onStart(event => {
         'worklet';
         if (isAnimatingShared.value) {
@@ -425,13 +447,15 @@ export const useFlipBookController = ({
           return;
         }
         const curPage = currentPageShared.value;
+        const directionX =
+          event.velocityX !== 0 ? event.velocityX : event.translationX;
 
-        if (event.velocityX < 0) {
+        if (directionX < 0) {
           if (curPage >= totalPages) return;
           activeSheetIdx.value = curPage;
           gestureDir.value = 'forward';
           isGestureActive.value = true;
-        } else if (event.velocityX > 0) {
+        } else if (directionX > 0) {
           if (curPage <= 0) return;
           activeSheetIdx.value = curPage - 1;
           gestureDir.value = 'backward';
@@ -481,13 +505,17 @@ export const useFlipBookController = ({
             progressVal.value > 0.35 || event.velocityX < -velocityThreshold;
           if (shouldTurn) {
             progressVal.value = withSpring(1, SPRING_CONFIG, finished => {
+              'worklet';
               if (finished) {
+                isAnimatingShared.value = false;
                 runOnJS(onForwardTurnFinish)(sheetIdx);
               }
             });
           } else {
             progressVal.value = withSpring(0, SPRING_CONFIG, finished => {
+              'worklet';
               if (finished) {
+                isAnimatingShared.value = false;
                 runOnJS(onFlipCancel)(sheetIdx, true);
               }
             });
@@ -497,13 +525,17 @@ export const useFlipBookController = ({
             progressVal.value < 0.65 || event.velocityX > velocityThreshold;
           if (shouldTurn) {
             progressVal.value = withSpring(0, SPRING_CONFIG, finished => {
+              'worklet';
               if (finished) {
+                isAnimatingShared.value = false;
                 runOnJS(onBackwardTurnFinish)(sheetIdx);
               }
             });
           } else {
             progressVal.value = withSpring(1, SPRING_CONFIG, finished => {
+              'worklet';
               if (finished) {
+                isAnimatingShared.value = false;
                 runOnJS(onFlipCancel)(sheetIdx, false);
               }
             });

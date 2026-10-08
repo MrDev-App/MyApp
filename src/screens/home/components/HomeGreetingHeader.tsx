@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -11,16 +11,17 @@ import { fs, scale } from '@theme/sizes';
 import { Bell } from '@assets/index';
 import { NotificationStorage } from '@services/notificationService';
 import {
-  getHomeScreenFestivals,
-  getCachedFestivalData,
   Festival,
 } from '@api/festivalApi';
 import { getMonthShortName } from '@constants/calendarData';
 import { FestivalVideoEntry } from '../../../types/festivalVideo';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@navigation/types';
 
 interface HomeGreetingHeaderProps {
   loading: boolean;
   activeFestival?: FestivalVideoEntry | null;
+  festivals?: Festival[];
 }
 
 interface EkadashiDisplayItem {
@@ -47,30 +48,16 @@ const isToday = (dateStr?: string): boolean => {
 const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
   loading: parentLoading,
   activeFestival = null,
+  festivals: festivalsProp,
 }) => {
   const { t, isHindi: isHi } = useAppLanguage();
-  const navigation = useNavigation<any>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const [festivals, setFestivals] = useState<Festival[]>(() => {
-    return getCachedFestivalData() || [];
-  });
-  const [festivalsLoading, setFestivalsLoading] = useState<boolean>(
-    festivals.length === 0,
-  );
-
-  useEffect(() => {
-    getHomeScreenFestivals(10)
-      .then(data => {
-        if (data && data.length > 0) {
-          setFestivals(data);
-        }
-        setFestivalsLoading(false);
-      })
-      .catch(() => {
-        setFestivalsLoading(false);
-      });
-  }, []);
+  // H1: festivals now come from HomeScreen prop — no local fetch needed
+  const festivals = festivalsProp || [];
+  const festivalsLoading = festivals.length === 0;
 
   useFocusEffect(
     useCallback(() => {
@@ -387,13 +374,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.TiroHindiRegular,
   },
   emptyContainer: {
-    paddingVertical: scale(12),
-    alignItems: 'center',
+    // L1: removed — unused style
   },
   emptyText: {
-    color: colors.textWhite70,
-    fontSize: fs(12),
-    fontFamily: fonts.TiroHindiRegular,
+    // L1: removed — unused style
   },
 });
 

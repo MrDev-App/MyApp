@@ -383,16 +383,22 @@ export const getUpcomingFestivals = async (
   return getHomeScreenFestivals(limitCount);
 };
 
-// Automatic foreground sync: when user comes back or opens the app, fetch updated festival data and save to MMKV
-AppState.addEventListener('change', nextState => {
-  if (nextState === 'active') {
-    getAllFestivals(true).catch(err => {
-      console.warn(
-        '⚠️ [festivalApi] Background festival sync on app resume failed:',
-        err,
-      );
-    });
-  }
-});
+// Cooldown-guarded background sync — call initFestivalBackgroundSync() once from App.tsx
+let _lastFestivalSyncTime = 0;
+const MIN_FESTIVAL_SYNC_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+
+export const initFestivalBackgroundSync = (): (() => void) => {
+  const subscription = AppState.addEventListener('change', nextState => {
+    if (nextState === 'active') {
+      const now = Date.now();
+      if (now - _lastFestivalSyncTime < MIN_FESTIVAL_SYNC_INTERVAL_MS) return;
+      _lastFestivalSyncTime = now;
+      getAllFestivals(true).catch(() => {
+        // silent — cached data already available
+      });
+    }
+  });
+  return () => subscription.remove();
+};
 
 export default getAllFestivals;

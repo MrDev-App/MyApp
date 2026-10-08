@@ -22,6 +22,11 @@ import HinduCalendarBanner from './components/HinduCalendarBanner';
 import GradientOverlay from '@components/GradientOverlay';
 import { BannerAdComponent } from '@admob';
 import { FestivalVideoEntry } from '../../types/festivalVideo';
+import { Festival } from '@api/festivalApi';
+import {
+  getHomeScreenFestivals,
+  getCachedFestivalData,
+} from '@api/festivalApi';
 
 export const HomeScreen = () => {
   const insets = useSafeAreaInsets();
@@ -29,15 +34,33 @@ export const HomeScreen = () => {
   const [activeFestival, setActiveFestival] =
     useState<FestivalVideoEntry | null>(null);
 
+  // H1: Lift festival state here — eliminates duplicate API calls from children
+  const [festivals, setFestivals] = useState<Festival[]>(
+    () => getCachedFestivalData() || [],
+  );
+
   const imageLoadedRef = useRef(false);
   const videoErrorRef = useRef(false);
 
   // Safety fallback: ensure screen is visible quickly even if video decoder buffers or lags
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
     }, 600);
     return () => clearTimeout(timer);
+  }, []);
+
+  // H1: Single festival fetch, result shared with HomeGreetingHeader & FestivalHighlights
+  useEffect(() => {
+    getHomeScreenFestivals(10)
+      .then(data => {
+        if (data && data.length > 0) {
+          setFestivals(data);
+        }
+      })
+      .catch(() => {
+        // silent fail — cached data already shown
+      });
   }, []);
 
   const handleVideoLoad = useCallback(() => {
@@ -91,6 +114,7 @@ export const HomeScreen = () => {
           <HomeGreetingHeader
             loading={loading}
             activeFestival={activeFestival}
+            festivals={festivals}
           />
 
           {/* Loading Skeleton OR Cards List */}
@@ -104,7 +128,7 @@ export const HomeScreen = () => {
               <ChallengeCard />
               <BannerAdComponent unitId="ca-app-pub-7403088686757883/4289481752" />
               <FeaturedCategories />
-              <FestivalHighlights />
+              <FestivalHighlights festivals={festivals} />
             </>
           )}
         </ScrollView>
@@ -115,7 +139,7 @@ export const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingBottom: scale(16),
+    // M7: paddingBottom removed — handled dynamically via insets above
   },
   topGradient: {
     position: 'absolute',

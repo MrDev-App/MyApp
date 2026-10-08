@@ -19,13 +19,19 @@ export const GOLD_ACCENT = colors.goldBead;
 export const GOLD_BORDER = colors.goldBeadBorder;
 
 export const SPRING_CONFIG = {
-  damping: 22,
-  stiffness: 150,
-  mass: 0.8,
+  damping: 20,
+  stiffness: 180,
+  mass: 0.6,
+  overshootClamping: true,
+  restDisplacementThreshold: 0.01,
+  restSpeedThreshold: 0.01,
 };
 
 export const QUEUED_SPRING_CONFIG = {
   damping: 24,
-  stiffness: 220,
-  mass: 0.6,
+  stiffness: 240,
+  mass: 0.5,
+  overshootClamping: true,
+  restDisplacementThreshold: 0.01,
+  restSpeedThreshold: 0.01,
 };

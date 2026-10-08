@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import {
   StyleSheet,
   Text,
@@ -32,25 +32,30 @@ const ChallengeCard = () => {
   const [started, setStarted] = useState(() =>
     Storage.getBoolean(STORAGE_KEYS.CHALLENGE_STARTED, false),
   );
-  const todayChants = Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0);
+  const days = started
+    ? Storage.getNumber(STORAGE_KEYS.CHALLENGE_PROGRESS_DAYS, 1)
+    : 0;
+  const streak = started
+    ? Storage.getNumber(STORAGE_KEYS.CHALLENGE_STREAK, 1)
+    : 0;
 
-  const baseChants = Storage.getNumber('CHALLENGE_BASE_CHANTS', 0);
-  const baseDate = Storage.getString('CHALLENGE_BASE_DATE', '');
-  const todayStr = new Date().toDateString();
-  const challengeChantsToday =
-    started && baseDate === todayStr
-      ? Math.max(0, todayChants - baseChants)
-      : todayChants;
+  // C3 + H5: Memoize storage reads — no longer re-read on every render
+  const { todayChants, challengeChantsToday } = useMemo(() => {
+    const tc = Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0);
+    const bc = Storage.getNumber(STORAGE_KEYS.CHALLENGE_BASE_CHANTS, 0);
+    const bd = Storage.getString(STORAGE_KEYS.CHALLENGE_BASE_DATE, '');
+    const td = new Date().toDateString();
+    const chants = started && bd === td ? Math.max(0, tc - bc) : tc;
+    return { todayChants: tc, challengeChantsToday: chants };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [started, isFocused]);
 
   const [dailyTargetGoal, setDailyTargetGoal] = useState(() =>
-    Storage.getNumber('CHALLENGE_DAILY_TARGET', 108),
+    Storage.getNumber(STORAGE_KEYS.CHALLENGE_DAILY_TARGET, 108),
   );
   const [challengeTotalDays, setChallengeTotalDays] = useState(() =>
     Storage.getNumber(STORAGE_KEYS.CHALLENGE_TOTAL_DAYS, 21),
   );
-
-  const days = started ? Storage.getNumber('CHALLENGE_PROGRESS_DAYS', 1) : 0;
-  const streak = started ? Storage.getNumber('CHALLENGE_STREAK', 1) : 0;
 
   const targetModalRef = useRef<OverlayModalHandle>(null);
   const [tempGoal, setTempGoal] = useState(String(dailyTargetGoal));
@@ -60,7 +65,9 @@ const ChallengeCard = () => {
   useEffect(() => {
     if (isFocused) {
       setStarted(Storage.getBoolean(STORAGE_KEYS.CHALLENGE_STARTED, false));
-      setDailyTargetGoal(Storage.getNumber('CHALLENGE_DAILY_TARGET', 108));
+      setDailyTargetGoal(
+        Storage.getNumber(STORAGE_KEYS.CHALLENGE_DAILY_TARGET, 108),
+      );
       setChallengeTotalDays(
         Storage.getNumber(STORAGE_KEYS.CHALLENGE_TOTAL_DAYS, 21),
       );
@@ -105,7 +112,7 @@ const ChallengeCard = () => {
       daysVal = 21;
     }
 
-    Storage.set('CHALLENGE_DAILY_TARGET', targetVal);
+    Storage.set(STORAGE_KEYS.CHALLENGE_DAILY_TARGET, targetVal);
     Storage.set(STORAGE_KEYS.CHALLENGE_TOTAL_DAYS, daysVal);
 
     setDailyTargetGoal(targetVal);
@@ -131,10 +138,10 @@ const ChallengeCard = () => {
 
   const handleStartChallenge = () => {
     Storage.set(STORAGE_KEYS.CHALLENGE_STARTED, true);
-    Storage.set('CHALLENGE_PROGRESS_DAYS', 1);
-    Storage.set('CHALLENGE_STREAK', 1);
-    Storage.set('CHALLENGE_BASE_CHANTS', todayChants);
-    Storage.set('CHALLENGE_BASE_DATE', new Date().toDateString());
+    Storage.set(STORAGE_KEYS.CHALLENGE_PROGRESS_DAYS, 1);
+    Storage.set(STORAGE_KEYS.CHALLENGE_STREAK, 1);
+    Storage.set(STORAGE_KEYS.CHALLENGE_BASE_CHANTS, todayChants);
+    Storage.set(STORAGE_KEYS.CHALLENGE_BASE_DATE, new Date().toDateString());
     setStarted(true);
   };
 
@@ -236,7 +243,7 @@ const ChallengeCard = () => {
 
       <OverlayModal ref={targetModalRef} closeOnBackdropPress={true}>
         <KeyboardAvoidingView
-          style={{ flex: 1 }}
+          style={styles.flex1}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <View style={styles.modalCenterContainer}>
@@ -313,6 +320,9 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     marginVertical: scale(16),
+  },
+  flex1: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',

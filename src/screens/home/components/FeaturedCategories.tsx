@@ -48,7 +48,12 @@ const FeaturedCategories = () => {
   const navigation = useNavigation<RootNavigationProp>();
 
   const handleCardPress = (item: FeaturedCategoryItem) => {
-    navigation.navigate(item.route as any);
+    // Routes with optional params need an explicit params object to satisfy TypeScript
+    if (item.route === 'TempleScreen') {
+      navigation.navigate('TempleScreen');
+    } else {
+      navigation.navigate(item.route, { category: undefined });
+    }
   };
 
   return (
@@ -77,12 +82,12 @@ const FeaturedCategories = () => {
                     autoPlay
                     loop
                     resizeMode="contain"
-                    style={{ height: scale(65), width: scale(65) }}
+                    style={styles.lottieIcon}
                   />
                 ) : (
                   <Image
                     source={item.icon}
-                    style={{ height: scale(60), width: scale(60) }}
+                    style={styles.imageIcon}
                     resizeMode="contain"
                   />
                 )}
@@ -145,5 +150,13 @@ const styles = StyleSheet.create({
     fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     textAlign: 'center',
+  },
+  lottieIcon: {
+    height: scale(65),
+    width: scale(65),
+  },
+  imageIcon: {
+    height: scale(60),
+    width: scale(60),
   },
 });
