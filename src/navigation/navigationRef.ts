@@ -6,7 +6,10 @@ import { RootStackParamList } from './types';
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
-export function navigate(name: keyof RootStackParamList, params?: any) {
+let pendingNavigation: { name: keyof RootStackParamList; params?: any } | null =
+  null;
+
+function performNavigate(name: keyof RootStackParamList, params?: any) {
   if (!navigationRef.isReady()) return;
 
   const currentRoute = navigationRef.getCurrentRoute();
@@ -21,6 +24,16 @@ export function navigate(name: keyof RootStackParamList, params?: any) {
           routes: [{ name: 'BottomTabs', params }],
         }),
       );
+      // Ensure tab navigator activates the target screen
+      if (params?.screen) {
+        setTimeout(() => {
+          try {
+            if (navigationRef.isReady()) {
+              navigationRef.navigate('BottomTabs', params);
+            }
+          } catch {}
+        }, 50);
+      }
     } else {
       navigationRef.dispatch(
         CommonActions.reset({
@@ -37,4 +50,43 @@ export function navigate(name: keyof RootStackParamList, params?: any) {
 
   navigationRef.navigate(name as any, params);
 }
+
+export function onNavigationReady() {
+  if (pendingNavigation) {
+    const target = pendingNavigation;
+    pendingNavigation = null;
+    performNavigate(target.name, target.params);
+  }
+}
+
+export function navigate(name: keyof RootStackParamList, params?: any) {
+  if (!navigationRef.isReady()) {
+    console.log(
+      `[Navigation] NavigationContainer not ready yet, queuing navigation to ${String(
+        name,
+      )}`,
+    );
+    pendingNavigation = { name, params };
+
+    // Safety polling in case onReady callback was delayed
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      if (navigationRef.isReady()) {
+        clearInterval(interval);
+        if (pendingNavigation) {
+          const target = pendingNavigation;
+          pendingNavigation = null;
+          performNavigate(target.name, target.params);
+        }
+      } else if (attempts >= 60) {
+        clearInterval(interval);
+      }
+    }, 50);
+    return;
+  }
+
+  performNavigate(name, params);
+}
+
 

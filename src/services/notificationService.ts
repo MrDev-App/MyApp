@@ -330,9 +330,10 @@ export async function handleNotificationNavigation(
   if (
     category === 'festivals' ||
     actionRoute === 'CalendarScreen' ||
-    actionRoute === 'AllFestivals'
+    actionRoute === 'AllFestivals' ||
+    actionRoute === 'Calendar'
   ) {
-    navigate('CalendarScreen');
+    navigate('BottomTabs', { screen: 'Calendar' });
     return;
   }
 
@@ -388,13 +389,36 @@ export function recordDeliveredNotification(notification: any) {
         : data.actionParams;
   } catch {}
 
+  const scheduledTime = actionParams?.scheduledTime;
+  let bodyText = (notification.body || '').trim();
+
+  // If notification body was empty, use scheduled time or subtitle fallback
+  if (!bodyText) {
+    if (scheduledTime) {
+      bodyText = scheduledTime;
+    } else if (actionParams?.subtitle) {
+      bodyText = actionParams.subtitle;
+    } else {
+      bodyText = 'साधना का समय';
+    }
+  } else if (scheduledTime && !bodyText.includes(scheduledTime)) {
+    bodyText = `${bodyText} (${scheduledTime})`;
+  }
+
+  // Consistent ID: Use original reminderId so delivered notification updates the existing entry
+  const notificationId =
+    data.reminderId ||
+    actionParams?.reminderId ||
+    notification.id ||
+    `notif_${Date.now()}`;
+
   NotificationStorage.addNotification({
-    id: notification.id || `notif_${Date.now()}`,
+    id: notificationId,
     type: data.type || 'sadhana',
     titleEn: notification.title || 'Sadhana Reminder',
     titleHi: notification.title || 'साधना रिमाइंडर',
-    messageEn: notification.body || '',
-    messageHi: notification.body || '',
+    messageEn: bodyText,
+    messageHi: bodyText,
     timestamp: Date.now(),
     isRead: false,
     actionRoute: data.actionRoute || 'Jap',
@@ -407,6 +431,9 @@ export async function cancelReminder(id: string) {
 }
 
 export async function cancelAllReminders() {
+  try {
+    await notifee.cancelTriggerNotifications();
+  } catch {}
   await notifee.cancelTriggerNotification('daily_sadhana_daily');
   await notifee.cancelTriggerNotification('daily_sadhana_date');
   for (let i = 0; i < 7; i++) {
@@ -440,26 +467,39 @@ export async function scheduleMultipleReminders(
       reminderDate.setDate(reminderDate.getDate() + 1);
     }
 
+    const h12 = item.hour % 12 || 12;
+    const formattedTime = `${String(h12).padStart(2, '0')}:${String(
+      item.minute,
+    ).padStart(2, '0')} ${item.isPm ? 'PM' : 'AM'}`;
+
     const itemTitle = item.title?.trim() || '';
-    const itemBody = item.subtitle?.trim() || '';
+    const itemSubtitle = item.subtitle?.trim() || '';
+    // Consistently include scheduled time in the notification body
+    const itemBody = itemSubtitle
+      ? `${itemSubtitle} (${formattedTime})`
+      : formattedTime;
     const category = item.category || 'chant';
 
     let actionRoute = item.actionRoute || 'Jap';
     if (category === 'shlokas') actionRoute = 'AllShlokasScreen';
     else if (category === 'books') actionRoute = 'Book';
     else if (category === 'mantras') actionRoute = 'MantraScreen';
-    else if (category === 'festivals') actionRoute = 'CalendarScreen';
+    else if (category === 'festivals') actionRoute = 'Calendar';
     else if (category === 'arti') actionRoute = 'AllArtiScreen';
 
     const actionParams = {
       category,
       title: item.title || '',
       subtitle: item.subtitle || '',
+      scheduledTime: formattedTime,
+      reminderId: item.id,
       ...(item.actionParams || {}),
     };
 
+    const reminderId = item.id || `daily_reminder_${i}`;
+
     await scheduleReminder({
-      id: `daily_reminder_${i}`,
+      id: reminderId,
       title: itemTitle,
       body: itemBody,
       date: reminderDate,

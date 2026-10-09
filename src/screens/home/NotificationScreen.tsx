@@ -20,7 +20,7 @@ import { fs, scale } from '@theme/sizes';
 import { Back } from '@assets';
 import { GradientBackground, AnimatedListItem } from '@components';
 import { useAppLanguage } from '@hooks';
-import { Translation } from '@i18n/language';
+import { Translation, en, hi } from '@i18n/language';
 import {
   NotificationStorage,
   AppNotification,
@@ -31,6 +31,8 @@ import {
   getNotificationBadgeBg,
 } from '@utils/notificationHelpers';
 import { RootNavigationProp } from '@navigation/types';
+import { Storage } from '@services/storageService';
+import { STORAGE_KEYS } from '@constants/storageKeys';
 
 type FilterType = 'all' | 'sadhana' | 'festival' | 'wisdom';
 
@@ -45,10 +47,96 @@ const NotificationScreen = () => {
   useFocusEffect(
     useCallback(() => {
       // Automatically load and mark all notifications as read once user opens the notification screen
-      const updatedList = NotificationStorage.markAllAsRead();
-      setNotifications(updatedList);
+      const list = NotificationStorage.getNotifications();
+      let hadFixes = false;
+      const rawReminders = Storage.getString(
+        STORAGE_KEYS.DAILY_REMINDERS_LIST,
+        '[]',
+      );
+      let parsedReminders: any[] = [];
+      try {
+        parsedReminders = JSON.parse(rawReminders);
+      } catch {}
+
+      const fixedList = list.map(item => {
+        let messageEn = (item.messageEn || '').trim();
+        let messageHi = (item.messageHi || '').trim();
+
+        // If notification has empty message, restore from scheduledTime or reminder title
+        if (!messageEn && !messageHi) {
+          const titleKey = (item.titleEn || item.titleHi || '')
+            .toLowerCase()
+            .trim();
+          const matched = Array.isArray(parsedReminders)
+            ? parsedReminders.find(
+                (r: any) =>
+                  r.id === item.id ||
+                  (r.title && r.title.toLowerCase().trim() === titleKey),
+              )
+            : null;
+
+          let resolvedTime = item.actionParams?.scheduledTime;
+          if (!resolvedTime && matched && typeof matched.hour === 'number') {
+            const h12 = matched.hour % 12 || 12;
+            resolvedTime = `${String(h12).padStart(2, '0')}:${String(
+              matched.minute,
+            ).padStart(2, '0')} ${matched.isPm ? 'PM' : 'AM'}`;
+          }
+
+          const fallbackText =
+            resolvedTime ||
+            item.actionParams?.subtitle ||
+            en.NOTIFICATIONS_DAILY_SADHANA_TIME;
+          const fallbackTextHi =
+            resolvedTime ||
+            item.actionParams?.subtitle ||
+            hi.NOTIFICATIONS_DAILY_SADHANA_TIME;
+
+          hadFixes = true;
+          return {
+            ...item,
+            messageEn: fallbackText,
+            messageHi: fallbackTextHi,
+            isRead: true,
+          };
+        }
+        return {
+          ...item,
+          isRead: true,
+        };
+      });
+
+      if (hadFixes) {
+        NotificationStorage.saveNotifications(fixedList);
+      } else {
+        NotificationStorage.markAllAsRead();
+      }
+      setNotifications(fixedList);
     }, []),
   );
+
+  // Map of reminder title / id -> formatted scheduled time
+  const remindersMap = useMemo(() => {
+    try {
+      const raw = Storage.getString(STORAGE_KEYS.DAILY_REMINDERS_LIST, '[]');
+      const list = JSON.parse(raw);
+      if (Array.isArray(list)) {
+        const map = new Map<string, string>();
+        list.forEach((r: any) => {
+          if (r && typeof r.hour === 'number' && typeof r.minute === 'number') {
+            const h12 = r.hour % 12 || 12;
+            const timeStr = `${String(h12).padStart(2, '0')}:${String(
+              r.minute,
+            ).padStart(2, '0')} ${r.isPm ? 'PM' : 'AM'}`;
+            if (r.id) map.set(r.id, timeStr);
+            if (r.title) map.set(r.title.toLowerCase().trim(), timeStr);
+          }
+        });
+        return map;
+      }
+    } catch {}
+    return new Map<string, string>();
+  }, [notifications]);
 
   const handleMarkAllAsRead = () => {
     const updated = NotificationStorage.markAllAsRead();
@@ -125,10 +213,32 @@ const NotificationScreen = () => {
 
   const renderNotificationItem = useCallback(
     ({ item, index }: { item: AppNotification; index: number }) => {
-      const title = select(item.titleHi, item.titleEn);
-      const message = select(item.messageHi, item.messageEn);
+      const title =
+        select(item.titleHi, item.titleEn) || select('स्मरण', 'Reminder');
+      let message = (select(item.messageHi, item.messageEn) || '').trim();
       const icon = getNotificationIcon(item.type);
       const badgeBg = getNotificationBadgeBg(item.type);
+
+      // Resolve scheduled time from actionParams or reminders lookup
+      const titleKey = (item.titleEn || item.titleHi || '')
+        .toLowerCase()
+        .trim();
+      const scheduledTime =
+        item.actionParams?.scheduledTime ||
+        (item.id ? remindersMap.get(item.id) : undefined) ||
+        (titleKey ? remindersMap.get(titleKey) : undefined);
+
+      if (!message) {
+        if (scheduledTime) {
+          message = scheduledTime;
+        } else if (item.actionParams?.subtitle) {
+          message = item.actionParams.subtitle;
+        } else {
+          message = t(Translation.NOTIFICATIONS_DAILY_SADHANA_TIME);
+        }
+      } else if (scheduledTime && !message.includes(scheduledTime)) {
+        message = `${message} (${scheduledTime})`;
+      }
 
       return (
         <AnimatedListItem index={index} delayStep={45}>

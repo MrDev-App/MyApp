@@ -12,4 +12,4 @@ export const resources = {
   },
 };
 
-export { Translation };
+export { Translation, en, hi };

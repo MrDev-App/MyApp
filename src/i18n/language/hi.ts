@@ -218,6 +218,7 @@ export default {
   NOTIFICATIONS_FILTER_FESTIVALS: 'त्योहार',
   NOTIFICATIONS_FILTER_WISDOM: 'ज्ञान',
   NOTIFICATIONS_CLEARED_MSG: 'सभी सूचनाएं हटा दी गईं',
+  NOTIFICATIONS_DAILY_SADHANA_TIME: 'दैनिक साधना का समय',
   SADHANA_PROGRESS: 'साधना प्रगति',
   MY_JOURNEY: 'मेरी आध्यात्मिक यात्रा',
   CURRENT_LEVEL: 'वर्तमान स्तर',

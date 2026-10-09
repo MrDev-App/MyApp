@@ -217,6 +217,7 @@ export default {
   NOTIFICATIONS_FILTER_FESTIVALS: 'Festivals',
   NOTIFICATIONS_FILTER_WISDOM: 'Wisdom',
   NOTIFICATIONS_CLEARED_MSG: 'All notifications cleared',
+  NOTIFICATIONS_DAILY_SADHANA_TIME: 'Daily Sadhana Reminder',
   SADHANA_PROGRESS: 'Your Progress',
   MY_JOURNEY: 'My Spiritual Journey',
   CURRENT_LEVEL: 'Current Level',

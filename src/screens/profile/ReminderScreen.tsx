@@ -214,23 +214,28 @@ const ReminderScreen: React.FC = () => {
     } else if (cat === 'mantras') {
       actionRoute = 'MantraScreen';
     } else if (cat === 'festivals') {
-      actionRoute = 'CalendarScreen';
+      actionRoute = 'Calendar';
     } else if (cat === 'arti') {
       actionRoute = 'AllArtiScreen';
     } else {
       actionRoute = 'Jap';
     }
 
+    const formattedTime = formatReminderTime(hour, minute, isPm);
+    const reminderId = `reminder_${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(2, 6)}`;
+
     const actionParams = {
       category: cat || 'chant',
       title: trimmedTitle,
       subtitle: trimmedSubtitle,
+      scheduledTime: formattedTime,
+      reminderId,
     };
 
     const newItem: ReminderItem = {
-      id: `reminder_${Date.now()}_${Math.random()
-        .toString(36)
-        .substring(2, 6)}`,
+      id: reminderId,
       hour,
       minute,
       isPm,
@@ -246,7 +251,6 @@ const ReminderScreen: React.FC = () => {
     saveRemindersList(updated);
 
     // Record in-app notification for Notification Screen
-    const formattedTime = formatReminderTime(hour, minute, isPm);
     const notifMessage = trimmedSubtitle
       ? `${trimmedSubtitle} (${formattedTime})`
       : formattedTime;
