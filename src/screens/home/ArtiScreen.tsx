@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+} from 'react';
 import {
   StyleSheet,
   Text,
@@ -83,7 +89,7 @@ export const ArtiScreen: React.FC = () => {
 
   // Auto-play when opened from notification reminder with autoPlay flag
   const autoPlayTriggered = useRef(false);
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       route.params?.autoPlay &&
       selectedItem?.audioUrl &&
@@ -97,68 +103,43 @@ export const ArtiScreen: React.FC = () => {
     }
   }, [route.params?.autoPlay, selectedItem?.audioUrl]);
 
-  const onTogglePlay = useCallback(async () => {
+  const onTogglePlay = useCallback(() => {
     triggerHaptic();
 
-    // If starting playback, validate audio URL & network connectivity
     if (!isPlaying) {
       const audioUrl = selectedItem?.audioUrl;
       if (!audioUrl || !audioUrl.trim()) {
         showToast(t(Translation.AARTI_AUDIO_NOT_AVAILABLE));
         return;
       }
-
-      if (audioUrl.startsWith('http://') || audioUrl.startsWith('https://')) {
-        let isOnline = false;
-        try {
-          const netState = await NetInfo.fetch();
-          if (netState.isConnected === true) {
-            isOnline = true;
-          }
-        } catch {
-          // ignore
-        }
-
-        // If NetInfo reports offline/stale, verify with actual probe
-        if (!isOnline) {
-          try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2000);
-            const res = await fetch(
-              'https://clients3.google.com/generate_204',
-              {
-                method: 'HEAD',
-                signal: controller.signal,
-              },
-            );
-            clearTimeout(timeoutId);
-            if (res.status >= 200 && res.status < 400) {
-              isOnline = true;
-            }
-          } catch {
-            isOnline = false;
-          }
-        }
-
-        if (!isOnline) {
-          showToast(t(Translation.NO_INTERNET_CONNECTION));
-          return;
-        }
-      }
     }
 
+    // Instant 0ms response — UI updates immediately!
     setIsPlaying(prev => !prev);
   }, [isPlaying, selectedItem?.audioUrl, showToast, t]);
 
   const handleAudioError = useCallback(
-    (error: any) => {
+    async (error: any) => {
       console.warn('[ArtiScreen] Audio playback error:', error);
       setIsPlaying(false);
+
       if (error?.type === 'URL_ABSENT') {
         showToast(t(Translation.AARTI_AUDIO_NOT_AVAILABLE));
-      } else {
-        showToast(t(Translation.AARTI_AUDIO_ERROR));
+        return;
       }
+
+      // Check if failure was caused by lack of internet
+      try {
+        const netState = await NetInfo.fetch();
+        if (netState.isConnected === false) {
+          showToast(t(Translation.NO_INTERNET_CONNECTION));
+          return;
+        }
+      } catch {
+        // ignore
+      }
+
+      showToast(t(Translation.AARTI_AUDIO_ERROR));
     },
     [showToast, t],
   );
