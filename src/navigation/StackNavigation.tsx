@@ -11,7 +11,6 @@ import TextReadingScreen from '@screens/book/TextReadingScreen';
 import BookListScreen from '@screens/book/BookListScreen';
 import SearchScreen from '@screens/book/SearchScreen';
 import NotificationScreen from '@screens/home/NotificationScreen';
-// import SeedScreen from '@screens/SeedScreen';
 import ProgressScreen from '@screens/jap/ProgressScreen';
 import MantraScreen from '@screens/home/MantraScreen';
 
@@ -22,7 +21,6 @@ import TempleScreen from '@screens/temple/TempleScreen';
 import TempleDetailScreen from '@screens/temple/TempleDetailScreen';
 import { AllArtiScreen } from '@screens/home/AllArtiScreen';
 import ArtiScreen from '@screens/home/ArtiScreen';
-import CalendarScreen from '@screens/calendar/CalendarScreen';
 import ReminderScreen from '@screens/profile/ReminderScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -63,11 +61,7 @@ const StackNavigation = () => {
         component={NotificationScreen}
         options={{ animation: 'slide_from_right' }}
       />
-      {/* <Stack.Screen
-        name="SeedScreen"
-        component={SeedScreen}
-        options={{ animation: 'slide_from_right' }}
-      /> */}
+
       <Stack.Screen
         name="ProgressScreen"
         component={ProgressScreen}

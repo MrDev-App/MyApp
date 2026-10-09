@@ -63,8 +63,6 @@ const ImagePickerModal: React.FC<ImagePickerModalProps> = ({
     const hasPermission = await requestCameraPermission();
     if (!hasPermission) return;
 
-    suppressNextAppOpenAd(60000);
-
     launchCamera(cameraOptions, response => {
       if (response.didCancel) {
         return;
@@ -88,8 +86,6 @@ const ImagePickerModal: React.FC<ImagePickerModalProps> = ({
   const handleChooseFromGallery = useCallback(() => {
     handleClose();
     triggerHaptic('light');
-
-    suppressNextAppOpenAd(60000);
 
     launchImageLibrary(libraryOptions, response => {
       if (response.didCancel) {

@@ -21,11 +21,6 @@ import NetworkBanner from '@components/NetworkBanner';
 import { getFestivalData, initFestivalBackgroundSync } from '@api/festivalApi';
 import { getGodData } from '@api/godMantrasApi';
 import { initRemoteConfig } from '@services/remoteConfigService';
-import {
-  getMessaging,
-  getToken,
-  registerDeviceForRemoteMessages,
-} from '@react-native-firebase/messaging';
 
 LogBox.ignoreAllLogs();
 
@@ -76,20 +71,6 @@ const App = () => {
     // Controlled background sync with 5-min cooldown (C1 fix)
     const stopFestivalSync = initFestivalBackgroundSync();
 
-    const getDeviceFCMToken = async () => {
-      try {
-        const messagingInstance = getMessaging();
-        await registerDeviceForRemoteMessages(messagingInstance);
-        const fcmToken = await getToken(messagingInstance);
-        console.log('====================================');
-        console.log('🔥 YOUR FCM REGISTRATION TOKEN:');
-        console.log(fcmToken);
-        console.log('====================================');
-      } catch (error) {
-        console.error('Error fetching FCM token:', error);
-      }
-    };
-    getDeviceFCMToken();
     return () => {
       interactionPromise.cancel();
       unsubscribe();
@@ -109,7 +90,7 @@ const App = () => {
 
       <ErrorBoundary>
         <SafeAreaProvider>
-          <NavigationContainer ref={navigationRef} onReady={onNavigationReady}>
+          <NavigationContainer ref={navigationRef}>
             <StackNavigation />
             <NetworkBanner />
           </NavigationContainer>

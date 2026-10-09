@@ -5,7 +5,6 @@ import {
   cancelAllReminders,
 } from '@services/notificationService';
 import { triggerHaptic } from '@helper/helper';
-import { suppressNextAppOpenAd } from '@admob/useAppOpenAd';
 
 export interface ToggleNotificationOptions {
   value: boolean;
@@ -23,7 +22,6 @@ export const toggleNotificationReminder = async ({
   onDisabled,
 }: ToggleNotificationOptions): Promise<boolean> => {
   triggerHaptic('light');
-  suppressNextAppOpenAd(60000);
 
   if (value) {
     const granted = await initNotifications();

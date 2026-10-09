@@ -1,12 +1,7 @@
 import NativeImagePickerModule from '../../specs/NativeImagePickerModule';
-import {
-  suppressNextAppOpenAd,
-  clearAppOpenAdSuppression,
-} from '@admob/useAppOpenAd';
+import { clearAppOpenAdSuppression } from '@admob/useAppOpenAd';
 
 export const pickImage = async (): Promise<string | null> => {
-  suppressNextAppOpenAd(60000);
-
   try {
     const uri = await NativeImagePickerModule.pickImage();
     return uri || null;
