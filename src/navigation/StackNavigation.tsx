@@ -36,11 +36,7 @@ const StackNavigation = () => {
       <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       <Stack.Screen name="BottomTabs" component={BottomNavigation} />
-      {/* <Stack.Screen
-        name="CalendarScreen"
-        component={CalendarScreen}
-        options={{ animation: 'slide_from_right' }}
-      /> */}
+
       <Stack.Screen
         name="ReadingScreen"
         component={ReadingScreen}
