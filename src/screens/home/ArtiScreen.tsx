@@ -81,6 +81,22 @@ export const ArtiScreen: React.FC = () => {
     };
   }, []);
 
+  // Auto-play when opened from notification reminder with autoPlay flag
+  const autoPlayTriggered = useRef(false);
+  React.useEffect(() => {
+    if (
+      route.params?.autoPlay &&
+      selectedItem?.audioUrl &&
+      !autoPlayTriggered.current
+    ) {
+      autoPlayTriggered.current = true;
+      const timer = setTimeout(() => {
+        setIsPlaying(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [route.params?.autoPlay, selectedItem?.audioUrl]);
+
   const onTogglePlay = useCallback(async () => {
     triggerHaptic();
 
@@ -108,10 +124,13 @@ export const ArtiScreen: React.FC = () => {
           try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 2000);
-            const res = await fetch('https://clients3.google.com/generate_204', {
-              method: 'HEAD',
-              signal: controller.signal,
-            });
+            const res = await fetch(
+              'https://clients3.google.com/generate_204',
+              {
+                method: 'HEAD',
+                signal: controller.signal,
+              },
+            );
             clearTimeout(timeoutId);
             if (res.status >= 200 && res.status < 400) {
               isOnline = true;

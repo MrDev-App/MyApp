@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from 'react';
 import {
   View,
   Text,
@@ -27,7 +33,12 @@ import { Translation } from '@i18n/language';
 import colors from '@theme/colors';
 import { scale, verticalScale, fs } from '@theme/sizes';
 import fonts from '@theme/fonts';
-import { PlusIcon, TrashIcon, ChevronRight } from '@assets/SvgIcons';
+import {
+  PlusIcon,
+  TrashIcon,
+  ChevronRight,
+  SearchIcon,
+} from '@assets/SvgIcons';
 import GradientBackground from '@components/GradientBackground';
 import TextField from '@components/TextField';
 import AnimatedListItem from '@components/AnimatedListItem';
@@ -38,6 +49,11 @@ import {
 } from '@services/notificationService';
 import { Storage, STORAGE_KEYS } from '@services/storageService';
 import { triggerHaptic } from '@helper/helper';
+import { Story } from '@api/types';
+import {
+  getLoadedBooks,
+  syncTextBooksOnBookScreenOpen,
+} from '@api/textBooksApi';
 
 const MAX_REMINDERS = 10;
 
@@ -47,6 +63,11 @@ const formatReminderTime = (hour: number, minute: number, isPm: boolean) => {
     isPm ? 'PM' : 'AM'
   }`;
 };
+
+import {
+  REMINDER_CATEGORIES,
+  ReminderCategory,
+} from '@constants/reminderCategories';
 
 const ReminderScreen: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -77,10 +98,26 @@ const ReminderScreen: React.FC = () => {
   });
 
   // Custom message inputs & error state
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [categoryError, setCategoryError] = useState('');
+
   const [customTitle, setCustomTitle] = useState('');
   const [customSubtitle, setCustomSubtitle] = useState('');
   const [titleError, setTitleError] = useState('');
   const [subtitleError, setSubtitleError] = useState('');
+
+  const handleSelectCategory = (cat: ReminderCategory) => {
+    triggerHaptic('light');
+    if (selectedCategory === cat.id) {
+      setSelectedCategory(null);
+      return;
+    }
+    setSelectedCategory(cat.id);
+
+    if (categoryError) setCategoryError('');
+    if (titleError) setTitleError('');
+    if (subtitleError) setSubtitleError('');
+  };
 
   // Loading spinner state
   const [isLoading, setIsLoading] = useState(false);
@@ -107,7 +144,6 @@ const ReminderScreen: React.FC = () => {
     [currentLanguage],
   );
 
-  // ─── Add Reminder ──────────────────────────────────────────────────────────
   const handleAddReminder = (dateToAdd: Date = selectedTime) => {
     if (isLoading) return;
 
@@ -115,18 +151,22 @@ const ReminderScreen: React.FC = () => {
     const trimmedSubtitle = customSubtitle.trim();
 
     let hasError = false;
+    if (!selectedCategory) {
+      setCategoryError(
+        currentLanguage === 'hi'
+          ? 'कृपया स्मरण का प्रकार चुनें'
+          : 'Please select a reminder type',
+      );
+      hasError = true;
+    } else {
+      setCategoryError('');
+    }
+
     if (!trimmedTitle) {
       setTitleError(t(Translation.PROFILE_REMINDER_TITLE_REQUIRED));
       hasError = true;
     } else {
       setTitleError('');
-    }
-
-    if (!trimmedSubtitle) {
-      setSubtitleError(t(Translation.PROFILE_REMINDER_MSG_REQUIRED));
-      hasError = true;
-    } else {
-      setSubtitleError('');
     }
 
     if (hasError) {
@@ -164,6 +204,29 @@ const ReminderScreen: React.FC = () => {
     triggerHaptic('light');
     setIsLoading(true);
 
+    // Determine target route and params for deep linking on notification click
+    const cat = selectedCategory as ReminderCategory['id'] | null;
+    let actionRoute = 'Jap';
+    if (cat === 'shlokas') {
+      actionRoute = 'AllShlokasScreen';
+    } else if (cat === 'books') {
+      actionRoute = 'Book';
+    } else if (cat === 'mantras') {
+      actionRoute = 'MantraScreen';
+    } else if (cat === 'festivals') {
+      actionRoute = 'CalendarScreen';
+    } else if (cat === 'arti') {
+      actionRoute = 'AllArtiScreen';
+    } else {
+      actionRoute = 'Jap';
+    }
+
+    const actionParams = {
+      category: cat || 'chant',
+      title: trimmedTitle,
+      subtitle: trimmedSubtitle,
+    };
+
     const newItem: ReminderItem = {
       id: `reminder_${Date.now()}_${Math.random()
         .toString(36)
@@ -174,6 +237,9 @@ const ReminderScreen: React.FC = () => {
       enabled: true,
       title: trimmedTitle,
       subtitle: trimmedSubtitle,
+      category: cat || 'chant',
+      actionRoute,
+      actionParams,
     };
 
     const updated = [...reminders, newItem];
@@ -181,19 +247,25 @@ const ReminderScreen: React.FC = () => {
 
     // Record in-app notification for Notification Screen
     const formattedTime = formatReminderTime(hour, minute, isPm);
+    const notifMessage = trimmedSubtitle
+      ? `${trimmedSubtitle} (${formattedTime})`
+      : formattedTime;
     NotificationStorage.addNotification({
       id: newItem.id,
-      type: 'sadhana',
+      type: cat || 'chant',
       titleEn: trimmedTitle,
       titleHi: trimmedTitle,
-      messageEn: `${trimmedSubtitle} (${formattedTime})`,
-      messageHi: `${trimmedSubtitle} (${formattedTime})`,
+      messageEn: notifMessage,
+      messageHi: notifMessage,
       timestamp: Date.now(),
       isRead: false,
-      actionRoute: 'Jap',
+      actionRoute,
+      actionParams,
     });
 
     // Reset custom message inputs and errors
+    setSelectedCategory(null);
+
     setCustomTitle('');
     setCustomSubtitle('');
     setTitleError('');
@@ -347,6 +419,51 @@ const ReminderScreen: React.FC = () => {
               </View>
             )}
 
+            {/* ── Category / Type Options ── */}
+            <View style={styles.categorySection}>
+              <View style={styles.categoryHeaderRow}>
+                <Text style={styles.categoryHeaderLabel}>
+                  {currentLanguage === 'hi'
+                    ? 'स्मरण का प्रकार चुनें'
+                    : 'Choose Reminder Type'}
+                  <Text style={styles.requiredAsterisk}> *</Text>
+                </Text>
+              </View>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.categoryList}
+              >
+                {REMINDER_CATEGORIES.map(cat => {
+                  const isSelected = selectedCategory === cat.id;
+                  return (
+                    <TouchableOpacity
+                      key={cat.id}
+                      style={[
+                        styles.categoryChip,
+                        isSelected && styles.categoryChipActive,
+                      ]}
+                      onPress={() => handleSelectCategory(cat)}
+                      activeOpacity={0.75}
+                    >
+                      <Text style={styles.categoryIcon}>{cat.icon}</Text>
+                      <Text
+                        style={[
+                          styles.categoryLabel,
+                          isSelected && styles.categoryLabelActive,
+                        ]}
+                      >
+                        {t(cat.labelKey)}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+              {categoryError ? (
+                <Text style={styles.categoryErrorText}>{categoryError}</Text>
+              ) : null}
+            </View>
+
             {/* ── Custom Message Inputs ── */}
             <View style={styles.inputSection}>
               <TextField
@@ -360,15 +477,17 @@ const ReminderScreen: React.FC = () => {
                   setCustomTitle(text);
                   if (titleError) setTitleError('');
                 }}
-                maxLength={40}
-                returnKeyType="next"
+                maxLength={80}
+                multiline
+                numberOfLines={2}
+                returnKeyType="done"
                 reserveErrorSpace={false}
               />
 
-              <TextField
+              {/* <TextField
                 testID="reminder-subtitle-input"
                 label={t(Translation.PROFILE_REMINDER_MSG_LABEL)}
-                isRequired={true}
+                isRequired={false}
                 error={subtitleError}
                 placeholder={t(Translation.PROFILE_REMINDER_MSG_PLACEHOLDER)}
                 value={customSubtitle}
@@ -381,17 +500,21 @@ const ReminderScreen: React.FC = () => {
                 numberOfLines={2}
                 returnKeyType="done"
                 reserveErrorSpace={false}
-              />
+              /> */}
             </View>
 
             {/* ── Add This Time Button ── */}
             {reminders.length < MAX_REMINDERS ? (
               <TouchableOpacity
                 testID="set-reminder-btn"
-                style={styles.addBtn}
+                style={[
+                  styles.addBtn,
+                  (!selectedCategory || !customTitle.trim() || isLoading) &&
+                    styles.addBtnDisabled,
+                ]}
                 onPress={() => handleAddReminder(selectedTime)}
                 activeOpacity={0.8}
-                disabled={isLoading}
+                disabled={!selectedCategory || !customTitle.trim() || isLoading}
               >
                 {isLoading ? (
                   <LottieView
@@ -489,16 +612,7 @@ const ReminderScreen: React.FC = () => {
                       >
                         {item.subtitle}
                       </Text>
-                    ) : (
-                      <Text
-                        style={[
-                          styles.reminderDefaultSub,
-                          !item.enabled && styles.disabledText,
-                        ]}
-                      >
-                        {t(Translation.PROFILE_DAILY_SADHANA_REMINDERS)}
-                      </Text>
-                    )}
+                    ) : null}
                   </View>
 
                   {/* Right: Toggle & Delete */}
@@ -694,6 +808,156 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.white,
   },
+  categorySection: {
+    marginVertical: verticalScale(10),
+  },
+  categoryHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: verticalScale(8),
+  },
+  categoryHeaderLabel: {
+    fontSize: fs(11.5),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
+    opacity: 0.85,
+  },
+  requiredAsterisk: {
+    color: colors.destructive || '#FF3B30',
+    fontSize: fs(12),
+    fontWeight: '700',
+  },
+  categoryErrorText: {
+    color: colors.destructive || '#FF3B30',
+    fontSize: fs(11),
+    fontFamily: fonts.TiroHindiRegular,
+    marginTop: verticalScale(4),
+  },
+  categoryList: {
+    flexDirection: 'row',
+    gap: scale(8),
+    paddingVertical: verticalScale(2),
+  },
+  categoryChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(7),
+    borderRadius: scale(20),
+    borderWidth: 1,
+    borderColor: colors.bannerBorderOrangeMedium,
+    gap: scale(5),
+    shadowColor: colors.ring,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  categoryChipActive: {
+    backgroundColor: colors.ring,
+    borderColor: colors.ring,
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  categoryIcon: {
+    fontSize: fs(13),
+  },
+  categoryLabel: {
+    fontSize: fs(11.5),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.black,
+  },
+  categoryLabelActive: {
+    color: colors.white,
+    fontWeight: '700',
+  },
+  bookSearchContainer: {
+    marginBottom: verticalScale(12),
+  },
+  bookSearchLabel: {
+    fontSize: fs(12),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
+    marginBottom: verticalScale(6),
+  },
+  bookSearchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderRadius: scale(12),
+    paddingHorizontal: scale(10),
+    borderWidth: 1,
+    borderColor: colors.bannerBorderOrangeMedium,
+    height: scale(42),
+    gap: scale(8),
+  },
+  bookSearchIcon: {
+    marginRight: 0,
+  },
+  bookSearchInput: {
+    flex: 1,
+    fontSize: fs(12),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.black,
+    paddingVertical: 0,
+  },
+  clearSearchBtn: {
+    padding: scale(4),
+  },
+  clearSearchText: {
+    fontSize: fs(12),
+    color: colors.secondary,
+  },
+  searchResultsDropdown: {
+    backgroundColor: colors.white,
+    borderRadius: scale(12),
+    marginTop: verticalScale(4),
+    borderWidth: 1,
+    borderColor: colors.bannerBorderOrangeMedium,
+    maxHeight: scale(160),
+    overflow: 'hidden',
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  searchResultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(8),
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.bannerBorderOrangeMedium,
+  },
+  searchResultItemActive: {
+    backgroundColor: colors.accentOrangeSubtle,
+  },
+  searchResultIcon: {
+    fontSize: fs(14),
+    marginRight: scale(8),
+  },
+  searchResultTextWrap: {
+    flex: 1,
+  },
+  searchResultTitle: {
+    fontSize: fs(12),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.black,
+    fontWeight: '600',
+  },
+  searchResultTitleActive: {
+    color: colors.ring,
+  },
+  searchResultSubtitle: {
+    fontSize: fs(10),
+    fontFamily: fonts.TiroHindiRegular,
+    color: colors.secondary,
+    opacity: 0.7,
+    marginTop: verticalScale(1),
+  },
   inputSection: {},
   addBtn: {
     flexDirection: 'row',
@@ -705,6 +969,10 @@ const styles = StyleSheet.create({
     borderRadius: scale(12),
     backgroundColor: colors.ring,
     marginTop: verticalScale(14),
+  },
+  addBtnDisabled: {
+    opacity: 0.5,
+    backgroundColor: colors.secondary,
   },
   addBtnText: {
     color: colors.white,

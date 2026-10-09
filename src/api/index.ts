@@ -1,4 +1,3 @@
-// Central API Export
 export * from './types';
 export * from './aartiApi';
 export * from './templeApi';

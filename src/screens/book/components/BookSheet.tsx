@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Animated, {
   useAnimatedStyle,
   useAnimatedReaction,
@@ -21,19 +21,6 @@ export const BookSheet: React.FC<BookSheetProps> = React.memo(
     onHalfwayChange,
     bookWidth = BOOK_WIDTH,
   }) => {
-    // Dynamic on-demand rasterization during flip transition only
-    const [isRasterizing, setIsRasterizing] = useState(false);
-
-    useAnimatedReaction(
-      () => progress.value > 0.01 && progress.value < 0.99,
-      (isTurning, wasTurning) => {
-        if (isTurning !== wasTurning) {
-          runOnJS(setIsRasterizing)(isTurning);
-        }
-      },
-      [],
-    );
-
     // Synchronously report halfway crossing (0.5 progress) to update page numbers instantly
     useAnimatedReaction(
       () => progress.value >= 0.5,
@@ -98,21 +85,13 @@ export const BookSheet: React.FC<BookSheetProps> = React.memo(
     return (
       <Animated.View style={[styles.turningLeaf, leafAnimatedStyle]}>
         {/* FRONT FACE (Visible 0deg to -90deg) */}
-        <Animated.View
-          style={[styles.coverFaceFront, frontFaceStyle]}
-          renderToHardwareTextureAndroid={isRasterizing}
-          shouldRasterizeIOS={isRasterizing}
-        >
+        <Animated.View style={[styles.coverFaceFront, frontFaceStyle]}>
           {frontContent}
           <Animated.View style={[styles.curlShadowOverlay, curlShadowStyle]} />
         </Animated.View>
 
         {/* BACK FACE (Visible -90deg to -180deg) */}
-        <Animated.View
-          style={[styles.coverFaceBackWrap, backFaceStyle]}
-          renderToHardwareTextureAndroid={isRasterizing}
-          shouldRasterizeIOS={isRasterizing}
-        >
+        <Animated.View style={[styles.coverFaceBackWrap, backFaceStyle]}>
           {backContent}
         </Animated.View>
       </Animated.View>

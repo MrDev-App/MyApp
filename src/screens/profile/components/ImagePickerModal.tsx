@@ -26,9 +26,9 @@ interface ImagePickerModalProps {
 
 const cameraOptions: CameraOptions = {
   mediaType: 'photo',
-  includeBase64: false,
-  maxHeight: 600,
-  maxWidth: 600,
+  includeBase64: true,
+  maxHeight: 500,
+  maxWidth: 500,
   quality: 0.8,
   cameraType: 'front',
   saveToPhotos: false,
@@ -36,9 +36,9 @@ const cameraOptions: CameraOptions = {
 
 const libraryOptions: ImageLibraryOptions = {
   mediaType: 'photo',
-  includeBase64: false,
-  maxHeight: 600,
-  maxWidth: 600,
+  includeBase64: true,
+  maxHeight: 500,
+  maxWidth: 500,
   quality: 0.8,
   selectionLimit: 1,
 };
@@ -73,9 +73,14 @@ const ImagePickerModal: React.FC<ImagePickerModalProps> = ({
         Alert.alert('Error', response.errorMessage || 'Unable to open camera');
         return;
       }
-      const selectedUri = response.assets?.[0]?.uri;
-      if (selectedUri) {
-        onImageSelected(selectedUri);
+      const asset = response.assets?.[0];
+      if (asset) {
+        const imageUri = asset.base64
+          ? `data:${asset.type || 'image/jpeg'};base64,${asset.base64}`
+          : asset.uri;
+        if (imageUri) {
+          onImageSelected(imageUri);
+        }
       }
     });
   }, [handleClose, onImageSelected]);
@@ -94,9 +99,14 @@ const ImagePickerModal: React.FC<ImagePickerModalProps> = ({
         Alert.alert('Error', response.errorMessage || 'Unable to open gallery');
         return;
       }
-      const selectedUri = response.assets?.[0]?.uri;
-      if (selectedUri) {
-        onImageSelected(selectedUri);
+      const asset = response.assets?.[0];
+      if (asset) {
+        const imageUri = asset.base64
+          ? `data:${asset.type || 'image/jpeg'};base64,${asset.base64}`
+          : asset.uri;
+        if (imageUri) {
+          onImageSelected(imageUri);
+        }
       }
     });
   }, [handleClose, onImageSelected]);

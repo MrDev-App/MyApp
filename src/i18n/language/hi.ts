@@ -143,6 +143,12 @@ export default {
   PROFILE_REMINDER_MSG_LABEL: 'संदेश / सबटाइटल',
   PROFILE_REMINDER_MSG_PLACEHOLDER: 'उदा. भजन और नाम जप का समय',
   PROFILE_REMINDER_MSG_REQUIRED: 'कृपया संदेश या सबटाइटल दर्ज करें',
+  REMINDER_CAT_CHANT: 'नाम जप',
+  REMINDER_CAT_SHLOKAS: 'श्लोक',
+  REMINDER_CAT_MANTRAS: 'मंत्र',
+  REMINDER_CAT_ARTI: 'आरती',
+  REMINDER_CAT_BOOKS: 'धार्मिक पुस्तकें',
+  REMINDER_CAT_FESTIVALS: 'त्यौहार',
   DANGER_ZONE_TITLE: 'संवेदनशील क्षेत्र (Danger Zone)',
   RESET_ALL_DATA_TITLE: 'सभी डेटा रीसेट करें',
   RESET_ALL_DATA_DESC:

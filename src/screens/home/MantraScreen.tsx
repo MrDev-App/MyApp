@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -16,7 +16,12 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import { God, GodMantra } from '@api/godMantrasApi';
+import {
+  God,
+  GodMantra,
+  getCachedGodData,
+  getGodData,
+} from '@api/godMantrasApi';
 import {
   AutoScrollFlatList,
   AutoScrollItem,
@@ -37,18 +42,40 @@ const MantraScreen = () => {
   const { isHindi, t, select } = useAppLanguage();
 
   const initialGod: God | undefined = route.params?.god;
-  const allGods: God[] =
-    route.params?.allGods || (initialGod ? [initialGod] : []);
+  const passedAllGods: God[] | undefined = route.params?.allGods;
+
+  const [godsList, setGodsList] = useState<God[]>(() => {
+    if (passedAllGods && passedAllGods.length > 0) return passedAllGods;
+    if (initialGod) return [initialGod];
+    return getCachedGodData() || [];
+  });
 
   const [selectedGod, setSelectedGod] = useState<God | undefined>(
-    initialGod || allGods[0],
+    initialGod || godsList[0],
   );
   const [selectedMantra, setSelectedMantra] = useState<GodMantra | null>(null);
+
+  useEffect(() => {
+    if (godsList.length === 0 || !selectedGod) {
+      getGodData().then(data => {
+        if (data && data.length > 0) {
+          setGodsList(data);
+          if (!selectedGod) {
+            const matched = route.params?.godId
+              ? data.find(g => g.id === route.params?.godId)
+              : undefined;
+            setSelectedGod(matched || route.params?.god || data[0]);
+          }
+        }
+      });
+    }
+  }, [godsList.length, selectedGod, route.params?.god, route.params?.godId]);
 
   const handleSelectGod = useCallback((item: God) => {
     setSelectedGod(item);
   }, []);
 
+  const allGods = godsList;
   const currentGod = selectedGod || initialGod || allGods[0];
 
   const mantras: GodMantra[] = useMemo(() => {
@@ -77,7 +104,7 @@ const MantraScreen = () => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScreenHeader
           title={
             godName
@@ -499,7 +526,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 6,
-    elevation: 2,
+    elevation: 0.5,
   },
   mantraCardTop: {
     flexDirection: 'row',

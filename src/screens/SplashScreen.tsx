@@ -19,6 +19,8 @@ import { Translation } from '@i18n/language';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 
+import { navigationRef } from '@navigation/navigationRef';
+
 const SplashScreen = () => {
   const { t } = useTranslation();
   const navigation =
@@ -93,6 +95,13 @@ const SplashScreen = () => {
     );
 
     const timer = setTimeout(() => {
+      // Do not replace screen if user has already navigated away (e.g. from notification tap)
+      if (!navigation.isFocused()) return;
+      const currentRoute = navigationRef.isReady()
+        ? navigationRef.getCurrentRoute()
+        : null;
+      if (currentRoute && currentRoute.name !== 'Splash') return;
+
       const isOnboardingCompleted = Storage.getBoolean(
         STORAGE_KEYS.ONBOARDING_COMPLETED,
         false,

@@ -28,7 +28,7 @@ export type RootStackParamList = {
   Seed?: undefined;
   ProgressScreen: undefined;
   MantraScreen: { god?: any; godId?: string; allGods?: any[] };
-  ArtiScreen: { arti: CategoryItem };
+  ArtiScreen: { arti: CategoryItem; autoPlay?: boolean };
   AllArtiScreen: { category?: any };
   AllShlokasScreen: { category?: any };
   ShlokaCategoryDetailScreen: { category?: any };

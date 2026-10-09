@@ -10,16 +10,29 @@ import { navigate } from '@navigation/navigationRef';
 import { Storage } from './storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
 
+export type NotificationType =
+  | 'chant'
+  | 'shlokas'
+  | 'mantras'
+  | 'arti'
+  | 'books'
+  | 'festivals'
+  | 'sadhana'
+  | 'festival'
+  | 'milestone'
+  | 'wisdom'
+  | string;
+
 export interface AppNotification {
   id: string;
-  type: 'sadhana' | 'festival' | 'milestone' | 'wisdom';
+  type: NotificationType;
   titleEn: string;
   titleHi: string;
   messageEn: string;
   messageHi: string;
   timestamp: number;
   isRead: boolean;
-  actionRoute?: 'Jap' | 'AllFestivals' | 'Book' | 'BottomTabs';
+  actionRoute?: string;
   actionParams?: any;
 }
 
@@ -30,6 +43,8 @@ export interface NotificationConfig {
   isPm: boolean;
   dateString?: string;
   weekdays?: number[];
+  title?: string;
+  body?: string;
 }
 
 export interface ReminderItem {
@@ -40,78 +55,22 @@ export interface ReminderItem {
   enabled: boolean;
   title?: string;
   subtitle?: string;
+  category?: string;
+  actionRoute?: string;
+  actionParams?: any;
 }
-
-export const DEFAULT_NOTIFICATIONS: AppNotification[] = [
-  {
-    id: 'notif_1',
-    type: 'sadhana',
-    titleEn: 'Morning Sadhana Time 🌅',
-    titleHi: 'प्रातः साधना का समय 🌅',
-    messageEn:
-      'Begin your day with peaceful chanting and connect with the divine.',
-    messageHi:
-      'शांतिपूर्ण नाम जप के साथ अपने दिन की शुरुआत करें और प्रभु से जुड़ें।',
-    timestamp: Date.now() - 2 * 60 * 60 * 1000,
-    isRead: false,
-    actionRoute: 'Jap',
-  },
-  {
-    id: 'notif_2',
-    type: 'festival',
-    titleEn: 'Upcoming Festival: Maha Shivratri 🔱',
-    titleHi: 'आगामी पर्व: महाशिवरात्रि 🔱',
-    messageEn:
-      'Prepare for the auspicious night of Lord Shiva. Check tithi and timings in the calendar.',
-    messageHi:
-      'भगवान शिव की पावन रात्रि की तैयारी करें। त्योहार कैलेंडर में शुभ मुहूर्त देखें।',
-    timestamp: Date.now() - 22 * 60 * 60 * 1000,
-    isRead: false,
-    actionRoute: 'AllFestivals',
-  },
-  {
-    id: 'notif_3',
-    type: 'milestone',
-    titleEn: 'Daily Sadhana Streak Active 🔥',
-    titleHi: 'दैनिक साधना क्रम जारी 🔥',
-    messageEn:
-      "You've maintained your devotion consistently! Keep your Jap momentum going today.",
-    messageHi:
-      'आपने निरंतर अपनी साधना बनाए रखी है! आज भी अपना नाम जप पूर्ण करें।',
-    timestamp: Date.now() - 48 * 60 * 60 * 1000,
-    isRead: true,
-    actionRoute: 'Jap',
-  },
-  {
-    id: 'notif_4',
-    type: 'wisdom',
-    titleEn: 'New Sacred Story Available 📜',
-    titleHi: 'नई पावन कथा उपलब्ध 📜',
-    messageEn:
-      'Read the inspiring wisdom of the Mahabharat and sacred epics in the illustrated reader.',
-    messageHi:
-      'सचित्र कॉमिक रीडर में महाभारत एवं पावन गाथाओं का दिव्य संदेश पढ़ें।',
-    timestamp: Date.now() - 72 * 60 * 60 * 1000,
-    isRead: true,
-    actionRoute: 'Book',
-  },
-];
 
 export const NotificationStorage = {
   getNotifications: (): AppNotification[] => {
     try {
       const raw = Storage.getString(STORAGE_KEYS.APP_NOTIFICATION_LIST, '');
       if (!raw) {
-        Storage.set(
-          STORAGE_KEYS.APP_NOTIFICATION_LIST,
-          JSON.stringify(DEFAULT_NOTIFICATIONS),
-        );
-        return DEFAULT_NOTIFICATIONS;
+        return [];
       }
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : DEFAULT_NOTIFICATIONS;
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
-      return DEFAULT_NOTIFICATIONS;
+      return [];
     }
   },
 
@@ -200,14 +159,14 @@ export async function displayImmediateNotification({
   body,
   actionRoute = 'Jap',
   actionParams,
-  type = 'sadhana',
+  type = 'chant',
 }: {
   id?: string;
   title: string;
   body: string;
-  actionRoute?: 'Jap' | 'AllFestivals' | 'Book' | 'BottomTabs';
+  actionRoute?: string;
   actionParams?: any;
-  type?: 'sadhana' | 'festival' | 'milestone' | 'wisdom';
+  type?: NotificationType;
 }) {
   await notifee.displayNotification({
     id,
@@ -245,16 +204,16 @@ export async function scheduleReminder({
   repeatFrequency,
   actionRoute = 'Jap',
   actionParams,
-  type = 'sadhana',
+  type = 'chant',
 }: {
   id: string;
   title: string;
   body: string;
   date: Date;
   repeatFrequency?: RepeatFrequency;
-  actionRoute?: 'Jap' | 'AllFestivals' | 'Book' | 'BottomTabs';
+  actionRoute?: string;
   actionParams?: any;
-  type?: 'sadhana' | 'festival' | 'milestone' | 'wisdom';
+  type?: NotificationType;
 }) {
   const trigger: TimestampTrigger = {
     type: TriggerType.TIMESTAMP,
@@ -286,27 +245,149 @@ export async function scheduleReminder({
   );
 }
 
-export function handleNotificationClick(notification: any) {
-  if (!notification) return;
-  const data = notification.data || {};
-  const actionRoute = data.actionRoute;
+export async function handleNotificationNavigation(
+  actionRoute?: string,
+  actionParams?: any,
+  title?: string,
+  subtitle?: string,
+) {
+  let params: any = {};
+  try {
+    params =
+      typeof actionParams === 'string' && actionParams
+        ? JSON.parse(actionParams)
+        : actionParams || {};
+  } catch {}
 
-  if (actionRoute === 'Jap') {
+  const category = params.category;
+  const titleText = (params.title || title || '').trim();
+  const subtitleText = (params.subtitle || subtitle || '').trim();
+  const query = subtitleText
+    ? `${titleText} ${subtitleText}`.trim()
+    : titleText;
+
+  // 1. Shlokas Category Navigation
+  if (category === 'shlokas' || actionRoute === 'AllShlokasScreen') {
+    if (query) {
+      try {
+        const { findShlokaCategoryOrSubcategory } = await import(
+          '@api/shlokaApi'
+        );
+        const match = await findShlokaCategoryOrSubcategory(query);
+        if (match?.category) {
+          navigate('ShlokaCategoryDetailScreen', { category: match.category });
+          return;
+        }
+      } catch (err) {
+        console.warn('[Notification] Shloka resolution error:', err);
+      }
+    }
+    navigate('AllShlokasScreen');
+    return;
+  }
+
+  // 2. Chant / Jap Category Navigation
+  if (category === 'chant' || actionRoute === 'Jap') {
     navigate('BottomTabs', { screen: 'Jap' });
-  } else if (actionRoute === 'Book') {
+    return;
+  }
+
+  // 3. Mantras Category Navigation
+  if (category === 'mantras' || actionRoute === 'MantraScreen') {
+    try {
+      const { getGodData } = await import('@api/godMantrasApi');
+      const gods = await getGodData();
+      if (gods && gods.length > 0) {
+        if (query) {
+          const q = query.toLowerCase();
+          const matchedGod = gods.find(
+            g =>
+              (g.englishName && g.englishName.toLowerCase().includes(q)) ||
+              (g.hindiName && g.hindiName.toLowerCase().includes(q)) ||
+              q.includes(g.englishName?.toLowerCase() || '') ||
+              q.includes(g.hindiName?.toLowerCase() || ''),
+          );
+          if (matchedGod) {
+            navigate('MantraScreen', { god: matchedGod, allGods: gods });
+            return;
+          }
+        }
+        navigate('MantraScreen', { god: gods[0], allGods: gods });
+        return;
+      }
+    } catch {}
+    navigate('MantraScreen', {});
+    return;
+  }
+
+  // 4. Books Category Navigation
+  if (category === 'books' || actionRoute === 'Book') {
     navigate('BottomTabs', { screen: 'Book' });
-  } else if (actionRoute === 'AllFestivals') {
+    return;
+  }
+
+  // 5. Festivals Category Navigation
+  if (
+    category === 'festivals' ||
+    actionRoute === 'CalendarScreen' ||
+    actionRoute === 'AllFestivals'
+  ) {
     navigate('CalendarScreen');
-  } else if (actionRoute === 'BottomTabs') {
+    return;
+  }
+
+  // 6. Aarti Category Navigation
+  if (
+    category === 'arti' ||
+    actionRoute === 'AllArtiScreen' ||
+    actionRoute === 'ArtiScreen'
+  ) {
+    if (query) {
+      try {
+        const { findAartiByQuery } = await import('@api/aartiApi');
+        const matchedArti = await findAartiByQuery(query);
+        if (matchedArti) {
+          navigate('ArtiScreen', { arti: matchedArti, autoPlay: true });
+          return;
+        }
+      } catch (err) {
+        console.warn('[Notification] Aarti resolution error:', err);
+      }
+    }
+    navigate('AllArtiScreen');
+    return;
+  }
+
+  // Fallbacks
+  if (actionRoute === 'BottomTabs') {
     navigate('BottomTabs', { screen: 'Home' });
   } else {
     navigate('Notification');
   }
 }
 
+export function handleNotificationClick(notification: any) {
+  if (!notification) return;
+  const data = notification.data || {};
+  const actionRoute = data.actionRoute;
+  const actionParams = data.actionParams;
+  const title = notification.title || '';
+  const subtitle = notification.body || '';
+
+  handleNotificationNavigation(actionRoute, actionParams, title, subtitle);
+}
+
 export function recordDeliveredNotification(notification: any) {
   if (!notification) return;
   const data = notification.data || {};
+  let actionParams: any = undefined;
+  try {
+    actionParams =
+      typeof data.actionParams === 'string' && data.actionParams
+        ? JSON.parse(data.actionParams)
+        : data.actionParams;
+  } catch {}
+
   NotificationStorage.addNotification({
     id: notification.id || `notif_${Date.now()}`,
     type: data.type || 'sadhana',
@@ -317,6 +398,7 @@ export function recordDeliveredNotification(notification: any) {
     timestamp: Date.now(),
     isRead: false,
     actionRoute: data.actionRoute || 'Jap',
+    actionParams,
   });
 }
 
@@ -337,16 +419,9 @@ export async function cancelAllReminders() {
 
 export async function scheduleMultipleReminders(
   reminders: ReminderItem[],
-  currentLanguage: 'en' | 'hi' = 'en',
+  _currentLanguage: 'en' | 'hi' = 'en',
 ) {
   await cancelAllReminders();
-
-  const defaultTitle =
-    currentLanguage === 'hi' ? 'साधना रिमाइंडर' : 'Sadhana Reminder';
-  const defaultBody =
-    currentLanguage === 'hi'
-      ? 'आपके दैनिक साधना का समय हो गया है। आइए जप करें!'
-      : "It's time for your daily sadhana. Let's do some chanting!";
 
   for (let i = 0; i < Math.min(reminders.length, 10); i++) {
     const item = reminders[i];
@@ -365,8 +440,23 @@ export async function scheduleMultipleReminders(
       reminderDate.setDate(reminderDate.getDate() + 1);
     }
 
-    const itemTitle = item.title?.trim() || defaultTitle;
-    const itemBody = item.subtitle?.trim() || defaultBody;
+    const itemTitle = item.title?.trim() || '';
+    const itemBody = item.subtitle?.trim() || '';
+    const category = item.category || 'chant';
+
+    let actionRoute = item.actionRoute || 'Jap';
+    if (category === 'shlokas') actionRoute = 'AllShlokasScreen';
+    else if (category === 'books') actionRoute = 'Book';
+    else if (category === 'mantras') actionRoute = 'MantraScreen';
+    else if (category === 'festivals') actionRoute = 'CalendarScreen';
+    else if (category === 'arti') actionRoute = 'AllArtiScreen';
+
+    const actionParams = {
+      category,
+      title: item.title || '',
+      subtitle: item.subtitle || '',
+      ...(item.actionParams || {}),
+    };
 
     await scheduleReminder({
       id: `daily_reminder_${i}`,
@@ -374,7 +464,8 @@ export async function scheduleMultipleReminders(
       body: itemBody,
       date: reminderDate,
       repeatFrequency: RepeatFrequency.DAILY,
-      actionRoute: 'Jap',
+      actionRoute: actionRoute as any,
+      actionParams,
       type: 'sadhana',
     });
   }
@@ -382,16 +473,12 @@ export async function scheduleMultipleReminders(
 
 export async function scheduleCustomReminder(
   config: NotificationConfig,
-  currentLanguage: 'en' | 'hi',
+  _currentLanguage?: 'en' | 'hi',
 ) {
   await cancelAllReminders();
 
-  const title =
-    currentLanguage === 'hi' ? 'साधना रिमाइंडर' : 'Sadhana Reminder';
-  const body =
-    currentLanguage === 'hi'
-      ? 'आपके दैनिक साधना का समय हो गया है। आइए जप करें!'
-      : "It's time for your daily sadhana. Let's do some chanting!";
+  const title = config.title || '';
+  const body = config.body || '';
 
   let triggerHour = config.hour;
   if (config.isPm && triggerHour < 12) {

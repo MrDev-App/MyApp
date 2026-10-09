@@ -144,6 +144,12 @@ export default {
   PROFILE_REMINDER_MSG_PLACEHOLDER:
     'e.g. Time for peaceful chanting and meditation',
   PROFILE_REMINDER_MSG_REQUIRED: 'Please enter message or subtitle',
+  REMINDER_CAT_CHANT: 'Chant',
+  REMINDER_CAT_SHLOKAS: 'Shlokas',
+  REMINDER_CAT_MANTRAS: 'Mantras',
+  REMINDER_CAT_ARTI: 'Aarti',
+  REMINDER_CAT_BOOKS: 'Books',
+  REMINDER_CAT_FESTIVALS: 'Festivals',
   DANGER_ZONE_TITLE: 'Danger Zone',
   RESET_ALL_DATA_TITLE: 'Reset All Data',
   RESET_ALL_DATA_DESC:

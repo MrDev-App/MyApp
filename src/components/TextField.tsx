@@ -110,7 +110,9 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
                 activeOpacity={0.7}
                 hitSlop={{ top: 8, bottom: 8, left: 16, right: 16 }}
               >
-                <Text style={styles.accessoryDoneText}>{t(Translation.DONE)}</Text>
+                <Text style={styles.accessoryDoneText}>
+                  {t(Translation.DONE)}
+                </Text>
               </TouchableOpacity>
             </View>
           </InputAccessoryView>

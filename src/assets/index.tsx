@@ -10,24 +10,6 @@ const imagePath = {
   greeting: require('./png/greeting.webp'),
   lotus: require('./png/lotus.webp'),
 
-  dhahiHande: require('./png/dhahiHande.webp'),
-  nagpachmi: require('./png/nagpachmi.webp'),
-  BhaiDhuj: require('./png/BhaiDhuj.webp'),
-  BhaiDooj: require('./png/BhaiDhuj.webp'),
-  Dashera: require('./png/Dashera.webp'),
-  Dussehra: require('./png/Dashera.webp'),
-  GaneshChturdi: require('./png/GaneshChturdi.webp'),
-
-  GaneshChaturthi: require('./png/GaneshChturdi.webp'),
-  GoverDhan: require('./png/GoverDhan.webp'),
-  Govardhan: require('./png/GoverDhan.webp'),
-  Karwachauth: require('./png/Karwachauth.webp'),
-
-  KarwaChauth: require('./png/Karwachauth.webp'),
-  Navratri: require('./png/Navratri.webp'),
-  RakhiBandan: require('./png/RakhiBandan.webp'),
-  RakshaBandhan: require('./png/RakhiBandan.webp'),
-
   OnBoarding: [
     require('./png/OnBoarding1.webp'),
     require('./png/OnBoarding2.webp'),
@@ -35,10 +17,6 @@ const imagePath = {
   ],
 
   MalaMoti: require('./png/MalaMoti.webp'),
-  Diwali: require('./png/Diwali.webp'),
-
-  JagannathRath: require('./png/JagannathRath.webp'),
-  JagannathRathYatra: require('./png/JagannathRath.webp'),
 
   user: require('./png/user.webp'),
   profile: require('./png/user.webp'),

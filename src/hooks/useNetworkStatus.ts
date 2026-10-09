@@ -42,18 +42,8 @@ export const useNetworkStatus = () => {
     // Initial check
     NetInfo.fetch().then(handleNetInfoChange);
 
-    // Native event listener
+    // Native event listener (OS pushes network changes with zero polling overhead)
     const unsubscribe = NetInfo.addEventListener(handleNetInfoChange);
-
-    // Periodic check while offline to auto-recover when connection is restored
-    timer = setInterval(async () => {
-      const state = await NetInfo.fetch();
-      if (state.isConnected === true) {
-        setIsOffline(false);
-      } else {
-        await verifyOnline();
-      }
-    }, 4000);
 
     // Check on app coming to foreground
     const appStateSubscription = AppState.addEventListener(
@@ -61,7 +51,6 @@ export const useNetworkStatus = () => {
       (nextState: AppStateStatus) => {
         if (nextState === 'active') {
           NetInfo.fetch().then(handleNetInfoChange);
-          verifyOnline();
         }
       },
     );
@@ -69,7 +58,6 @@ export const useNetworkStatus = () => {
     return () => {
       unsubscribe();
       appStateSubscription.remove();
-      if (timer) clearInterval(timer);
     };
   }, []);
 

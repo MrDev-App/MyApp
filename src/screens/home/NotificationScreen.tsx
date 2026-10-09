@@ -24,6 +24,7 @@ import { Translation } from '@i18n/language';
 import {
   NotificationStorage,
   AppNotification,
+  handleNotificationNavigation,
 } from '@services/notificationService';
 import {
   getNotificationIcon,
@@ -59,25 +60,17 @@ const NotificationScreen = () => {
     setNotifications(updated);
   };
 
-  const handleNotificationPress = useCallback(
-    (item: AppNotification) => {
-      const updated = NotificationStorage.markAsRead(item.id);
-      setNotifications(updated);
+  const handleNotificationPress = useCallback((item: AppNotification) => {
+    const updated = NotificationStorage.markAsRead(item.id);
+    setNotifications(updated);
 
-      if (item.actionRoute) {
-        if (item.actionRoute === 'Jap') {
-          navigation.navigate('BottomTabs', { screen: 'Jap' });
-        } else if (item.actionRoute === 'Book') {
-          navigation.navigate('BottomTabs', { screen: 'Book' });
-        } else if (item.actionRoute === 'AllFestivals') {
-          navigation.navigate('AllFestivals');
-        } else if (item.actionRoute === 'BottomTabs') {
-          navigation.navigate('BottomTabs', { screen: 'Home' });
-        }
-      }
-    },
-    [navigation],
-  );
+    handleNotificationNavigation(
+      item.actionRoute,
+      item.actionParams,
+      item.titleEn || item.titleHi,
+      item.messageEn || item.messageHi,
+    );
+  }, []);
 
   const handleDeleteNotification = useCallback((id: string) => {
     const updated = NotificationStorage.deleteNotification(id);
@@ -193,7 +186,12 @@ const NotificationScreen = () => {
         </AnimatedListItem>
       );
     },
-    [select, formatTimestamp, handleNotificationPress, handleDeleteNotification],
+    [
+      select,
+      formatTimestamp,
+      handleNotificationPress,
+      handleDeleteNotification,
+    ],
   );
 
   const renderFilterPill = (key: FilterType, label: string, icon: string) => {
