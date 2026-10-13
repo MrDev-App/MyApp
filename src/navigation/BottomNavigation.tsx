@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '@screens/home/HomeScreen';
 import JapScreen from '@screens/jap/JapScreen';
@@ -7,12 +7,21 @@ import ProfileScreen from '@screens/profile/ProfileScreen';
 import CalendarScreen from '@screens/calendar/CalendarScreen';
 import { BottomTabParamList } from '@navigation/types';
 import { CustomTabBar } from './BottomTabs';
+import { consumePendingDeepLink } from '@services/deepLinkService';
+import { InteractionManager } from 'react-native';
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 const renderTabBar = (props: any) => <CustomTabBar {...props} />;
 
 const BottomNavigation = () => {
+  useEffect(() => {
+    const task = InteractionManager.runAfterInteractions(() => {
+      consumePendingDeepLink();
+    });
+    return () => task.cancel();
+  }, []);
+
   return (
     <Tab.Navigator
       screenOptions={{

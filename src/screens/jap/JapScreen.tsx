@@ -14,6 +14,7 @@ import {
   FlatList,
   LayoutAnimation,
   Image,
+  AppState,
 } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -54,7 +55,7 @@ import { RootNavigationProp } from '@navigation/types';
 import { triggerHaptic } from '@helper/helper';
 import { BannerAdComponent } from '@admob';
 import { ResetIcon, ZapIcon, ChartBarIcon } from '@assets/SvgIcons';
-import TempleBell from '@components/TempleBell';
+import { syncWidgetChants, setSharedItem } from '@services/widgetService';
 
 /** Total beads on a mala AND the target count per round — single source of truth. */
 const MALA_BEAD_COUNT = 108;
@@ -67,16 +68,26 @@ const JapScreen = () => {
   // Single cache read — shared across all four useState initialisers below
   const _initialCache = getCachedJapMantrasData();
   const _hasCached = !!_initialCache && _initialCache.length > 0;
+  const _savedMantraId = Storage.getString(STORAGE_KEYS.SELECTED_MANTRA_ID);
+  const _customCached = Storage.getJSON<CustomMantra[]>(
+    STORAGE_KEYS.CUSTOM_MANTRAS,
+    [],
+  );
+  const _allCached = [...(_initialCache || [DEFAULT_MANTRA]), ..._customCached];
+  const _initialMantra =
+    (_savedMantraId ? _allCached.find(m => m.id === _savedMantraId) : null) ||
+    _allCached[0] ||
+    DEFAULT_MANTRA;
 
   const [defaultMantras, setDefaultMantras] = useState<MantraSelectorItem[]>(
     () => (_hasCached ? _initialCache! : [DEFAULT_MANTRA]),
   );
   const [loading, setLoading] = useState<boolean>(() => !_hasCached);
-  const [selectedMantra, setSelectedMantra] = useState<MantraSelectorItem>(() =>
-    _hasCached ? _initialCache![0] : DEFAULT_MANTRA,
+  const [selectedMantra, setSelectedMantra] = useState<MantraSelectorItem>(
+    () => _initialMantra,
   );
   const [displayedMantra, setDisplayedMantra] = useState<MantraSelectorItem>(
-    () => (_hasCached ? _initialCache![0] : DEFAULT_MANTRA),
+    () => _initialMantra,
   );
   const [count, setCount] = useState(0);
   const countRef = useRef(0);
@@ -86,7 +97,9 @@ const JapScreen = () => {
   const isFocused = useIsFocused();
 
   // Custom Mantras State
-  const [customMantras, setCustomMantras] = useState<CustomMantra[]>([]);
+  const [customMantras, setCustomMantras] = useState<CustomMantra[]>(
+    () => _customCached,
+  );
 
   // Load mantras
   useEffect(() => {
@@ -108,29 +121,26 @@ const JapScreen = () => {
           }
 
           const allMantras = [...list, ...parsed];
-          const selectedStillExists = allMantras.some(
-            m => m.id === selectedMantra.id,
-          );
-          if (!selectedStillExists && list.length > 0) {
-            setSelectedMantra(list[0]);
-            setDisplayedMantra(list[0]);
+          const savedId = Storage.getString(STORAGE_KEYS.SELECTED_MANTRA_ID);
+          const foundSaved = savedId
+            ? allMantras.find(m => m.id === savedId)
+            : null;
 
-            const firstMantraId = list[0].id;
-            setTotalCount(
-              Storage.getNumber(
-                `${STORAGE_KEYS.JAP_TOTAL_COUNT}_${firstMantraId}`,
-              ) || 0,
+          if (foundSaved) {
+            if (foundSaved.id !== selectedMantra.id) {
+              setSelectedMantra(foundSaved);
+              setDisplayedMantra(foundSaved);
+            }
+          } else {
+            const selectedStillExists = allMantras.some(
+              m => m.id === selectedMantra.id,
             );
-            setTodayCount(
-              Storage.getNumber(
-                `${STORAGE_KEYS.JAP_TODAY_COUNT}_${firstMantraId}`,
-              ) || 0,
-            );
-            setTodayMala(
-              Storage.getNumber(
-                `${STORAGE_KEYS.JAP_TODAY_MALA}_${firstMantraId}`,
-              ) || 0,
-            );
+            if (!selectedStillExists && list.length > 0) {
+              const fallback = list[0];
+              setSelectedMantra(fallback);
+              setDisplayedMantra(fallback);
+              Storage.set(STORAGE_KEYS.SELECTED_MANTRA_ID, fallback.id);
+            }
           }
         } catch (e) {
           console.error('Failed to load mantras in JapScreen', e);
@@ -153,24 +163,24 @@ const JapScreen = () => {
   }, [isHapticOn]);
 
   const [totalCount, setTotalCount] = useState(() => {
-    const mantraId = DEFAULT_MANTRA.id;
+    const mantraId = _initialMantra.id;
     return (
       Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`) || 0
     );
   });
   // totalMala is persisted but only displayed in ProgressScreen; kept in sync via setTotalMala
   const [totalMala, setTotalMala] = useState(() => {
-    const mantraId = DEFAULT_MANTRA.id;
+    const mantraId = _initialMantra.id;
     return Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`) || 0;
   });
   const [todayCount, setTodayCount] = useState(() => {
-    const mantraId = DEFAULT_MANTRA.id;
+    const mantraId = _initialMantra.id;
     return (
       Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`) || 0
     );
   });
   const [todayMala, setTodayMala] = useState(() => {
-    const mantraId = DEFAULT_MANTRA.id;
+    const mantraId = _initialMantra.id;
     return Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_MALA}_${mantraId}`) || 0;
   });
 
@@ -181,6 +191,7 @@ const JapScreen = () => {
       setTodayMala(0);
     }
   }, []);
+  const widgetName = select(selectedMantra.textHi, selectedMantra.textEn);
 
   useEffect(() => {
     handleDateCheck();
@@ -210,6 +221,65 @@ const JapScreen = () => {
 
   const malaRotation = useSharedValue(0);
   const sphereScale = useSharedValue(1);
+
+  // Sync pending chants from widget (runs on focus and foreground resume)
+  const syncFromWidget = useCallback(async () => {
+    const res = await syncWidgetChants(selectedMantra.id);
+    if (res.synced) {
+      if (res.targetMantraId === selectedMantra.id) {
+        countRef.current = res.newBeadCount;
+        setCount(res.newBeadCount);
+
+        const step = 360 / MALA_BEAD_COUNT;
+        malaRotation.value = withTiming(-(res.newBeadCount * step), {
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+        });
+      }
+
+      const mantraId = selectedMantra.id;
+      setTodayCount(
+        Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`, 0),
+      );
+      setTodayMala(
+        Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_MALA}_${mantraId}`, 0),
+      );
+      setTotalCount(
+        Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`, 0),
+      );
+      setTotalMala(
+        Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`, 0),
+      );
+    }
+  }, [selectedMantra.id, malaRotation]);
+
+  useEffect(() => {
+    if (isFocused) {
+      syncFromWidget();
+    }
+  }, [isFocused, syncFromWidget]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextState => {
+      if (nextState === 'active') {
+        syncFromWidget();
+      }
+    });
+    return () => subscription.remove();
+  }, [syncFromWidget]);
+
+  // Sync active mantra & count back to widget AND persist selected mantra ID
+  useEffect(() => {
+    Storage.set(STORAGE_KEYS.SELECTED_MANTRA_ID, selectedMantra.id);
+    setSharedItem('japName', widgetName);
+    setSharedItem('mantraId', selectedMantra.id);
+
+    const id = setTimeout(() => {
+      setSharedItem('count', String(count));
+    }, 1500);
+
+    return () => clearTimeout(id);
+  }, [widgetName, count, selectedMantra.id]);
 
   const rippleScale = useSharedValue(1);
   const rippleOpacity = useSharedValue(0);
@@ -370,6 +440,7 @@ const JapScreen = () => {
         setPendingMantra(item);
         setIsSwitchModalVisible(true);
       } else {
+        Storage.set(STORAGE_KEYS.SELECTED_MANTRA_ID, item.id);
         setSelectedMantra(item);
       }
     },
@@ -378,6 +449,7 @@ const JapScreen = () => {
 
   const handleConfirmSwitch = useCallback(() => {
     if (pendingMantra) {
+      Storage.set(STORAGE_KEYS.SELECTED_MANTRA_ID, pendingMantra.id);
       setSelectedMantra(pendingMantra);
       countRef.current = 0;
       setCount(0);
@@ -515,6 +587,7 @@ const JapScreen = () => {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 data={mantraList}
+                extraData={selectedMantra.id}
                 keyExtractor={item => item.id}
                 contentContainerStyle={styles.selectorList}
                 renderItem={renderMantraItem}
@@ -648,6 +721,8 @@ const JapScreen = () => {
 };
 
 const MALA_CONTAINER_SIZE = scale(270);
+
+export default JapScreen;
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
@@ -892,5 +967,3 @@ const styles = StyleSheet.create({
     color: colors.ring,
   },
 });
-
-export default JapScreen;

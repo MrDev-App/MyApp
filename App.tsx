@@ -21,13 +21,14 @@ import NetworkBanner from '@components/NetworkBanner';
 import { getFestivalData, initFestivalBackgroundSync } from '@api/festivalApi';
 import { getGodData } from '@api/godMantrasApi';
 import { initRemoteConfig } from '@services/remoteConfigService';
+import { initDeepLinks } from '@services/deepLinkService';
 
 LogBox.ignoreAllLogs();
 
 const App = () => {
-  useAppOpenAd(isAdMobEnabled());
-
   useEffect(() => {
+    const stopDeepLinks = initDeepLinks();
+
     initRemoteConfig().catch(err => {
       console.warn('Remote Config init error:', err);
     });
@@ -75,6 +76,7 @@ const App = () => {
       interactionPromise.cancel();
       unsubscribe();
       stopFestivalSync();
+      stopDeepLinks();
     };
   }, []);
 

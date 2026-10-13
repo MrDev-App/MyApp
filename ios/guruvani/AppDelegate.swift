@@ -66,11 +66,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     self.window = window
     appDelegate.window = window
 
+
+    
+    var launchOptions = appDelegate.launchOptions ?? [:]
+    if let url = connectionOptions.urlContexts.first?.url {
+      launchOptions[.url] = url
+    }
+
     factory.startReactNative(
       withModuleName: "guruvani",
       in: window,
-      launchOptions: appDelegate.launchOptions
+      launchOptions: launchOptions
     )
+  }
+
+  // NEW: app chal rahi ho tab URL aaye (warm case)
+  func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+    guard let url = URLContexts.first?.url else { return }
+    RCTLinkingManager.application(UIApplication.shared, open: url, options: [:])
   }
 }
 
