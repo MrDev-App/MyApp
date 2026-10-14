@@ -6,13 +6,17 @@ import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
+import com.guruvani.widget.SharedStoragePackage
 
 class MainApplication : Application(), ReactApplication {
 
   override val reactHost: ReactHost by lazy {
     getDefaultReactHost(
             context = applicationContext,
-            packageList = PackageList(this).packages.apply { add(ImagePickerPackage()) },
+        packageList = PackageList(this).packages.apply {
+            add(ImagePickerPackage())
+            add(SharedStoragePackage())
+        },
     )
   }
 

@@ -84,6 +84,9 @@
       "modulesProvider": {
         "SharedStorage": "RCTSharedStorage"
       }
+    },
+    "android": {
+      "javaPackageName": "com.guruvani.specs"
     }
   }
 }

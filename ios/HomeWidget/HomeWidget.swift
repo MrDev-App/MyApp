@@ -100,7 +100,7 @@ struct MantraLabel: View {
             Text(Image(systemName: "pencil"))
                 .font(.system(size: iconSize, weight: .semibold))
                 .baselineOffset(-fontSize * 0.13)
-            +
+            + 
             Text(" \(cleanName)")
                 .font(.system(size: fontSize, weight: .bold))
         )

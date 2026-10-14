@@ -2,7 +2,9 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 apply plugin: "com.google.gms.google-services"
+apply plugin: "org.jetbrains.kotlin.plugin.compose"
 
+ 
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
 /**
@@ -132,4 +134,13 @@ dependencies {
     }
     implementation(platform("com.google.firebase:firebase-bom:34.17.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("androidx.glance:glance-appwidget:1.1.1")
 }
+
+configurations.all {
+    resolutionStrategy {
+        force("androidx.work:work-runtime:2.8.1")
+        force("androidx.work:work-runtime-ktx:2.8.1")
+    }
+}
+

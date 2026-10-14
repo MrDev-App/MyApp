@@ -273,13 +273,17 @@ const JapScreen = () => {
     Storage.set(STORAGE_KEYS.SELECTED_MANTRA_ID, selectedMantra.id);
     setSharedItem('japName', widgetName);
     setSharedItem('mantraId', selectedMantra.id);
-
-    const id = setTimeout(() => {
-      setSharedItem('count', String(count));
-    }, 1500);
-
-    return () => clearTimeout(id);
+    setSharedItem('count', String(count));
   }, [widgetName, count, selectedMantra.id]);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', state => {
+      if (state === 'background' || state === 'inactive') {
+        setSharedItem('count', String(countRef.current));
+      }
+    });
+    return () => sub.remove();
+  }, []);
 
   const rippleScale = useSharedValue(1);
   const rippleOpacity = useSharedValue(0);
