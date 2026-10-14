@@ -6,11 +6,12 @@
     android:targetCellHeight="2"
     android:minResizeWidth="100dp"
     android:minResizeHeight="100dp"
-    android:maxResizeWidth="320dp"
-    android:maxResizeHeight="320dp"
+     android:maxResizeWidth="600dp"
+    android:maxResizeHeight="700dp"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="0"
     android:widgetCategory="home_screen"
     android:widgetFeatures="reconfigurable"
     android:initialLayout="@layout/jap_widget"
     android:description="@string/jap_widget_description" />
+ 

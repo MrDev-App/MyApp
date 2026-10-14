@@ -21,10 +21,10 @@ class JapWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onAppWidgetOptionsChanged(
-        context: Context,
-        appWidgetManager: AppWidgetManager,
-        appWidgetId: Int,
-        newOptions: Bundle
+            context: Context,
+            appWidgetManager: AppWidgetManager,
+            appWidgetId: Int,
+            newOptions: Bundle
     ) {
         super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
         render(context, appWidgetManager, appWidgetId, WidgetStore.count(context))
@@ -57,11 +57,21 @@ class JapWidgetProvider : AppWidgetProvider() {
             val minHeight = options?.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT) ?: 140
             val minWidth = options?.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH) ?: 140
 
+            // Responsive mantra display:
+            // width <= 200, height <= 250 -> 1 line with ellipsis (...)
+            // bigger than width = 200, height = 250 -> show full mantra
+            val isBiggerThan200x250 = minWidth > 200 && minHeight > 250
+            if (isBiggerThan200x250) {
+                views.setInt(R.id.pill, "setMaxLines", 10)
+            } else {
+                views.setInt(R.id.pill, "setMaxLines", 1)
+            }
+
             // Responsively size typography if user makes widget very small or very large
             if (minHeight < 110 || minWidth < 110) {
-                views.setTextViewTextSize(R.id.count, android.util.TypedValue.COMPLEX_UNIT_SP, 26f)
+                views.setTextViewTextSize(R.id.count, android.util.TypedValue.COMPLEX_UNIT_SP, 24f)
                 views.setTextViewTextSize(R.id.target, android.util.TypedValue.COMPLEX_UNIT_SP, 11f)
-                views.setTextViewTextSize(R.id.pill, android.util.TypedValue.COMPLEX_UNIT_SP, 10f)
+                views.setTextViewTextSize(R.id.pill, android.util.TypedValue.COMPLEX_UNIT_SP, 11f)
             } else if (minHeight > 220 && minWidth > 220) {
                 views.setTextViewTextSize(R.id.count, android.util.TypedValue.COMPLEX_UNIT_SP, 46f)
                 views.setTextViewTextSize(R.id.target, android.util.TypedValue.COMPLEX_UNIT_SP, 18f)
@@ -81,28 +91,30 @@ class JapWidgetProvider : AppWidgetProvider() {
             views.setImageViewBitmap(R.id.ring, bitmap)
 
             // Tap PendingIntent strictly on ring_container (NOT the entire root card)
-            val tapIntent = Intent(context, JapWidgetProvider::class.java).apply {
-                action = ACTION_TAP
-            }
-            val tapPendingIntent = PendingIntent.getBroadcast(
-                context,
-                id,
-                tapIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            val tapIntent =
+                    Intent(context, JapWidgetProvider::class.java).apply { action = ACTION_TAP }
+            val tapPendingIntent =
+                    PendingIntent.getBroadcast(
+                            context,
+                            id,
+                            tapIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    )
             views.setOnClickPendingIntent(R.id.ring_container, tapPendingIntent)
 
             // Activity PendingIntent strictly on pill
-            val openIntent = Intent(Intent.ACTION_VIEW, Uri.parse("guruvani://japScreen")).apply {
-                setPackage(context.packageName)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            val openPendingIntent = PendingIntent.getActivity(
-                context,
-                id + 1000,
-                openIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            val openIntent =
+                    Intent(Intent.ACTION_VIEW, Uri.parse("guruvani://japScreen")).apply {
+                        setPackage(context.packageName)
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+            val openPendingIntent =
+                    PendingIntent.getActivity(
+                            context,
+                            id + 1000,
+                            openIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    )
             views.setOnClickPendingIntent(R.id.pill, openPendingIntent)
 
             // Push RemoteViews update directly to AppWidgetManager
