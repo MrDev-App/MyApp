@@ -14,7 +14,8 @@ class MainActivity : ReactActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    @Suppress("DEPRECATION") window.navigationBarColor = Color.WHITE
+    @Suppress("DEPRECATION")
+    window.navigationBarColor = Color.WHITE
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
       val flags = WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS or WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
