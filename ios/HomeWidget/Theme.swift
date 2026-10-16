@@ -22,8 +22,20 @@ extension Color {
     static let japBeadEdge = Color(hex: "#B89A7E")
     static let japGold     = Color(hex: "#E3A700")
   
-  static let japBeadFilled     = Color(hex: "#7B2D1A")   // dark maroon (estimate)
-  static let japBeadFilledEdge = Color(hex: "#4E1B0F")
+    static let japBeadFilled     = Color(hex: "#7B2D1A")   // dark maroon (estimate)
+    static let japBeadFilledEdge = Color(hex: "#4E1B0F")
+
+    // Small widget parchment theme colors
+    static let japSmallBgTop       = Color(hex: "#FAF6EE")
+    static let japSmallBgBottom    = Color(hex: "#F3EBDD")
+    static let japSmallBorder      = Color(hex: "#D6BE9B")
+    static let japSmallGoldIcon    = Color(hex: "#A87E4B")
+    static let japSmallName        = Color(hex: "#562316")
+    static let japSmallCount       = Color(hex: "#873719")
+    static let japPillBg           = Color(hex: "#E4D8C5")
+    static let japPillBorder       = Color(hex: "#CFBDA3")
+    static let japPillIcon         = Color(hex: "#AE4E1E")
+    static let japPillText         = Color(hex: "#543725")
 }
 
 

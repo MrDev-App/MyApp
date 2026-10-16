@@ -43,6 +43,7 @@ import {
   cancelAllReminders,
   ReminderItem,
 } from '@services/notificationService';
+import { setSharedItem } from '@services/widgetService';
 import { triggerHaptic } from '@helper/helper';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -362,6 +363,7 @@ const ProfileScreen = () => {
       setTimeout(() => {
         Storage.set(STORAGE_KEYS.APP_LANGUAGE, newLang);
         i18n.changeLanguage(newLang);
+        setSharedItem('appLanguage', newLang);
       }, 500);
 
       setTimeout(() => {

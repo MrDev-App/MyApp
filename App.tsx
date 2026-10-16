@@ -13,7 +13,12 @@ import {
 import { navigationRef, onNavigationReady } from '@navigation/navigationRef';
 import ErrorBoundary from '@components/ErrorBoundary';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { getUserJoinedDate } from '@services/storageService';
+import {
+  getUserJoinedDate,
+  Storage,
+  STORAGE_KEYS,
+} from '@services/storageService';
+import { setSharedItem } from '@services/widgetService';
 import { useAppOpenAd } from '@admob/useAppOpenAd';
 import { isAdMobEnabled } from '@admob/adConfig';
 import colors from '@theme/colors';
@@ -28,6 +33,19 @@ LogBox.ignoreAllLogs();
 const App = () => {
   useEffect(() => {
     const stopDeepLinks = initDeepLinks();
+
+    Storage.checkAndResetTodayStats();
+    const savedLang =
+      Storage.getString(STORAGE_KEYS.APP_LANGUAGE, 'hi') || 'hi';
+    setSharedItem('appLanguage', savedLang);
+    setSharedItem(
+      'todayCount',
+      String(Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0)),
+    );
+    setSharedItem(
+      'todayMala',
+      String(Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA, 0)),
+    );
 
     initRemoteConfig().catch(err => {
       console.warn('Remote Config init error:', err);

@@ -1,6 +1,6 @@
 import { NativeModules } from 'react-native';
 import NativeSharedStorage from '../../specs/NativeSharedStorage';
-import { Storage } from './storageService';
+import { Storage, STORAGE_KEYS } from './storageService';
 import { logChant } from './namejapService';
 
 const MALA_BEAD_COUNT = 108;
@@ -87,6 +87,16 @@ export const syncWidgetChants = async (
 
       // 2. Reset pending taps in shared widget storage
       await setSharedItem('widgetTapsPending', '0');
+
+      // 3. Keep widget today totals in sync with global totals of all mantras
+      await setSharedItem(
+        'todayCount',
+        String(Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0)),
+      );
+      await setSharedItem(
+        'todayMala',
+        String(Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA, 0)),
+      );
 
       return {
         synced: true,

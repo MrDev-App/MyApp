@@ -174,14 +174,10 @@ const JapScreen = () => {
     return Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`) || 0;
   });
   const [todayCount, setTodayCount] = useState(() => {
-    const mantraId = _initialMantra.id;
-    return (
-      Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`) || 0
-    );
+    return Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0);
   });
   const [todayMala, setTodayMala] = useState(() => {
-    const mantraId = _initialMantra.id;
-    return Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_MALA}_${mantraId}`) || 0;
+    return Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA, 0);
   });
 
   const handleDateCheck = useCallback(() => {
@@ -201,10 +197,10 @@ const JapScreen = () => {
     handleDateCheck();
     const mantraId = selectedMantra.id;
     setTodayCount(
-      Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`, 0),
+      Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0),
     );
     setTodayMala(
-      Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_MALA}_${mantraId}`, 0),
+      Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA, 0),
     );
     setTotalCount(
       Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`, 0),
@@ -213,6 +209,22 @@ const JapScreen = () => {
       Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`, 0),
     );
   }, [selectedMantra, handleDateCheck]);
+
+  useEffect(() => {
+    Storage.set(STORAGE_KEYS.SELECTED_MANTRA_ID, selectedMantra.id);
+    setSharedItem('japName', widgetName);
+    setSharedItem('mantraId', selectedMantra.id);
+
+    const id = setTimeout(() => {
+      const allTodayCount = Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0);
+      const allTodayMala = Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA, 0);
+      setSharedItem('count', String(count));
+      setSharedItem('todayCount', String(allTodayCount));
+      setSharedItem('todayMala', String(allTodayMala));
+    }, 400);
+
+    return () => clearTimeout(id);
+  }, [widgetName, count, todayCount, todayMala, selectedMantra.id]);
 
   const [pendingMantra, setPendingMantra] = useState<MantraSelectorItem | null>(
     null,
@@ -239,10 +251,10 @@ const JapScreen = () => {
 
       const mantraId = selectedMantra.id;
       setTodayCount(
-        Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`, 0),
+        Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0),
       );
       setTodayMala(
-        Storage.getNumber(`${STORAGE_KEYS.JAP_TODAY_MALA}_${mantraId}`, 0),
+        Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA, 0),
       );
       setTotalCount(
         Storage.getNumber(`${STORAGE_KEYS.JAP_TOTAL_COUNT}_${mantraId}`, 0),
@@ -267,19 +279,6 @@ const JapScreen = () => {
     });
     return () => subscription.remove();
   }, [syncFromWidget]);
-
-  // Sync active mantra & count back to widget AND persist selected mantra ID
-  useEffect(() => {
-    Storage.set(STORAGE_KEYS.SELECTED_MANTRA_ID, selectedMantra.id);
-    setSharedItem('japName', widgetName);
-    setSharedItem('mantraId', selectedMantra.id);
-
-    const id = setTimeout(() => {
-      setSharedItem('count', String(count));
-    }, 1500);
-
-    return () => clearTimeout(id);
-  }, [widgetName, count, selectedMantra.id]);
 
   const rippleScale = useSharedValue(1);
   const rippleOpacity = useSharedValue(0);
@@ -350,7 +349,11 @@ const JapScreen = () => {
 
     // 2. Sync React states
     const nextTodayCount = Storage.getNumber(
-      `${STORAGE_KEYS.JAP_TODAY_COUNT}_${mantraId}`,
+      STORAGE_KEYS.JAP_TODAY_COUNT,
+      0,
+    );
+    const nextTodayMala = Storage.getNumber(
+      STORAGE_KEYS.JAP_TODAY_MALA,
       0,
     );
     const nextTotalCount = Storage.getNumber(
@@ -358,15 +361,14 @@ const JapScreen = () => {
       0,
     );
     setTodayCount(nextTodayCount);
+    setTodayMala(nextTodayMala);
     setTotalCount(nextTotalCount);
 
     if (isMalaCompleted) {
-      const nextTodayMala = Storage.getNumber(`JAP_TODAY_MALA_${mantraId}`, 0); // key written by logChant
       const nextTotalMala = Storage.getNumber(
         `${STORAGE_KEYS.JAP_TOTAL_MALA}_${mantraId}`,
         0,
       );
-      setTodayMala(nextTodayMala);
       setTotalMala(nextTotalMala);
     }
 
