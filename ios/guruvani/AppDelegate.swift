@@ -65,8 +65,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     let window = UIWindow(windowScene: windowScene)
     self.window = window
     appDelegate.window = window
-
-
     
     var launchOptions = appDelegate.launchOptions ?? [:]
     if let url = connectionOptions.urlContexts.first?.url {
