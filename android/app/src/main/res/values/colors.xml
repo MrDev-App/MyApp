@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="jap_bg_top">#FAF6EE</color>
+    <color name="jap_bg_bottom">#F3EBDD</color>
+    <color name="jap_border">#D6BE9B</color>
+    <color name="jap_gold_icon">#A87E4B</color>
+    <color name="jap_name">#562316</color>
+    <color name="jap_count">#873719</color>
+    <color name="jap_pill_bg">#E4D8C5</color>
+    <color name="jap_pill_border">#CFBDA3</color>
+    <color name="jap_pill_icon">#AE4E1E</color>
+    <color name="jap_pill_text">#543725</color>
+</resources>

@@ -5,107 +5,142 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.Rect
+import android.graphics.RectF
+import android.graphics.Shader
 import kotlin.math.cos
 import kotlin.math.sin
 
 object MalaBitmap {
-    const val RENDER_PX = 360
+    const val RENDER_PX = 500
 
-    private const val GURU_BEAD_COLOR = 0xFFD49B22.toInt()
-    private const val GURU_BORDER_COLOR = 0xFFFFF1A8.toInt()
-    private const val UNFILLED_BORDER_COLOR = 0xFFC9BCAD.toInt()
-    private const val UNFILLED_BG_COLOR = 0x22B7A897
+    private const val TOTAL_BEADS = 36
 
-    // Reusable cached canvas & bitmap to avoid GC allocation on every tap
-    @Volatile private var cachedCanvasBitmap: Bitmap? = null
-    @Volatile private var cachedCanvas: Canvas? = null
+    // Exact colors from iOS Theme.swift and HomeWidget.swift SmallMalaView
+    private const val BEAD_GRADIENT_START = 0xFFF6EFE5.toInt() // #F6EFE5
+    private const val BEAD_GRADIENT_END = 0xFFDFCDB7.toInt()   // #DFCDB7
+    private const val BEAD_STROKE_COLOR = 0xFFBAA48A.toInt()   // #BAA48A
 
-    // Cached pre-scaled bead bitmap
-    @Volatile private var motiBitmap: Bitmap? = null
+    private const val SUMERU_GRADIENT_START = 0xFFF2A21E.toInt() // #F2A21E
+    private const val SUMERU_GRADIENT_END = 0xFFC66800.toInt()   // #C66800
+    private const val SUMERU_STROKE_COLOR = 0xFF9E4E00.toInt()   // #9E4E00
 
-    // Pre-allocated reusable Paint objects
+    @Volatile private var cachedBitmap: Bitmap? = null
+    @Volatile private var cachedRadha: Bitmap? = null
+
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
     private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+    private val bitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+    private val clipPath = Path()
 
-    private fun getBeadBitmap(context: Context, targetSize: Int): Bitmap? {
-        val current = motiBitmap
-        if (current != null && current.width == targetSize && !current.isRecycled) {
+    private fun getRadhaBitmap(context: Context): Bitmap? {
+        val current = cachedRadha
+        if (current != null && !current.isRecycled) {
             return current
         }
         return try {
-            val resId =
-                    context.resources.getIdentifier("mala_moti", "drawable", context.packageName)
+            val resId = context.resources.getIdentifier("radha", "drawable", context.packageName)
             if (resId != 0) {
-                val original = BitmapFactory.decodeResource(context.resources, resId)
-                if (original != null) {
-                    val scaled = Bitmap.createScaledBitmap(original, targetSize, targetSize, true)
-                    motiBitmap = scaled
-                    scaled
-                } else null
+                val opts = BitmapFactory.Options().apply { inPreferredConfig = Bitmap.Config.ARGB_8888 }
+                val bmp = BitmapFactory.decodeResource(context.resources, resId, opts)
+                cachedRadha = bmp
+                bmp
             } else null
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
 
     @Synchronized
-    fun render(context: Context, count: Int, sizePx: Int = RENDER_PX): Bitmap {
-        var bitmap = cachedCanvasBitmap
-        var canvas = cachedCanvas
-
-        if (bitmap == null || bitmap.width != sizePx || bitmap.isRecycled || canvas == null) {
+    fun render(context: Context, count: Int = 0, sizePx: Int = RENDER_PX): Bitmap {
+        var bitmap = cachedBitmap
+        if (bitmap == null || bitmap.width != sizePx || bitmap.isRecycled) {
             bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
-            canvas = Canvas(bitmap)
-            cachedCanvasBitmap = bitmap
-            cachedCanvas = canvas
+            cachedBitmap = bitmap
         } else {
             bitmap.eraseColor(Color.TRANSPARENT)
         }
 
-        strokePaint.strokeWidth = sizePx * 0.0035f
-        strokePaint.color = UNFILLED_BORDER_COLOR
-
+        val canvas = Canvas(bitmap)
         val center = sizePx / 2f
-        val ringRadius = center - sizePx * 0.075f
-        val beadRadius = sizePx * 0.0165f
-        val beadDiameter = (beadRadius * 2).toInt().coerceAtLeast(4)
-        val total = WidgetStore.BEADS // 108
 
-        val beadImg = getBeadBitmap(context, beadDiameter)
+        // Geometry: exactly matching iOS SmallMalaView
+        val beadSize = sizePx * 0.082f
+        val bRadius = beadSize / 2f
+        val sumeruSize = beadSize * 1.35f
+        val sumeruRadius = sumeruSize / 2f
 
-        for (i in 0 until total) {
+        // Safety margin so Sumeru at 12 o'clock and regular beads never clip
+        val margin = sizePx * 0.035f
+        val radius = center - sumeruRadius - margin
+        val step = 2.0 * Math.PI / TOTAL_BEADS
 
-            // Counter-clockwise fill starting from 12 o'clock (-90 degrees)
-            val angle = Math.toRadians(-90.0 - (i * 360.0 / total))
-            val x = center + ringRadius * cos(angle).toFloat()
-            val y = center + ringRadius * sin(angle).toFloat()
+        // 1. Draw Radha image cropped inside the mala circle (matching iOS RadhaImageView size 0.76)
+        val radhaBmp = getRadhaBitmap(context)
+        val imageDiameter = sizePx * 0.74f
+        val imageRadius = imageDiameter / 2f
 
-            if (i == 0) {
+        if (radhaBmp != null) {
+            canvas.save()
+            clipPath.reset()
+            clipPath.addCircle(center, center, imageRadius, Path.Direction.CCW)
+            canvas.clipPath(clipPath)
 
-                fillPaint.color = GURU_BEAD_COLOR
-                canvas.drawCircle(x, y, beadRadius * 1.5f, fillPaint)
-                strokePaint.color = GURU_BORDER_COLOR
-                strokePaint.strokeWidth = sizePx * 0.004f
-                canvas.drawCircle(x, y, beadRadius * 1.5f, strokePaint)
-                strokePaint.color = UNFILLED_BORDER_COLOR
-                strokePaint.strokeWidth = sizePx * 0.0035f
-            } else {
-                val isFilled = i <= count
-                if (isFilled) {
-                    if (beadImg != null) {
-                        canvas.drawBitmap(beadImg, x - beadRadius, y - beadRadius, null)
-                    } else {
-                        fillPaint.color = 0xFF7A3E1D.toInt()
-                        canvas.drawCircle(x, y, beadRadius, fillPaint)
-                    }
-                } else {
-                    fillPaint.color = UNFILLED_BG_COLOR
-                    canvas.drawCircle(x, y, beadRadius, fillPaint)
-                    canvas.drawCircle(x, y, beadRadius, strokePaint)
-                }
-            }
+            // CenterCrop radha bitmap into the circular bounds
+            val bw = radhaBmp.width
+            val bh = radhaBmp.height
+            val minSide = minOf(bw, bh)
+            val srcX = (bw - minSide) / 2
+            val srcY = (bh - minSide) / 2
+            val srcRect = Rect(srcX, srcY, srcX + minSide, srcY + minSide)
+            val dstRect = RectF(center - imageRadius, center - imageRadius, center + imageRadius, center + imageRadius)
+
+            canvas.drawBitmap(radhaBmp, srcRect, dstRect, bitmapPaint)
+            canvas.restore()
         }
+
+        // 2. 35 Regular beads with exact iOS colors and linear gradient
+        strokePaint.color = BEAD_STROKE_COLOR
+        strokePaint.strokeWidth = sizePx * 0.004f
+
+        for (i in 1 until TOTAL_BEADS) {
+            val theta = -Math.PI / 2.0 + i * step
+            val bx = center + radius * cos(theta).toFloat()
+            val by = center + radius * sin(theta).toFloat()
+
+            // Exact iOS gradient from beadRect.minX/minY to maxX/maxY
+            fillPaint.shader = LinearGradient(
+                bx - bRadius, by - bRadius,
+                bx + bRadius, by + bRadius,
+                BEAD_GRADIENT_START,
+                BEAD_GRADIENT_END,
+                Shader.TileMode.CLAMP
+            )
+
+            canvas.drawCircle(bx, by, bRadius, fillPaint)
+            canvas.drawCircle(bx, by, bRadius, strokePaint)
+        }
+
+        // 3. Sumeru bead at 12 o'clock (i = 0) with exact iOS gold/orange colors
+        val topY = center - radius
+
+        fillPaint.shader = LinearGradient(
+            center - sumeruRadius, topY - sumeruRadius,
+            center + sumeruRadius, topY + sumeruRadius,
+            SUMERU_GRADIENT_START,
+            SUMERU_GRADIENT_END,
+            Shader.TileMode.CLAMP
+        )
+
+        strokePaint.color = SUMERU_STROKE_COLOR
+        strokePaint.strokeWidth = sizePx * 0.0055f
+
+        canvas.drawCircle(center, topY, sumeruRadius, fillPaint)
+        canvas.drawCircle(center, topY, sumeruRadius, strokePaint)
+
         return bitmap
     }
 }

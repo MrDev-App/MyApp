@@ -4,108 +4,83 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_bg"
-    android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="12dp">
 
+    <!-- Top Row: Lotus Icon & Om Symbol -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center">
+        <ImageView
+            android:id="@+id/iv_lotus"
+            android:layout_width="22dp"
+            android:layout_height="17dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="Lotus"
+            android:src="@drawable/ic_lotus" />
 
         <TextView
-            android:id="@+id/pill"
+            android:id="@+id/tv_om"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/widget_pill_bg"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:maxLines="1"
-            android:paddingStart="12dp"
-            android:paddingTop="3dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="3dp"
-            android:text="RADHE ✏️"
-            android:textAlignment="center"
-            android:textColor="#D97706"
-            android:textSize="12sp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:fontFamily="serif"
+            android:text="ॐ"
+            android:textColor="#A87E4B"
+            android:textSize="20sp"
             android:textStyle="bold" />
-    </LinearLayout>
+    </RelativeLayout>
 
-    <!-- Mala Ring & Center Count Area (Expands responsively, handles tap cleanly) -->
+    <!-- Center: Mala Bead Ring with Radha image inside -->
     <RelativeLayout
         android:id="@+id/ring_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         android:layout_weight="1"
         android:gravity="center">
 
-        <!-- Mala Ring ImageView (Scales perfectly inside bounds) -->
         <ImageView
             android:id="@+id/ring"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            android:contentDescription="Jap Mala"
+            android:contentDescription="Radha Mala"
             android:scaleType="fitCenter" />
+    </RelativeLayout>
 
-        <!-- Center Counter Info -->
-        <LinearLayout
+    <!-- Bottom: Spiritual Tap to Chant Pill Button -->
+    <LinearLayout
+        android:id="@+id/pill"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:background="@drawable/widget_pill_bg"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
+
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginEnd="6dp"
+            android:contentDescription="Tap"
+            android:src="@drawable/ic_hand_tap" />
+
+        <TextView
+            android:id="@+id/tv_tap_chant"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <!-- Count Number (auto-sizes cleanly) -->
-            <TextView
-                android:id="@+id/count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:text="0"
-                android:textColor="#1E2229"
-                android:textSize="36sp"
-                android:textStyle="bold" />
-
-            <!-- Target Divider Line -->
-            <ImageView
-                android:id="@+id/divider"
-                android:layout_width="22dp"
-                android:layout_height="2dp"
-                android:layout_marginTop="2dp"
-                android:layout_marginBottom="2dp"
-                android:background="#E87A1E"
-                android:contentDescription="@null" />
-
-            <!-- Target Number (108) -->
-            <TextView
-                android:id="@+id/target"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:text="108"
-                android:textColor="#E87A1E"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <!-- CHANT Label -->
-            <TextView
-                android:id="@+id/chant_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:text="C H A N T"
-                android:textColor="#B59A7E"
-                android:textSize="8sp"
-                android:textStyle="bold" />
-
-
-        </LinearLayout>
-    </RelativeLayout>
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="जप के लिए टैप करें"
+            android:textColor="#543725"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
 </LinearLayout>

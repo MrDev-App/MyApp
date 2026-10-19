@@ -39,6 +39,9 @@ class SharedStorageModule(
                         WidgetStore.KEY_COUNT,
                         WidgetStore.KEY_NAME,
                         WidgetStore.KEY_MANTRA_ID,
+                        WidgetStore.KEY_TODAY_COUNT,
+                        WidgetStore.KEY_TODAY_MALA,
+                        WidgetStore.KEY_LANGUAGE,
                 )
     }
 }
