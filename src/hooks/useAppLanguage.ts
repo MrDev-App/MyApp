@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Storage, STORAGE_KEYS } from '@services/storageService';
 import { setSharedItem } from '@services/widgetService';
+import { syncDailyQuoteToWidget } from '@services/quoteService';
 
 export type SupportedLanguage = 'en' | 'hi';
 
@@ -26,6 +27,7 @@ export const useAppLanguage = (): AppLanguageState => {
     Storage.set(STORAGE_KEYS.APP_LANGUAGE, newLng);
     await i18n.changeLanguage(newLng);
     setSharedItem('appLanguage', newLng);
+    syncDailyQuoteToWidget(newLng);
   };
 
   const select = <T>(hiVal: T, enVal: T): T => {

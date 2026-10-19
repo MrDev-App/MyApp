@@ -44,6 +44,7 @@ import {
   ReminderItem,
 } from '@services/notificationService';
 import { setSharedItem } from '@services/widgetService';
+import { syncDailyQuoteToWidget } from '@services/quoteService';
 import { triggerHaptic } from '@helper/helper';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -364,6 +365,7 @@ const ProfileScreen = () => {
         Storage.set(STORAGE_KEYS.APP_LANGUAGE, newLang);
         i18n.changeLanguage(newLang);
         setSharedItem('appLanguage', newLang);
+        syncDailyQuoteToWidget(newLang);
       }, 500);
 
       setTimeout(() => {

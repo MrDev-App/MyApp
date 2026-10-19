@@ -19,6 +19,7 @@ import {
   STORAGE_KEYS,
 } from '@services/storageService';
 import { setSharedItem } from '@services/widgetService';
+import { syncDailyQuoteToWidget } from '@services/quoteService';
 import { useAppOpenAd } from '@admob/useAppOpenAd';
 import { isAdMobEnabled } from '@admob/adConfig';
 import colors from '@theme/colors';
@@ -46,6 +47,7 @@ const App = () => {
       'todayMala',
       String(Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA, 0)),
     );
+    syncDailyQuoteToWidget(savedLang);
 
     initRemoteConfig().catch(err => {
       console.warn('Remote Config init error:', err);
