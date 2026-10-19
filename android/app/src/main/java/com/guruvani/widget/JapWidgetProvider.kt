@@ -75,9 +75,9 @@ open class JapWidgetProvider : AppWidgetProvider() {
 
             val views: RemoteViews = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 // Android 12+: provide size-mapped responsive layouts
-                val smallViews = buildViews(context, id, R.layout.jap_widget_small, count, todayCount, todayMala, isEnglish, widthDp = 130, heightDp = 130)
-                val compactWideViews = buildViews(context, id, R.layout.jap_widget_wide, count, todayCount, todayMala, isEnglish, widthDp = 210, heightDp = 130)
-                val regularWideViews = buildViews(context, id, R.layout.jap_widget_wide, count, todayCount, todayMala, isEnglish, widthDp = 270, heightDp = 130)
+                val smallViews = buildViews(context, id, R.layout.widget_small, count, todayCount, todayMala, isEnglish, widthDp = 130, heightDp = 130)
+                val compactWideViews = buildViews(context, id, R.layout.widget_medium, count, todayCount, todayMala, isEnglish, widthDp = 210, heightDp = 130)
+                val regularWideViews = buildViews(context, id, R.layout.widget_medium, count, todayCount, todayMala, isEnglish, widthDp = 270, heightDp = 130)
 
                 RemoteViews(
                     mapOf(
@@ -89,7 +89,7 @@ open class JapWidgetProvider : AppWidgetProvider() {
             } else {
                 // Pre-Android 12: pick layout based on reported min width
                 val isWideSize = minWidth >= 185
-                val layoutRes = if (isWideSize) R.layout.jap_widget_wide else R.layout.jap_widget_small
+                val layoutRes = if (isWideSize) R.layout.widget_medium else R.layout.widget_small
                 val widthDp = if (isWideSize) maxWidth else minWidth
                 val heightDp = min(minHeight, maxHeight)
                 buildViews(context, id, layoutRes, count, todayCount, todayMala, isEnglish, widthDp = widthDp, heightDp = heightDp)
@@ -127,7 +127,7 @@ open class JapWidgetProvider : AppWidgetProvider() {
                 minOf(widthDp, heightDp).coerceAtLeast(100)
             }
 
-            if (layoutRes == R.layout.jap_widget_wide) {
+            if (layoutRes == R.layout.widget_medium) {
                 // Wide widget: set stats text
                 val todayCountTitle = if (isEnglish) "Today Total\nCount" else "आज कुल\nजाप"
                 val todayMalaTitle = if (isEnglish) "Today Total\nMala" else "आज कुल\nमाला"

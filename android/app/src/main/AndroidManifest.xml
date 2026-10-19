@@ -60,7 +60,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/jap_widget_info" />
+                android:resource="@xml/widget_small_info" />
         </receiver>
 
         <receiver
@@ -72,7 +72,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/jap_widget_wide_info" />
+                android:resource="@xml/widget_medium_info" />
         </receiver>
     </application>
 </manifest>

@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  MEDIUM WIDGET (4x2 wide)
+  - Full screen width, system-default height (2 cells ~ 110-130dp)
+  - Left: Mala ring (square, fills available height)
+  - Right: Stats (Today Count + Today Mala) + Tap pill
+  - All sizing proportional via layout_weight — works on any screen
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:orientation="vertical"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    android:paddingTop="7dp"
+    android:paddingBottom="7dp">
+
+    <!-- Header Row: Lotus + ॐ — 14% height -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.14"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/iv_lotus"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:contentDescription="Lotus"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_lotus" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tv_om"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="serif"
+            android:text="ॐ"
+            android:textColor="#A87E4B"
+            android:textSize="19sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Content Row: Ring (left) + Stats+Pill (right) — 86% height -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.86"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <!-- LEFT: Mala Ring — 42% of widget width, fills full height -->
+        <RelativeLayout
+            android:id="@+id/ring_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.42"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/ring"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:contentDescription="Radha Mala"
+                android:scaleType="fitCenter" />
+        </RelativeLayout>
+
+        <!-- RIGHT: Stats + Pill — 58% of widget width -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:layout_weight="0.58"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <!-- Stats: Count column | divider | Mala column — 72% of right height -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.72"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <!-- Column 1: Today Count -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_today_count_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="serif"
+                        android:gravity="center"
+                        android:maxLines="2"
+                        android:text="आज कुल\nजाप"
+                        android:textColor="#A87E4B"
+                        android:textSize="10sp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/iv_stat_mala"
+                            android:layout_width="15dp"
+                            android:layout_height="15dp"
+                            android:layout_marginEnd="3dp"
+                            android:adjustViewBounds="true"
+                            android:contentDescription="Mala"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/mala_icon" />
+
+                        <TextView
+                            android:id="@+id/tv_today_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="serif"
+                            android:singleLine="true"
+                            android:text="0"
+                            android:textColor="#A87E4B"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Vertical Divider -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="28dp"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="#D6BE9B" />
+
+                <!-- Column 2: Today Mala -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_today_mala_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="serif"
+                        android:gravity="center"
+                        android:maxLines="2"
+                        android:text="आज कुल\nमाला"
+                        android:textColor="#A87E4B"
+                        android:textSize="10sp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/iv_stat_flame"
+                            android:layout_width="15dp"
+                            android:layout_height="15dp"
+                            android:layout_marginEnd="3dp"
+                            android:adjustViewBounds="true"
+                            android:contentDescription="Streak"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/flame_icon" />
+
+                        <TextView
+                            android:id="@+id/tv_today_mala"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="serif"
+                            android:singleLine="true"
+                            android:text="0"
+                            android:textColor="#A87E4B"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Pill Button — 28% of right height -->
+            <LinearLayout
+                android:id="@+id/pill"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.28"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/widget_pill_bg"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp">
+
+                <ImageView
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
+                    android:layout_marginEnd="5dp"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="Tap"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_hand_tap" />
+
+                <TextView
+                    android:id="@+id/tv_tap_chant"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="जप के लिए टैप करें"
+                    android:textColor="#543725"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
