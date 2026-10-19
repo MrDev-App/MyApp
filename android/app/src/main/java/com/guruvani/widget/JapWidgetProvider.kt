@@ -121,7 +121,7 @@ open class JapWidgetProvider : AppWidgetProvider() {
 
             // Use the smaller dimension as the "side" reference for font scaling
             // This mirrors iOS approach where side = min(geo.size.width, geo.size.height)
-            val sideDp = if (layoutRes == R.layout.jap_widget_wide) {
+            val sideDp = if (layoutRes == R.layout.widget_medium) {
                 heightDp.coerceAtLeast(100)
             } else {
                 minOf(widthDp, heightDp).coerceAtLeast(100)
