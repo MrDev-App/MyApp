@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 import {
   getRemoteConfig,
   fetchAndActivate,
@@ -20,12 +20,21 @@ type RemoteConfigUpdateData = {
 };
 
 const getAppVersion = (): string => {
+  // 1. Check if native RNDeviceInfo module is linked and ready in binary
   try {
-    const DeviceInfo = require('react-native-device-info');
-    if (DeviceInfo && typeof DeviceInfo.getVersion === 'function') {
-      const v = DeviceInfo.getVersion();
-      if (v) return v;
+    if (NativeModules && NativeModules.RNDeviceInfo) {
+      const DeviceInfo = require('react-native-device-info');
+      if (DeviceInfo && typeof DeviceInfo.getVersion === 'function') {
+        const v = DeviceInfo.getVersion();
+        if (v) return v;
+      }
     }
+  } catch {}
+
+  // 2. Fallback to package.json (dev/local simulator without native rebuild)
+  try {
+    const pkg = require('../../package.json');
+    if (pkg && pkg.version) return pkg.version;
   } catch {}
 
   return '0.0.1';
