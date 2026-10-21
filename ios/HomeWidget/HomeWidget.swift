@@ -1,54 +1,15 @@
 import WidgetKit
 import SwiftUI
-import AppIntents
-
-@available(iOS 16.0, *)
-// MARK: - Increment Jap Intent
-struct IncrementJapIntent: AppIntent {
-    static var title: LocalizedStringResource = "Chant Jap"
-    static var description = IntentDescription("Increments the Jap chant count and advances the Mala ring")
-    static var isDiscoverable: Bool = false
-
-    func perform() async throws -> some IntentResult {
-        let group = "group.com.guruvani.widget"
-        let defaults = UserDefaults(suiteName: group)
-
-        let currentStr = defaults?.string(forKey: "count") ?? ""
-        let currentCount = Int(currentStr) ?? (defaults?.integer(forKey: "count") ?? 0)
-
-        let nextCount = (currentCount + 1) % 108
-        defaults?.set(String(nextCount), forKey: "count")
-
-        let pendingStr = defaults?.string(forKey: "widgetTapsPending") ?? ""
-        let currentPending = Int(pendingStr) ?? (defaults?.integer(forKey: "widgetTapsPending") ?? 0)
-        defaults?.set(String(currentPending + 1), forKey: "widgetTapsPending")
-
-        let currentTodayStr = defaults?.string(forKey: "todayCount") ?? ""
-        let currentToday = Int(currentTodayStr) ?? (defaults?.integer(forKey: "todayCount") ?? 0)
-        let nextToday = currentToday + 1
-        defaults?.set(String(nextToday), forKey: "todayCount")
-        defaults?.set(String(nextToday / 108), forKey: "todayMala")
-
-        WidgetCenter.shared.reloadTimelines(ofKind: "HomeWidget")
-        return .result()
-    }
-}
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
     let japName: String
-    let count: Int
     var todayCount: Int = 0
     var todayMala: Int = 0
     var language: String = "hi"
-    var quote: String = ""
-    var quoteAuthor: String = ""
 }
 
 let japURL = URL(string: "guruvani://japScreen")!
-let bookURL = URL(string: "guruvani://book")!
-let calendarURL = URL(string: "guruvani://calendar")!
-let mantrasURL = URL(string: "guruvani://japScreen")!
 
 // MARK: - Provider
 struct Provider: TimelineProvider {
@@ -56,13 +17,6 @@ struct Provider: TimelineProvider {
 
     private func loadName() -> String {
         UserDefaults(suiteName: group)?.string(forKey: "japName") ?? "राधा"
-    }
-
-    private func loadCount() -> Int {
-        if let s = UserDefaults(suiteName: group)?.string(forKey: "count"), let val = Int(s) {
-            return val
-        }
-        return UserDefaults(suiteName: group)?.integer(forKey: "count") ?? 0
     }
 
     private func loadTodayCount() -> Int {
@@ -83,34 +37,13 @@ struct Provider: TimelineProvider {
         UserDefaults(suiteName: group)?.string(forKey: "appLanguage") ?? "hi"
     }
 
-    private func loadQuote() -> String {
-        if let s = UserDefaults(suiteName: group)?.string(forKey: "dailyQuote"), !s.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return s
-        }
-        let isHi = loadLanguage().lowercased().hasPrefix("hi")
-        return isHi
-            ? "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन।\nमा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥"
-            : "You have a right to perform your prescribed duty, but never to the fruits thereof."
-    }
-
-    private func loadQuoteAuthor() -> String {
-        if let s = UserDefaults(suiteName: group)?.string(forKey: "dailyQuoteAuthor"), !s.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return s
-        }
-        let isHi = loadLanguage().lowercased().hasPrefix("hi")
-        return isHi ? "श्रीमद्भगवद्गीता २.४७" : "Bhagavad Gita 2.47"
-    }
-
     private func makeEntry() -> SimpleEntry {
         SimpleEntry(
             date: Date(),
             japName: loadName(),
-            count: loadCount(),
             todayCount: loadTodayCount(),
             todayMala: loadTodayMala(),
-            language: loadLanguage(),
-            quote: loadQuote(),
-            quoteAuthor: loadQuoteAuthor()
+            language: loadLanguage()
         )
     }
 
@@ -118,12 +51,9 @@ struct Provider: TimelineProvider {
         SimpleEntry(
             date: Date(),
             japName: "राधा",
-            count: 0,
             todayCount: 0,
             todayMala: 0,
-            language: "hi",
-            quote: "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन।\nमा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥",
-            quoteAuthor: "श्रीमद्भगवद्गीता २.४७"
+            language: "hi"
         )
     }
 
@@ -309,213 +239,6 @@ struct WideLayout: View {
       .contentShape(Rectangle())
       .widgetURL(japURL)
     }
-  }
-}
-
-// MARK: - Large Widget
-struct LargeWidgetView: View {
-  let entry: SimpleEntry
-  
-  private var tapToChantText: String {
-    let lang = entry.language.lowercased()
-    if lang.starts(with: "en") {
-      return "Tap to Chant"
-    } else {
-      return "जप के लिए टैप करें"
-    }
-  }
-  
-  private var todayCountTitle: String {
-    let lang = entry.language.lowercased()
-    if lang.starts(with: "en") {
-      return "Today Total\nCount"
-    } else {
-      return "आज कुल\nजाप"
-    }
-  }
-  
-  private var todayMalaTitle: String {
-    let lang = entry.language.lowercased()
-    if lang.starts(with: "en") {
-      return "Today Total\nMala"
-    } else {
-      return "आज कुल\nमाला"
-    }
-  }
-
-  private var quoteTitle: String {
-    let lang = entry.language.lowercased()
-    return lang.starts(with: "en") ? "Daily Thought" : "आज का सुविचार"
-  }
-  
-  var body: some View {
-    GeometryReader { geo in
-      let side = min(geo.size.width, geo.size.height)
-      
-      ZStack(alignment: .top) {
-        LinearGradient(
-          colors: [Color.japSmallBgTop, Color.japSmallBgBottom],
-          startPoint: .top,
-          endPoint: .bottom
-        )
-        .ignoresSafeArea()
-        
-        VStack(spacing: side * 0.035) {
-          // Top row (Lotus & Om)
-          HStack {
-            LotusIcon(color: Color.japSmallGoldIcon, size: side * 0.055)
-            Spacer()
-            Text("ॐ")
-              .font(.system(size: side * 0.075, weight: .medium, design: .serif))
-              .foregroundColor(Color.japSmallGoldIcon)
-          }
-          .padding(.horizontal, side * 0.07)
-          .padding(.top, side * 0.05)
-          
-          // Medium Top Section: Radha Mala + Stats + Tap to Chant
-          HStack(spacing: side * 0.04) {
-            SmallMalaView(side: side * 0.35)
-            
-            Spacer()
-            
-            VStack(spacing: side * 0.025) {
-              // Stats Columns (Today Total Count & Today Total Mala)
-              HStack(alignment: .center, spacing: side * 0.02) {
-                // Column 1: Today Total Count
-                VStack(alignment: .center, spacing: side * 0.012) {
-                  Text(todayCountTitle)
-                    .font(.system(size: side * 0.038, weight: .medium, design: .serif))
-                    .foregroundColor(Color.japSmallGoldIcon)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(side * 0.004)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.7)
-                  
-                  HStack(spacing: side * 0.012) {
-                    AssetIcon(name: "mala_icon", size: side * 0.075)
-                    Text("\(entry.todayCount)")
-                      .font(.system(size: side * 0.054, weight: .semibold, design: .serif))
-                      .foregroundColor(Color.japSmallGoldIcon)
-                      .lineLimit(1)
-                      .minimumScaleFactor(0.55)
-                  }
-                }
-                .frame(maxWidth: .infinity)
-
-                // Vertical Divider Line
-                Capsule()
-                  .fill(Color.japSmallBorder.opacity(0.85))
-                  .frame(width: 1, height: side * 0.15)
-                
-                // Column 2: Today Total Mala
-                VStack(alignment: .center, spacing: side * 0.012) {
-                  Text(todayMalaTitle)
-                    .font(.system(size: side * 0.038, weight: .medium, design: .serif))
-                    .foregroundColor(Color.japSmallGoldIcon)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(side * 0.004)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.7)
-                  
-                  HStack(spacing: side * 0.012) {
-                    AssetIcon(name: "flame_icon", size: side * 0.075)
-                    Text("\(entry.todayMala)")
-                      .font(.system(size: side * 0.054, weight: .semibold, design: .serif))
-                      .foregroundColor(Color.japSmallGoldIcon)
-                      .lineLimit(1)
-                      .minimumScaleFactor(0.55)
-                  }
-                }
-                .frame(maxWidth: .infinity)
-              }
-              .frame(maxWidth: .infinity)
-              
-              // Tap to chant button
-              HStack(spacing: side * 0.02) {
-                Image(systemName: "hand.tap.fill")
-                  .font(.system(size: side * 0.046, weight: .semibold))
-                  .foregroundColor(Color.japPillIcon)
-                
-                Text(tapToChantText)
-                  .font(.system(size: side * 0.042, weight: .semibold))
-                  .foregroundColor(Color.japPillText)
-                  .lineLimit(1)
-                  .minimumScaleFactor(0.6)
-              }
-              .frame(maxWidth: .infinity)
-              .frame(height: side * 0.10)
-              .background(
-                Capsule()
-                  .fill(Color.japPillBg)
-                  .overlay(Capsule().stroke(Color.japPillBorder, lineWidth: 0.8))
-              )
-            }
-          }
-          .padding(.horizontal, side * 0.07)
-          
-          Spacer(minLength: side * 0.01)
-
-          // Bottom Spiritual Daily Quote Card
-          VStack(alignment: .leading, spacing: side * 0.02) {
-            // Quote Card Header: Quote mark icon + "आज का सुविचार" / "Daily Thought" + subtle Lotus
-            HStack(alignment: .center, spacing: side * 0.015) {
-              Image(systemName: "quote.opening")
-                .font(.system(size: side * 0.036, weight: .bold))
-                .foregroundColor(Color.japSmallGoldIcon)
-              
-              Text(quoteTitle)
-                .font(.system(size: side * 0.034, weight: .semibold, design: .serif))
-                .foregroundColor(Color.japSmallGoldIcon)
-                .tracking(0.6)
-              
-              Spacer()
-              
-              LotusIcon(color: Color.japSmallGoldIcon.opacity(0.85), size: side * 0.040)
-            }
-            
-            // Quote Content
-            Text(entry.quote.isEmpty ? "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन।" : entry.quote)
-              .font(.system(size: side * 0.039, weight: .medium, design: .serif))
-              .foregroundColor(Color.japPillText)
-              .lineSpacing(side * 0.008)
-              .multilineTextAlignment(.leading)
-              .lineLimit(3)
-              .minimumScaleFactor(0.75)
-              .frame(maxWidth: .infinity, alignment: .leading)
-            
-            // Quote Author
-            if !entry.quoteAuthor.isEmpty {
-              HStack {
-                Spacer()
-                Text("— \(entry.quoteAuthor)")
-                  .font(.system(size: side * 0.032, weight: .medium, design: .serif))
-                  .foregroundColor(Color.japSmallGoldIcon)
-                  .lineLimit(1)
-                  .minimumScaleFactor(0.75)
-              }
-            }
-          }
-          .padding(.horizontal, side * 0.045)
-          .padding(.vertical, side * 0.035)
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-          .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-              .fill(Color.japPillBg)
-              .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                  .stroke(Color.japPillBorder, lineWidth: 0.9)
-              )
-              .shadow(color: Color.black.opacity(0.04), radius: 3, x: 0, y: 1.5)
-          )
-          .padding(.horizontal, side * 0.07)
-          .padding(.bottom, side * 0.05)
-        }
-        .frame(width: geo.size.width, height: geo.size.height)
-      }
-      .frame(width: geo.size.width, height: geo.size.height)
-      .contentShape(Rectangle())
-      .widgetURL(japURL)
-    } 
   }
 }
 
@@ -749,69 +472,30 @@ struct LotusIcon: View {
   struct HomeWidgetEntryView: View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var family
-    
+
     var body: some View {
       switch family {
-        
-        // Small: Spiritual parchment card with Mala & tap button
       case .systemSmall:
         SmallWidgetView(entry: entry)
-        
-        // Medium: naam = Jap tab, baaki jagah = count +1
       case .systemMedium:
-        WideLayout(entry: entry )
-        
-        // Large: naam upar, ring  
-      case .systemLarge:
-        LargeWidgetView(entry: entry)
-      case .systemExtraLarge:
-        LargeWidgetView(entry: entry)
+        WideLayout(entry: entry)
       default:
-        Text(entry.japName)
-      }
-    } 
-  }
-  
-  // MARK: - Widget Container Background
-  struct WidgetContainerBackground: View {
-    @Environment(\.widgetFamily) var family
-    
-    var body: some View {
-      switch family {
-      case .systemSmall:
-        LinearGradient(
-          colors: [Color.japSmallBgTop, Color.japSmallBgBottom],
-          startPoint: .top,
-          endPoint: .bottom
-        )
-      case.systemMedium:
-        LinearGradient(
-          colors: [Color.japSmallBgTop, Color.japSmallBgBottom],
-          startPoint: .top,
-          endPoint: .bottom
-        )
-        
-      default:
-        LinearGradient(
-          colors: [Color.japSmallBgTop, Color.japSmallBgBottom],
-          startPoint: .top,
-          endPoint: .bottom
-        )
+        SmallWidgetView(entry: entry)
       }
     }
   }
+
   // MARK: - Widget
   struct HomeWidget: Widget {
     let kind: String = "HomeWidget"
-    
+
     var body: some WidgetConfiguration {
       StaticConfiguration(kind: kind, provider: Provider()) { entry in
         HomeWidgetEntryView(entry: entry)
-        
       }
       .configurationDisplayName("Guruvani Jap")
       .description("Shows your jap count.")
-      .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .systemExtraLarge])
+      .supportedFamilies([.systemSmall, .systemMedium])
       .contentMarginsDisabled()
     }
   }

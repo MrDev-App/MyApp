@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_wide_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:paddingLeft="12dp"
+    android:paddingTop="8dp"
+    android:paddingRight="12dp"
+    android:paddingBottom="8dp">
+
+    <!-- Top Header: Lotus (left) and Om (right) -->
+    <LinearLayout
+        android:id="@+id/widget_wide_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="16dp"
+            android:contentDescription="Lotus"
+            android:scaleType="fitStart"
+            android:src="@drawable/ic_lotus" />
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ॐ"
+            android:textColor="#873719"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Main Content Area: Left Mala + Right Stats & Pill -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/widget_wide_header"
+        android:layout_marginTop="2dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <!-- Left: Mala Ring -->
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.44"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/widget_wide_mala_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:adjustViewBounds="true"
+                android:contentDescription="Mala Bead Ring"
+                android:scaleType="fitCenter" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="8dp"
+            android:layout_height="1dp" />
+
+        <!-- Right Side: Stats & Pill -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.56"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <!-- Stats Row: Today Count | Divider | Today Mala -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <!-- Column 1: Today Count -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/widget_wide_today_count_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:lineSpacingExtra="-1dp"
+                        android:text="आज कुल&#10;जाप"
+                        android:textColor="#873719"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content" 
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:contentDescription="Mala icon"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/mala_icon" />
+
+                        <TextView
+                            android:id="@+id/widget_wide_today_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:includeFontPadding="false"
+                            android:text="0"
+                            android:textColor="#873719"
+                            android:textSize="18sp"
+                            android:textStyle="bold" /> 
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Vertical Divider (using FrameLayout with background) -->
+                <FrameLayout
+                    android:layout_width="1dp"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginRight="3dp"
+                    android:background="#D6BE9B" />
+
+                <!-- Column 2: Today Mala -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/widget_wide_today_mala_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:lineSpacingExtra="-1dp"
+                        android:text="आज कुल&#10;माला"
+                        android:textColor="#873719"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:gravity="center_vertical" 
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:contentDescription="Flame icon"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/flame_icon" />
+
+                        <TextView
+                            android:id="@+id/widget_wide_today_mala"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:includeFontPadding="false"
+                            android:text="0"
+                            android:textColor="#873719"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Bottom Pill Button -->
+            <LinearLayout
+                android:id="@+id/widget_wide_pill"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/widget_pill_bg"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+              
+                >
+
+                <ImageView
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:contentDescription="Hand Tap"
+                    android:src="@drawable/ic_hand_tap" />
+
+                <TextView
+                    android:id="@+id/widget_wide_pill_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:includeFontPadding="false"
+                    android:text="जप के लिए टैप करें"
+                    android:textColor="#873719"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

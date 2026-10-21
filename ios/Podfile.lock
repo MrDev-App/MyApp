@@ -3549,6 +3549,8 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - RNDeviceInfo (15.0.2):
+    - React-Core
   - RNFBApp (26.4.0):
     - Firebase/CoreOnly (= 12.18.0)
     - hermes-engine
@@ -4117,6 +4119,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
+  - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBFirestore (from `../node_modules/@react-native-firebase/firestore`)"
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
@@ -4337,6 +4340,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec"
   RNDateTimePicker:
     :path: "../node_modules/@react-native-community/datetimepicker"
+  RNDeviceInfo:
+    :path: "../node_modules/react-native-device-info"
   RNFBApp:
     :path: "../node_modules/@react-native-firebase/app"
   RNFBFirestore:
@@ -4479,10 +4484,11 @@ SPEC CHECKSUMS:
   React-viewtransitionnativemodule: 8f1d4895e081e0b2f0a98069c098eb40be032138
   React-webperformancenativemodule: 5bddf6c7eecda8a3ce48b82609008965cc9d94c2
   ReactAppDependencyProvider: 0e13d430eadac8a2ef18515a860d5c59df05b475
-  ReactCodegen: 81f52ac102aada04b67d0c5dc2357c7715db2f27
+  ReactCodegen: 365149ca41ca1697a04b69c37a292dd04e3eab7b
   ReactCommon: 9002f006f571256348994183f7d4387aa7cf84e8
   ReactNativeDependencies: 2bd6854ade79bf1b60586d1ab7813a389df1b6bf
   RNDateTimePicker: 59657c6f6ad620b34ab1f92ff3ebdc471684985a
+  RNDeviceInfo: 4c852998208b60dc192ae3529e5867817719ad1e
   RNFBApp: 00190274babd8165002ef0a80c7207d3140ba3ca
   RNFBFirestore: 43eaf2eb72a75ee54eecfec3eb8ad917495c0ac5
   RNFBMessaging: 061ba0c3acb64d685f1e00d93e520c7ea85e8ce7

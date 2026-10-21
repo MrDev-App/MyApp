@@ -64,7 +64,7 @@ export interface WidgetSyncResult {
 }
 
 export const syncWidgetChants = async (
-  currentMantraId: string,
+  currentMantraId: string = '',
 ): Promise<WidgetSyncResult> => {
   try {
     Storage.checkAndResetTodayStats();

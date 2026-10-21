@@ -11,7 +11,13 @@ object WidgetStore {
     const val KEY_NAME = "japName"
     const val KEY_MANTRA_ID = "mantraId"
     const val KEY_LANGUAGE = "appLanguage"
+    const val KEY_LAST_DATE = "widgetLastDate"
     const val BEADS = 108
+
+    private fun todayDateString(): String {
+        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+        return sdf.format(java.util.Date())
+    }
 
     private fun prefs(context: Context) =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -19,17 +25,33 @@ object WidgetStore {
     fun getString(context: Context, key: String): String? = prefs(context).getString(key, null)
 
     fun setString(context: Context, key: String, value: String) {
-        prefs(context).edit().putString(key, value).apply()
+        val editor = prefs(context).edit().putString(key, value)
+        if (key == KEY_TODAY_COUNT) {
+            editor.putString(KEY_LAST_DATE, todayDateString())
+        }
+        editor.apply()
     }
 
     fun count(context: Context): Int =
         (getString(context, KEY_COUNT)?.toIntOrNull() ?: 0).coerceIn(0, BEADS - 1)
 
-    fun todayCount(context: Context): Int =
-        getString(context, KEY_TODAY_COUNT)?.toIntOrNull() ?: 0
+    fun todayCount(context: Context): Int {
+        val p = prefs(context)
+        val lastDate = p.getString(KEY_LAST_DATE, null)
+        if (lastDate != null && lastDate != todayDateString()) {
+            return 0
+        }
+        return p.getString(KEY_TODAY_COUNT, null)?.toIntOrNull() ?: 0
+    }
 
-    fun todayMala(context: Context): Int =
-        getString(context, KEY_TODAY_MALA)?.toIntOrNull() ?: (todayCount(context) / BEADS)
+    fun todayMala(context: Context): Int {
+        val p = prefs(context)
+        val lastDate = p.getString(KEY_LAST_DATE, null)
+        if (lastDate != null && lastDate != todayDateString()) {
+            return 0
+        }
+        return p.getString(KEY_TODAY_MALA, null)?.toIntOrNull() ?: (todayCount(context) / BEADS)
+    }
 
     fun language(context: Context): String =
         getString(context, KEY_LANGUAGE) ?: "hi"
@@ -40,9 +62,12 @@ object WidgetStore {
     @Synchronized
     fun increment(context: Context): Int {
         val p = prefs(context)
+        val todayStr = todayDateString()
+        val lastDate = p.getString(KEY_LAST_DATE, null)
+
         val current = p.getString(KEY_COUNT, null)?.toIntOrNull() ?: 0
         val pending = p.getString(KEY_PENDING, null)?.toIntOrNull() ?: 0
-        val today = p.getString(KEY_TODAY_COUNT, null)?.toIntOrNull() ?: 0
+        val today = if (lastDate != null && lastDate != todayStr) 0 else (p.getString(KEY_TODAY_COUNT, null)?.toIntOrNull() ?: 0)
 
         val next = (current + 1) % BEADS
         val nextPending = pending + 1
@@ -50,6 +75,7 @@ object WidgetStore {
         val nextTodayMala = nextToday / BEADS
 
         p.edit()
+            .putString(KEY_LAST_DATE, todayStr)
             .putString(KEY_COUNT, next.toString())
             .putString(KEY_PENDING, nextPending.toString())
             .putString(KEY_TODAY_COUNT, nextToday.toString())

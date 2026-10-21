@@ -10,9 +10,7 @@ import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
 import { Bell } from '@assets/index';
 import { NotificationStorage } from '@services/notificationService';
-import {
-  Festival,
-} from '@api/festivalApi';
+import { Festival } from '@api/festivalApi';
 import { getMonthShortName } from '@constants/calendarData';
 import { FestivalVideoEntry } from '../../../types/festivalVideo';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -112,8 +110,16 @@ const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
         {parentLoading ? (
           <>
             <View style={styles.greetingSkeletonContainer}>
-              <Skeleton width={scale(100)} height={fs(12)} borderRadius={scale(3)} />
-              <Skeleton width={scale(180)} height={fs(26)} borderRadius={scale(6)} />
+              <Skeleton
+                width={scale(100)}
+                height={fs(12)}
+                borderRadius={scale(3)}
+              />
+              <Skeleton
+                width={scale(180)}
+                height={fs(26)}
+                borderRadius={scale(6)}
+              />
             </View>
             <Skeleton circle width={scale(34)} height={scale(34)} />
           </>
@@ -152,7 +158,11 @@ const HomeGreetingHeader: React.FC<HomeGreetingHeaderProps> = ({
 
       <View style={styles.vratsHeaderRow}>
         {isLoading ? (
-          <Skeleton width={scale(140)} height={fs(14)} borderRadius={scale(4)} />
+          <Skeleton
+            width={scale(140)}
+            height={fs(14)}
+            borderRadius={scale(4)}
+          />
         ) : (
           <Text style={styles.sectionTitle}>
             {t(Translation.EKADASHI_VRAT)}
@@ -301,7 +311,6 @@ const styles = StyleSheet.create({
   },
   vratCardActive: {
     borderColor: colors.ring,
-    backgroundColor: colors.goldHighlightBg,
   },
   dateBlock: {
     marginTop: scale(7),

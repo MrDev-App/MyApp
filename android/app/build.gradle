@@ -83,6 +83,10 @@ android {
     compileSdk rootProject.ext.compileSdkVersion
 
     namespace "com.guruvani"
+    buildFeatures {
+        compose true
+    }
+
     defaultConfig {
         applicationId "com.guruvani"
         minSdkVersion rootProject.ext.minSdkVersion

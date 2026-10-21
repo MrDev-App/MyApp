@@ -1,5 +1,5 @@
 import React from 'react';
-import Svg, { Path, Circle, Text as SvgText } from 'react-native-svg';
+import Svg, { Path, Circle, Text as SvgText, Rect } from 'react-native-svg';
 import colors from '@theme/colors';
 
 export interface SvgIconProps {
@@ -774,3 +774,17 @@ export const ImageIcon = (props: SvgIconProps) => {
   );
 };
 
+
+export const LockIcon = () => (
+  <Svg width={13} height={14} viewBox="0 0 14 16">
+    <Rect x="1.5" y="6" width="11" height="9" rx="2" fill="#7D5C3E" />
+    <Path
+      d="M4 6 V4.2 C4 2.4 5.3 1 7 1 C8.7 1 10 2.4 10 4.2 V6"
+      stroke="#7D5C3E"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      fill="none"
+    />
+    <Circle cx="7" cy="10" r="1.2" fill="#FAF6EE" />
+  </Svg>
+);

@@ -1,5 +1,5 @@
 import { StatusBar, LogBox, InteractionManager } from 'react-native';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import StackNavigation from '@navigation/StackNavigation';
@@ -28,10 +28,24 @@ import { getFestivalData, initFestivalBackgroundSync } from '@api/festivalApi';
 import { getGodData } from '@api/godMantrasApi';
 import { initRemoteConfig } from '@services/remoteConfigService';
 import { initDeepLinks } from '@services/deepLinkService';
+import UpdateRequiredScreen from './src/screens/UpdateRequiredScreen';
+import { checkForceUpdate, UpdateInfo } from './src/utils/forceUpdate';
 
 LogBox.ignoreAllLogs();
 
 const App = () => {
+  const [updateRequired, setUpdateRequired] = useState(false);
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
+
+  useEffect(() => {
+    checkForceUpdate().then(({ blocked, info }) => {
+      setUpdateRequired(blocked);
+      if (info) {
+        setUpdateInfo(info);
+      }
+    });
+  }, []);
+
   useEffect(() => {
     const stopDeepLinks = initDeepLinks();
 
@@ -110,14 +124,18 @@ const App = () => {
         translucent
       />
 
-      <ErrorBoundary>
-        <SafeAreaProvider>
-          <NavigationContainer ref={navigationRef}>
-            <StackNavigation />
-            <NetworkBanner />
-          </NavigationContainer>
-        </SafeAreaProvider>
-      </ErrorBoundary>
+      {updateRequired ? (
+        <UpdateRequiredScreen {...(updateInfo || {})} />
+      ) : (
+        <ErrorBoundary>
+          <SafeAreaProvider>
+            <NavigationContainer ref={navigationRef}>
+              <StackNavigation />
+              <NetworkBanner />
+            </NavigationContainer>
+          </SafeAreaProvider>
+        </ErrorBoundary>
+      )}
     </GestureHandlerRootView>
   );
 };

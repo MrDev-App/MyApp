@@ -210,21 +210,28 @@ const JapScreen = () => {
     );
   }, [selectedMantra, handleDateCheck]);
 
-  useEffect(() => {
-    Storage.set(STORAGE_KEYS.SELECTED_MANTRA_ID, selectedMantra.id);
+  const flushWidgetStats = useCallback(() => {
+    const allTodayCount = Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0);
+    const allTodayMala = Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA, 0);
     setSharedItem('japName', widgetName);
     setSharedItem('mantraId', selectedMantra.id);
+    setSharedItem('count', String(countRef.current));
+    setSharedItem('todayCount', String(allTodayCount));
+    setSharedItem('todayMala', String(allTodayMala));
+  }, [widgetName, selectedMantra.id]);
+
+  useEffect(() => {
+    Storage.set(STORAGE_KEYS.SELECTED_MANTRA_ID, selectedMantra.id);
 
     const id = setTimeout(() => {
-      const allTodayCount = Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0);
-      const allTodayMala = Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA, 0);
-      setSharedItem('count', String(count));
-      setSharedItem('todayCount', String(allTodayCount));
-      setSharedItem('todayMala', String(allTodayMala));
-    }, 400);
+      flushWidgetStats();
+    }, 200);
 
-    return () => clearTimeout(id);
-  }, [widgetName, count, todayCount, todayMala, selectedMantra.id]);
+    return () => {
+      clearTimeout(id);
+      flushWidgetStats();
+    };
+  }, [widgetName, count, todayCount, todayMala, selectedMantra.id, flushWidgetStats]);
 
   const [pendingMantra, setPendingMantra] = useState<MantraSelectorItem | null>(
     null,
@@ -268,17 +275,21 @@ const JapScreen = () => {
   useEffect(() => {
     if (isFocused) {
       syncFromWidget();
+    } else {
+      flushWidgetStats();
     }
-  }, [isFocused, syncFromWidget]);
+  }, [isFocused, syncFromWidget, flushWidgetStats]);
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextState => {
       if (nextState === 'active') {
         syncFromWidget();
+      } else {
+        flushWidgetStats();
       }
     });
     return () => subscription.remove();
-  }, [syncFromWidget]);
+  }, [syncFromWidget, flushWidgetStats]);
 
   const rippleScale = useSharedValue(1);
   const rippleOpacity = useSharedValue(0);

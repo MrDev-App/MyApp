@@ -431,4 +431,12 @@ export default {
   DONE: 'संपन्न',
   PLEASE_WAIT: 'कृपया प्रतीक्षा करें...',
   CLOSE: 'बंद करें',
+
+  // Force Update
+  UPDATE_REQUIRED_TITLE: 'अपडेट आवश्यक है',
+  UPDATE_REQUIRED_DESC:
+    'आगे बढ़ने के लिए कृपया ऐप का नया Version इंस्टॉल करें।\nयह एक महत्वपूर्ण सुरक्षा और प्रदर्शन अपडेट है।',
+  UPDATE_VERSION_LABEL: 'Version: {{version}}',
+  UPDATE_BUTTON_TEXT: 'अभी अपडेट करें',
+  UPDATE_SECURE_TRUST: 'आधिकारिक और सुरक्षित अपडेट',
 };

@@ -8,6 +8,7 @@ import { fs, scale } from '@theme/sizes';
 import { Translation } from '@i18n/language';
 import AnimatedButton from '@components/AnimatedButton';
 import { Storage, STORAGE_KEYS } from '@services/storageService';
+import { syncWidgetChants } from '@services/widgetService';
 import { navigate as rootNavigate } from '@navigation/navigationRef';
 import imagePath from '@assets/index';
 
@@ -26,8 +27,10 @@ const JapCard = () => {
   useEffect(() => {
     if (isFocused) {
       Storage.checkAndResetTodayStats();
-      setTodayCount(Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0));
-      setTodayMala(Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA, 0));
+      syncWidgetChants().finally(() => {
+        setTodayCount(Storage.getNumber(STORAGE_KEYS.JAP_TODAY_COUNT, 0));
+        setTodayMala(Storage.getNumber(STORAGE_KEYS.JAP_TODAY_MALA, 0));
+      });
     }
   }, [isFocused]);
 

@@ -43,6 +43,9 @@ const imagePath = {
   shlokasFallback: require('./png/shlokasFallback.webp'),
   temples: require('./png/temples.webp'),
   clock: require('./png/clock.webp'),
+  Omicon: require('./png/Omicon.png'),
+  playstore: require('./png/playstore.png'),
+  appstore: require('./png/appstore.png'),
 
   loading: require('./lottie/loading.json'),
   lampLottie: require('./lottie/lamp.json'),

@@ -430,4 +430,12 @@ export default {
   DONE: 'Done',
   PLEASE_WAIT: 'Please wait...',
   CLOSE: 'Close',
+
+  // Force Update
+  UPDATE_REQUIRED_TITLE: 'Update Required',
+  UPDATE_REQUIRED_DESC:
+    'Please install the new version of the app to continue.\nThis is an important security and performance update.',
+  UPDATE_VERSION_LABEL: 'Version: {{version}}',
+  UPDATE_BUTTON_TEXT: 'Update Now',
+  UPDATE_SECURE_TRUST: 'Official and Secure Update',
 };
