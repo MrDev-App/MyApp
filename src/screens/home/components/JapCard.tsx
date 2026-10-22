@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import colors from '@theme/colors';
+import colors, { bannerGradients } from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
+import LinearGradient from 'react-native-linear-gradient';
 import { Translation } from '@i18n/language';
 import AnimatedButton from '@components/AnimatedButton';
 import { Storage, STORAGE_KEYS } from '@services/storageService';
@@ -59,17 +60,28 @@ const JapCard = () => {
 
       {/* Main Card */}
       <View style={styles.card}>
+        <LinearGradient
+          colors={bannerGradients.calendarBanner}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.gradientBg}
+          pointerEvents="none"
+        />
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
             <Text style={styles.label}>{t(Translation.JAP_TODAYS_COUNT)}</Text>
-            <Text style={styles.value} testID="jap-today-count">{todayCount}</Text>
+            <Text style={styles.value} testID="jap-today-count">
+              {todayCount}
+            </Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.statItem}>
             <Text style={styles.label}>
               {t(Translation.JAP_MALA_COMPLETED)}
             </Text>
-            <Text style={styles.value} testID="jap-today-mala">{todayMala}</Text>
+            <Text style={styles.value} testID="jap-today-mala">
+              {todayMala}
+            </Text>
           </View>
         </View>
 
@@ -115,7 +127,6 @@ const styles = StyleSheet.create({
     color: colors.secondary,
   },
   card: {
-    backgroundColor: colors.white,
     borderRadius: scale(10),
     paddingHorizontal: scale(16),
     paddingVertical: scale(16),
@@ -126,6 +137,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: scale(12),
     elevation: 3,
+    backgroundColor: 'transparent',
+  },
+  gradientBg: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: scale(10),
   },
   statsRow: {
     flexDirection: 'row',
@@ -143,14 +159,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.borderMedium,
   },
   label: {
-    fontSize: fs(8.5),
+    fontSize: fs(11),
     fontFamily: fonts.TiroHindiRegular,
     color: colors.black,
     letterSpacing: 1,
     marginBottom: scale(4),
   },
   value: {
-    fontSize: fs(16),
+    fontSize: fs(18),
     fontFamily: fonts.TiroHindiRegular,
     color: colors.ring,
   },
@@ -172,7 +188,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   chantButtonText: {
-    fontSize: fs(12),
+    fontSize: fs(14),
     fontFamily: fonts.TiroHindiRegular,
     color: colors.white,
   },

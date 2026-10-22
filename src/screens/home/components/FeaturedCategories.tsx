@@ -120,11 +120,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     marginBottom: scale(16),
-    paddingHorizontal: scale(4),
+    paddingHorizontal: scale(24),
   },
   scrollContent: {
-    paddingHorizontal: scale(4),
-    paddingRight: scale(16),
+    paddingHorizontal: scale(20),
     paddingVertical: scale(6),
     gap: scale(10),
   },

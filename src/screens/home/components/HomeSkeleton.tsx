@@ -8,7 +8,7 @@ const HomeSkeleton: React.FC = () => {
   return (
     <View style={styles.container}>
       {/* ── 1. Jap Card Skeleton ── */}
-      <View style={styles.sectionWrapper}>
+      <View style={styles.sectionWrapperMargin}>
         <View style={styles.sectionHeader}>
           <Skeleton
             width={scale(100)}
@@ -52,7 +52,7 @@ const HomeSkeleton: React.FC = () => {
 
       {/* ── 2. Mantras by Deities Skeleton ── */}
       <View style={styles.sectionWrapper}>
-        <View style={styles.sectionHeader}>
+        <View style={styles.sectionHeaderMargin}>
           <Skeleton
             width={scale(160)}
             height={fs(16)}
@@ -91,7 +91,7 @@ const HomeSkeleton: React.FC = () => {
       </View>
 
       {/* ── 3. Hindu Calendar Banner Skeleton ── */}
-      <View style={styles.calendarBannerSkeleton}>
+      <View style={styles.calendarBannerSkeletonMargin}>
         <View style={styles.bannerHeaderRow}>
           <Skeleton
             width={scale(110)}
@@ -148,7 +148,7 @@ const HomeSkeleton: React.FC = () => {
       </View>
 
       {/* ── 4. Challenge Card Skeleton ── */}
-      <View style={styles.sectionWrapper}>
+      <View style={styles.sectionWrapperMargin}>
         <View style={styles.sectionHeader}>
           <Skeleton
             width={scale(110)}
@@ -192,7 +192,7 @@ const HomeSkeleton: React.FC = () => {
       </View>
 
       {/* ── 5. Featured Categories Skeleton ── */}
-      <View style={styles.sectionWrapper}>
+      <View style={styles.sectionWrapperMargin}>
         <View style={styles.sectionHeader}>
           <Skeleton
             width={scale(130)}
@@ -230,7 +230,7 @@ const HomeSkeleton: React.FC = () => {
 
       {/* ── 6. Festival Highlights Skeleton ── */}
       <View style={styles.sectionWrapper}>
-        <View style={styles.sectionHeader}>
+        <View style={styles.sectionHeaderMargin}>
           <Skeleton
             width={scale(140)}
             height={fs(16)}
@@ -266,8 +266,16 @@ const styles = StyleSheet.create({
   sectionWrapper: {
     width: '100%',
   },
+  sectionWrapperMargin: {
+    width: '100%',
+    paddingHorizontal: scale(20),
+  },
   sectionHeader: {
     paddingHorizontal: scale(4),
+    marginBottom: scale(10),
+  },
+  sectionHeaderMargin: {
+    paddingHorizontal: scale(24),
     marginBottom: scale(10),
   },
   cardSkeleton: {
@@ -297,7 +305,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.borderSubtle,
   },
   horizontalScroll: {
-    paddingHorizontal: scale(4),
+    paddingLeft: scale(20),
+    paddingRight: scale(8),
     gap: scale(12),
   },
   mantraColumn: {
@@ -311,6 +320,17 @@ const styles = StyleSheet.create({
   },
   calendarBannerSkeleton: {
     // backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    borderRadius: scale(14),
+    padding: scale(12),
+    borderWidth: 1,
+    borderColor: colors.bannerBorderOrangeLight,
+    shadowColor: colors.cardOverlay,
+    shadowOffset: { width: 0, height: scale(2) },
+    shadowOpacity: 0.04,
+    shadowRadius: scale(4),
+  },
+  calendarBannerSkeletonMargin: {
+    marginHorizontal: scale(20),
     borderRadius: scale(14),
     padding: scale(12),
     borderWidth: 1,

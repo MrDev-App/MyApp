@@ -13,9 +13,10 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
-import colors from '@theme/colors';
+import colors, { bannerGradients } from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
+import LinearGradient from 'react-native-linear-gradient';
 import {
   God,
   GodMantra,
@@ -123,6 +124,13 @@ const MantraScreen = () => {
           {/* Deity Showcase Card with large clear image */}
           {currentGod && (
             <View style={styles.showcaseCard}>
+              <LinearGradient
+                colors={bannerGradients.calendarBanner}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.showcaseGradientBg}
+                pointerEvents="none"
+              />
               <View style={styles.avatarGlowContainer}>
                 <View style={styles.avatarBorder}>
                   <Image
@@ -377,13 +385,13 @@ const styles = StyleSheet.create({
     marginHorizontal: scale(8),
   },
   scrollContent: {
-    paddingHorizontal: scale(16),
     paddingTop: scale(16),
   },
   showcaseCard: {
-    backgroundColor: colors.white,
+    backgroundColor: 'transparent',
     borderRadius: scale(20),
     padding: scale(20),
+    marginHorizontal: scale(16),
     alignItems: 'center',
     marginBottom: scale(20),
     shadowColor: colors.secondary,
@@ -393,6 +401,10 @@ const styles = StyleSheet.create({
     elevation: 4,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
+  },
+  showcaseGradientBg: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: scale(20),
   },
   avatarGlowContainer: {
     padding: scale(4),
@@ -456,11 +468,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     marginBottom: scale(10),
-    paddingHorizontal: scale(2),
+    paddingHorizontal: scale(18),
   },
   deitiesListContent: {
     paddingVertical: scale(2),
-    paddingHorizontal: scale(2),
+    paddingLeft: scale(16),
+    paddingRight: scale(4),
   },
   deityChip: {
     alignItems: 'center',
@@ -503,7 +516,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: scale(12),
-    paddingHorizontal: scale(2),
+    paddingHorizontal: scale(18),
   },
   mantrasSectionTitle: {
     fontSize: fs(16),
@@ -519,6 +532,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: scale(16),
     padding: scale(16),
+    marginHorizontal: scale(16),
     marginBottom: scale(12),
     borderWidth: 1,
     borderColor: colors.accentOrangeBg,

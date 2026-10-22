@@ -201,6 +201,7 @@ const FestivalHighlights: React.FC<FestivalHighlightsProps> = ({
           initialNumToRender={10}
           maxToRenderPerBatch={10}
           windowSize={5}
+          contentContainerStyle={styles.listContent}
           renderItem={({ item }) => (
             <FestivalHighlightCard
               item={item}
@@ -232,7 +233,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: scale(12),
-    paddingHorizontal: scale(4),
+    paddingHorizontal: scale(24),
   },
   title: {
     fontSize: fs(16),
@@ -246,11 +247,13 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   listContent: {
-    // L3: removed — FlatList had no contentContainerStyle using this
+    paddingLeft: scale(20),
+    paddingRight: scale(8),
   },
   skeletonContainer: {
     flexDirection: 'row',
-    paddingHorizontal: scale(4),
+    paddingLeft: scale(20),
+    paddingRight: scale(8),
     paddingBottom: scale(10),
   },
   skeletonCard: {

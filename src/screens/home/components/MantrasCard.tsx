@@ -156,10 +156,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.TiroHindiRegular,
     color: colors.secondary,
     marginBottom: scale(14),
-    paddingHorizontal: scale(4),
+    paddingHorizontal: scale(24),
   },
   listContent: {
-    paddingHorizontal: scale(4),
+    paddingLeft: scale(20),
+    paddingRight: scale(10),
   },
   column: {
     flexDirection: 'column',

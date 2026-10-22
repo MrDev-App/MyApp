@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -100,7 +100,7 @@ export const HomeScreen = () => {
         style={styles.topGradient}
       />
 
-      <SafeAreaView style={globalStyles.containerMargin20} edges={['top']}>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -111,22 +111,28 @@ export const HomeScreen = () => {
           ]}
         >
           {/* Greeting Banner */}
-          <HomeGreetingHeader
-            loading={loading}
-            activeFestival={activeFestival}
-            festivals={festivals}
-          />
+          <View style={styles.sectionMargin}>
+            <HomeGreetingHeader
+              loading={loading}
+              activeFestival={activeFestival}
+              festivals={festivals}
+            />
+          </View>
 
           {/* Loading Skeleton OR Cards List */}
           {loading ? (
             <HomeSkeleton />
           ) : (
             <>
-              <JapCard />
+              <View style={styles.sectionMargin}>
+                <JapCard />
+              </View>
               <MantrasCard />
-              <HinduCalendarBanner />
-              <ChallengeCard />
-              <BannerAdComponent unitId="ca-app-pub-7403088686757883/4289481752" />
+              <View style={styles.sectionMargin}>
+                <HinduCalendarBanner />
+                <ChallengeCard />
+                <BannerAdComponent unitId="ca-app-pub-7403088686757883/4289481752" />
+              </View>
               <FeaturedCategories />
               <FestivalHighlights festivals={festivals} />
             </>
@@ -138,6 +144,12 @@ export const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  sectionMargin: {
+    paddingHorizontal: scale(12),
+  },
   scrollContent: {
     // M7: paddingBottom removed — handled dynamically via insets above
   },

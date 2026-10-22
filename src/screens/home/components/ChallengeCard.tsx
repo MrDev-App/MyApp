@@ -13,9 +13,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Translation } from '@i18n/language';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
-import colors from '@theme/colors';
+import colors, { bannerGradients } from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale, verticalScale } from '@theme/sizes';
+import LinearGradient from 'react-native-linear-gradient';
 import AnimatedButton from '@components/AnimatedButton';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
@@ -47,7 +48,7 @@ const ChallengeCard = () => {
     const td = new Date().toDateString();
     const chants = started && bd === td ? Math.max(0, tc - bc) : tc;
     return { todayChants: tc, challengeChantsToday: chants };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [started, isFocused]);
 
   const [dailyTargetGoal, setDailyTargetGoal] = useState(() =>
@@ -169,6 +170,13 @@ const ChallengeCard = () => {
       </View>
 
       <View style={styles.card}>
+        <LinearGradient
+          colors={bannerGradients.calendarBanner}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.gradientBg}
+          pointerEvents="none"
+        />
         <View style={styles.cardHeader}>
           <View style={styles.iconContainer}>
             <Image source={imagePath.mala} style={styles.malaIcon} />
@@ -350,7 +358,6 @@ const styles = StyleSheet.create({
     color: colors.ring,
   },
   card: {
-    backgroundColor: colors.white,
     borderRadius: scale(14),
     padding: scale(14),
     borderWidth: 1,
@@ -360,6 +367,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 16,
     elevation: 4,
+    backgroundColor: 'transparent',
+  },
+  gradientBg: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: scale(14),
   },
   cardHeader: {
     flexDirection: 'row',
