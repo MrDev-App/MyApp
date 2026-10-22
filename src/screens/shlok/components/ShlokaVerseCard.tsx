@@ -78,7 +78,7 @@ export const ShlokaVerseCard: React.FC<ShlokaVerseCardProps> = ({
           <Text style={styles.verseTitle} numberOfLines={2}>
             {verseTitle}
           </Text>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[
               styles.playPauseBtn,
               isPlaying && styles.playPauseBtnActive,
@@ -95,7 +95,7 @@ export const ShlokaVerseCard: React.FC<ShlokaVerseCardProps> = ({
                 <PlayIcon size={scale(15)} color={colors.ring} />
               </View>
             )}
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         {/* Sanskrit Devanagari Verses Box */}

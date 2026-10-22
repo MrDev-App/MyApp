@@ -296,7 +296,8 @@ export default {
   AARTI_SANGRAH_DEFAULT_DESC:
     'देवी-देवताओं की स्तुति और आशीर्वाद प्राप्त करने के लिए पावन आरतियां।',
   READ_AARTI_ACTION: 'आरती पढ़ें →',
-  AARTI_AUDIO_NOT_AVAILABLE: 'इस आरती का ऑडियो उपलब्ध नहीं है',
+  AARTI_AUDIO_NOT_AVAILABLE: 'इस आरती का ऑडियो जल्द आ रहा है',
+  AARTI_AUDIO_COMING_SOON: 'इस आरती का ऑडियो जल्द आ रहा है',
   AARTI_AUDIO_ERROR: 'ऑडियो चलाने में समस्या हुई, कृपया नेटवर्क जांचें',
 
   // Festival Modal & Details

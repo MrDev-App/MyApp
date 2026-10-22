@@ -74,7 +74,7 @@ export const ArtiScreen: React.FC = () => {
     setToastMessage(msg);
     toastTimeoutRef.current = setTimeout(() => {
       setToastMessage(null);
-    }, 10000);
+    }, 1800);
   }, []);
 
   // Cleanup on unmount
@@ -109,7 +109,7 @@ export const ArtiScreen: React.FC = () => {
     if (!isPlaying) {
       const audioUrl = selectedItem?.audioUrl;
       if (!audioUrl || !audioUrl.trim()) {
-        showToast(t(Translation.AARTI_AUDIO_NOT_AVAILABLE));
+        showToast(t(Translation.AARTI_AUDIO_COMING_SOON));
         return;
       }
     }
@@ -124,7 +124,7 @@ export const ArtiScreen: React.FC = () => {
       setIsPlaying(false);
 
       if (error?.type === 'URL_ABSENT') {
-        showToast(t(Translation.AARTI_AUDIO_NOT_AVAILABLE));
+        showToast(t(Translation.AARTI_AUDIO_COMING_SOON));
         return;
       }
 
@@ -356,7 +356,10 @@ export const ArtiScreen: React.FC = () => {
           style={[styles.toastContainer, { bottom: safeBottom + scale(20) }]}
           pointerEvents="none"
         >
-          <Text style={styles.toastText}>{toastMessage}</Text>
+          <View style={styles.toastContent}>
+            <Text style={styles.toastIcon}>🔔</Text>
+            <Text style={styles.toastText}>{toastMessage}</Text>
+          </View>
         </View>
       )}
     </View>
@@ -489,30 +492,39 @@ const styles = StyleSheet.create({
   toastContainer: {
     position: 'absolute',
     alignSelf: 'center',
-    backgroundColor: colors.toastBg,
-    paddingHorizontal: scale(18),
-    paddingVertical: scale(10),
-    borderRadius: scale(20),
-    borderWidth: 1,
-    borderColor: colors.toastBorder,
+    backgroundColor: colors.ring,
+    paddingHorizontal: scale(20),
+    paddingVertical: scale(11),
+    borderRadius: scale(25),
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.45)',
     zIndex: 999,
+    maxWidth: '90%',
     ...Platform.select({
       ios: {
-        shadowColor: colors.black,
+        shadowColor: colors.ring,
         shadowOffset: { width: 0, height: scale(4) },
-        shadowOpacity: 0.35,
-        shadowRadius: scale(6),
+        shadowOpacity: 0.4,
+        shadowRadius: scale(8),
       },
       android: {
         elevation: 8,
       },
     }),
   },
+  toastContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: scale(8),
+  },
+  toastIcon: {
+    fontSize: fs(14),
+  },
   toastText: {
     color: colors.white,
-    fontSize: fs(12.5),
-    fontFamily: fonts.TiroHindiRegular,
-    fontWeight: '600',
+    fontSize: fs(13),
+    fontFamily: fonts.PoppinsSemiBold,
     textAlign: 'center',
   },
 });
