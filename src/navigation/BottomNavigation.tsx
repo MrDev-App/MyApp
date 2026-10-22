@@ -4,7 +4,7 @@ import HomeScreen from '@screens/home/HomeScreen';
 import JapScreen from '@screens/jap/JapScreen';
 import BookScreen from '@screens/book/BookScreen';
 import ProfileScreen from '@screens/profile/ProfileScreen';
-import CalendarScreen from '@screens/calendar/CalendarScreen';
+import GameScreen from '@screens/game/GameScreen';
 import { BottomTabParamList } from '@navigation/types';
 import { CustomTabBar } from './BottomTabs';
 import { consumePendingDeepLink } from '@services/deepLinkService';
@@ -32,7 +32,7 @@ const BottomNavigation = () => {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Jap" component={JapScreen} />
-      <Tab.Screen name="Calendar" component={CalendarScreen} />
+      <Tab.Screen name="Game" component={GameScreen} />
       <Tab.Screen name="Book" component={BookScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>

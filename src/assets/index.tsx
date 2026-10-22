@@ -32,6 +32,7 @@ const imagePath = {
   books: require('./png/books.webp'),
   mala: require('./png/mala.webp'),
   calendarTab: require('./png/calendarTab.png'),
+  game: require('./png/game.png'),
   star: require('./png/star.webp'),
   warning: require('./png/warning.webp'),
   fallBackImage: require('./png/fallBackImage.jpg'),

@@ -157,7 +157,7 @@ const FestivalHighlights: React.FC<FestivalHighlightsProps> = ({
 
   // H4: Single typed navigation call — no triple try/catch
   const handlePressAll = () => {
-    navigation.navigate('BottomTabs', { screen: 'Calendar' });
+    navigation.navigate('CalendarScreen');
   };
 
   // L3: renderFooter removed — always returned null and was unused

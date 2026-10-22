@@ -142,7 +142,7 @@ const HinduCalendarBanner: React.FC = () => {
 
   // H4: Single typed navigation — no triple try/catch
   const handlePress = () => {
-    navigation.navigate('BottomTabs', { screen: 'Calendar' } as any);
+    navigation.navigate('CalendarScreen');
   };
 
   return (

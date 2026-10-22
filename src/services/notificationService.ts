@@ -333,7 +333,7 @@ export async function handleNotificationNavigation(
     actionRoute === 'AllFestivals' ||
     actionRoute === 'Calendar'
   ) {
-    navigate('BottomTabs', { screen: 'Calendar' });
+    navigate('CalendarScreen');
     return;
   }
 

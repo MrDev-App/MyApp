@@ -37,14 +37,17 @@ export type RootStackParamList = {
   TempleScreen: undefined;
   TempleDetailScreen: { temple: TempleItem };
   ReminderScreen: undefined;
+  GameScreen: undefined;
+  Game?: undefined;
 };
 
 export type BottomTabParamList = {
   Home: undefined;
   Jap: undefined;
-  Calendar: undefined;
+  Game: undefined;
   Book: undefined;
   Profile: undefined;
+  Calendar?: undefined;
 };
 
 export type RootNavigationProp = NativeStackNavigationProp<RootStackParamList>;

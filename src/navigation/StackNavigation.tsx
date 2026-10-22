@@ -22,6 +22,8 @@ import TempleDetailScreen from '@screens/temple/TempleDetailScreen';
 import { AllArtiScreen } from '@screens/home/AllArtiScreen';
 import ArtiScreen from '@screens/home/ArtiScreen';
 import ReminderScreen from '@screens/profile/ReminderScreen';
+import CalendarScreen from '@screens/calendar/CalendarScreen';
+import GameScreen from '@screens/game/GameScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -117,6 +119,21 @@ const StackNavigation = () => {
       <Stack.Screen
         name="ReminderScreen"
         component={ReminderScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="CalendarScreen"
+        component={CalendarScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="Calendar"
+        component={CalendarScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="GameScreen"
+        component={GameScreen}
         options={{ animation: 'slide_from_right' }}
       />
     </Stack.Navigator>

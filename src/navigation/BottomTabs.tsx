@@ -35,6 +35,8 @@ const getIcon = (routeName: string) => {
       return imagePath.lotus;
     case 'Jap':
       return imagePath.mala;
+    case 'Game':
+      return imagePath.game;
     case 'Calendar':
       return imagePath.calendarTab;
     case 'Book':

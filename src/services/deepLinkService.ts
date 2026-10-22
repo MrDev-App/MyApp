@@ -4,7 +4,7 @@ import { navigationRef } from '@navigation/navigationRef';
 const SCHEME = 'guruvani://';
 const PENDING_TTL_MS = 30000; // parchi 30 sec tak valid
 
-type DeepLinkTarget = 'Jap' | 'Calendar' | 'Book';
+type DeepLinkTarget = 'Jap' | 'Game' | 'Calendar' | 'Book';
 
 let pending: { target: DeepLinkTarget; at: number } | null = null;
 
@@ -13,6 +13,7 @@ const parseUrl = (url?: string | null): DeepLinkTarget | null => {
   if (!url || !url.startsWith(SCHEME)) return null;
   const path = url.slice(SCHEME.length).replace(/\/+$/, '').toLowerCase();
   if (path === 'japscreen' || path === 'jap' || path === 'mantras') return 'Jap';
+  if (path === 'game' || path === 'games' || path === 'gamemode') return 'Game';
   if (path === 'calendar' || path === 'calendarscreen') return 'Calendar';
   if (path === 'book' || path === 'books' || path === 'bookscreen') return 'Book';
   return null;
@@ -24,7 +25,11 @@ const isTabsReady = () =>
   !!navigationRef.getRootState()?.routes.some(r => r.name === 'BottomTabs');
 
 const goTo = (target: DeepLinkTarget) => {
-  navigationRef.navigate('BottomTabs', { screen: target });
+  if (target === 'Calendar') {
+    (navigationRef as any).navigate('CalendarScreen');
+  } else {
+    navigationRef.navigate('BottomTabs', { screen: target as any });
+  }
 };
 
 export const handleDeepLink = (url?: string | null) => {
