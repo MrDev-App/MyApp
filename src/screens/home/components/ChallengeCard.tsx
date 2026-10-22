@@ -13,10 +13,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Translation } from '@i18n/language';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
-import colors, { bannerGradients } from '@theme/colors';
+import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale, verticalScale } from '@theme/sizes';
-import LinearGradient from 'react-native-linear-gradient';
+import { CardGradient } from '@components';
 import AnimatedButton from '@components/AnimatedButton';
 import { Storage } from '@services/storageService';
 import { STORAGE_KEYS } from '@constants/storageKeys';
@@ -170,13 +170,7 @@ const ChallengeCard = () => {
       </View>
 
       <View style={styles.card}>
-        <LinearGradient
-          colors={bannerGradients.calendarBanner}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.gradientBg}
-          pointerEvents="none"
-        />
+        <CardGradient borderRadius={scale(10)} />
         <View style={styles.cardHeader}>
           <View style={styles.iconContainer}>
             <Image source={imagePath.mala} style={styles.malaIcon} />

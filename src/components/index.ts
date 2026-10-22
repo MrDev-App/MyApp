@@ -9,6 +9,8 @@ export { default as ErrorBoundary } from './ErrorBoundary';
 export { default as ExpandableCard } from './ExpandableCard';
 export { default as FestivalModal } from './FestivalModal';
 export { default as GradientBackground } from './GradientBackground';
+export { default as CardGradient } from './CardGradient';
+export type { CardGradientProps } from './CardGradient';
 export { default as GradientOverlay } from './GradientOverlay';
 export { default as NotificationScheduleModal } from './NotificationScheduleModal';
 export { default as OverlayModal } from './OverlayModal';

@@ -23,6 +23,7 @@ import { RootNavigationProp } from '@navigation/types';
 import Skeleton from '@components/Skeleton';
 import {
   AnimatedListItem,
+  CardGradient,
   GradientBackground,
   ScreenHeader,
 } from '@components';
@@ -129,6 +130,7 @@ export const AllArtiScreen = () => {
           activeOpacity={0.8}
           onPress={() => handleOpenAarti(item)}
         >
+          <CardGradient borderRadius={scale(16)} />
           <View style={styles.aartiImageWrapper}>
             <Image
               source={item.image}
@@ -254,6 +256,7 @@ export default AllArtiScreen;
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: colors.primary,
   },
   descriptionBanner: {
     paddingHorizontal: scale(16),
@@ -280,7 +283,7 @@ const styles = StyleSheet.create({
     marginBottom: scale(14),
   },
   aartiCard: {
-    backgroundColor: colors.white,
+    backgroundColor: 'transparent',
     borderRadius: scale(16),
     padding: scale(14),
     alignItems: 'center',
@@ -289,7 +292,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: scale(2) },
     shadowOpacity: 0.06,
     shadowRadius: scale(6),
-    elevation: 2,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
   },

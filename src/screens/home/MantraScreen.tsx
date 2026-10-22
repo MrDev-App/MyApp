@@ -13,10 +13,9 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
-import colors, { bannerGradients } from '@theme/colors';
+import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import LinearGradient from 'react-native-linear-gradient';
 import {
   God,
   GodMantra,
@@ -27,6 +26,7 @@ import {
   AutoScrollFlatList,
   AutoScrollItem,
   BlurBackdrop,
+  CardGradient,
   ScreenHeader,
   AnimatedListItem,
 } from '@components';
@@ -98,11 +98,6 @@ const MantraScreen = () => {
     currentGod?.englishName ?? '',
   );
 
-  const handleStartJap = (_mantraItem: GodMantra) => {
-    setSelectedMantra(null);
-    navigation.navigate('BottomTabs', { screen: 'Jap' });
-  };
-
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -124,13 +119,7 @@ const MantraScreen = () => {
           {/* Deity Showcase Card with large clear image */}
           {currentGod && (
             <View style={styles.showcaseCard}>
-              <LinearGradient
-                colors={bannerGradients.calendarBanner}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.showcaseGradientBg}
-                pointerEvents="none"
-              />
+              <CardGradient borderRadius={scale(20)} />
               <View style={styles.avatarGlowContainer}>
                 <View style={styles.avatarBorder}>
                   <Image
@@ -179,6 +168,7 @@ const MantraScreen = () => {
                       ]}
                       onPress={() => handleSelectGod(item)}
                     >
+                      <CardGradient borderRadius={scale(12)} />
                       <Image
                         source={item.image}
                         style={styles.deityChipImage}
@@ -220,6 +210,7 @@ const MantraScreen = () => {
                 delayStep={40}
               >
                 <View style={styles.mantraCard}>
+                  <CardGradient borderRadius={scale(16)} />
                   <TouchableOpacity
                     activeOpacity={0.85}
                     onPress={() => setSelectedMantra(m)}
@@ -284,6 +275,7 @@ const MantraScreen = () => {
             {selectedMantra && (
               <View style={styles.modalContainer}>
                 <View style={styles.modalCard}>
+                  <CardGradient borderRadius={scale(24)} />
                   {/* Modal Header */}
                   <View style={styles.modalHeaderRow}>
                     {currentGod?.image && (
@@ -481,13 +473,18 @@ const styles = StyleSheet.create({
     width: scale(68),
     padding: scale(6),
     borderRadius: scale(12),
-    backgroundColor: colors.white,
+    backgroundColor: 'transparent',
     borderWidth: 1.5,
     borderColor: colors.borderSubtle,
+    overflow: 'hidden',
+  },
+  deityChipGradientBg: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: scale(12),
   },
   deityChipActive: {
     borderColor: colors.ring,
-    backgroundColor: colors.primary,
+    borderWidth: 2,
     shadowColor: colors.ring,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -529,7 +526,7 @@ const styles = StyleSheet.create({
     color: colors.ring,
   },
   mantraCard: {
-    backgroundColor: colors.white,
+    backgroundColor: 'transparent',
     borderRadius: scale(16),
     padding: scale(16),
     marginHorizontal: scale(16),
@@ -541,6 +538,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 6,
     elevation: 0.5,
+  },
+  mantraGradientBg: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: scale(16),
   },
   mantraCardTop: {
     flexDirection: 'row',
@@ -609,7 +610,7 @@ const styles = StyleSheet.create({
     maxHeight: '85%',
   },
   modalCard: {
-    backgroundColor: colors.white,
+    backgroundColor: 'transparent',
     borderRadius: scale(24),
     padding: scale(20),
     shadowColor: colors.black,
@@ -619,6 +620,10 @@ const styles = StyleSheet.create({
     elevation: 10,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
+  },
+  modalGradientBg: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: scale(24),
   },
   modalHeaderRow: {
     flexDirection: 'row',

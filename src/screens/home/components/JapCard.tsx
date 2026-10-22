@@ -2,16 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import colors, { bannerGradients } from '@theme/colors';
+import colors from '@theme/colors';
 import fonts from '@theme/fonts';
 import { fs, scale } from '@theme/sizes';
-import LinearGradient from 'react-native-linear-gradient';
+import { CardGradient } from '@components';
 import { Translation } from '@i18n/language';
 import AnimatedButton from '@components/AnimatedButton';
 import { Storage, STORAGE_KEYS } from '@services/storageService';
 import { syncWidgetChants } from '@services/widgetService';
 import { navigate as rootNavigate } from '@navigation/navigationRef';
 import imagePath from '@assets/index';
+import { PrayingHandsIcon } from '@assets/SvgIcons';
 
 const JapCard = () => {
   const navigation = useNavigation<any>();
@@ -55,18 +56,15 @@ const JapCard = () => {
     <View style={styles.container} testID="jap-card">
       {/* Header Row */}
       <View style={styles.header}>
-        <Text style={styles.title}>{t(Translation.JAP_TITLE)}</Text>
+        <View style={styles.titleRow}>
+          <PrayingHandsIcon size={scale(20)} color={colors.secondary} />
+          <Text style={styles.title}>{t(Translation.JAP_TITLE)}</Text>
+        </View>
       </View>
 
       {/* Main Card */}
       <View style={styles.card}>
-        <LinearGradient
-          colors={bannerGradients.calendarBanner}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.gradientBg}
-          pointerEvents="none"
-        />
+        <CardGradient borderRadius={scale(10)} />
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
             <Text style={styles.label}>{t(Translation.JAP_TODAYS_COUNT)}</Text>
@@ -121,9 +119,14 @@ const styles = StyleSheet.create({
     marginBottom: scale(12),
     paddingHorizontal: scale(4),
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(8),
+  },
   title: {
-    fontSize: fs(16),
-    fontFamily: fonts.TiroHindiRegular,
+    fontSize: fs(17),
+    fontFamily: fonts.PoppinsSemiBold,
     color: colors.secondary,
   },
   card: {
