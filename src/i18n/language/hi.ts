@@ -127,6 +127,8 @@ export default {
   PROFILE_APP_MAIN_LANGUAGE: 'ऐप की मुख्य भाषा',
   PROFILE_DAILY_NOTIFICATIONS: 'डेली रिमाइंडर',
   PROFILE_DAILY_SADHANA_REMINDERS: 'डेली भजन रिमाइंडर',
+  PROFILE_PRIVACY_POLICY: 'प्राइवेसी पॉलिसी',
+  PROFILE_PRIVACY_POLICY_DESC: 'नियम एवं गोपनीयता नीति पढ़ें',
   PROFILE_SET_REMINDER: 'रिमाइंडर सेट करें',
   PROFILE_SAVED_REMINDERS: 'सहेजे गए रिमाइंडर',
   PROFILE_ACTIVE_REMINDERS_COUNT: '{{count}} सक्रिय',

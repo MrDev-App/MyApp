@@ -17,12 +17,25 @@ import {
   monthTranslationKeys,
   dayNameTranslationKeys,
 } from '@constants/calendarData';
+import localFestivalsData from '@constants/festivals.json';
 import { Festival } from './types';
 
 export type { Festival, FestivalTranslation, VratDetails } from './types';
 
 // In-memory runtime RAM cache
 let festivalCache: Festival[] | null = null;
+
+export const getLocalFestivals = (): Festival[] => {
+  const values = Object.values(localFestivalsData) as any[];
+  const mapped = values.map(item => mapFestivalDoc(item));
+  mapped.sort((a, b) => {
+    if (a.month !== b.month) {
+      return a.month - b.month;
+    }
+    return a.day - b.day;
+  });
+  return mapped;
+};
 
 export const getCachedFestivalData = (): Festival[] | null => {
   if (festivalCache && festivalCache.length > 0) {
@@ -49,6 +62,11 @@ export const getCachedFestivalData = (): Festival[] | null => {
       '❌ [festivalApi] Error reading cached festivals from MMKV:',
       err,
     );
+  }
+  const local = getLocalFestivals();
+  if (local.length > 0) {
+    festivalCache = local;
+    return festivalCache;
   }
   return null;
 };
@@ -293,7 +311,7 @@ export const getAllFestivals = async (
     }
 
     if (!snapshot || snapshot.empty) {
-      return getCachedFestivalData() || [];
+      return getCachedFestivalData() || getLocalFestivals();
     }
 
     const rawList = snapshot.docs.map(docSnap => ({
@@ -324,11 +342,11 @@ export const getAllFestivals = async (
       '❌ [festivalApi] Error fetching all festival data from Firestore:',
       error,
     );
-    const cachedFallback = getCachedFestivalData();
+    const cachedFallback = getCachedFestivalData() || getLocalFestivals();
     if (cachedFallback && cachedFallback.length > 0) {
       return cachedFallback;
     }
-    throw error;
+    return getLocalFestivals();
   }
 };
 

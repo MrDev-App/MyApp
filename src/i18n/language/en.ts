@@ -127,6 +127,8 @@ export default {
   PROFILE_APP_MAIN_LANGUAGE: 'App Language',
   PROFILE_DAILY_NOTIFICATIONS: 'Daily Reminder',
   PROFILE_DAILY_SADHANA_REMINDERS: 'Daily chanting reminders',
+  PROFILE_PRIVACY_POLICY: 'Privacy Policy',
+  PROFILE_PRIVACY_POLICY_DESC: 'Read our terms & privacy policy',
   PROFILE_SET_REMINDER: 'Set Reminder',
   PROFILE_SAVED_REMINDERS: 'Saved Reminders',
   PROFILE_ACTIVE_REMINDERS_COUNT: '{{count}} active',

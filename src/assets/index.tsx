@@ -52,6 +52,62 @@ const imagePath = {
 
   // audio and video
   bhaktiVideo: require('./video/bhakti.mp4'),
+
+  // Deities
+  Bhole: require('./png/Bhole.webp'),
+  Bramaji: require('./png/Bramaji.webp'),
+  Durgama: require('./png/Durgama.webp'),
+  Ganesha: require('./png/Ganesha.webp'),
+  Ganga: require('./png/Ganga.webp'),
+  Hunumanji: require('./png/Hunumanji.webp'),
+  Kalimaa: require('./png/Kalimaa.webp'),
+  Krishan: require('./png/Krishan.webp'),
+  Kubera: require('./png/Kubera.webp'),
+  Laxmima: require('./png/Laxmima.webp'),
+  Radhaji: require('./png/Radhaji.webp'),
+  Ramji: require('./png/Ramji.webp'),
+  Saraswatima: require('./png/Saraswatima.webp'),
+  ShaniDev: require('./png/ShaniDev.webp'),
+  Suryadev: require('./png/Suryadev.webp'),
+  Vishnu1: require('./png/Vishnu1.webp'),
+  viswa: require('./png/viswa.webp'),
+
+  // Festivals
+  chhathpuja: require('./FestivalsImages/chhathpuja.webp'),
+  karwachauth: require('./FestivalsImages/karwachauth.webp'),
+  nagpunchmi: require('./FestivalsImages/nagpunchmi.webp'),
+  shivratri: require('./FestivalsImages/shivratri.webp'),
+
+  // Temples
+  badrinath: require('./templesImages/badrinath-optimized.webp'),
+  bhimashankar: require('./templesImages/bhimashankar-optimized.webp'),
+  dwarka: require('./templesImages/dwarka-optimized.webp'),
+  grishneshwar: require('./templesImages/grishneshwar-optimized.webp'),
+  jagannath_puri: require('./templesImages/jagannath_puri-optimized.webp'),
+  kashi_vishwanath: require('./templesImages/kashi_vishwanath-optimized.webp'),
+  kedarnath: require('./templesImages/kedarnath-optimized.webp'),
+  mahakaleshwar: require('./templesImages/mahakaleshwar-optimized.webp'),
+  mallikarjuna: require('./templesImages/mallikarjuna-optimized.webp'),
+  nageshwar: require('./templesImages/nageshwar-optimized.webp'),
+  omkareshwar: require('./templesImages/omkareshwar-optimized.webp'),
+  rameshwaram: require('./templesImages/rameshwaram-optimized.webp'),
+  somnath: require('./templesImages/somnath-optimized.webp'),
+  trimbakeshwar: require('./templesImages/trimbakeshwar-optimized.webp'),
+  vaidyanath: require('./templesImages/vaidyanath-optimized.webp'),
+
+  // TextBooks
+  dashavataraCover: require('./textBook/dashavataraCover.webp'),
+  rebirthOfGaneshaCover: require('./textBook/rebirthOfGaneshaCover.webp'),
+  krishnasBirthCover: require('./textBook/krishnasBirthCover.webp'),
+  narasimhaSlayingCover: require('./textBook/narasimhaSlayingCover.webp'),
+  Kalki: require('./textBook/Kalki-optimized.webp'),
+  Matsya: require('./textBook/Matsya.webp'),
+  Parasurama: require('./textBook/Parasurama-optimized.webp'),
+  SHRI_RAM: require('./textBook/SHRI_RAM-optimized.webp'),
+  Vamana_avatar: require('./textBook/Vamana_avatar-optimized.webp'),
+  Bhagwan_Varaha: require('./textBook/Bhagwan_Varaha-optimized.webp'),
+  harshu_Story: require('./textBook/harshu_Story-optimized.webp'),
+  lord_krishna_beautiful: require('./textBook/lord_krishna_beautiful-optimized.webp'),
 };
 
 export { Back, Forward, Bell, FoldedHands };

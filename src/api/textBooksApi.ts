@@ -10,6 +10,7 @@ import {
   startAfter,
 } from '@react-native-firebase/firestore';
 import imagePath from '@assets/index';
+import localTextBooksData from '@constants/textBooks.json';
 import { Story, StoryPage, BookType } from './types';
 
 export type { Story, StoryPage, BookType };
@@ -20,6 +21,11 @@ let memoryLoadedBooks: Story[] = [];
 export let TextBooks: Story[] = [];
 export let AllBooks: Story[] = [];
 
+export const getLocalTextBooks = (): Story[] => {
+  const values = Object.values(localTextBooksData) as any[];
+  return values.map(item => mapFirestoreDocToStory(item.id, item));
+};
+
 export const setLoadedBooks = (books: Story[]) => {
   memoryLoadedBooks = books;
   TextBooks = books;
@@ -27,14 +33,23 @@ export const setLoadedBooks = (books: Story[]) => {
 };
 
 export const getLoadedBooks = (): Story[] => {
+  if (memoryLoadedBooks.length === 0) {
+    const local = getLocalTextBooks();
+    setLoadedBooks(local);
+  }
   return memoryLoadedBooks;
 };
 
 export const findStoryById = (id: string): Story | undefined => {
-  return (
+  const found = (
     memoryLoadedBooks.find((s: Story) => s.id === id) ||
     AllBooks.find((s: Story) => s.id === id)
   );
+  if (found) return found;
+  if ((localTextBooksData as any)?.[id]) {
+    return mapFirestoreDocToStory(id, (localTextBooksData as any)[id]);
+  }
+  return undefined;
 };
 
 export const FIRESTORE_TEXT_BOOKS_COLLECTION = 'textBooks';
@@ -224,11 +239,20 @@ export const fetchTextBooksFromFirestore = async (
     const snap = await getDocs(query(colRef, ...constraints));
 
     if (!snap || snap.empty) {
-      console.log('ℹ️ [textBooksApi] No textbooks returned.');
+      console.log('ℹ️ [textBooksApi] Falling back to local textbooks.');
+      const local = getLocalTextBooks();
+      let startIndex = 0;
+      if (lastDoc && lastDoc.id) {
+        const idx = local.findIndex(b => b.id === lastDoc.id);
+        if (idx !== -1) startIndex = idx + 1;
+      }
+      const paged = local.slice(startIndex, startIndex + limitCount);
+      const newLastDoc = paged.length > 0 ? { id: paged[paged.length - 1].id } : null;
+      const hasMore = startIndex + limitCount < local.length;
       return {
-        items: [],
-        lastDoc: null,
-        hasMore: false,
+        items: paged,
+        lastDoc: newLastDoc,
+        hasMore,
       };
     }
 
@@ -263,10 +287,19 @@ export const fetchTextBooksFromFirestore = async (
       `❌ [textBooksApi] Error fetching from '${FIRESTORE_TEXT_BOOKS_COLLECTION}':`,
       error,
     );
+    const local = getLocalTextBooks();
+    let startIndex = 0;
+    if (lastDoc && lastDoc.id) {
+      const idx = local.findIndex(b => b.id === lastDoc.id);
+      if (idx !== -1) startIndex = idx + 1;
+    }
+    const paged = local.slice(startIndex, startIndex + limitCount);
+    const newLastDoc = paged.length > 0 ? { id: paged[paged.length - 1].id } : null;
+    const hasMore = startIndex + limitCount < local.length;
     return {
-      items: [],
-      lastDoc: null,
-      hasMore: false,
+      items: paged,
+      lastDoc: newLastDoc,
+      hasMore,
     };
   }
 };

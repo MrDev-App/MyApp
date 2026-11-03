@@ -789,6 +789,27 @@ export const LockIcon = () => (
   </Svg>
 );
 
+export const ExternalLinkIcon = (props: SvgIconProps) => {
+  const { size, color, strokeWidth } = getIconProps(props, 16, 2);
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ backgroundColor: 'transparent' }}
+    >
+      <Path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <Path d="M15 3h6v6" />
+      <Path d="M10 14L21 3" />
+    </Svg>
+  );
+};
+
 export const PrayingHandsIcon = (props: SvgIconProps) => {
   const { size, color } = getIconProps(props, 20);
   const width = props.width || size;

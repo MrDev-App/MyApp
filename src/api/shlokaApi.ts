@@ -5,6 +5,7 @@ import {
   collection,
   getDocs,
 } from '@react-native-firebase/firestore';
+import localShlokCategoryData from '@constants/shlokcategory.json';
 import { ShlokaCategory, ShlokaCategoryDetail, ShlokaSubItem } from './types';
 
 export type {
@@ -72,6 +73,12 @@ export const getShlokaCategoryDetail = async (
       '[shlokaApi] Firestore fetch error from shloka_categories:',
       err,
     );
+  }
+
+  if ((localShlokCategoryData as any)?.[cleanSlug]) {
+    const localData = (localShlokCategoryData as any)[cleanSlug] as ShlokaCategoryDetail;
+    memoryCategoryCache.set(cleanSlug, localData);
+    return localData;
   }
 
   return null;
@@ -146,6 +153,13 @@ export const getAllShlokaCategoriesFromFirebase = async (): Promise<
       '[shlokaApi] Firestore fetch error from categories/shlokas/shlokcategory:',
       err,
     );
+  }
+
+  const allCat = (localShlokCategoryData as any)?.allshloakcategories;
+  const localList = allCat?.categories || allCat?.items || allCat?.shlokData;
+  if (Array.isArray(localList) && localList.length > 0) {
+    memoryAllCategoriesCache = localList;
+    return localList;
   }
 
   return [];

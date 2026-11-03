@@ -4,6 +4,7 @@ import {
   getDocs,
 } from '@react-native-firebase/firestore';
 import { Storage } from '@services/storageService';
+import localJapMantrasData from '@constants/japMantras.json';
 import {
   DEFAULT_MANTRA,
   JAP_MANTRAS_CACHE_KEY,
@@ -12,6 +13,13 @@ import {
 
 export type { MantraSelectorItem } from './types';
 export { DEFAULT_MANTRA, JAP_MANTRAS_CACHE_KEY } from './types';
+
+export const getLocalJapMantras = (): MantraSelectorItem[] => {
+  const values = Object.values(localJapMantrasData) as any[];
+  const list = values.map(mapMantraItem);
+  list.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  return list.length > 0 ? list : [DEFAULT_MANTRA];
+};
 
 export const mapMantraItem = (item: any, index = 0): MantraSelectorItem => {
   return {
@@ -81,7 +89,7 @@ export const getJapMantrasData = async (
 
     const cached = getCachedJapMantrasData();
     if (cached && cached.length > 0) return cached;
-    return [DEFAULT_MANTRA];
+    return getLocalJapMantras();
   } catch (error) {
     console.warn(
       '⚠️ [japMantrasApi] Firestore unavailable, using local jap data:',
@@ -91,7 +99,7 @@ export const getJapMantrasData = async (
     if (cached && cached.length > 0) {
       return cached;
     }
-    return [DEFAULT_MANTRA];
+    return getLocalJapMantras();
   }
 };
 

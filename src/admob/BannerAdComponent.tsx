@@ -1,42 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import {
   BannerAd,
   BannerAdSize,
-  TestIds,
 } from 'react-native-google-mobile-ads';
-import { isAdMobEnabled } from './adConfig';
+import { adConfig, isAdMobEnabled } from './adConfig';
 
-interface BannerAdComponentProps {
-  unitId: string;
+export interface BannerAdComponentProps {
+  /**
+   * Ad Unit ID. Defaults to the centralized banner ID from adConfig.ts.
+   * Do NOT hardcode IDs in screen components.
+   */
+  unitId?: string;
   size?: BannerAdSize;
   style?: ViewStyle;
-  useTestAd?: boolean;
   onAdLoaded?: () => void;
   onAdFailedToLoad?: (error: Error) => void;
 }
 
-export default function BannerAdComponent({
-  unitId,
+/**
+ * Reusable Banner Ad Component.
+ * - Isolated via React.memo to prevent parent re-renders from invalidating the ad view.
+ * - Stays mounted on temporary load errors so AdMob can automatically retry and refresh.
+ * - Collapses to 0 height when not loaded to prevent layout shift.
+ */
+const BannerAdComponent: React.FC<BannerAdComponentProps> = memo(({
+  unitId = adConfig.adUnits.banner,
   size = BannerAdSize.ANCHORED_ADAPTIVE_BANNER,
   style,
-  useTestAd,
   onAdLoaded,
   onAdFailedToLoad,
-}: BannerAdComponentProps) {
+}) => {
   const [adLoaded, setAdLoaded] = useState(false);
 
   if (!isAdMobEnabled()) {
     return null;
   }
-
-  // In development, resolve appropriate test ad ID based on requested size
-  const isTest = useTestAd !== undefined ? useTestAd : __DEV__;
-  const resolvedUnitId = isTest
-    ? size === BannerAdSize.ANCHORED_ADAPTIVE_BANNER
-      ? TestIds.ADAPTIVE_BANNER
-      : TestIds.BANNER
-    : unitId;
 
   return (
     <View
@@ -48,27 +47,30 @@ export default function BannerAdComponent({
       ]}
     >
       <BannerAd
-        unitId={resolvedUnitId}
+        unitId={unitId}
         size={size}
-        requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+        requestOptions={{
+          requestNonPersonalizedAdsOnly: true,
+        }}
         onAdLoaded={() => {
           setAdLoaded(true);
           onAdLoaded?.();
         }}
         onAdFailedToLoad={error => {
-          console.warn('BannerAd failed to load:', error);
+          console.warn('[BannerAd] Failed to load:', error);
           setAdLoaded(false);
           onAdFailedToLoad?.(error);
         }}
       />
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
+    width: '100%',
   },
   hiddenContainer: {
     height: 0,
@@ -80,7 +82,8 @@ const styles = StyleSheet.create({
   },
   visibleContainer: {
     width: '100%',
-    marginVertical: 10,
+    marginVertical: 8,
   },
 });
 
+export default BannerAdComponent;

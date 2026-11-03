@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import StackNavigation from '@navigation/StackNavigation';
-import mobileAds from 'react-native-google-mobile-ads';
 import notifee, { EventType } from '@notifee/react-native';
 import {
   initNotifications,
@@ -21,7 +20,7 @@ import {
 import { setSharedItem } from '@services/widgetService';
 import { syncDailyQuoteToWidget } from '@services/quoteService';
 import { useAppOpenAd } from '@admob/useAppOpenAd';
-import { isAdMobEnabled } from '@admob/adConfig';
+import { adService } from '@admob';
 import colors from '@theme/colors';
 import NetworkBanner from '@components/NetworkBanner';
 import { getFestivalData, initFestivalBackgroundSync } from '@api/festivalApi';
@@ -36,6 +35,9 @@ LogBox.ignoreAllLogs();
 const App = () => {
   const [updateRequired, setUpdateRequired] = useState(false);
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
+
+  // Register App Open ad listeners across background-foreground app state cycles
+  useAppOpenAd();
 
   useEffect(() => {
     checkForceUpdate().then(({ blocked, info }) => {
@@ -67,18 +69,8 @@ const App = () => {
       console.warn('Remote Config init error:', err);
     });
 
-    if (isAdMobEnabled()) {
-      mobileAds()
-        .initialize()
-        .then(adapterStatuses => {
-          if (__DEV__) {
-            console.log('Mobile Ads SDK initialized:', adapterStatuses);
-          }
-        })
-        .catch(err => {
-          console.warn('Mobile Ads initialization error:', err);
-        });
-    }
+    // Initialize Mobile Ads SDK (non-blocking, includes ATT & preloading)
+    adService.initialize();
 
     initNotifications();
     getUserJoinedDate();

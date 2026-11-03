@@ -12,6 +12,7 @@ import {
   ScrollView,
   Image,
   Alert,
+  Linking,
 } from 'react-native';
 
 import {
@@ -25,7 +26,7 @@ import GradientBackground from '@components/GradientBackground';
 import { OverlayModalHandle } from '@components/OverlayModal';
 import imagePath, { Bell } from '@assets/index';
 import colors from '@theme/colors';
-import { CameraIcon, ChevronRight } from '@assets/SvgIcons';
+import { CameraIcon, ChevronRight, ExternalLinkIcon } from '@assets/SvgIcons';
 import { scale } from '@theme/sizes';
 import {
   Storage,
@@ -375,6 +376,20 @@ const ProfileScreen = () => {
     [currentLanguage, isLangChanging, i18n],
   );
 
+  // ─── Privacy policy handler ───────────────────────────────────────────────
+  const handleOpenPrivacyPolicy = useCallback(async () => {
+    triggerHaptic('light');
+    const url = 'https://projects.mind-roots.com/guruvani-privacy-policy.html';
+    try {
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert(
+        t(Translation.PROFILE_PRIVACY_POLICY),
+        url,
+      );
+    }
+  }, [t]);
+
   return (
     <GradientBackground>
       <SafeAreaView style={profileStyles.safeArea} edges={['top']}>
@@ -573,6 +588,30 @@ const ProfileScreen = () => {
                 size={scale(18)}
                 color={colors.ring}
                 strokeWidth={2.5}
+              />
+            </TouchableOpacity>
+
+            <View style={profileStyles.separator} />
+
+            {/* Privacy Policy row */}
+            <TouchableOpacity
+              style={profileStyles.settingRow}
+              onPress={handleOpenPrivacyPolicy}
+              activeOpacity={0.7}
+            >
+              <View style={profileStyles.settingInfo}>
+                <Text style={profileStyles.settingLabel}>
+                  {t(Translation.PROFILE_PRIVACY_POLICY)}
+                </Text>
+                <Text style={profileStyles.settingSubLabel}>
+                  {t(Translation.PROFILE_PRIVACY_POLICY_DESC)}
+                </Text>
+              </View>
+
+              <ExternalLinkIcon
+                size={scale(16)}
+                color={colors.ring}
+                strokeWidth={2}
               />
             </TouchableOpacity>
 

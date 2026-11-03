@@ -7,6 +7,11 @@ export {
   clearAppOpenAdSuppression,
 } from './useAppOpenAd';
 export {
+  AdService,
+  adService,
+} from './AdService';
+export {
+  adConfig,
   AD_UNITS,
   isAdMobEnabled,
   ENABLE_ADS_IN_RELEASE,

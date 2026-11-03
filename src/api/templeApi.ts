@@ -11,6 +11,7 @@ import {
   getDoc,
 } from '@react-native-firebase/firestore';
 import imagePath from '@assets/index';
+import localTempleData from '@constants/templeData.json';
 import { TempleCategory, TempleItem } from './types';
 
 export type {
@@ -29,6 +30,14 @@ export const FIRESTORE_COLLECTION_NAME = 'templeData';
  */
 export const resolveTempleImage = (_id?: string, remoteUrl?: string): any => {
   const rawUrl = (remoteUrl || '').toString().trim();
+  const filename = rawUrl.split('/').pop()?.replace(/-optimized\.[^/.]+$/, '').replace(/\.[^/.]+$/, '') || '';
+  if (filename && (imagePath as any)[filename]) {
+    return (imagePath as any)[filename];
+  }
+  const cleanId = (_id || '').toLowerCase().replace(/_dham|_temple/g, '').trim();
+  if (cleanId && (imagePath as any)[cleanId]) {
+    return (imagePath as any)[cleanId];
+  }
   if (rawUrl.startsWith('http')) {
     return { uri: rawUrl };
   }
@@ -129,6 +138,74 @@ export const mapFirestoreDocToTemple = (id: string, data: any): TempleItem => {
   };
 };
 
+export const getLocalTemples = (): TempleItem[] => {
+  const values = Object.values(localTempleData) as any[];
+  const list = values
+    .map(data => mapFirestoreDocToTemple(data.id, data))
+    .filter(item => item.isActive !== false);
+  list.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
+  return list;
+};
+
+export const filterLocalTemples = (
+  category: string = 'all',
+  searchQuery: string = '',
+  limitCount: number = 10,
+  lastDoc: any = null,
+): FetchTemplesResult => {
+  let items = getLocalTemples();
+
+  if (category && category !== 'all') {
+    items = items.filter(
+      (item: TempleItem) =>
+        item.category === category || item.categories?.includes(category as any),
+    );
+  }
+
+  const q = searchQuery.toLowerCase().trim();
+  if (q.length > 0) {
+    items = items.filter((item: TempleItem) => {
+      const name = (item.nameHi + ' ' + item.nameEn).toLowerCase();
+      const location = (
+        item.locationHi +
+        ' ' +
+        item.locationEn +
+        ' ' +
+        item.stateHi +
+        ' ' +
+        item.stateEn
+      ).toLowerCase();
+      const deity = (item.deityHi + ' ' + item.deityEn).toLowerCase();
+      const tags = (item.tags || []).join(' ').toLowerCase();
+
+      return (
+        name.includes(q) ||
+        location.includes(q) ||
+        deity.includes(q) ||
+        tags.includes(q)
+      );
+    });
+  }
+
+  let startIndex = 0;
+  if (lastDoc && lastDoc.id) {
+    const idx = items.findIndex((i: TempleItem) => i.id === lastDoc.id);
+    if (idx !== -1) {
+      startIndex = idx + 1;
+    }
+  }
+
+  const paged = items.slice(startIndex, startIndex + limitCount);
+  const newLastDoc = paged.length > 0 ? { id: paged[paged.length - 1].id } : null;
+  const hasMore = startIndex + limitCount < items.length;
+
+  return {
+    items: paged,
+    lastDoc: newLastDoc,
+    hasMore,
+  };
+};
+
 export interface FetchTemplesOptions {
   category?: string;
   searchQuery?: string;
@@ -207,12 +284,8 @@ export const fetchTemples = async (
     }
 
     if (!snapshot || snapshot.empty) {
-      console.log(' Snapshot is empty, no temples returned.');
-      return {
-        items: [],
-        lastDoc: null,
-        hasMore: false,
-      };
+      console.log(' Snapshot is empty, falling back to local temples.');
+      return filterLocalTemples(category, searchQuery, limitCount, lastDoc);
     }
 
     const docs = snapshot.docs;
@@ -261,11 +334,7 @@ export const fetchTemples = async (
     };
   } catch (error) {
     console.error(' Error fetching temples page:', error);
-    return {
-      items: [],
-      lastDoc: null,
-      hasMore: false,
-    };
+    return filterLocalTemples(category, searchQuery, limitCount, lastDoc);
   }
 };
 

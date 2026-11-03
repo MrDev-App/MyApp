@@ -71,15 +71,6 @@ export interface AutoScrollFlatListProps<T>
   isExternalPaused?: boolean;
 }
 
-/**
- * Non-blocking, smooth UI-Thread Auto-Scrolling List component.
- *
- * Solves the iOS UIKit touch-blocking issue:
- * - By animating `translateX` via Reanimated instead of changing native `UIScrollView.contentOffset`,
- *   iOS UIKit never enters scroll-tracking mode.
- * - Taps on all buttons (modals, cards, bottom tabs, headers) register instantly on the first touch.
- * - Uses PanGesture with withDecay for full 120Hz native momentum fling and rubber-band physics.
- */
 export function AutoScrollFlatList<T>({
   data,
   renderItem,

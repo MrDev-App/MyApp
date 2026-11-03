@@ -711,7 +711,7 @@ const JapScreen = () => {
             </TouchableOpacity>
           </View>
 
-          <BannerAdComponent unitId="ca-app-pub-7403088686757883/4289481752" />
+          <BannerAdComponent />
         </ScrollView>
 
         {/* ── Switch Mantra Confirmation Modal ── */}

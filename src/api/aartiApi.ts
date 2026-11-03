@@ -1,14 +1,30 @@
 import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
 import imagePath from '@assets/index';
+import localCategoriesData from '@constants/categories.json';
 import { Category, CategoryItem } from './types';
 
 export type { Category, CategoryItem, AartiItem, AartiCategory } from './types';
 
 let memoryAartiCache: Category | null = null;
 
+export const getLocalAartiCategory = (): Category | null => {
+  if ((localCategoriesData as any)?.aarti) {
+    return mapAartiDoc('aarti', (localCategoriesData as any).aarti);
+  }
+  return null;
+};
+
 export const resolveAartiImage = (item: any): any => {
-  if (item?.imageUrl) {
-    return { uri: item.imageUrl };
+  const rawUrl = (item?.imageUrl || '').toString().trim();
+  const filename = rawUrl.split('/').pop()?.replace(/\.[^/.]+$/, '') || '';
+  if (filename && (imagePath as any)[filename]) {
+    return (imagePath as any)[filename];
+  }
+  if (item?.id && (imagePath as any)[item.id]) {
+    return (imagePath as any)[item.id];
+  }
+  if (rawUrl.startsWith('http')) {
+    return { uri: rawUrl };
   }
   return imagePath.fallBackImage;
 };
@@ -102,9 +118,15 @@ export const getAartiCategoryData = async (
       return mapped;
     }
 
+    if (!memoryAartiCache) {
+      memoryAartiCache = getLocalAartiCategory();
+    }
     return memoryAartiCache;
   } catch (error) {
     console.error('❌ [aartiApi] Error fetching Aarti from Firestore:', error);
+    if (!memoryAartiCache) {
+      memoryAartiCache = getLocalAartiCategory();
+    }
     return memoryAartiCache;
   }
 };

@@ -8,9 +8,29 @@ import {
   orderBy,
   limit,
 } from '@react-native-firebase/firestore';
+import localJapLevelsData from '@constants/japLevels.json';
 import { JapLevel } from './types';
 
 export const FIRESTORE_JAP_LEVELS_COLLECTION = 'japLevels';
+
+export const getLocalJapLevels = (): JapLevel[] => {
+  const values = Object.values(localJapLevelsData) as any[];
+  const list: JapLevel[] = values.map(data => ({
+    level: Number(data.level) || 1,
+    nameEn: data.nameEn || '',
+    nameHi: data.nameHi || '',
+    titleEn: data.titleEn || '',
+    titleHi: data.titleHi || '',
+    requiredMalas: Number(data.requiredMalas) || 0,
+    requiredChants: Number(data.requiredChants) || 0,
+    icon: data.icon || '🌱',
+    badgeColor: data.badgeColor || '#4CAF50',
+    blessingEn: data.blessingEn || '',
+    blessingHi: data.blessingHi || '',
+  }));
+  list.sort((a, b) => a.level - b.level);
+  return list;
+};
 
 let memoryJapLevelsCache: JapLevel[] | null = null;
 
@@ -122,7 +142,11 @@ export const fetchJapLevelsFromFirestore = async (
     console.warn('[japLevelsApi] Error fetching jap levels from Firestore:', error);
   }
 
-  return memoryJapLevelsCache || [];
+  if (!memoryJapLevelsCache || memoryJapLevelsCache.length === 0) {
+    memoryJapLevelsCache = getLocalJapLevels();
+  }
+
+  return memoryJapLevelsCache.slice(0, limitCount);
 };
 
 export default fetchJapLevelsFromFirestore;

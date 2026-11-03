@@ -131,7 +131,7 @@ export const HomeScreen = () => {
               <View style={styles.sectionMargin}>
                 <HinduCalendarBanner />
                 <ChallengeCard />
-                <BannerAdComponent unitId="ca-app-pub-7403088686757883/4289481752" />
+                <BannerAdComponent />
               </View>
               <FeaturedCategories />
               <FestivalHighlights festivals={festivals} />

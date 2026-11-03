@@ -3,11 +3,18 @@ import {
   collection,
   getDocs,
 } from '@react-native-firebase/firestore';
+import localGodMantrasData from '@constants/GodMantras.json';
 import imagePath from '@assets/index';
 
 import { God, GodMantra } from './types';
 
 export type { God, GodMantra, NaamJapItem } from './types';
+
+export const getLocalGodData = (): God[] => {
+  const values = Object.values(localGodMantrasData) as any[];
+  values.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+  return values.map(mapGodWithImage);
+};
 
 // In-memory runtime RAM cache (session-only; wiped when app is closed/killed)
 let memoryGodDataCache: God[] | null = null;
@@ -24,6 +31,14 @@ export const resolveGodImage = (god: any): any => {
   if (!god) return imagePath.fallBackImage;
 
   const rawUrl = (god.imageUrl || god.url || '').toString().trim();
+  const filename = rawUrl.split('/').pop()?.replace(/\.[^/.]+$/, '') || '';
+  if (filename && (imagePath as any)[filename]) {
+    return (imagePath as any)[filename];
+  }
+  if (god.id && (imagePath as any)[god.id]) {
+    return (imagePath as any)[god.id];
+  }
+
   if (rawUrl.startsWith('http')) {
     return { uri: rawUrl };
   }
@@ -84,10 +99,16 @@ export const getGodData = async (
       return mapped;
     }
 
-    return memoryGodDataCache || [];
+    if (!memoryGodDataCache || memoryGodDataCache.length === 0) {
+      memoryGodDataCache = getLocalGodData();
+    }
+    return memoryGodDataCache;
   } catch (error) {
     console.error('❌ [godMantrasApi] Firestore fetch failed:', error);
-    return memoryGodDataCache || [];
+    if (!memoryGodDataCache || memoryGodDataCache.length === 0) {
+      memoryGodDataCache = getLocalGodData();
+    }
+    return memoryGodDataCache;
   }
 };
 
