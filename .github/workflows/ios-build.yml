@@ -1,6 +1,7 @@
 name: iOS Build
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, feature/version_1]
   pull_request:
@@ -14,7 +15,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install JS dependencies
@@ -25,8 +26,8 @@ jobs:
 
       - name: Build iOS (Debug, simulator)
         run: |
-          xcodebuild -workspace ios/MyApp.xcworkspace \
-            -scheme MyApp \
+          xcodebuild -workspace ios/guruvani.xcworkspace \
+            -scheme guruvani \
             -configuration Debug \
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \
