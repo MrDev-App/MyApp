@@ -1,0 +1,34 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [main, feature/version_1]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - name: Install CocoaPods
+        run: cd ios && pod install
+
+      - name: Build iOS (Debug, simulator)
+        run: |
+          xcodebuild -workspace ios/MyApp.xcworkspace \
+            -scheme MyApp \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
